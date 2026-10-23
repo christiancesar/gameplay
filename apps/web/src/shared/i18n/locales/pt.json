@@ -12,7 +12,16 @@
     "confirm": "Confirmar",
     "close": "Fechar",
     "save": "Salvar",
-    "backToHub": "Voltar ao Hub"
+    "backToHub": "Voltar ao Hub",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "remove": "Remover",
+    "upload": "Enviar",
+    "change": "Trocar",
+    "saving": "Salvando…",
+    "never": "Nunca",
+    "unlimited": "Ilimitado",
+    "actions": "Ações"
   },
   "auth": {
     "signIn": {
@@ -144,5 +153,114 @@
     "streamVolume": "Volume da transmissão",
     "liveNow": "Ao vivo agora",
     "isLive": "{{name}} está ao vivo"
+  },
+  "image": {
+    "choose": "Escolher imagem",
+    "change": "Trocar imagem",
+    "remove": "Remover imagem",
+    "hint": "JPG, PNG ou WebP de até 2 MB.",
+    "errors": {
+      "tooLarge": "A imagem passa de 2 MB.",
+      "invalidType": "Use uma imagem JPG, PNG ou WebP.",
+      "uploadFailed": "Falha no envio. Tente de novo."
+    }
+  },
+  "createServer": {
+    "title": "Crie seu servidor",
+    "description": "Descrição e cover podem ser adicionados depois, nas configurações do servidor.",
+    "name": "Nome do servidor",
+    "icon": "Ícone",
+    "submit": "Criar servidor",
+    "errors": {
+      "nameRequired": "Dê um nome ao servidor.",
+      "nameTooLong": "Use até 40 caracteres.",
+      "limitReached": "Você atingiu seu limite de servidores.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    }
+  },
+  "serverSettings": {
+    "title": "Configurações do servidor",
+    "sections": {
+      "general": "Geral",
+      "invites": "Convites",
+      "requests": "Pedidos",
+      "members": "Membros",
+      "rooms": "Salas",
+      "danger": "Sair ou excluir"
+    },
+    "general": {
+      "name": "Nome",
+      "icon": "Ícone",
+      "cover": "Cover",
+      "coverHint": "16:9, exibido em 1280×720.",
+      "description": "Descrição",
+      "autoApprove": "Auto aprovação",
+      "autoApproveHint": "Pedidos de entrada são aprovados sozinhos enquanto houver vaga.",
+      "saved": "Alterações salvas."
+    },
+    "invites": {
+      "generate": "Gerar convite",
+      "maxUses": "Máximo de usos",
+      "expiresIn": "Expira em",
+      "durations": {
+        "1h": "1 hora",
+        "1d": "1 dia",
+        "7d": "7 dias",
+        "30d": "30 dias"
+      },
+      "usesLeft": "{{left}} de {{max}} usos restantes",
+      "expiresAt": "Expira {{date}}",
+      "expired": "Expirado",
+      "revoke": "Revogar",
+      "revokeTitle": "Revogar o convite {{code}}?",
+      "revokeDescription": "O link para de funcionar na hora.",
+      "empty": "Nenhum convite ativo.",
+      "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Libere uma vaga para gerar convites.",
+      "copyLink": "Copiar link"
+    },
+    "requests": {
+      "approve": "Aprovar",
+      "decline": "Recusar",
+      "requestedAt": "Pediu {{date}}",
+      "empty": "Nenhum pedido pendente.",
+      "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Aprovar fica bloqueado até abrir uma vaga."
+    },
+    "members": {
+      "count": "{{count}} de {{max}} membros",
+      "promote": "Tornar admin",
+      "demote": "Tornar membro",
+      "kick": "Remover",
+      "kickTitle": "Remover {{name}}?",
+      "kickDescription": "A pessoa sai do servidor agora e precisa de um novo convite para voltar.",
+      "you": "você"
+    },
+    "rooms": {
+      "count": "{{count}} de {{max}} salas",
+      "newRoom": "Nome da nova sala",
+      "create": "Criar sala",
+      "rename": "Renomear",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir {{name}}?",
+      "deleteDescription": "A sala não pode ser recuperada.",
+      "deleteOccupied_one": "{{count}} pessoa está nesta sala e será desconectada.",
+      "deleteOccupied_other": "{{count}} pessoas estão nesta sala e serão desconectadas.",
+      "blockedLimit": "Limite de salas atingido ({{count}}/{{max}}). Exclua uma sala para criar outra.",
+      "occupants_one": "{{count}} pessoa",
+      "occupants_other": "{{count}} pessoas",
+      "errors": {
+        "nameRequired": "Dê um nome à sala.",
+        "nameTaken": "Já existe uma sala com esse nome."
+      }
+    },
+    "danger": {
+      "leaveTitle": "Sair do servidor",
+      "leaveDescription": "Você deixa de ser admin e precisa de um novo convite para voltar.",
+      "leave": "Sair do servidor",
+      "deleteTitle": "Excluir servidor",
+      "deleteDescription": "Remove o servidor com todos os membros, salas e convites. Quem estiver conectado volta ao Hub. Não dá para desfazer.",
+      "delete": "Excluir servidor",
+      "confirmName": "Digite {{name}} para confirmar",
+      "ownerCantLeave": "O owner não pode sair. Exclua o servidor no lugar."
+    }
   }
 }

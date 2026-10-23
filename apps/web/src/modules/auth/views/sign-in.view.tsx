@@ -7,7 +7,7 @@ import { Input } from '@/shared/ui/input'
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/shared/ui/input-otp'
 
 import { AuthLayoutView, type AuthLayoutViewProps } from './auth-layout.view'
-import { SubmitButton } from './submit-button.view'
+import { SubmitButton } from '@/shared/ui/submit-button'
 
 type SignInStep = 'credentials' | 'twoFactor'
 

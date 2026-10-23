@@ -12,7 +12,16 @@
     "confirm": "Confirm",
     "close": "Close",
     "save": "Save",
-    "backToHub": "Back to Hub"
+    "backToHub": "Back to Hub",
+    "copy": "Copy",
+    "copied": "Copied",
+    "remove": "Remove",
+    "upload": "Upload",
+    "change": "Change",
+    "saving": "Saving…",
+    "never": "Never",
+    "unlimited": "Unlimited",
+    "actions": "Actions"
   },
   "auth": {
     "signIn": {
@@ -144,5 +153,114 @@
     "streamVolume": "Stream volume",
     "liveNow": "Live now",
     "isLive": "{{name}} is live"
+  },
+  "image": {
+    "choose": "Choose image",
+    "change": "Change image",
+    "remove": "Remove image",
+    "hint": "JPG, PNG or WebP up to 2 MB.",
+    "errors": {
+      "tooLarge": "Image is larger than 2 MB.",
+      "invalidType": "Use a JPG, PNG or WebP image.",
+      "uploadFailed": "Upload failed. Try again."
+    }
+  },
+  "createServer": {
+    "title": "Create your server",
+    "description": "You can add a description and a cover later in the server settings.",
+    "name": "Server name",
+    "icon": "Icon",
+    "submit": "Create server",
+    "errors": {
+      "nameRequired": "Give your server a name.",
+      "nameTooLong": "Use up to 40 characters.",
+      "limitReached": "You reached your server limit.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "serverSettings": {
+    "title": "Server settings",
+    "sections": {
+      "general": "General",
+      "invites": "Invites",
+      "requests": "Requests",
+      "members": "Members",
+      "rooms": "Rooms",
+      "danger": "Leave or delete"
+    },
+    "general": {
+      "name": "Name",
+      "icon": "Icon",
+      "cover": "Cover",
+      "coverHint": "16:9, shown at 1280×720.",
+      "description": "Description",
+      "autoApprove": "Auto approval",
+      "autoApproveHint": "Join requests are approved automatically while there is room.",
+      "saved": "Changes saved."
+    },
+    "invites": {
+      "generate": "Generate invite",
+      "maxUses": "Max uses",
+      "expiresIn": "Expires in",
+      "durations": {
+        "1h": "1 hour",
+        "1d": "1 day",
+        "7d": "7 days",
+        "30d": "30 days"
+      },
+      "usesLeft": "{{left}} of {{max}} uses left",
+      "expiresAt": "Expires {{date}}",
+      "expired": "Expired",
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke invite {{code}}?",
+      "revokeDescription": "The link stops working right away.",
+      "empty": "No active invites.",
+      "blockedFull": "The server is full ({{count}}/{{max}} members). Free a spot to generate invites.",
+      "copyLink": "Copy link"
+    },
+    "requests": {
+      "approve": "Approve",
+      "decline": "Decline",
+      "requestedAt": "Requested {{date}}",
+      "empty": "No pending requests.",
+      "blockedFull": "The server is full ({{count}}/{{max}} members). Approving is blocked until a spot opens."
+    },
+    "members": {
+      "count": "{{count}} of {{max}} members",
+      "promote": "Make admin",
+      "demote": "Make member",
+      "kick": "Kick",
+      "kickTitle": "Kick {{name}}?",
+      "kickDescription": "They leave the server now and need a new invite to come back.",
+      "you": "you"
+    },
+    "rooms": {
+      "count": "{{count}} of {{max}} rooms",
+      "newRoom": "New room name",
+      "create": "Create room",
+      "rename": "Rename",
+      "delete": "Delete",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteDescription": "This room can't be recovered.",
+      "deleteOccupied_one": "{{count}} person is in this room and will be disconnected.",
+      "deleteOccupied_other": "{{count}} people are in this room and will be disconnected.",
+      "blockedLimit": "Room limit reached ({{count}}/{{max}}). Delete a room to create another.",
+      "occupants_one": "{{count}} person",
+      "occupants_other": "{{count}} people",
+      "errors": {
+        "nameRequired": "Give the room a name.",
+        "nameTaken": "There is already a room with this name."
+      }
+    },
+    "danger": {
+      "leaveTitle": "Leave server",
+      "leaveDescription": "You stop being an admin and need a new invite to come back.",
+      "leave": "Leave server",
+      "deleteTitle": "Delete server",
+      "deleteDescription": "Removes the server with all members, rooms and invites. Everyone connected is sent back to the Hub. This can't be undone.",
+      "delete": "Delete server",
+      "confirmName": "Type {{name}} to confirm",
+      "ownerCantLeave": "The owner can't leave. Delete the server instead."
+    }
   }
 }
