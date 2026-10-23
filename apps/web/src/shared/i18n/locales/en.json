@@ -329,5 +329,104 @@
     "suspended": "Your account was suspended.",
     "sessionEnded": "Your session was ended. Sign in again.",
     "joinApproved": "Your request to join {{server}} was approved."
+  },
+  "admin": {
+    "title": "Platform admin",
+    "tabs": {
+      "users": "Users",
+      "servers": "Servers",
+      "limits": "Limits",
+      "keys": "Sign-up keys"
+    },
+    "search": "Search",
+    "empty": "Nothing found.",
+    "default": "default",
+    "setup": {
+      "title": "Set up two-factor authentication",
+      "description": "Platform admins must use an authenticator app.",
+      "scan": "1. Scan the QR code with your authenticator app.",
+      "manual": "Or type this key:",
+      "verify": "2. Enter the 6-digit code it shows.",
+      "verifyButton": "Verify",
+      "recoveryTitle": "Save your recovery codes",
+      "recoveryDescription": "Each code works once if you lose access to the app. They won't be shown again.",
+      "copyAll": "Copy codes",
+      "download": "Download .txt",
+      "saved": "I saved my codes"
+    },
+    "users": {
+      "user": "User",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline",
+      "suspended": "Suspended",
+      "serverLimit": "Server limit",
+      "sessions": "Sessions",
+      "viewSessions": "View sessions",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "endSessions": "End all sessions",
+      "resetPassword": "Reset password",
+      "editLimit": "Adjust server limit",
+      "suspendTitle": "Suspend {{name}}?",
+      "suspendDescription": "Blocks login and drops every session and connection right away.",
+      "endSessionsTitle": "End all sessions of {{name}}?",
+      "endSessionsDescription": "They will be signed out on every device."
+    },
+    "sessions": {
+      "title": "Sessions of {{name}}",
+      "ip": "IP",
+      "device": "Browser",
+      "lastActive": "Last active",
+      "current": "active now",
+      "end": "End",
+      "empty": "No active sessions."
+    },
+    "resetPassword": {
+      "title": "Reset password of {{name}}",
+      "description": "Their sessions are ended. Share the new password privately.",
+      "newPassword": "New password",
+      "generate": "Generate",
+      "submit": "Reset password"
+    },
+    "limitDialog": {
+      "useDefault": "Use the global default ({{value}})",
+      "override": "Custom value",
+      "save": "Save limit"
+    },
+    "servers": {
+      "server": "Server",
+      "owner": "Owner",
+      "members": "Members",
+      "rooms": "Rooms",
+      "editLimits": "Adjust limits",
+      "delete": "Delete server"
+    },
+    "limits": {
+      "description": "Defaults used when a user or server has no custom value. Changes apply without redeploy.",
+      "serversPerUser": "Servers per user",
+      "membersPerServer": "Members per server",
+      "roomsPerServer": "Rooms per server",
+      "saved": "Limits saved."
+    },
+    "keys": {
+      "generate": "Generate key",
+      "validity": "Valid for",
+      "newKeyTitle": "New sign-up key",
+      "newKeyDescription": "Copy it now. Only a hash is stored, so it can't be shown again.",
+      "key": "Key",
+      "created": "Created",
+      "expires": "Expires",
+      "status": "Status",
+      "statuses": {
+        "active": "Active",
+        "used": "Used by {{name}}",
+        "revoked": "Revoked",
+        "expired": "Expired"
+      },
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke this key?",
+      "revokeDescription": "Nobody will be able to sign up with it."
+    }
   }
 }

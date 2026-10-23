@@ -1,0 +1,27 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Introdução" />
+
+# Gameplay · Storybook
+
+Todas as Views do app, por fluxo do `plans/02-core-flows.md`. Use a barra de cima para trocar **tema** (escuro/claro) e **idioma** (EN/PT).
+
+| Fluxo | Onde ver |
+|---|---|
+| F1 · SignIn | `Auth/SignIn` |
+| F2 · SignUp | `Auth/SignUp` |
+| F3 · Entrar por link de servidor | `Invites/InviteLanding` |
+| F4 · Hub | `Hub/Hub` |
+| F5 · Criar servidor | `Servers/CreateServerDialog` |
+| F6 · Tela do servidor | `Servers/ServerScreen`, `Servers/ServerSidebar`, `Servers/UserCard` |
+| F7 · Modal do servidor | `Servers/ServerSettings` |
+| F8 · Sala e voz | `Rooms/RoomStage`, `Servers/ServerScreen` (InRoom, MicrophoneDenied) |
+| F9 · Compartilhar tela | `ScreenShare/SharePanel`, `Servers/ServerScreen` (Sharing) |
+| F10 · Assistir tela | `ScreenShare/StreamViewer`, `Servers/ServerScreen` (WatchingStream) |
+| F11 · Configurações | `Settings/UserSettings` |
+| F12 · Painel admin | `Admin/TwoFactorSetup`, `Admin/AdminPanel` |
+| F13 · Desconexões e avisos | `Connection/DisconnectsAndNotices` |
+
+Componentes compartilhados ficam em `Shared/UI`.
+
+As Views só recebem props e callbacks (MVVM, `plans/00-requirements.md` §3.4). Os dados das stories vêm de `src/fixtures`.

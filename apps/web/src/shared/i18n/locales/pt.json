@@ -329,5 +329,104 @@
     "suspended": "Sua conta foi suspensa.",
     "sessionEnded": "Sua sessão foi encerrada. Entre de novo.",
     "joinApproved": "Seu pedido para entrar em {{server}} foi aprovado."
+  },
+  "admin": {
+    "title": "Admin da plataforma",
+    "tabs": {
+      "users": "Usuários",
+      "servers": "Servidores",
+      "limits": "Limites",
+      "keys": "Keys de cadastro"
+    },
+    "search": "Buscar",
+    "empty": "Nada encontrado.",
+    "default": "padrão",
+    "setup": {
+      "title": "Configure a verificação em duas etapas",
+      "description": "O admin da plataforma precisa usar um app autenticador.",
+      "scan": "1. Escaneie o QR code com seu app autenticador.",
+      "manual": "Ou digite esta chave:",
+      "verify": "2. Digite o código de 6 dígitos que aparece no app.",
+      "verifyButton": "Verificar",
+      "recoveryTitle": "Guarde seus códigos de recuperação",
+      "recoveryDescription": "Cada código funciona uma vez se você perder acesso ao app. Eles não serão mostrados de novo.",
+      "copyAll": "Copiar códigos",
+      "download": "Baixar .txt",
+      "saved": "Já guardei os códigos"
+    },
+    "users": {
+      "user": "Usuário",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline",
+      "suspended": "Suspenso",
+      "serverLimit": "Limite de servidores",
+      "sessions": "Sessões",
+      "viewSessions": "Ver sessões",
+      "suspend": "Suspender",
+      "reactivate": "Reativar",
+      "endSessions": "Encerrar todas as sessões",
+      "resetPassword": "Redefinir senha",
+      "editLimit": "Ajustar limite de servidores",
+      "suspendTitle": "Suspender {{name}}?",
+      "suspendDescription": "Bloqueia o login e derruba todas as sessões e conexões na hora.",
+      "endSessionsTitle": "Encerrar todas as sessões de {{name}}?",
+      "endSessionsDescription": "A pessoa sai da conta em todos os dispositivos."
+    },
+    "sessions": {
+      "title": "Sessões de {{name}}",
+      "ip": "IP",
+      "device": "Navegador",
+      "lastActive": "Última atividade",
+      "current": "ativa agora",
+      "end": "Encerrar",
+      "empty": "Nenhuma sessão ativa."
+    },
+    "resetPassword": {
+      "title": "Redefinir a senha de {{name}}",
+      "description": "As sessões da pessoa são encerradas. Envie a nova senha por um canal privado.",
+      "newPassword": "Nova senha",
+      "generate": "Gerar",
+      "submit": "Redefinir senha"
+    },
+    "limitDialog": {
+      "useDefault": "Usar o padrão global ({{value}})",
+      "override": "Valor próprio",
+      "save": "Salvar limite"
+    },
+    "servers": {
+      "server": "Servidor",
+      "owner": "Owner",
+      "members": "Membros",
+      "rooms": "Salas",
+      "editLimits": "Ajustar limites",
+      "delete": "Excluir servidor"
+    },
+    "limits": {
+      "description": "Padrões usados quando o usuário ou servidor não tem valor próprio. Mudanças valem sem redeploy.",
+      "serversPerUser": "Servidores por usuário",
+      "membersPerServer": "Membros por servidor",
+      "roomsPerServer": "Salas por servidor",
+      "saved": "Limites salvos."
+    },
+    "keys": {
+      "generate": "Gerar key",
+      "validity": "Validade",
+      "newKeyTitle": "Nova key de cadastro",
+      "newKeyDescription": "Copie agora. Só o hash é guardado, então ela não pode ser mostrada de novo.",
+      "key": "Key",
+      "created": "Criada",
+      "expires": "Expira",
+      "status": "Status",
+      "statuses": {
+        "active": "Ativa",
+        "used": "Usada por {{name}}",
+        "revoked": "Revogada",
+        "expired": "Expirada"
+      },
+      "revoke": "Revogar",
+      "revokeTitle": "Revogar esta key?",
+      "revokeDescription": "Ninguém mais vai conseguir se cadastrar com ela."
+    }
   }
 }

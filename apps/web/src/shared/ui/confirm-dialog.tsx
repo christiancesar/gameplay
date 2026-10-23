@@ -15,7 +15,10 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 
 type ConfirmDialogProps = {
-  trigger: ReactNode
+  /** Elemento que abre o diálogo. Sem trigger, use `defaultOpen` e `onClose`. */
+  trigger?: ReactNode
+  defaultOpen?: boolean
+  onClose?: () => void
   title: string
   description: ReactNode
   confirmLabel: string
@@ -26,14 +29,21 @@ type ConfirmDialogProps = {
   onConfirm: () => void
 }
 
-function ConfirmDialog({ trigger, title, description, confirmLabel, cancelLabel, destructive, typeToConfirm, onConfirm }: ConfirmDialogProps) {
+function ConfirmDialog({ trigger, defaultOpen, onClose, title, description, confirmLabel, cancelLabel, destructive, typeToConfirm, onConfirm }: ConfirmDialogProps) {
   // Texto digitado é estado de apresentação do próprio diálogo.
   const [typed, setTyped] = useState('')
   const locked = typeToConfirm ? typed.trim() !== typeToConfirm.value : false
 
   return (
-    <AlertDialog onOpenChange={(open) => !open && setTyped('')}>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+    <AlertDialog
+      defaultOpen={defaultOpen}
+      onOpenChange={(open) => {
+        if (open) return
+        setTyped('')
+        onClose?.()
+      }}
+    >
+      {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

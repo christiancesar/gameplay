@@ -22,7 +22,9 @@ Escopo mínimo para começar:
 2. ~~Monorepo npm workspaces + Turborepo com `apps/web`~~. Feito: Vite 8, React 19, TS 6, Tailwind 4, shadcn (radix, preset nova) com componentes em `src/shared/ui`.
 3. ~~Storybook com interaction tests~~. Feito: Storybook 10 + `@storybook/addon-vitest` (Chromium headless via Playwright). `npm test` roda as play functions.
 4. ~~Tema claro/escuro e EN/PT~~. Feito na infra: toolbar de tema (padrão escuro) e de idioma no Storybook; i18next em `src/shared/i18n`. Paleta: **neutral padrão do shadcn** (decisão do usuário), com cores do Tailwind para destaques (`emerald` para transmitir, `red` para sair da sala).
-5. Primeiras Views. **SignIn e SignUp feitos** (`src/modules/auth/views`), com stories de todos os estados e interaction tests. Faltam: Hub, tela do servidor com o card do usuário e o painel de transmissão, e o modal do servidor. Views listadas: (só apresentação, seguindo o MVVM do `00-requirements.md` §3.4): SignIn, SignUp (com input OTP de 6 caracteres), Hub, tela do servidor com o card do usuário e o painel de transmissão, e o modal do servidor.
+5. **Todas as Views dos fluxos F1 a F13 estão no Storybook**, com stories de todos os estados e interaction tests (157 testes). A página "Introdução" do Storybook liga cada fluxo às stories.
+
+Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
 
 ## Assets fornecidos pelo usuário
 
@@ -37,6 +39,19 @@ Escopo mínimo para começar:
 2. Confirmar as suposições abaixo.
 
 ## Suposições a confirmar
+
+Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
+- Card do servidor na sidebar mostra nome e "Owner: fulano"; a engrenagem fica só no card do usuário (o mock tinha engrenagem nos dois).
+- Card do usuário: controles em uma segunda linha (mute, deafen, engrenagem ou sair, e telefone vermelho à direita).
+- Painel de transmissão: um botão verde grande (Frame 9); ao clicar, abre a escolha de qualidade e áudio antes do seletor do browser.
+- Ao vivo: monitor com envio, banda, FPS, resolução, espectadores e aviso de upload insuficiente.
+- Selo "LIVE" e botão "Assistir" no bloco do participante; volume por pessoa num popover ao clicar no bloco.
+- Assistindo: tela na área principal, faixa de participantes embaixo e troca entre transmissões quando há mais de uma.
+- Modal do servidor e Configurações usam o mesmo modal com navegação lateral; "Sair ou excluir" e "Conta" ficam no fim, em vermelho.
+- Convites: máximo de usos 1, 5, 10 ou 25; validade 1 hora, 1 dia, 7 dias ou 30 dias.
+- Keys de cadastro: validade 1, 7 ou 30 dias; a key aparece uma única vez (só o hash fica guardado) e a lista mostra os 3 últimos caracteres. Isso exige guardar esse sufixo junto do hash.
+- Admin redefine senha digitando ou gerando uma nova senha, que ele repassa por canal privado.
+- Avisos do F13 como toasts; queda de conexão como faixa amarela no topo.
 
 - i18n com `i18next` + `react-i18next` + detector de idioma do browser (lib não estava definida no levantamento).
 - Não há mock específico de SignIn/SignUp (o `Frame 2.png` é só o logo). O visual segue o ASCII do `02-core-flows.md` com o estilo do Hub.
