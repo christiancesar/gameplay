@@ -34,8 +34,8 @@ type HubJoinError =
   | 'unexpected'
 
 type HubViewProps = {
-  /** Aviso opcional abaixo do perfil (ex.: permissão de hardware). */
-  banner?: ReactNode
+  /** Painel de notificações: à esquerda em telas grandes, acima do conteúdo nas pequenas. */
+  notifications?: ReactNode
   user: HubUser
   isPlatformAdmin: boolean
   servers: readonly HubServer[]
@@ -58,7 +58,7 @@ type HubViewProps = {
 }
 
 function HubView({
-  banner,
+  notifications,
   user,
   isPlatformAdmin,
   servers,
@@ -85,8 +85,10 @@ function HubView({
     <div className="bg-background text-foreground flex min-h-dvh flex-col items-center justify-center px-4 py-12">
       <BrandLogo variant="unlimited" className="w-48" />
 
-      {/* Tudo abaixo do logo compartilha a mesma largura. */}
-      <div className="mt-12 flex w-full max-w-sm flex-col items-center gap-3">
+      {/* Três colunas em telas grandes: notificações, conteúdo (centralizado) e um espaço vazio que equilibra. */}
+      <div className="mt-12 grid w-full max-w-sm grid-cols-1 gap-8 lg:max-w-none lg:grid-cols-[20rem_24rem_20rem] lg:justify-center">
+        {notifications && <aside className="lg:pt-0">{notifications}</aside>}
+        <div className="flex w-full flex-col items-center gap-3 lg:col-start-2 lg:row-start-1">
         <section aria-label={user.name} className="bg-card text-card-foreground flex w-full items-center gap-3 rounded-md border px-4 py-3">
           <UserAvatar name={user.name} imageUrl={user.avatarUrl} size="xl" />
           <div className="min-w-0">
@@ -112,7 +114,6 @@ function HubView({
           />
         </div>
 
-        {banner}
 
         <div className="mt-10 flex w-full flex-wrap gap-2.5">
           <ul aria-label={t('hub.servers')} className="contents">
@@ -187,6 +188,7 @@ function HubView({
           </div>
           {joinError && <FieldError>{t(`hub.joinErrors.${joinError}`)}</FieldError>}
         </form>
+        </div>
       </div>
     </div>
   )

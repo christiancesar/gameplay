@@ -6,8 +6,7 @@ import { me, servers } from '@/fixtures'
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
 import { useStoryTheme } from '@/fixtures/theme'
 
-import { BrowserSupportAlertView } from '@/modules/browser-support/views/browser-support-alert.view'
-import { HardwarePermissionBannerView } from '@/modules/hardware/views/hardware-permission-banner.view'
+import { NotificationsPanelView, type HubNotification } from '@/modules/notifications/views/notifications-panel.view'
 
 import { HubView } from './hub.view'
 
@@ -108,16 +107,45 @@ export const JoinByCode: Story = {
   },
 }
 
-/** Primeira visita: pede a permissão de ver os monitores. */
-export const HardwarePermission: Story = {
-  args: { banner: <HardwarePermissionBannerView onAllow={fn()} onDismiss={fn()} /> },
+const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString()
+
+const sampleNotifications: HubNotification[] = [
+  { id: 'n1', type: 'browserOutdated', browser: { name: 'Chrome', version: '109' }, minVersion: 130 },
+  { id: 'n2', type: 'vpn' },
+  { id: 'n3', type: 'monitorsPermission' },
+  { id: 'n4', type: 'joinApproved', server: { id: 's2', name: 'Clan Zero' }, createdAt: minutesAgo(12) },
+  { id: 'n5', type: 'kicked', server: { name: 'Sexta Feira' }, createdAt: minutesAgo(60 * 26) },
+]
+
+/** Painel com estado próprio, para dispensar e limpar de verdade na story. */
+function StoryNotifications({ initial }: { initial: HubNotification[] }) {
+  const [items, setItems] = useState(initial)
+  return (
+    <NotificationsPanelView
+      notifications={items}
+      onDismiss={(id) => setItems((current) => current.filter((item) => item.id !== id))}
+      onClearAll={() => setItems([])}
+      onAllowMonitors={fn()}
+      onOpenServer={fn()}
+    />
+  )
 }
 
-/** Chromium desatualizado. */
-export const OutdatedBrowser: Story = {
-  args: {
-    banner: <BrowserSupportAlertView status={{ type: 'outdated', browser: { name: 'Chrome', version: '109' }, minVersion: 130 }} onDismiss={fn()} />,
+/** Telas grandes: notificações à esquerda, conteúdo centralizado. */
+export const WithNotifications: Story = {
+  args: { notifications: <StoryNotifications initial={sampleNotifications} /> },
+}
+
+export const ClearNotifications: Story = {
+  args: { notifications: <StoryNotifications initial={sampleNotifications} /> },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /dismiss: looks like you're using a vpn/i }))
+    await expect(canvas.queryByText(/vpn or proxy/i)).not.toBeInTheDocument()
+    await userEvent.click(canvas.getByRole('button', { name: /clear all/i }))
+    await expect(canvas.getByText(/all caught up/i)).toBeVisible()
   },
 }
+
+export const NotificationsEmpty: Story = { args: { notifications: <StoryNotifications initial={[]} /> } }
 
 export const Portuguese: Story = { globals: { locale: 'pt' }, args: { isPlatformAdmin: true } }

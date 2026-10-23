@@ -10,7 +10,7 @@ import { useStoryTheme } from '@/fixtures/theme'
 import { AccountSectionView } from './account-section.view'
 import { AppearanceSectionView } from './appearance-section.view'
 import { AudioSectionView, type AudioSectionViewProps } from './audio-section.view'
-import { HardwareSectionView } from './hardware-section.view'
+import { HardwareSectionView, type ManualHardwareField } from './hardware-section.view'
 import { ProfileSectionView } from './profile-section.view'
 import { UserSettingsDialogView, type UserSettingsSection } from './user-settings-dialog.view'
 
@@ -36,10 +36,13 @@ type ScenarioProps = {
 const onSignOut = fn()
 const onToggleTest = fn()
 const onAllowDisplays = fn()
+const onSaveManual = fn()
+const emptyManual: Record<ManualHardwareField, string> = { cpuModel: '', ramGb: '', gpuModel: '', vramGb: '', connection: '', downloadMbps: '', uploadMbps: '' }
 const lastSentAt = new Date(Date.now() - 5 * 60_000).toISOString()
 
 function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar, weakDevice, displaysPermission }: ScenarioProps) {
   const [section, setSection] = useState(initialSection)
+  const [manual, setManual] = useState<Record<ManualHardwareField, string>>(emptyManual)
   const language = useStoryLanguage()
   const theme = useStoryTheme()
 
@@ -83,8 +86,13 @@ function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar
         displaysPermission={displaysPermission}
         lastSentAt={lastSentAt}
         isCollecting={false}
+        manual={manual}
+        isSavingManual={false}
+        manualSaved={false}
         onRefresh={fn()}
         onAllowDisplays={onAllowDisplays}
+        onManualChange={(field, value) => setManual((current) => ({ ...current, [field]: value }))}
+        onSaveManual={onSaveManual}
       />
     ),
     account: <AccountSectionView isSigningOut={false} onSignOut={onSignOut} />,
@@ -134,6 +142,16 @@ export const HardwareMonitorsPermission: Story = {
   play: async ({ userEvent }) => {
     await userEvent.click(await screen.findByRole('button', { name: /^allow$/i }))
     await expect(onAllowDisplays).toHaveBeenCalledOnce()
+  },
+}
+
+export const HardwareCompleteManually: Story = {
+  args: { initialSection: 'hardware' },
+  play: async ({ userEvent }) => {
+    await userEvent.type(await screen.findByLabelText(/processor model/i), 'AMD Ryzen 7 5800X')
+    await userEvent.type(screen.getByLabelText(/^upload/i), '50')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await expect(onSaveManual).toHaveBeenCalledOnce()
   },
 }
 

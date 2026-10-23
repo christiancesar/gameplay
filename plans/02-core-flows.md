@@ -99,8 +99,7 @@
 3. "Create your server" abre o F5. Com o limite de servidores atingido, o card fica desabilitado com "Limite atingido".
 4. "Or join a server": campo para o código de 8 caracteres (colar o link inteiro também funciona) e botão Join. Segue o F3.
 5. Primeiro acesso, sem servidores: só o card de criar e o campo de entrar.
-7. O mesmo alerta de browser do SignIn aparece no Hub enquanto não for dispensado.
-6. Enquanto a permissão de ver os monitores não foi decidida, um aviso abaixo do perfil pede essa permissão (Permitir / Agora não). O resto do hardware é coletado sem pedir.
+6. **Notificações:** painel à esquerda em telas grandes (acima do conteúdo nas pequenas) com alertas e avisos: browser sem suporte ou desatualizado, VPN/proxy detectado, aceleração gráfica desligada, pedido de permissão dos monitores, pedido enviado ou aprovado (com botão para abrir o servidor), removido de um servidor, servidor excluído, promovido ou rebaixado. Cada uma pode ser dispensada, ou todas de uma vez.
 
 ## F5 · Criar servidor
 
@@ -209,7 +208,7 @@
 1. **Perfil:** avatar (trocar ou remover) e dados da conta.
 2. **Áudio:** escolher microfone e saída, com teste de microfone (barra de nível).
 3. **Aparência:** tema e idioma.
-4. **Hardware:** o que este dispositivo informou (sistema, CPU, memória, GPU e aceleração, codificação de vídeo, monitores, rede), quando foi enviado, botão para coletar de novo e o pedido de permissão dos monitores.
+4. **Hardware:** o que este dispositivo informou, um formulário para complementar manualmente (processador, RAM, placa de vídeo, VRAM, conexão, plano de internet) (sistema, CPU, memória, GPU e aceleração, codificação de vídeo, monitores, rede), quando foi enviado, botão para coletar de novo e o pedido de permissão dos monitores.
 5. **Sair** da conta.
 
 ## F12 · Painel admin da plataforma

@@ -20,6 +20,20 @@ type DeviceHardware = {
   encoders: readonly { codec: 'H.264' | 'VP9' | 'AV1'; status: EncoderStatus }[]
   displays: readonly { width: number; height: number; scale: number; refreshRate?: number; isPrimary?: boolean; label?: string }[]
   network?: { type: string; downlinkMbps: number; rttMs: number }
+  /** Complemento digitado pelo usuário (o browser não expõe esses dados). */
+  userProvided?: UserProvidedHardware
+}
+
+type ConnectionType = 'ethernet' | 'wifi' | 'mobile'
+
+type UserProvidedHardware = {
+  cpuModel?: string
+  ramGb?: number
+  gpuModel?: string
+  vramGb?: number
+  connection?: ConnectionType
+  downloadMbps?: number
+  uploadMbps?: number
 }
 
 type DeviceHardwareViewProps = {
@@ -38,7 +52,8 @@ const ENCODER_CLASS: Record<EncoderStatus, string> = {
 function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: DeviceHardwareViewProps) {
   const { t } = useTranslation()
   const unknown = <span className="text-muted-foreground">{t('hardware.unknown')}</span>
-  const { os, browser, cpu, memoryGb, gpu, encoders, displays, network } = hardware
+  const { os, browser, cpu, memoryGb, gpu, encoders, displays, network, userProvided: manual = {} } = hardware
+  const informed = <Badge variant="outline" className="ml-1.5 h-4 px-1.5 text-[10px] font-normal">{t('hardware.userProvided')}</Badge>
 
   return (
     <div className="flex flex-col gap-4">
@@ -51,17 +66,40 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
       </Group>
 
       <Group icon={CpuIcon} title={t('hardware.groups.cpu')}>
+        {manual.cpuModel && (
+          <Row label={t('hardware.manual.cpuModel')}>
+            {manual.cpuModel}
+            {informed}
+          </Row>
+        )}
         <Row label={t('hardware.cores')}>{cpu.logicalCores ?? unknown}</Row>
       </Group>
 
       <Group icon={MemoryStickIcon} title={t('hardware.groups.memory')}>
-        <Row label="RAM" hint={t('hardware.memoryHint')}>
-          {memoryGb !== undefined ? t('hardware.memoryApprox', { value: memoryGb }) : unknown}
-        </Row>
+        {manual.ramGb !== undefined ? (
+          <Row label="RAM">
+            {manual.ramGb} GB{informed}
+          </Row>
+        ) : (
+          <Row label="RAM" hint={t('hardware.memoryHint')}>
+            {memoryGb !== undefined ? t('hardware.memoryApprox', { value: memoryGb }) : unknown}
+          </Row>
+        )}
       </Group>
 
       <Group icon={GaugeIcon} title={t('hardware.groups.gpu')}>
         <Row label={t('hardware.gpu')}>{gpu.renderer ?? unknown}</Row>
+        {manual.gpuModel && (
+          <Row label={t('hardware.manual.gpuModel')}>
+            {manual.gpuModel}
+            {informed}
+          </Row>
+        )}
+        {manual.vramGb !== undefined && (
+          <Row label={t('hardware.vram')}>
+            {manual.vramGb} GB{informed}
+          </Row>
+        )}
         <Row label={t('hardware.acceleration')} hint={gpu.hardwareAcceleration ? undefined : t('hardware.accelerationOffHint')}>
           <span className={gpu.hardwareAcceleration ? 'text-emerald-500' : 'text-amber-500'}>
             {gpu.hardwareAcceleration ? t('hardware.accelerationOn') : t('hardware.accelerationOff')}
@@ -103,6 +141,18 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
         <Row label={t('hardware.groups.network')}>
           {network ? t('hardware.networkValue', { type: network.type, downlink: network.downlinkMbps, rtt: network.rttMs }) : unknown}
         </Row>
+        {manual.connection && (
+          <Row label={t('hardware.connectionType')}>
+            {t(`hardware.manual.connections.${manual.connection}`)}
+            {informed}
+          </Row>
+        )}
+        {(manual.downloadMbps !== undefined || manual.uploadMbps !== undefined) && (
+          <Row label={t('hardware.plan')}>
+            {t('hardware.planValue', { download: manual.downloadMbps ?? '?', upload: manual.uploadMbps ?? '?' })}
+            {informed}
+          </Row>
+        )}
       </Group>
     </div>
   )
@@ -133,4 +183,4 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 }
 
 export { DeviceHardwareView }
-export type { DeviceHardware, DeviceHardwareViewProps, DisplaysPermission, EncoderStatus }
+export type { ConnectionType, DeviceHardware, DeviceHardwareViewProps, DisplaysPermission, EncoderStatus, UserProvidedHardware }

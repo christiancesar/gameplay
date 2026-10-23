@@ -114,8 +114,14 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - Coletado no Chrome, sem pedir permissão: SO, versão, arquitetura e bits (User-Agent Client Hints), versão do browser, núcleos lógicos (`hardwareConcurrency`), RAM aproximada (`deviceMemory`, arredondada e com teto), GPU e se a aceleração gráfica está ligada (WebGL/WebGPU), codificação de vídeo por hardware para H.264, VP9 e AV1 a 1080p60 (Media Capabilities), rede (Network Information).
 - Com permissão: todos os monitores com resolução, escala e taxa de atualização (Window Management API). A permissão é pedida num aviso no Hub e também na seção Hardware das Configurações.
 - **Não disponível no browser:** modelo do processador, RAM exata, memória da GPU, disco e placa-mãe. Isso exigiria um app desktop.
+- O usuário pode **complementar manualmente** o que o browser não expõe: modelo do processador, RAM, placa de vídeo, VRAM, tipo de conexão e plano de internet (download/upload). Esses campos aparecem marcados como "informado pelo usuário".
 - Enviado ao servidor no login e quando o usuário pede "Coletar de novo"; um registro por dispositivo.
 - O usuário vê o que foi coletado em Configurações > Hardware. O admin vê por usuário e numa aba com o resumo da base (menos núcleos, menos memória, % com aceleração, % com H.264 por hardware).
+
+### 2.12.1 Notificações no Hub
+- Painel de notificações no Hub: à esquerda em telas grandes, acima do conteúdo em telas pequenas. *(Adicionado em 2026-10-23.)*
+- Reúne alertas (browser, VPN, aceleração gráfica desligada, permissão de monitores) e avisos (pedido enviado/aprovado, removido, servidor excluído, promovido/rebaixado).
+- O usuário dispensa cada uma ou limpa tudo.
 
 ### 2.13 Browsers
 - Alvo do MVP: **Chromium (Chrome/Edge)**. Firefox e Safari sem garantia.
@@ -123,6 +129,7 @@ O limite efetivo é o override, quando existe, senão o padrão global.
   - **Não Chromium:** recomenda Chrome, Edge, Brave, Opera ou Vivaldi, com links de download.
   - **Chromium abaixo da versão mínima:** mostra a versão atual e a mínima e como atualizar.
   - Dispensável com "Continuar mesmo assim" (não bloqueia o uso).
+- **VPN/proxy:** detecção por heurística (sem garantia), só para avisar: IP público visto pelo STUN diferente do IP da requisição HTTP (proxy/VPN de navegador), IP em faixa de datacenter/VPN conhecida no backend, e fuso horário do browser incompatível com a região do IP.
 
 ## 3. Arquitetura
 

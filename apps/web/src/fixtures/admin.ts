@@ -72,7 +72,16 @@ export const fakeQrCode = (() => {
 export const adminServerMembers: AdminServerMember[] = members
 
 export const adminDevices: AdminDeviceItem[] = [
-  { id: 'd1', user: people.shinigame, label: 'Windows 11 · Chrome 141', lastSeenAt: at(-5 * 60_000), hardware: gamingPc },
+  {
+    id: 'd1',
+    user: people.shinigame,
+    label: 'Windows 11 · Chrome 141',
+    lastSeenAt: at(-5 * 60_000),
+    hardware: {
+      ...gamingPc,
+      userProvided: { cpuModel: 'AMD Ryzen 7 5800X', ramGb: 32, gpuModel: 'NVIDIA RTX 3070', vramGb: 8, connection: 'ethernet', downloadMbps: 500, uploadMbps: 50 },
+    },
+  },
   { id: 'd2', user: people.shinigame, label: 'macOS 15.4 · Chrome 141', lastSeenAt: at(-3 * 24 * hour), hardware: macbook },
   { id: 'd3', user: people.jacutinga, label: 'Windows 10 · Edge 140', lastSeenAt: at(-2 * hour), hardware: oldNotebook },
   { id: 'd4', user: people.kisnaider, label: 'Windows 11 · Chrome 141', lastSeenAt: at(-20 * 60_000), hardware: { ...gamingPc, cpu: { logicalCores: 12 }, gpu: { ...gamingPc.gpu, renderer: 'AMD Radeon RX 6700 XT (D3D11)' } } },

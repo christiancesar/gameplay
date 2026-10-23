@@ -517,7 +517,8 @@
       "gpu": "Gráficos",
       "encoding": "Codificação de vídeo (transmissão)",
       "displays": "Monitores",
-      "network": "Rede"
+      "network": "Rede",
+      "internet": "Plano de internet"
     },
     "os": "Sistema operacional",
     "architecture": "Arquitetura",
@@ -550,7 +551,33 @@
       "title": "Ajude a entender seu equipamento",
       "description": "Permita que o Gameplay veja seus monitores. O resto das informações de hardware é coletado sem pedir permissão.",
       "notNow": "Agora não"
-    }
+    },
+    "userProvided": "informado pelo usuário",
+    "manual": {
+      "title": "Complementar manualmente",
+      "description": "Preencha o que o browser não consegue ver. Isso deixa os dados mais confiáveis para todos.",
+      "cpuModel": "Modelo do processador",
+      "cpuModelPlaceholder": "ex.: AMD Ryzen 7 5800X",
+      "ramGb": "RAM (GB)",
+      "gpuModel": "Placa de vídeo",
+      "gpuModelPlaceholder": "ex.: NVIDIA RTX 3070",
+      "vramGb": "VRAM (GB)",
+      "connection": "Conexão",
+      "connections": {
+        "ethernet": "Cabo (Ethernet)",
+        "wifi": "Wi-Fi",
+        "mobile": "Dados móveis"
+      },
+      "downloadMbps": "Download (Mbps)",
+      "uploadMbps": "Upload (Mbps)",
+      "uploadHint": "O upload é o que mais pesa na transmissão: cada espectador recebe uma cópia separada.",
+      "save": "Salvar",
+      "saved": "Salvo"
+    },
+    "vram": "Memória de vídeo",
+    "connectionType": "Conexão",
+    "plan": "Plano",
+    "planValue": "↓ {{download}} Mbps · ↑ {{upload}} Mbps"
   },
   "browserSupport": {
     "unsupportedTitle": "O {{browser}} não tem suporte completo",
@@ -560,5 +587,44 @@
     "howToUpdate": "Abra o menu do navegador › Ajuda › Sobre para atualizar e depois reinicie.",
     "recommended": "Navegadores recomendados",
     "continueAnyway": "Continuar mesmo assim"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "clearAll": "Limpar tudo",
+    "dismiss": "Dispensar",
+    "empty": "Nada novo por aqui.",
+    "vpn": {
+      "title": "Parece que você está usando VPN ou proxy",
+      "description": "Voz e transmissão podem ter mais atraso e passar pelo servidor de relay. Se puder, desligue enquanto joga."
+    },
+    "accelerationOff": {
+      "title": "Aceleração gráfica desligada",
+      "description": "A transmissão vai usar a CPU e pode perder qualidade. Ative \"Usar aceleração gráfica\" nas configurações do navegador."
+    },
+    "monitors": {
+      "title": "Permitir detecção dos monitores",
+      "description": "Deixa o Gameplay ver seus monitores para entender seu equipamento."
+    },
+    "joinApproved": {
+      "title": "Bem-vindo ao {{server}}",
+      "description": "Seu pedido de entrada foi aprovado."
+    },
+    "requestSent": {
+      "title": "Pedido enviado para {{server}}",
+      "description": "Aguarde um owner ou admin aprovar."
+    },
+    "kicked": {
+      "title": "Removido de {{server}}"
+    },
+    "serverDeleted": {
+      "title": "{{server}} foi excluído"
+    },
+    "promoted": {
+      "title": "Agora você é admin de {{server}}"
+    },
+    "demoted": {
+      "title": "Você não é mais admin de {{server}}"
+    },
+    "open": "Abrir"
   }
 }

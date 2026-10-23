@@ -517,7 +517,8 @@
       "gpu": "Graphics",
       "encoding": "Video encoding (screen share)",
       "displays": "Displays",
-      "network": "Network"
+      "network": "Network",
+      "internet": "Internet plan"
     },
     "os": "Operating system",
     "architecture": "Architecture",
@@ -550,7 +551,33 @@
       "title": "Help us understand your setup",
       "description": "Allow Gameplay to see your monitors. The rest of the hardware info is collected without prompts.",
       "notNow": "Not now"
-    }
+    },
+    "userProvided": "informed by user",
+    "manual": {
+      "title": "Complete manually",
+      "description": "Fill in what the browser can't see. It makes the data more reliable for everyone.",
+      "cpuModel": "Processor model",
+      "cpuModelPlaceholder": "e.g. AMD Ryzen 7 5800X",
+      "ramGb": "RAM (GB)",
+      "gpuModel": "Graphics card",
+      "gpuModelPlaceholder": "e.g. NVIDIA RTX 3070",
+      "vramGb": "VRAM (GB)",
+      "connection": "Connection",
+      "connections": {
+        "ethernet": "Cable (Ethernet)",
+        "wifi": "Wi-Fi",
+        "mobile": "Mobile data"
+      },
+      "downloadMbps": "Download (Mbps)",
+      "uploadMbps": "Upload (Mbps)",
+      "uploadHint": "Upload matters most for screen share: each viewer receives a separate copy.",
+      "save": "Save",
+      "saved": "Saved"
+    },
+    "vram": "Graphics memory",
+    "connectionType": "Connection",
+    "plan": "Plan",
+    "planValue": "↓ {{download}} Mbps · ↑ {{upload}} Mbps"
   },
   "browserSupport": {
     "unsupportedTitle": "{{browser}} isn't fully supported",
@@ -560,5 +587,44 @@
     "howToUpdate": "Open the browser menu › Help › About to update, then restart it.",
     "recommended": "Recommended browsers",
     "continueAnyway": "Continue anyway"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "clearAll": "Clear all",
+    "dismiss": "Dismiss",
+    "empty": "You're all caught up.",
+    "vpn": {
+      "title": "Looks like you're using a VPN or proxy",
+      "description": "Voice and screen share may have more delay and use the relay server. Turn it off while you play, if you can."
+    },
+    "accelerationOff": {
+      "title": "Graphics acceleration is off",
+      "description": "Screen share will use your CPU and may drop quality. Turn on \"Use graphics acceleration\" in the browser settings."
+    },
+    "monitors": {
+      "title": "Allow monitor detection",
+      "description": "Lets Gameplay see your monitors to understand your setup."
+    },
+    "joinApproved": {
+      "title": "Welcome to {{server}}",
+      "description": "Your request to join was approved."
+    },
+    "requestSent": {
+      "title": "Request sent to {{server}}",
+      "description": "Wait for an owner or admin to approve it."
+    },
+    "kicked": {
+      "title": "Removed from {{server}}"
+    },
+    "serverDeleted": {
+      "title": "{{server}} was deleted"
+    },
+    "promoted": {
+      "title": "You are now an admin of {{server}}"
+    },
+    "demoted": {
+      "title": "You are no longer an admin of {{server}}"
+    },
+    "open": "Open"
   }
 }
