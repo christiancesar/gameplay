@@ -2,7 +2,7 @@ import { CrownIcon, EllipsisVerticalIcon, ShieldIcon, ShieldOffIcon, UserXIcon }
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { ServerRole } from '@/modules/servers/views/user-card.view'
+import type { ServerRole } from '@/modules/servers/views/server-sidebar.view'
 import {
   AlertDialog,
   AlertDialogAction,

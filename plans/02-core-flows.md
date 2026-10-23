@@ -132,20 +132,22 @@
  └───────────┴──────────────────────────────────────┘
 ```
 
-1. O painel lateral mostra **só o servidor atual**: logo (volta ao Hub), card do servidor (nome e owner), salas e, abaixo de cada sala, os avatares de quem está nela.
-2. **Clicar numa sala já entra nela** (F8).
-3. Card do usuário, embaixo:
+1. O painel lateral mostra **só o servidor atual**: logo (volta ao Hub), card do servidor, salas e, abaixo de cada sala, os avatares de quem está nela.
+2. **Card do servidor:** ícone e nome.
+   - **Owner e admin:** engrenagem na frente; clicar no card abre o modal do servidor (F7). Um contador na engrenagem mostra os pedidos de entrada pendentes.
+   - **Member:** no lugar da engrenagem, o ícone de sair do servidor, com confirmação. Ao sair, volta ao Hub.
+3. **Clicar numa sala já entra nela** (F8).
+4. Card do usuário, embaixo:
    - Painel de transmissão (F9), visível enquanto está numa sala.
    - Linha com avatar, nome e email.
-   - **Owner e admin:** engrenagem que abre o modal do servidor (F7). Um indicador na engrenagem mostra quantos pedidos de entrada estão pendentes.
-   - **Member:** ícone de sair do servidor, com confirmação. Ao sair, volta ao Hub.
+   - Engrenagem que abre as **configurações do usuário** (F11).
    - Enquanto está numa sala: **mute**, **deafen** e o **telefone vermelho** para sair da sala.
-4. Configurações pessoais (perfil, áudio, tema, idioma) ficam no Hub (F11).
-5. O **cover** e a descrição do servidor ainda não têm lugar definido na tela (decisão pendente do usuário).
+5. As configurações pessoais (F11) abrem pela engrenagem do card do usuário e também pelo Hub.
+6. O **cover** e a descrição do servidor ainda não têm lugar definido na tela (decisão pendente do usuário).
 
 ## F7 · Modal do servidor (owner e admin)
 
-**Gatilho:** engrenagem no card do usuário. Modal com sidebar de seções. Visual a desenhar no Storybook.
+**Gatilho:** card do servidor no painel lateral (owner e admin). Modal com sidebar de seções. Visual a desenhar no Storybook.
 
 1. **Geral:** nome, ícone, cover, descrição e auto aprovação.
 2. **Convites:** gerar código/link com máximo de usos e validade, copiar, ver usos restantes e validade, revogar. No limite de membros, gerar fica bloqueado com o motivo.

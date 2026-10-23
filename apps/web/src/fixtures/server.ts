@@ -4,9 +4,9 @@ import type { ViewerQuality } from '@/modules/screen-share/views/share-details-d
 import type { StageParticipant } from '@/modules/rooms/views/participant-tile.view'
 import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
 
-import { me, people, servers } from './index'
+import { people, servers } from './index'
 
-export const turbex = { ...servers.turbex, ownerName: me.name }
+export const turbex = servers.turbex
 
 const base = { isMuted: false, isDeafened: false, isSpeaking: false, isLive: false }
 

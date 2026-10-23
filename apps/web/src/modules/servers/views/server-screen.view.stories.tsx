@@ -11,8 +11,8 @@ import { ShareSetupDialogView } from '@/modules/screen-share/views/share-setup-d
 import { StreamViewerView } from '@/modules/screen-share/views/stream-viewer.view'
 
 import { ServerScreenView } from './server-screen.view'
-import { ServerSidebarView, type SidebarRoom } from './server-sidebar.view'
-import { UserCardView, type ServerRole } from './user-card.view'
+import { ServerSidebarView, type ServerRole, type SidebarRoom } from './server-sidebar.view'
+import { UserCardView } from './user-card.view'
 
 type ScenarioProps = {
   role: ServerRole
@@ -77,16 +77,17 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
       sidebar={
         <ServerSidebarView
           server={turbex}
+          role={role}
+          pendingRequests={pendingRequests}
           rooms={rooms}
           currentRoomId={currentRoomId}
           onSelectRoom={fn()}
           onBackToHub={fn()}
+          onOpenServerSettings={fn()}
+          onLeaveServer={fn()}
           userCard={
             <UserCardView
               user={me}
-              serverName={turbex.name}
-              role={role}
-              pendingRequests={pendingRequests}
               inRoom={inRoom}
               isMuted={isMuted}
               isDeafened={false}
@@ -98,8 +99,7 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
                   onOpenDetails={fn()}
                 />
               }
-              onOpenServerSettings={fn()}
-              onLeaveServer={fn()}
+              onOpenSettings={fn()}
               onToggleMute={fn()}
               onToggleDeafen={fn()}
               onLeaveRoom={fn()}
@@ -137,6 +137,8 @@ export const OutsideRoom: Story = {}
 export const OwnerWithPendingRequests: Story = { args: { pendingRequests: 2 } }
 
 export const MemberOutsideRoom: Story = { args: { role: 'member' } }
+
+export const MemberInRoom: Story = { args: { role: 'member', rooms: roomsWithMe, currentRoomId: 'r1', main: 'room' } }
 
 /** Dentro da Room 01, como no mock servidor-screen.png. */
 export const InRoom: Story = { args: { rooms: roomsWithMe, currentRoomId: 'r1', main: 'room' } }

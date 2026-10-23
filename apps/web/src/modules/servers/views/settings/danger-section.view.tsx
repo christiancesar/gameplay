@@ -1,7 +1,7 @@
 import { LogOutIcon, Trash2Icon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import type { ServerRole } from '@/modules/servers/views/user-card.view'
+import type { ServerRole } from '@/modules/servers/views/server-sidebar.view'
 import { Button } from '@/shared/ui/button'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 

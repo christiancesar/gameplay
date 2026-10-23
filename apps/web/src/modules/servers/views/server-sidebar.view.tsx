@@ -1,10 +1,12 @@
 import { cn } from 'cn'
-import { AudioLinesIcon, RadioIcon } from 'lucide-react'
+import { AudioLinesIcon, LogOutIcon, RadioIcon, SettingsIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ParticipantStatusView } from '@/modules/rooms/views/participant-status.view'
 import { BrandLogo } from '@/shared/ui/brand-logo'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { IconButton } from '@/shared/ui/icon-button'
 import { ServerIcon } from '@/shared/ui/server-icon'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
@@ -24,17 +26,34 @@ type SidebarRoom = {
   participants: readonly SidebarParticipant[]
 }
 
+type ServerRole = 'owner' | 'admin' | 'member'
+
 type ServerSidebarViewProps = {
-  server: { name: string; iconUrl?: string; ownerName: string }
+  server: { name: string; iconUrl?: string }
+  role: ServerRole
+  pendingRequests: number
   rooms: readonly SidebarRoom[]
   currentRoomId?: string
   /** Card do usuário, renderizado embaixo do painel. */
   userCard: ReactNode
   onSelectRoom: (roomId: string) => void
   onBackToHub: () => void
+  onOpenServerSettings: () => void
+  onLeaveServer: () => void
 }
 
-function ServerSidebarView({ server, rooms, currentRoomId, userCard, onSelectRoom, onBackToHub }: ServerSidebarViewProps) {
+function ServerSidebarView({
+  server,
+  role,
+  pendingRequests,
+  rooms,
+  currentRoomId,
+  userCard,
+  onSelectRoom,
+  onBackToHub,
+  onOpenServerSettings,
+  onLeaveServer,
+}: ServerSidebarViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -49,13 +68,46 @@ function ServerSidebarView({ server, rooms, currentRoomId, userCard, onSelectRoo
           <BrandLogo className="w-24" />
         </button>
 
-        <div className="bg-muted flex items-center gap-3 rounded-md px-3 py-2.5">
-          <ServerIcon name={server.name} imageUrl={server.iconUrl} />
-          <div className="min-w-0">
-            <h2 className="truncate font-medium">{server.name}</h2>
-            <p className="text-muted-foreground truncate text-xs">{t('server.ownedBy', { name: server.ownerName })}</p>
+        {role === 'member' ? (
+          <div className="bg-muted flex h-11 items-center gap-3 rounded-md pr-1.5 pl-3">
+            <ServerIcon name={server.name} imageUrl={server.iconUrl} />
+            <h2 className="min-w-0 flex-1 truncate font-medium">{server.name}</h2>
+            <ConfirmDialog
+              trigger={<IconButton label={t('server.leaveServer')} icon={<LogOutIcon />} size="icon-sm" />}
+              title={t('server.leaveServerTitle', { server: server.name })}
+              description={t('server.leaveServerDescription')}
+              confirmLabel={t('server.leaveServerConfirm')}
+              cancelLabel={t('common.cancel')}
+              destructive
+              onConfirm={onLeaveServer}
+            />
           </div>
-        </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpenServerSettings}
+            aria-label={
+              pendingRequests > 0
+                ? `${t('server.serverSettings')}: ${server.name}, ${t('server.pendingRequests', { count: pendingRequests })}`
+                : `${t('server.serverSettings')}: ${server.name}`
+            }
+            className="bg-muted hover:bg-accent focus-visible:ring-ring/50 flex h-11 items-center gap-3 rounded-md px-3 text-left outline-none focus-visible:ring-3"
+          >
+            <ServerIcon name={server.name} imageUrl={server.iconUrl} />
+            <h2 className="min-w-0 flex-1 truncate font-medium">{server.name}</h2>
+            <span className="relative inline-flex">
+              <SettingsIcon className="text-muted-foreground size-4" aria-hidden />
+              {pendingRequests > 0 && (
+                <span
+                  aria-hidden
+                  className="absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] leading-none font-semibold text-white"
+                >
+                  {pendingRequests > 9 ? '9+' : pendingRequests}
+                </span>
+              )}
+            </span>
+          </button>
+        )}
 
         <div className="flex min-h-0 flex-col gap-3">
           <h3 className="flex items-center gap-2 text-sm font-medium">
@@ -112,4 +164,4 @@ function ServerSidebarView({ server, rooms, currentRoomId, userCard, onSelectRoo
 }
 
 export { ServerSidebarView }
-export type { ServerSidebarViewProps, SidebarParticipant, SidebarRoom }
+export type { ServerRole, ServerSidebarViewProps, SidebarParticipant, SidebarRoom }

@@ -41,8 +41,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 ## Suposições a confirmar
 
 Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
-- Card do servidor na sidebar mostra nome e "Owner: fulano"; a engrenagem fica só no card do usuário (o mock tinha engrenagem nos dois).
-- Card do usuário: controles em uma segunda linha (mute, deafen, engrenagem ou sair, e telefone vermelho à direita).
+- Card do servidor (decisão do usuário): ícone, nome e engrenagem; clicar abre o modal do servidor. Member vê o ícone de sair do servidor no lugar da engrenagem.
+- Card do usuário: a engrenagem abre as configurações do usuário; na sala, mute, deafen, engrenagem e telefone vermelho à direita.
 - Painel de transmissão: um botão verde grande (Frame 9); ao clicar, abre a escolha de qualidade e áudio antes do seletor do browser.
 - Ao vivo: monitor com envio, banda, FPS, resolução, espectadores e aviso de upload insuficiente.
 - Selo "LIVE" e botão "Assistir" no bloco do participante; volume por pessoa num popover ao clicar no bloco.
