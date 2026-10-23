@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn } from 'storybook/test'
+import { useState } from 'react'
+import { expect, fn, screen, waitFor } from 'storybook/test'
 
-import { liveLimitedByCpu, liveLimitedByNetwork, liveNoViewers, liveOnTarget } from '@/fixtures/server'
+import { liveLimitedByCpu, liveLimitedByNetwork, liveNoViewers, liveOnTarget, viewerQualities } from '@/fixtures/server'
 
+import { ShareDetailsDialogView } from './share-details-dialog.view'
 import { SharePanelView } from './share-panel.view'
 
 const meta = {
@@ -56,3 +58,27 @@ export const LiveLimitedByNetwork: Story = {
 export const LiveLimitedByComputer: Story = { args: { state: liveLimitedByCpu } }
 
 export const LiveNoViewers: Story = { args: { state: liveNoViewers } }
+
+/** Clique em "Details": abre o ShareDetailsDialog com a qualidade por espectador. */
+export const OpenDetails: Story = {
+  args: { state: liveLimitedByNetwork },
+  render: function Render(args) {
+    const [open, setOpen] = useState(false)
+    return (
+      <>
+        <SharePanelView
+          {...args}
+          onOpenDetails={() => {
+            args.onOpenDetails()
+            setOpen(true)
+          }}
+        />
+        <ShareDetailsDialogView open={open} target={{ resolution: '1080p', fps: 60 }} viewers={viewerQualities} onOpenChange={setOpen} />
+      </>
+    )
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /details/i }))
+    await waitFor(() => expect(screen.getByRole('dialog', { name: /stream quality/i })).toBeVisible())
+  },
+}
