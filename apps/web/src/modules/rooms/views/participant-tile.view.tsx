@@ -57,18 +57,6 @@ function ParticipantTileView({ participant, compact = false, isWatched = false, 
         </span>
         <ParticipantStatusView isMuted={isMuted} isDeafened={isDeafened} />
       </span>
-      {connection === 'connecting' && (
-        <span className="text-muted-foreground flex items-center gap-1 text-xs" role="status">
-          <Loader2Icon className="size-3 animate-spin" aria-hidden />
-          {t('voice.connecting')}
-        </span>
-      )}
-      {connection === 'failed' && (
-        <span className="flex items-center gap-1 text-xs text-amber-500" role="status">
-          <TriangleAlertIcon className="size-3" aria-hidden />
-          {t('voice.connectionFailed')}
-        </span>
-      )}
     </>
   )
 
@@ -76,8 +64,8 @@ function ParticipantTileView({ participant, compact = false, isWatched = false, 
     <div
       data-speaking={isSpeaking || undefined}
       className={cn(
-        'bg-muted/60 relative flex flex-col items-center justify-center gap-3 rounded-xl border p-4',
-        compact ? 'min-h-32 w-40 shrink-0' : 'min-h-48',
+        'bg-muted/60 relative flex flex-col items-center justify-center gap-2 rounded-xl border p-3',
+        compact ? 'h-36 w-40 shrink-0' : 'h-52',
         isSpeaking && 'border-emerald-500/60',
         isWatched && 'border-foreground/40',
       )}
@@ -121,12 +109,30 @@ function ParticipantTileView({ participant, compact = false, isWatched = false, 
         </Popover>
       )}
 
-      {isLive && !isMe && !isWatched && (
-        <Button size="sm" variant="secondary" onClick={() => onWatch(id)}>
-          <EyeIcon data-icon="inline-start" aria-hidden />
-          {t('share.watch')}
-        </Button>
-      )}
+      {/* Rodapé com altura fixa, para todos os blocos ficarem do mesmo tamanho. */}
+      <div className="flex h-7 items-center justify-center">
+        {connection === 'connecting' ? (
+          <span className="text-muted-foreground flex items-center gap-1 text-xs" role="status">
+            <Loader2Icon className="size-3 animate-spin" aria-hidden />
+            {t('voice.connecting')}
+          </span>
+        ) : connection === 'failed' ? (
+          <span className="flex items-center gap-1 text-xs text-amber-500" role="status">
+            <TriangleAlertIcon className="size-3 shrink-0" aria-hidden />
+            <span className="line-clamp-1">{t('voice.connectionFailed')}</span>
+          </span>
+        ) : isLive && !isMe && !isWatched ? (
+          <Button size="sm" variant="secondary" onClick={() => onWatch(id)}>
+            <EyeIcon data-icon="inline-start" aria-hidden />
+            {t('share.watch')}
+          </Button>
+        ) : isWatched ? (
+          <span className="text-muted-foreground flex items-center gap-1 text-xs">
+            <EyeIcon className="size-3" aria-hidden />
+            {t('share.watching')}
+          </span>
+        ) : null}
+      </div>
     </div>
   )
 }
