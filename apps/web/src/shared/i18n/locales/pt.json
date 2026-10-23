@@ -79,7 +79,7 @@
     "createServer": "Crie seu servidor",
     "createServerDescription": "Reúna seu clã e compartilhe sua gameplay",
     "createServerLimit": "Limite atingido",
-    "createServerLimitDescription": "Você já tem o número máximo de servidores.",
+    "createServerLimitDescription": "Você já tem o máximo permitido.",
     "orJoin": "Ou entre em um servidor",
     "joinPlaceholder": "Código ou link do convite",
     "join": "Entrar",

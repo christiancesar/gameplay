@@ -81,38 +81,39 @@ function HubView({
     <div className="bg-background text-foreground flex min-h-dvh flex-col items-center justify-center px-4 py-12">
       <BrandLogo variant="unlimited" className="w-48" />
 
-      <section aria-label={user.name} className="bg-card text-card-foreground border mt-12 flex w-full max-w-[18.5rem] items-center gap-3 rounded-md px-4 py-3">
-        <UserAvatar name={user.name} imageUrl={user.avatarUrl} size="xl" />
-        <div className="min-w-0">
-          <p className="truncate font-medium">{user.name}</p>
-          <p className="text-muted-foreground truncate text-xs">{user.email}</p>
+      {/* Tudo abaixo do logo compartilha a mesma largura. */}
+      <div className="mt-12 flex w-full max-w-sm flex-col items-center gap-3">
+        <section aria-label={user.name} className="bg-card text-card-foreground flex w-full items-center gap-3 rounded-md border px-4 py-3">
+          <UserAvatar name={user.name} imageUrl={user.avatarUrl} size="xl" />
+          <div className="min-w-0">
+            <p className="truncate font-medium">{user.name}</p>
+            <p className="text-muted-foreground truncate text-xs">{user.email}</p>
+          </div>
+        </section>
+
+        <div className="flex items-center gap-1">
+          {isPlatformAdmin && <IconButton label={t('common.adminPanel')} icon={<ShieldUserIcon />} onClick={onOpenAdmin} />}
+          <IconButton label={t('common.settings')} icon={<SettingsIcon />} onClick={onOpenSettings} />
+          <ThemeToggle
+            theme={theme}
+            onToggle={onToggleTheme}
+            labels={{ toLight: t('common.theme.toLight'), toDark: t('common.theme.toDark') }}
+          />
+          <LanguageSwitcher
+            className="ml-2"
+            value={language}
+            options={languageOptions}
+            onChange={onLanguageChange}
+            ariaLabel={t('common.language')}
+          />
         </div>
-      </section>
 
-      <div className="mt-4 flex items-center gap-1">
-        {isPlatformAdmin && <IconButton label={t('common.adminPanel')} icon={<ShieldUserIcon />} onClick={onOpenAdmin} />}
-        <IconButton label={t('common.settings')} icon={<SettingsIcon />} onClick={onOpenSettings} />
-        <ThemeToggle
-          theme={theme}
-          onToggle={onToggleTheme}
-          labels={{ toLight: t('common.theme.toLight'), toDark: t('common.theme.toDark') }}
-        />
-        <LanguageSwitcher
-          className="ml-2"
-          value={language}
-          options={languageOptions}
-          onChange={onLanguageChange}
-          ariaLabel={t('common.language')}
-        />
-      </div>
-
-      <div className="mt-14 flex w-full max-w-[23rem] flex-col items-center gap-3">
-        <div className="flex w-full flex-wrap justify-center gap-2.5">
+        <div className="mt-10 flex w-full flex-wrap gap-2.5">
           <ul aria-label={t('hub.servers')} className="contents">
             {isLoadingServers
               ? Array.from({ length: 2 }, (_, index) => (
                   <li key={index}>
-                    <Skeleton className="bg-card size-[4.125rem] rounded-md" />
+                    <Skeleton className="bg-card size-20 rounded-md" />
                   </li>
                 ))
               : servers.map((server) => (
@@ -120,9 +121,9 @@ function HubView({
                     <button
                       type="button"
                       onClick={() => onOpenServer(server.id)}
-                      className="bg-card text-card-foreground border hover:bg-card/80 focus-visible:ring-ring/50 flex size-[4.125rem] flex-col items-center justify-center gap-1.5 rounded-md px-1 text-xs font-medium outline-none focus-visible:ring-3"
+                      className="bg-card text-card-foreground hover:bg-accent focus-visible:ring-ring/50 flex size-20 flex-col items-center justify-center gap-1.5 rounded-md border px-1 text-xs font-medium outline-none focus-visible:ring-3"
                     >
-                      <ServerIcon name={server.name} imageUrl={server.iconUrl} />
+                      <ServerIcon name={server.name} imageUrl={server.iconUrl} className="size-7" />
                       <span className="w-full truncate text-center">{server.name}</span>
                     </button>
                   </li>
@@ -133,35 +134,35 @@ function HubView({
             type="button"
             onClick={onCreateServer}
             disabled={!canCreateServer}
-            className="bg-card text-card-foreground border hover:bg-card/80 focus-visible:ring-ring/50 flex min-h-[4.125rem] min-w-0 flex-1 basis-56 items-center gap-3 rounded-md px-4 py-2 text-left outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-60"
+            className="bg-card text-card-foreground hover:bg-accent focus-visible:ring-ring/50 flex h-20 min-w-0 flex-1 basis-56 items-center gap-3 rounded-md border px-4 text-left outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="min-w-0 flex-1">
               <span className="block font-medium">{t('hub.createServer')}</span>
-              <span className="text-muted-foreground block text-xs leading-snug">
+              <span className="text-muted-foreground line-clamp-2 text-xs leading-snug">
                 {canCreateServer ? t('hub.createServerDescription') : t('hub.createServerLimitDescription')}
               </span>
             </span>
             {canCreateServer ? (
-              <span className="bg-input flex size-6 shrink-0 items-center justify-center rounded-sm">
+              <span className="bg-muted flex size-6 shrink-0 items-center justify-center rounded-sm">
                 <ChevronRightIcon className="size-4" />
               </span>
             ) : (
-              <span className="bg-input shrink-0 rounded-sm px-2 py-0.5 text-[11px]">{t('hub.createServerLimit')}</span>
+              <span className="bg-muted shrink-0 rounded-sm px-2 py-0.5 text-[11px]">{t('hub.createServerLimit')}</span>
             )}
           </button>
         </div>
 
-        <p className="text-sm">{t('hub.orJoin')}</p>
+        <p className="mt-2 text-sm">{t('hub.orJoin')}</p>
 
         <form
           noValidate
-          className="bg-card w-full rounded-md border p-4"
+          className="flex w-full flex-col gap-2"
           onSubmit={(event) => {
             event.preventDefault()
             onJoin()
           }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex gap-2">
             <Input
               aria-label={t('hub.joinPlaceholder')}
               placeholder={t('hub.joinPlaceholder')}
@@ -170,15 +171,15 @@ function HubView({
               aria-invalid={Boolean(joinError)}
               autoComplete="off"
               spellCheck={false}
-              className="bg-input text-card-foreground placeholder:text-card-foreground/60 h-6 flex-1 border-0 text-center font-semibold tracking-wide uppercase placeholder:font-normal placeholder:tracking-normal placeholder:normal-case dark:bg-input"
+              className="h-9 flex-1 font-semibold tracking-wide uppercase placeholder:font-normal placeholder:tracking-normal placeholder:normal-case"
             />
-            <Button type="submit" size="sm" variant="secondary" disabled={isJoining || !joinCode.trim()} className="h-6">
+            <Button type="submit" variant="secondary" className="h-9" disabled={isJoining || !joinCode.trim()}>
               {isJoining && <Loader2Icon className="animate-spin" aria-hidden />}
               {t('hub.join')}
               <ChevronRightIcon data-icon="inline-end" />
             </Button>
           </div>
-          {joinError && <FieldError className="mt-2 text-center">{t(`hub.joinErrors.${joinError}`)}</FieldError>}
+          {joinError && <FieldError>{t(`hub.joinErrors.${joinError}`)}</FieldError>}
         </form>
       </div>
     </div>

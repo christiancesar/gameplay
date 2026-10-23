@@ -79,7 +79,7 @@
     "createServer": "Create your server",
     "createServerDescription": "Grouping your clan and sharing your gameplay",
     "createServerLimit": "Limit reached",
-    "createServerLimitDescription": "You already have the maximum number of servers.",
+    "createServerLimitDescription": "You already own the maximum.",
     "orJoin": "Or join a server",
     "joinPlaceholder": "Invite code or link",
     "join": "Join",
