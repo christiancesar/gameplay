@@ -46,7 +46,7 @@ type HubJoinError =
   | 'unexpected'
 
 type HubViewProps = {
-  /** Painel de notificações: à direita em telas grandes, separado por um divisor; acima do conteúdo nas pequenas. */
+  /** Painel de notificações: à direita em telas grandes, separado por um divisor; abaixo de "Entrar em um servidor" nas pequenas. */
   notifications?: ReactNode
   user: HubUser
   isPlatformAdmin: boolean
@@ -190,7 +190,7 @@ function HubView({
         {notifications && (
           <>
             <Separator orientation="vertical" className="hidden lg:block" />
-            <aside className="order-first w-full lg:order-none lg:w-80">{notifications}</aside>
+            <aside className="w-full lg:w-80">{notifications}</aside>
           </>
         )}
       </div>

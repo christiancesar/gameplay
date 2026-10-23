@@ -99,7 +99,7 @@
 3. "Create your server" abre o F5. Com o limite de servidores atingido, o card fica desabilitado com "Limite atingido".
 4. "Or join a server": campo para o código de 8 caracteres (colar o link inteiro também funciona) e botão Join. Segue o F3.
 5. Primeiro acesso, sem servidores: só o card de criar e o campo de entrar.
-6. **Notificações:** painel à direita em telas grandes, separado por um divisor vertical (acima do conteúdo nas pequenas) com alertas e avisos: browser sem suporte ou desatualizado, VPN/proxy detectado, aceleração gráfica desligada, pedido de permissão dos monitores, pedido enviado ou aprovado (com botão para abrir o servidor), removido de um servidor, servidor excluído, promovido ou rebaixado. Cada uma pode ser dispensada, ou todas de uma vez.
+6. **Notificações:** painel à direita em telas grandes, separado por um divisor vertical (nas pequenas, abaixo de "Entrar em um servidor") com alertas e avisos: browser sem suporte ou desatualizado, VPN/proxy detectado, aceleração gráfica desligada, pedido de permissão dos monitores, pedido enviado ou aprovado (com botão para abrir o servidor), removido de um servidor, servidor excluído, promovido ou rebaixado. Cada uma pode ser dispensada, ou todas de uma vez.
 
 ## F5 · Criar servidor
 
