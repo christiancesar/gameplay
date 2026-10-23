@@ -1,5 +1,5 @@
 import { cn } from 'cn'
-import { EllipsisVerticalIcon, KeyRoundIcon, LogOutIcon, MonitorSmartphoneIcon, SearchIcon, ServerIcon, ShieldBanIcon, ShieldCheckIcon } from 'lucide-react'
+import { CpuIcon, EllipsisVerticalIcon, KeyRoundIcon, LogOutIcon, MonitorSmartphoneIcon, SearchIcon, ServerIcon, ShieldBanIcon, ShieldCheckIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -41,6 +41,7 @@ type UsersTabViewProps = {
   search: string
   onSearchChange: (value: string) => void
   onViewSessions: (userId: string) => void
+  onViewHardware: (userId: string) => void
   onSuspend: (userId: string) => void
   onReactivate: (userId: string) => void
   onEndSessions: (userId: string) => void
@@ -53,6 +54,7 @@ function UsersTabView({
   search,
   onSearchChange,
   onViewSessions,
+  onViewHardware,
   onSuspend,
   onReactivate,
   onEndSessions,
@@ -131,6 +133,10 @@ function UsersTabView({
                         <DropdownMenuItem onSelect={() => onViewSessions(user.id)}>
                           <MonitorSmartphoneIcon />
                           {t('admin.users.viewSessions')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onViewHardware(user.id)}>
+                          <CpuIcon />
+                          {t('admin.users.viewHardware')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => onEditLimit(user.id)}>
                           <ServerIcon />

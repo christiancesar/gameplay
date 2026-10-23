@@ -326,7 +326,8 @@
       "profile": "Profile",
       "audio": "Audio",
       "appearance": "Appearance",
-      "account": "Account"
+      "account": "Account",
+      "hardware": "Hardware"
     },
     "profile": {
       "avatar": "Avatar",
@@ -393,7 +394,8 @@
       "users": "Users",
       "servers": "Servers",
       "limits": "Limits",
-      "keys": "Sign-up keys"
+      "keys": "Sign-up keys",
+      "hardware": "Hardware"
     },
     "search": "Search",
     "empty": "Nothing found.",
@@ -428,7 +430,8 @@
       "suspendTitle": "Suspend {{name}}?",
       "suspendDescription": "Blocks login and drops every session and connection right away.",
       "endSessionsTitle": "End all sessions of {{name}}?",
-      "endSessionsDescription": "They will be signed out on every device."
+      "endSessionsDescription": "They will be signed out on every device.",
+      "viewHardware": "View hardware"
     },
     "sessions": {
       "title": "Sessions of {{name}}",
@@ -488,6 +491,65 @@
       "revoke": "Revoke",
       "revokeTitle": "Revoke this key?",
       "revokeDescription": "Nobody will be able to sign up with it."
+    },
+    "hardware": {
+      "devices": "Devices",
+      "minCores": "Fewest cores",
+      "minMemory": "Least memory",
+      "acceleration": "With graphics acceleration",
+      "h264": "H.264 hardware encoding",
+      "device": "Device",
+      "user": "User",
+      "lastSeen": "Last seen",
+      "deviceTitle": "Hardware of {{name}}",
+      "noDevices": "No device reported yet."
+    }
+  },
+  "hardware": {
+    "title": "Hardware",
+    "description": "What this device reports to the browser. It is sent to the platform admin to understand where Gameplay runs.",
+    "lastSent": "Sent {{date}}",
+    "refresh": "Collect again",
+    "groups": {
+      "system": "System",
+      "cpu": "Processor",
+      "memory": "Memory",
+      "gpu": "Graphics",
+      "encoding": "Video encoding (screen share)",
+      "displays": "Displays",
+      "network": "Network"
+    },
+    "os": "Operating system",
+    "architecture": "Architecture",
+    "browser": "Browser",
+    "cores": "Logical cores",
+    "memoryApprox": "≈ {{value}} GB",
+    "memoryHint": "Rounded by the browser, with a ceiling.",
+    "gpu": "GPU",
+    "acceleration": "Hardware acceleration",
+    "accelerationOn": "On",
+    "accelerationOff": "Off (software rendering)",
+    "accelerationOffHint": "Turn on \"Use graphics acceleration\" in Chrome settings for smoother screen share.",
+    "webgpu": "WebGPU",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "encoder": {
+      "hardware": "Hardware",
+      "software": "Software",
+      "unsupported": "Not supported"
+    },
+    "displayItem": "{{width}}×{{height}} · {{scale}}x",
+    "primary": "primary",
+    "displaysPermission": "Allow Gameplay to see all your monitors (resolution and scale).",
+    "displaysDenied": "Monitor access was blocked. Only the current screen is shown.",
+    "allow": "Allow",
+    "networkValue": "{{type}} · ≈ {{downlink}} Mbps · {{rtt}} ms",
+    "unknown": "Not reported",
+    "limits": "The browser doesn't expose CPU model, exact RAM, GPU memory, disk or motherboard.",
+    "banner": {
+      "title": "Help us understand your setup",
+      "description": "Allow Gameplay to see your monitors. The rest of the hardware info is collected without prompts.",
+      "notNow": "Not now"
     }
   }
 }

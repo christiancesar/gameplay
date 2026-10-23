@@ -98,6 +98,7 @@
 3. "Create your server" abre o F5. Com o limite de servidores atingido, o card fica desabilitado com "Limite atingido".
 4. "Or join a server": campo para o código de 8 caracteres (colar o link inteiro também funciona) e botão Join. Segue o F3.
 5. Primeiro acesso, sem servidores: só o card de criar e o campo de entrar.
+6. Enquanto a permissão de ver os monitores não foi decidida, um aviso abaixo do perfil pede essa permissão (Permitir / Agora não). O resto do hardware é coletado sem pedir.
 
 ## F5 · Criar servidor
 
@@ -206,17 +207,19 @@
 1. **Perfil:** avatar (trocar ou remover) e dados da conta.
 2. **Áudio:** escolher microfone e saída, com teste de microfone (barra de nível).
 3. **Aparência:** tema e idioma.
-4. **Sair** da conta.
+4. **Hardware:** o que este dispositivo informou (sistema, CPU, memória, GPU e aceleração, codificação de vídeo, monitores, rede), quando foi enviado, botão para coletar de novo e o pedido de permissão dos monitores.
+5. **Sair** da conta.
 
 ## F12 · Painel admin da plataforma
 
 **Gatilho:** ícone de escudo no Hub, só para o admin da plataforma. Visual a desenhar no Storybook.
 
 1. Primeiro login do admin: obriga a configurar o app autenticador (QR code) e mostra os códigos de recuperação.
-2. **Usuários:** lista com online/offline, sessões com IP e navegador. Ações: suspender ou reativar, encerrar sessões, redefinir senha, ajustar limite de servidores.
+2. **Usuários:** lista com online/offline, sessões com IP e navegador. Ações: ver sessões, ver hardware dos dispositivos, suspender ou reativar, encerrar sessões, redefinir senha, ajustar limite de servidores.
 3. **Servidores:** lista com owner, membros e salas. Ações: ver membros (com o convite e quem convidou cada um), ajustar limites de membros e salas, excluir servidor (com confirmação).
-4. **Limites globais:** editar os padrões (1 servidor, 10 membros, 2 salas).
-5. **Keys de cadastro:** gerar com validade, copiar, ver quem usou, revogar.
+4. **Hardware:** resumo da base (dispositivos, menos núcleos, menos memória, % com aceleração gráfica, % com H.264 por hardware) e tabela de dispositivos; clicar abre o detalhe.
+5. **Limites globais:** editar os padrões (1 servidor, 10 membros, 2 salas).
+6. **Keys de cadastro:** gerar com validade, copiar, ver quem usou, revogar.
 
 ## F13 · Desconexões e remoções
 

@@ -326,7 +326,8 @@
       "profile": "Perfil",
       "audio": "Áudio",
       "appearance": "Aparência",
-      "account": "Conta"
+      "account": "Conta",
+      "hardware": "Hardware"
     },
     "profile": {
       "avatar": "Avatar",
@@ -393,7 +394,8 @@
       "users": "Usuários",
       "servers": "Servidores",
       "limits": "Limites",
-      "keys": "Keys de cadastro"
+      "keys": "Keys de cadastro",
+      "hardware": "Hardware"
     },
     "search": "Buscar",
     "empty": "Nada encontrado.",
@@ -428,7 +430,8 @@
       "suspendTitle": "Suspender {{name}}?",
       "suspendDescription": "Bloqueia o login e derruba todas as sessões e conexões na hora.",
       "endSessionsTitle": "Encerrar todas as sessões de {{name}}?",
-      "endSessionsDescription": "A pessoa sai da conta em todos os dispositivos."
+      "endSessionsDescription": "A pessoa sai da conta em todos os dispositivos.",
+      "viewHardware": "Ver hardware"
     },
     "sessions": {
       "title": "Sessões de {{name}}",
@@ -488,6 +491,65 @@
       "revoke": "Revogar",
       "revokeTitle": "Revogar esta key?",
       "revokeDescription": "Ninguém mais vai conseguir se cadastrar com ela."
+    },
+    "hardware": {
+      "devices": "Dispositivos",
+      "minCores": "Menos núcleos",
+      "minMemory": "Menos memória",
+      "acceleration": "Com aceleração gráfica",
+      "h264": "Codificação H.264 por hardware",
+      "device": "Dispositivo",
+      "user": "Usuário",
+      "lastSeen": "Visto por último",
+      "deviceTitle": "Hardware de {{name}}",
+      "noDevices": "Nenhum dispositivo informado ainda."
+    }
+  },
+  "hardware": {
+    "title": "Hardware",
+    "description": "O que este dispositivo informa ao browser. É enviado ao admin da plataforma para entender onde o Gameplay roda.",
+    "lastSent": "Enviado {{date}}",
+    "refresh": "Coletar de novo",
+    "groups": {
+      "system": "Sistema",
+      "cpu": "Processador",
+      "memory": "Memória",
+      "gpu": "Gráficos",
+      "encoding": "Codificação de vídeo (transmissão)",
+      "displays": "Monitores",
+      "network": "Rede"
+    },
+    "os": "Sistema operacional",
+    "architecture": "Arquitetura",
+    "browser": "Navegador",
+    "cores": "Núcleos lógicos",
+    "memoryApprox": "≈ {{value}} GB",
+    "memoryHint": "Arredondado pelo browser, com teto.",
+    "gpu": "GPU",
+    "acceleration": "Aceleração por hardware",
+    "accelerationOn": "Ligada",
+    "accelerationOff": "Desligada (renderização por software)",
+    "accelerationOffHint": "Ative \"Usar aceleração gráfica\" nas configurações do Chrome para a transmissão ficar mais leve.",
+    "webgpu": "WebGPU",
+    "available": "Disponível",
+    "unavailable": "Indisponível",
+    "encoder": {
+      "hardware": "Hardware",
+      "software": "Software",
+      "unsupported": "Sem suporte"
+    },
+    "displayItem": "{{width}}×{{height}} · {{scale}}x",
+    "primary": "principal",
+    "displaysPermission": "Permita que o Gameplay veja todos os seus monitores (resolução e escala).",
+    "displaysDenied": "O acesso aos monitores foi bloqueado. Só a tela atual aparece.",
+    "allow": "Permitir",
+    "networkValue": "{{type}} · ≈ {{downlink}} Mbps · {{rtt}} ms",
+    "unknown": "Não informado",
+    "limits": "O browser não expõe modelo do processador, RAM exata, memória da GPU, disco ou placa-mãe.",
+    "banner": {
+      "title": "Ajude a entender seu equipamento",
+      "description": "Permita que o Gameplay veja seus monitores. O resto das informações de hardware é coletado sem pedir permissão.",
+      "notNow": "Agora não"
     }
   }
 }

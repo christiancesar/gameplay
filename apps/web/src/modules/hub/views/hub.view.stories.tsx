@@ -6,6 +6,8 @@ import { me, servers } from '@/fixtures'
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
 import { useStoryTheme } from '@/fixtures/theme'
 
+import { HardwarePermissionBannerView } from '@/modules/hardware/views/hardware-permission-banner.view'
+
 import { HubView } from './hub.view'
 
 const meta = {
@@ -103,6 +105,11 @@ export const JoinByCode: Story = {
     await userEvent.click(join)
     await expect(args.onJoin).toHaveBeenCalledOnce()
   },
+}
+
+/** Primeira visita: pede a permissão de ver os monitores. */
+export const HardwarePermission: Story = {
+  args: { banner: <HardwarePermissionBannerView onAllow={fn()} onDismiss={fn()} /> },
 }
 
 export const Portuguese: Story = { globals: { locale: 'pt' }, args: { isPlatformAdmin: true } }

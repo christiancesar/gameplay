@@ -2,9 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor, within } from 'storybook/test'
 
-import { adminServerMembers, adminServers, adminSessions, adminUsers, registrationKeys } from '@/fixtures/admin'
+import { adminDevices, adminServerMembers, adminServers, adminSessions, adminUsers, registrationKeys, hardwareSummary } from '@/fixtures/admin'
 
 import { AdminLayoutView, type AdminTab } from './admin-layout.view'
+import { DeviceHardwareDialogView } from './device-hardware-dialog.view'
+import { HardwareTabView } from './hardware-tab.view'
 import { KeysTabView } from './keys-tab.view'
 import { LimitDialogView } from './limit-dialog.view'
 import { LimitsTabView } from './limits-tab.view'
@@ -14,15 +16,16 @@ import { ServersTabView } from './servers-tab.view'
 import { SessionsDialogView } from './sessions-dialog.view'
 import { UsersTabView } from './users-tab.view'
 
-type Overlay = 'none' | 'sessions' | 'resetPassword' | 'userLimit' | 'serverLimits' | 'serverMembers' | 'newKey'
+type Overlay = 'none' | 'sessions' | 'resetPassword' | 'userLimit' | 'serverLimits' | 'serverMembers' | 'userHardware' | 'newKey'
 
 type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean }
 
-const actions = { onSuspend: fn(), onEndSessions: fn(), onDeleteServer: fn(), onGenerateKey: fn(), onTabChange: fn() }
+const actions = { onOpenDevice: fn(), onSuspend: fn(), onEndSessions: fn(), onDeleteServer: fn(), onGenerateKey: fn(), onTabChange: fn() }
 
 function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
   const [tab, setTab] = useState(initialTab)
   const [search, setSearch] = useState('')
+  const [deviceId, setDeviceId] = useState<string>()
   const users = empty ? [] : adminUsers.filter((user) => user.name.toLowerCase().includes(search.toLowerCase()))
 
   const content = {
@@ -32,6 +35,7 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
         search={search}
         onSearchChange={setSearch}
         onViewSessions={fn()}
+        onViewHardware={fn()}
         onSuspend={actions.onSuspend}
         onReactivate={fn()}
         onEndSessions={actions.onEndSessions}
@@ -47,6 +51,16 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
         onViewMembers={fn()}
         onEditLimits={fn()}
         onDelete={actions.onDeleteServer}
+      />
+    ),
+    hardware: (
+      <HardwareTabView
+        summary={empty ? { devices: 0, accelerationPercent: 0, h264HardwarePercent: 0 } : hardwareSummary}
+        devices={empty ? [] : adminDevices}
+        onOpenDevice={(id) => {
+          actions.onOpenDevice(id)
+          setDeviceId(id)
+        }}
       />
     ),
     limits: (
@@ -80,6 +94,14 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       >
         {content}
       </AdminLayoutView>
+      <DeviceHardwareDialogView
+        open={overlay === 'userHardware' || Boolean(deviceId)}
+        userName={deviceId ? (adminDevices.find((d) => d.id === deviceId)?.user.name ?? '') : 'Shinigame'}
+        devices={deviceId ? adminDevices.filter((d) => d.id === deviceId) : adminDevices.filter((d) => d.user.id === 'u1')}
+        currentDeviceId={deviceId}
+        onDeviceChange={setDeviceId}
+        onOpenChange={(open) => !open && setDeviceId(undefined)}
+      />
       <ServerMembersDialogView open={overlay === 'serverMembers'} serverName="Turbex" members={adminServerMembers} onOpenChange={fn()} />
       <SessionsDialogView open={overlay === 'sessions'} userName="Lua Nova" sessions={adminSessions} onOpenChange={fn()} onEndSession={fn()} />
       <ResetPasswordDialogView
@@ -124,8 +146,8 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: { initialTab: 'users', overlay: 'none', empty: false },
   argTypes: {
-    initialTab: { control: 'inline-radio', options: ['users', 'servers', 'limits', 'keys'] },
-    overlay: { control: 'select', options: ['none', 'sessions', 'resetPassword', 'userLimit', 'serverLimits', 'serverMembers', 'newKey'] },
+    initialTab: { control: 'inline-radio', options: ['users', 'servers', 'hardware', 'limits', 'keys'] },
+    overlay: { control: 'select', options: ['none', 'sessions', 'resetPassword', 'userLimit', 'serverLimits', 'serverMembers', 'userHardware', 'newKey'] },
   },
 } satisfies Meta<typeof Scenario>
 
@@ -153,6 +175,19 @@ export const SearchUsers: Story = {
     await userEvent.type(canvas.getByLabelText(/search/i), 'kis')
     await waitFor(() => expect(canvas.queryByText('Jacutinga')).not.toBeInTheDocument())
     await expect(canvas.getByText('Kisnaider')).toBeVisible()
+  },
+}
+
+export const UserHardware: Story = { args: { overlay: 'userHardware' } }
+
+export const Hardware: Story = { args: { initialTab: 'hardware' } }
+export const HardwareEmpty: Story = { args: { initialTab: 'hardware', empty: true } }
+export const OpenDevice: Story = {
+  args: { initialTab: 'hardware' },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /windows 10 · edge 140/i }))
+    await expect(actions.onOpenDevice).toHaveBeenCalledWith('d3')
+    await waitFor(() => expect(screen.getByRole('dialog', { name: /hardware of jacutinga/i })).toBeVisible())
   },
 }
 

@@ -1,10 +1,12 @@
 // Dados fictícios do painel admin, usados só nas stories.
+import type { AdminDeviceItem, HardwareSummary } from '@/modules/admin/views/hardware-tab.view'
 import type { AdminServerItem } from '@/modules/admin/views/servers-tab.view'
 import type { AdminServerMember } from '@/modules/admin/views/server-members-dialog.view'
 import type { AdminSessionItem } from '@/modules/admin/views/sessions-dialog.view'
 import type { AdminUserItem } from '@/modules/admin/views/users-tab.view'
 import type { RegistrationKeyItem } from '@/modules/admin/views/keys-tab.view'
 
+import { gamingPc, macbook, oldNotebook } from './hardware'
 import { people, servers } from './index'
 import { members } from './server-settings'
 
@@ -68,3 +70,12 @@ export const fakeQrCode = (() => {
 })()
 
 export const adminServerMembers: AdminServerMember[] = members
+
+export const adminDevices: AdminDeviceItem[] = [
+  { id: 'd1', user: people.shinigame, label: 'Windows 11 · Chrome 141', lastSeenAt: at(-5 * 60_000), hardware: gamingPc },
+  { id: 'd2', user: people.shinigame, label: 'macOS 15.4 · Chrome 141', lastSeenAt: at(-3 * 24 * hour), hardware: macbook },
+  { id: 'd3', user: people.jacutinga, label: 'Windows 10 · Edge 140', lastSeenAt: at(-2 * hour), hardware: oldNotebook },
+  { id: 'd4', user: people.kisnaider, label: 'Windows 11 · Chrome 141', lastSeenAt: at(-20 * 60_000), hardware: { ...gamingPc, cpu: { logicalCores: 12 }, gpu: { ...gamingPc.gpu, renderer: 'AMD Radeon RX 6700 XT (D3D11)' } } },
+]
+
+export const hardwareSummary: HardwareSummary = { devices: 4, minCores: 4, minMemoryGb: 4, accelerationPercent: 75, h264HardwarePercent: 75 }

@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, KeyRoundIcon, ServerIcon, SlidersHorizontalIcon, UsersIcon } from 'lucide-react'
+import { ArrowLeftIcon, CpuIcon, KeyRoundIcon, ServerIcon, SlidersHorizontalIcon, UsersIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -6,10 +6,10 @@ import { BrandLogo } from '@/shared/ui/brand-logo'
 import { Button } from '@/shared/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
-const ADMIN_TABS = ['users', 'servers', 'limits', 'keys'] as const
+const ADMIN_TABS = ['users', 'servers', 'hardware', 'limits', 'keys'] as const
 type AdminTab = (typeof ADMIN_TABS)[number]
 
-const ICONS = { users: UsersIcon, servers: ServerIcon, limits: SlidersHorizontalIcon, keys: KeyRoundIcon } as const
+const ICONS = { users: UsersIcon, servers: ServerIcon, hardware: CpuIcon, limits: SlidersHorizontalIcon, keys: KeyRoundIcon } as const
 
 type AdminLayoutViewProps = {
   tab: AdminTab

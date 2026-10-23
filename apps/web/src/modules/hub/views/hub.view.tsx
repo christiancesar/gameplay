@@ -1,4 +1,5 @@
 import { ChevronRightIcon, Loader2Icon, SettingsIcon, ShieldUserIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BrandLogo } from '@/shared/ui/brand-logo'
@@ -33,6 +34,8 @@ type HubJoinError =
   | 'unexpected'
 
 type HubViewProps = {
+  /** Aviso opcional abaixo do perfil (ex.: permissão de hardware). */
+  banner?: ReactNode
   user: HubUser
   isPlatformAdmin: boolean
   servers: readonly HubServer[]
@@ -55,6 +58,7 @@ type HubViewProps = {
 }
 
 function HubView({
+  banner,
   user,
   isPlatformAdmin,
   servers,
@@ -107,6 +111,8 @@ function HubView({
             ariaLabel={t('common.language')}
           />
         </div>
+
+        {banner}
 
         <div className="mt-10 flex w-full flex-wrap gap-2.5">
           <ul aria-label={t('hub.servers')} className="contents">

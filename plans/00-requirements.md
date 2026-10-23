@@ -109,7 +109,15 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - **Favicon** em rotação com ícones Lucide da categoria gaming.
 - Marca: logos "Gameplay" e "Gameplay UNLIMITED" fornecidos pelo usuário.
 
-### 2.12 Browsers
+### 2.12 Hardware dos dispositivos
+- O app coleta o hardware de cada dispositivo para o admin da plataforma entender onde o Gameplay roda, qual o mínimo viável e quais recursos existem. *(Adicionado em 2026-10-23.)*
+- Coletado no Chrome, sem pedir permissão: SO, versão, arquitetura e bits (User-Agent Client Hints), versão do browser, núcleos lógicos (`hardwareConcurrency`), RAM aproximada (`deviceMemory`, arredondada e com teto), GPU e se a aceleração gráfica está ligada (WebGL/WebGPU), codificação de vídeo por hardware para H.264, VP9 e AV1 a 1080p60 (Media Capabilities), rede (Network Information).
+- Com permissão: todos os monitores com resolução, escala e taxa de atualização (Window Management API). A permissão é pedida num aviso no Hub e também na seção Hardware das Configurações.
+- **Não disponível no browser:** modelo do processador, RAM exata, memória da GPU, disco e placa-mãe. Isso exigiria um app desktop.
+- Enviado ao servidor no login e quando o usuário pede "Coletar de novo"; um registro por dispositivo.
+- O usuário vê o que foi coletado em Configurações > Hardware. O admin vê por usuário e numa aba com o resumo da base (menos núcleos, menos memória, % com aceleração, % com H.264 por hardware).
+
+### 2.13 Browsers
 - Alvo do MVP: **Chromium (Chrome/Edge)**. Firefox e Safari sem garantia.
 
 ## 3. Arquitetura

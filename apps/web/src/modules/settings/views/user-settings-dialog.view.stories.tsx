@@ -3,12 +3,14 @@ import { useState } from 'react'
 import { expect, fn, screen, waitFor } from 'storybook/test'
 
 import { me } from '@/fixtures'
+import { gamingPc, oldNotebook } from '@/fixtures/hardware'
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
 import { useStoryTheme } from '@/fixtures/theme'
 
 import { AccountSectionView } from './account-section.view'
 import { AppearanceSectionView } from './appearance-section.view'
 import { AudioSectionView, type AudioSectionViewProps } from './audio-section.view'
+import { HardwareSectionView } from './hardware-section.view'
 import { ProfileSectionView } from './profile-section.view'
 import { UserSettingsDialogView, type UserSettingsSection } from './user-settings-dialog.view'
 
@@ -27,12 +29,16 @@ type ScenarioProps = {
   isTesting: boolean
   avatarError: boolean
   noAvatar: boolean
+  weakDevice: boolean
+  displaysPermission: 'granted' | 'prompt' | 'denied'
 }
 
 const onSignOut = fn()
 const onToggleTest = fn()
+const onAllowDisplays = fn()
+const lastSentAt = new Date(Date.now() - 5 * 60_000).toISOString()
 
-function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar }: ScenarioProps) {
+function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar, weakDevice, displaysPermission }: ScenarioProps) {
   const [section, setSection] = useState(initialSection)
   const language = useStoryLanguage()
   const theme = useStoryTheme()
@@ -71,6 +77,16 @@ function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar
         onLanguageChange={language.onLanguageChange}
       />
     ),
+    hardware: (
+      <HardwareSectionView
+        hardware={weakDevice ? oldNotebook : displaysPermission === 'granted' ? gamingPc : { ...gamingPc, displays: gamingPc.displays.slice(0, 1) }}
+        displaysPermission={displaysPermission}
+        lastSentAt={lastSentAt}
+        isCollecting={false}
+        onRefresh={fn()}
+        onAllowDisplays={onAllowDisplays}
+      />
+    ),
     account: <AccountSectionView isSigningOut={false} onSignOut={onSignOut} />,
   }[section]
 
@@ -84,9 +100,9 @@ function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar
 const meta = {
   title: 'Settings/UserSettings',
   component: Scenario,
-  args: { initialSection: 'profile', permission: 'granted', isTesting: false, avatarError: false, noAvatar: false },
+  args: { initialSection: 'profile', permission: 'granted', isTesting: false, avatarError: false, noAvatar: false, weakDevice: false, displaysPermission: 'granted' },
   argTypes: {
-    initialSection: { control: 'select', options: ['profile', 'audio', 'appearance', 'account'] },
+    initialSection: { control: 'select', options: ['profile', 'audio', 'appearance', 'hardware', 'account'] },
     permission: { control: 'inline-radio', options: ['granted', 'prompt', 'denied'] },
   },
 } satisfies Meta<typeof Scenario>
@@ -110,6 +126,19 @@ export const AudioPermissionNeeded: Story = { args: { initialSection: 'audio', p
 export const AudioPermissionDenied: Story = { args: { initialSection: 'audio', permission: 'denied' } }
 
 export const Appearance: Story = { args: { initialSection: 'appearance' } }
+
+export const Hardware: Story = { args: { initialSection: 'hardware' } }
+
+export const HardwareMonitorsPermission: Story = {
+  args: { initialSection: 'hardware', displaysPermission: 'prompt' },
+  play: async ({ userEvent }) => {
+    await userEvent.click(await screen.findByRole('button', { name: /^allow$/i }))
+    await expect(onAllowDisplays).toHaveBeenCalledOnce()
+  },
+}
+
+/** Notebook sem aceleração gráfica e sem codificação por hardware. */
+export const HardwareWeakDevice: Story = { args: { initialSection: 'hardware', weakDevice: true, displaysPermission: 'denied' } }
 
 export const Account: Story = {
   args: { initialSection: 'account' },
