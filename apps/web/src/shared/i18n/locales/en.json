@@ -77,7 +77,8 @@
       "inviteKeyRevoked": "This invite key was revoked.",
       "inviteKeyUsed": "This invite key was already used.",
       "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
-      "unexpected": "Something went wrong. Try again."
+      "unexpected": "Something went wrong. Try again.",
+      "twoFactorCodeIncomplete": "Enter the 6 digits from your authenticator app."
     }
   },
   "hub": {
@@ -94,7 +95,8 @@
       "inviteExhausted": "This invite was already used. Ask for a new one.",
       "serverFull": "This server is full.",
       "alreadyMember": "You are already a member of this server.",
-      "unexpected": "Something went wrong. Try again."
+      "unexpected": "Something went wrong. Try again.",
+      "codeRequired": "Enter an invite code."
     },
     "profile": "Profile",
     "joinTitle": "Join a server"
@@ -316,7 +318,8 @@
       "occupants_other": "{{count}} people",
       "errors": {
         "nameRequired": "Give the room a name.",
-        "nameTaken": "There is already a room with this name."
+        "nameTaken": "There is already a room with this name.",
+        "nameTooLong": "Use up to 40 characters."
       }
     },
     "danger": {
@@ -481,7 +484,11 @@
       "serversPerUser": "Servers per user",
       "membersPerServer": "Members per server",
       "roomsPerServer": "Rooms per server",
-      "saved": "Limits saved."
+      "saved": "Limits saved.",
+      "errors": {
+        "atLeastOne": "Use a whole number, 1 or more.",
+        "atLeastZero": "Use a whole number, 0 or more."
+      }
     },
     "keys": {
       "generate": "Generate key",
@@ -582,7 +589,10 @@
       "uploadMbps": "Upload (Mbps)",
       "uploadHint": "Upload matters most for screen share: each viewer receives a separate copy.",
       "save": "Save",
-      "saved": "Saved"
+      "saved": "Saved",
+      "errors": {
+        "positiveNumber": "Enter a number greater than zero."
+      }
     },
     "vram": "Graphics memory",
     "connectionType": "Connection",

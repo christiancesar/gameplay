@@ -35,6 +35,7 @@ const actions = {
   onCopy: fn(),
   onRevoke: fn(),
   onCreateRoom: fn(),
+  onRenameRoom: fn(),
   onDeleteRoom: fn(),
   onLeave: fn(),
   onDeleteServer: fn(),
@@ -45,6 +46,7 @@ const actions = {
 function Scenario({ initialSection, role, full, roomLimitReached, empty, generalErrors, autoApprove: initialAutoApprove }: ScenarioProps) {
   const [autoApprove, setAutoApprove] = useState(initialAutoApprove)
   const [section, setSection] = useState(initialSection)
+  const [editingRoomId, setEditingRoomId] = useState<string>()
   const memberList = full ? fullMembers : members
   const requestList = empty ? [] : requests
   const roomList = roomLimitReached ? settingsRooms : settingsRooms.slice(0, 1)
@@ -55,12 +57,9 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
         values={{ name: 'Turbex', description: 'Dota toda sexta à noite.' }}
         iconUrl={images.serverTurbex}
         coverUrl={generalErrors ? undefined : images.streamFrame}
-        nameError={generalErrors ? 'nameRequired' : undefined}
         coverError={generalErrors ? 'tooLarge' : undefined}
         uploading={{ icon: false, cover: false }}
-        isDirty
         isSaving={false}
-        onChange={fn()}
         onSelectIcon={fn()}
         onRemoveIcon={fn()}
         onSelectCover={fn()}
@@ -108,14 +107,15 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
       <RoomsSectionView
         rooms={roomList}
         roomLimit={2}
-        newRoomName=""
         isCreating={false}
-        onNewRoomNameChange={fn()}
+        editingRoomId={editingRoomId}
         onCreate={actions.onCreateRoom}
-        onStartRename={fn()}
-        onRenameChange={fn()}
-        onRenameSave={fn()}
-        onRenameCancel={fn()}
+        onStartRename={setEditingRoomId}
+        onRename={(roomId, name) => {
+          actions.onRenameRoom(roomId, name)
+          setEditingRoomId(undefined)
+        }}
+        onRenameCancel={() => setEditingRoomId(undefined)}
         onDelete={actions.onDeleteRoom}
       />
     ),
@@ -153,7 +153,31 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const General: Story = {}
-export const GeneralWithErrors: Story = { args: { generalErrors: true } }
+
+/** Capa grande demais (erro de upload) e nome apagado (validação do schema ao salvar). */
+export const GeneralWithErrors: Story = {
+  args: { generalErrors: true },
+  play: async ({ userEvent }) => {
+    const save = screen.getByRole('button', { name: /^save$/i })
+    await expect(save).toBeDisabled()
+    await userEvent.clear(screen.getByLabelText(/^name$/i))
+    await expect(save).toBeEnabled()
+    await userEvent.click(save)
+    await expect(await screen.findByText(/give your server a name/i)).toBeVisible()
+    await expect(actions.onSave).not.toHaveBeenCalled()
+  },
+}
+
+export const SaveGeneral: Story = {
+  play: async ({ userEvent }) => {
+    await userEvent.type(screen.getByLabelText(/^description$/i), ' Sem toxicidade.')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await expect(actions.onSave).toHaveBeenCalledWith(
+      { name: 'Turbex', description: 'Dota toda sexta à noite. Sem toxicidade.' },
+      expect.anything(),
+    )
+  },
+}
 
 export const Invites: Story = { args: { initialSection: 'invites' } }
 export const InvitesAutoApproveOn: Story = { args: { initialSection: 'invites', autoApprove: true } }
@@ -205,6 +229,39 @@ export const KickMember: Story = {
 }
 
 export const Rooms: Story = { args: { initialSection: 'rooms' } }
+/** Validação do schema: nome repetido (sem diferenciar maiúsculas) não chega ao ViewModel. */
+export const RoomNameTaken: Story = {
+  args: { initialSection: 'rooms' },
+  play: async ({ userEvent }) => {
+    const existing = 'Room 01'
+    await userEvent.type(screen.getByLabelText(/new room/i), existing.toUpperCase())
+    await userEvent.click(screen.getByRole('button', { name: /create/i }))
+    await expect(await screen.findByText(/already a room with this name/i)).toBeVisible()
+    await expect(actions.onCreateRoom).not.toHaveBeenCalled()
+
+    await userEvent.clear(screen.getByLabelText(/new room/i))
+    await userEvent.type(screen.getByLabelText(/new room/i), 'Ranked')
+    await userEvent.click(screen.getByRole('button', { name: /create/i }))
+    await expect(actions.onCreateRoom).toHaveBeenCalledWith('Ranked')
+  },
+}
+
+export const RenameRoom: Story = {
+  args: { initialSection: 'rooms' },
+  play: async ({ userEvent }) => {
+    const room = 'Room 01'
+    await userEvent.click(screen.getByRole('button', { name: new RegExp(`rename ${room}`, 'i') }))
+    const input = screen.getByRole('textbox', { name: /^rename$/i })
+    await userEvent.clear(input)
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await expect(await screen.findByText(/give the room a name/i)).toBeVisible()
+
+    await userEvent.type(input, 'Lobby 2')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    await expect(actions.onRenameRoom).toHaveBeenCalledWith(expect.any(String), 'Lobby 2')
+  },
+}
+
 export const RoomsLimitReached: Story = { args: { initialSection: 'rooms', roomLimitReached: true } }
 
 export const DangerOwner: Story = {

@@ -10,7 +10,7 @@ import { useStoryTheme } from '@/fixtures/theme'
 import { AccountSectionView } from './account-section.view'
 import { AppearanceSectionView } from './appearance-section.view'
 import { AudioSectionView, type AudioSectionViewProps } from './audio-section.view'
-import { HardwareSectionView, type ManualHardwareField } from './hardware-section.view'
+import { HardwareSectionView } from './hardware-section.view'
 import { ProfileSectionView } from './profile-section.view'
 import { UserSettingsDialogView, type UserSettingsSection } from './user-settings-dialog.view'
 
@@ -37,12 +37,10 @@ const onSignOut = fn()
 const onToggleTest = fn()
 const onAllowDisplays = fn()
 const onSaveManual = fn()
-const emptyManual: Record<ManualHardwareField, string> = { cpuModel: '', ramGb: '', gpuModel: '', vramGb: '', connection: '', downloadMbps: '', uploadMbps: '' }
 const lastSentAt = new Date(Date.now() - 5 * 60_000).toISOString()
 
 function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar, weakDevice, displaysPermission }: ScenarioProps) {
   const [section, setSection] = useState(initialSection)
-  const [manual, setManual] = useState<Record<ManualHardwareField, string>>(emptyManual)
   const language = useStoryLanguage()
   const theme = useStoryTheme()
 
@@ -86,12 +84,10 @@ function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar
         displaysPermission={displaysPermission}
         lastSentAt={lastSentAt}
         isCollecting={false}
-        manual={manual}
         isSavingManual={false}
         manualSaved={false}
         onRefresh={fn()}
         onAllowDisplays={onAllowDisplays}
-        onManualChange={(field, value) => setManual((current) => ({ ...current, [field]: value }))}
         onSaveManual={onSaveManual}
       />
     ),
@@ -149,9 +145,28 @@ export const HardwareCompleteManually: Story = {
   args: { initialSection: 'hardware' },
   play: async ({ userEvent }) => {
     await userEvent.type(await screen.findByLabelText(/processor model/i), 'AMD Ryzen 7 5800X')
-    await userEvent.type(screen.getByLabelText(/^upload/i), '50')
+    await userEvent.type(screen.getByLabelText(/^ram/i), 'muito')
+    await userEvent.type(screen.getByLabelText(/^upload/i), '50,5')
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
-    await expect(onSaveManual).toHaveBeenCalledOnce()
+    await expect(await screen.findByText(/greater than zero/i)).toBeVisible()
+    await expect(onSaveManual).not.toHaveBeenCalled()
+
+    await userEvent.clear(screen.getByLabelText(/^ram/i))
+    await userEvent.type(screen.getByLabelText(/^ram/i), '32')
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
+    // Texto vira número (vírgula aceita) e campos vazios saem como undefined.
+    await expect(onSaveManual).toHaveBeenCalledWith(
+      {
+        cpuModel: 'AMD Ryzen 7 5800X',
+        ramGb: 32,
+        gpuModel: undefined,
+        vramGb: undefined,
+        connection: undefined,
+        downloadMbps: undefined,
+        uploadMbps: 50.5,
+      },
+      expect.anything(),
+    )
   },
 }
 

@@ -77,7 +77,8 @@
       "inviteKeyRevoked": "Esta key de convite foi revogada.",
       "inviteKeyUsed": "Esta key de convite já foi usada.",
       "tooManyAttempts": "Muitas tentativas. Aguarde um pouco e tente de novo.",
-      "unexpected": "Algo deu errado. Tente de novo."
+      "unexpected": "Algo deu errado. Tente de novo.",
+      "twoFactorCodeIncomplete": "Digite os 6 dígitos do app autenticador."
     }
   },
   "hub": {
@@ -94,7 +95,8 @@
       "inviteExhausted": "Este convite já foi usado. Peça um novo.",
       "serverFull": "Este servidor está cheio.",
       "alreadyMember": "Você já é membro deste servidor.",
-      "unexpected": "Algo deu errado. Tente de novo."
+      "unexpected": "Algo deu errado. Tente de novo.",
+      "codeRequired": "Digite um código de convite."
     },
     "profile": "Perfil",
     "joinTitle": "Entrar em um servidor"
@@ -316,7 +318,8 @@
       "occupants_other": "{{count}} pessoas",
       "errors": {
         "nameRequired": "Dê um nome à sala.",
-        "nameTaken": "Já existe uma sala com esse nome."
+        "nameTaken": "Já existe uma sala com esse nome.",
+        "nameTooLong": "Use até 40 caracteres."
       }
     },
     "danger": {
@@ -481,7 +484,11 @@
       "serversPerUser": "Servidores por usuário",
       "membersPerServer": "Membros por servidor",
       "roomsPerServer": "Salas por servidor",
-      "saved": "Limites salvos."
+      "saved": "Limites salvos.",
+      "errors": {
+        "atLeastOne": "Use um número inteiro, a partir de 1.",
+        "atLeastZero": "Use um número inteiro, a partir de 0."
+      }
     },
     "keys": {
       "generate": "Gerar key",
@@ -582,7 +589,10 @@
       "uploadMbps": "Upload (Mbps)",
       "uploadHint": "O upload é o que mais pesa na transmissão: cada espectador recebe uma cópia separada.",
       "save": "Salvar",
-      "saved": "Salvo"
+      "saved": "Salvo",
+      "errors": {
+        "positiveNumber": "Digite um número maior que zero."
+      }
     },
     "vram": "Memória de vídeo",
     "connectionType": "Conexão",

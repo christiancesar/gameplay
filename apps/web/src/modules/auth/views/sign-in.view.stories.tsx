@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
 import { expect, fn } from 'storybook/test'
 
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
 import { BrowserSupportAlertView } from '@/modules/browser-support/views/browser-support-alert.view'
 
-import { SignInView, type SignInField } from './sign-in.view'
-
-const emptyValues: Record<SignInField, string> = { identifier: '', password: '', twoFactorCode: '' }
+import { SignInView } from './sign-in.view'
 
 const meta = {
   title: 'Auth/SignIn',
@@ -15,32 +12,20 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: {
     step: 'credentials',
-    values: emptyValues,
     useRecoveryCode: false,
     isSubmitting: false,
     language: 'en',
     languageOptions,
     onLanguageChange: fn(),
-    onChange: fn(),
-    onSubmit: fn(),
+    onSubmitCredentials: fn(),
+    onSubmitTwoFactor: fn(),
     onToggleRecoveryCode: fn(),
     onBackToCredentials: fn(),
     onSignUpClick: fn(),
   },
   render: function Render(args) {
-    const [values, setValues] = useState(args.values)
     const language = useStoryLanguage()
-    return (
-      <SignInView
-        {...args}
-        {...language}
-        values={values}
-        onChange={(field, value) => {
-          args.onChange(field, value)
-          setValues((current) => ({ ...current, [field]: value }))
-        }}
-      />
-    )
+    return <SignInView {...args} {...language} />
   },
 } satisfies Meta<typeof SignInView>
 
@@ -50,7 +35,7 @@ type Story = StoryObj<typeof meta>
 export const Empty: Story = {}
 
 export const Filled: Story = {
-  args: { values: { identifier: 'shinigame', password: 'hunter22', twoFactorCode: '' } },
+  args: { defaultCredentials: { identifier: 'shinigame', password: 'hunter22' } },
 }
 
 export const Submitting: Story = {
@@ -81,7 +66,7 @@ export const TwoFactor: Story = {
 }
 
 export const TwoFactorInvalid: Story = {
-  args: { step: 'twoFactor', values: { ...emptyValues, twoFactorCode: '123456' }, formError: 'invalidTwoFactorCode' },
+  args: { step: 'twoFactor', formError: 'invalidTwoFactorCode' },
 }
 
 export const TwoFactorRecoveryCode: Story = {
@@ -94,8 +79,22 @@ export const SubmitCredentials: Story = {
     await userEvent.type(canvas.getByLabelText(/^password$/i), 'hunter22')
     await userEvent.click(canvas.getByRole('button', { name: /login/i }))
 
-    await expect(args.onChange).toHaveBeenLastCalledWith('password', 'hunter22')
-    await expect(args.onSubmit).toHaveBeenCalledOnce()
+    await expect(args.onSubmitCredentials).toHaveBeenCalledWith({ identifier: 'shinigame', password: 'hunter22' }, expect.anything())
+  },
+}
+
+/** Validação do schema: enviar vazio mostra os erros e não chama o ViewModel. */
+export const SubmitEmpty: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /login/i }))
+
+    await expect(await canvas.findAllByText(/this field is required/i)).toHaveLength(2)
+    await expect(canvas.getByLabelText(/^password$/i)).toHaveAttribute('aria-invalid', 'true')
+    await expect(args.onSubmitCredentials).not.toHaveBeenCalled()
+
+    // O erro some assim que o campo fica válido.
+    await userEvent.type(canvas.getByLabelText(/email or username/i), 'shinigame')
+    await expect(canvas.getAllByText(/this field is required/i)).toHaveLength(1)
   },
 }
 
@@ -109,8 +108,14 @@ export const GoToSignUp: Story = {
 export const TypeTwoFactorCode: Story = {
   args: { step: 'twoFactor' },
   play: async ({ args, canvas, userEvent }) => {
-    await userEvent.type(canvas.getByLabelText(/authentication code/i), '12ab3456')
-    await expect(args.onChange).toHaveBeenLastCalledWith('twoFactorCode', '123456')
+    await userEvent.type(canvas.getByLabelText(/authentication code/i), '12ab345')
+    await userEvent.click(canvas.getByRole('button', { name: /verify/i }))
+    await expect(await canvas.findByText(/enter the 6 digits/i)).toBeVisible()
+    await expect(args.onSubmitTwoFactor).not.toHaveBeenCalled()
+
+    await userEvent.type(canvas.getByLabelText(/authentication code/i), '6')
+    await userEvent.click(canvas.getByRole('button', { name: /verify/i }))
+    await expect(args.onSubmitTwoFactor).toHaveBeenCalledWith({ code: '123456' }, expect.anything())
 
     await userEvent.click(canvas.getByRole('button', { name: /use a recovery code/i }))
     await expect(args.onToggleRecoveryCode).toHaveBeenCalledOnce()

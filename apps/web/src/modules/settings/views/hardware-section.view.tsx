@@ -1,60 +1,73 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckIcon, RefreshCwIcon } from 'lucide-react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
+import {
+  CONNECTIONS,
+  manualHardwareSchema,
+  type ManualHardware,
+  type ManualHardwareError,
+  type ManualHardwareField,
+  type ManualHardwareInput,
+} from '@/modules/hardware/model/manual-hardware.schema'
 import { DeviceHardwareView, type DeviceHardware, type DisplaysPermission } from '@/modules/hardware/views/device-hardware.view'
 import { Button } from '@/shared/ui/button'
-import { Field, FieldDescription, FieldLabel } from '@/shared/ui/field'
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/shared/ui/field'
 import { Input } from '@/shared/ui/input'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { SubmitButton } from '@/shared/ui/submit-button'
-
-type ManualHardwareField = 'cpuModel' | 'ramGb' | 'gpuModel' | 'vramGb' | 'connection' | 'downloadMbps' | 'uploadMbps'
 
 type HardwareSectionViewProps = {
   hardware: DeviceHardware
   displaysPermission: DisplaysPermission
   lastSentAt?: string
   isCollecting: boolean
-  /** Valores do formulário de complemento, como texto (o ViewModel converte e valida). */
-  manual: Record<ManualHardwareField, string>
+  /** Complemento já salvo, como texto, para preencher o formulário. */
+  defaultManual?: Partial<ManualHardwareInput>
   isSavingManual: boolean
   manualSaved: boolean
   onRefresh: () => void
   onAllowDisplays: () => void
-  onManualChange: (field: ManualHardwareField, value: string) => void
-  onSaveManual: () => void
+  /** Chamado só com dados que passaram no schema: números convertidos, vazios como undefined. */
+  onSaveManual: (values: ManualHardware) => void
 }
-
-const CONNECTIONS = ['ethernet', 'wifi', 'mobile'] as const
 
 function HardwareSectionView({
   hardware,
   displaysPermission,
   lastSentAt,
   isCollecting,
-  manual,
+  defaultManual,
   isSavingManual,
   manualSaved,
   onRefresh,
   onAllowDisplays,
-  onManualChange,
   onSaveManual,
 }: HardwareSectionViewProps) {
   const { t, i18n } = useTranslation()
+  const form = useForm<ManualHardwareInput, unknown, ManualHardware>({
+    resolver: zodResolver(manualHardwareSchema),
+    defaultValues: { cpuModel: '', ramGb: '', gpuModel: '', vramGb: '', connection: '', downloadMbps: '', uploadMbps: '', ...defaultManual },
+  })
 
-  const textField = (field: ManualHardwareField, props: { placeholder?: string; numeric?: boolean } = {}) => (
-    <Field>
-      <FieldLabel htmlFor={`hw-${field}`}>{t(`hardware.manual.${field}`)}</FieldLabel>
-      <Input
-        id={`hw-${field}`}
-        inputMode={props.numeric ? 'decimal' : undefined}
-        placeholder={props.placeholder}
-        value={manual[field]}
-        onChange={(event) => onManualChange(field, event.target.value)}
-      />
-    </Field>
-  )
+  const textField = (name: Exclude<ManualHardwareField, 'connection'>, props: { placeholder?: string; numeric?: boolean } = {}) => {
+    const error = form.formState.errors[name]?.message as ManualHardwareError | undefined
+    return (
+      <Field data-invalid={Boolean(error)}>
+        <FieldLabel htmlFor={`hw-${name}`}>{t(`hardware.manual.${name}`)}</FieldLabel>
+        <Input
+          {...form.register(name)}
+          id={`hw-${name}`}
+          inputMode={props.numeric ? 'decimal' : undefined}
+          placeholder={props.placeholder}
+          aria-invalid={Boolean(error)}
+        />
+        {error && <FieldError>{t(`hardware.manual.errors.${error}`)}</FieldError>}
+      </Field>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -74,10 +87,7 @@ function HardwareSectionView({
       <form
         noValidate
         className="flex flex-col gap-4 rounded-md border p-4"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSaveManual()
-        }}
+        onSubmit={form.handleSubmit(onSaveManual)}
       >
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-medium">{t('hardware.manual.title')}</h3>
@@ -90,21 +100,27 @@ function HardwareSectionView({
           {textField('vramGb', { numeric: true })}
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field>
-            <FieldLabel htmlFor="hw-connection">{t('hardware.manual.connection')}</FieldLabel>
-            <Select value={manual.connection || undefined} onValueChange={(value) => onManualChange('connection', value)}>
-              <SelectTrigger id="hw-connection" className="w-full">
-                <SelectValue placeholder="–" />
-              </SelectTrigger>
-              <SelectContent>
-                {CONNECTIONS.map((connection) => (
-                  <SelectItem key={connection} value={connection}>
-                    {t(`hardware.manual.connections.${connection}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
+          <Controller
+            name="connection"
+            control={form.control}
+            render={({ field }) => (
+              <Field>
+                <FieldLabel htmlFor="hw-connection">{t('hardware.manual.connection')}</FieldLabel>
+                <Select value={field.value || undefined} onValueChange={field.onChange}>
+                  <SelectTrigger id="hw-connection" className="w-full" onBlur={field.onBlur}>
+                    <SelectValue placeholder="–" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONNECTIONS.map((connection) => (
+                      <SelectItem key={connection} value={connection}>
+                        {t(`hardware.manual.connections.${connection}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
           {textField('downloadMbps', { numeric: true })}
           {textField('uploadMbps', { numeric: true })}
         </div>
@@ -126,4 +142,4 @@ function HardwareSectionView({
 }
 
 export { HardwareSectionView }
-export type { HardwareSectionViewProps, ManualHardwareField }
+export type { HardwareSectionViewProps }

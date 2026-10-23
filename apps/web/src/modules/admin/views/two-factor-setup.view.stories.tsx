@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
 import { expect, fn } from 'storybook/test'
 
 import { fakeQrCode, recoveryCodes } from '@/fixtures/admin'
@@ -10,7 +9,6 @@ const scan: TwoFactorSetupState = {
   step: 'scan',
   qrCodeUrl: fakeQrCode,
   secret: 'JBSW Y3DP EHPK 3PXP',
-  code: '',
   isVerifying: false,
   invalidCode: false,
 }
@@ -21,25 +19,10 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: {
     state: scan,
-    onCodeChange: fn(),
     onVerify: fn(),
     onCopyCodes: fn(),
     onDownloadCodes: fn(),
     onFinish: fn(),
-  },
-  render: function Render(args) {
-    const [code, setCode] = useState(args.state.step === 'scan' ? args.state.code : '')
-    const state = args.state.step === 'scan' ? { ...args.state, code } : args.state
-    return (
-      <TwoFactorSetupView
-        {...args}
-        state={state}
-        onCodeChange={(value) => {
-          args.onCodeChange(value)
-          setCode(value)
-        }}
-      />
-    )
   },
 } satisfies Meta<typeof TwoFactorSetupView>
 
@@ -49,16 +32,20 @@ type Story = StoryObj<typeof meta>
 export const ScanQrCode: Story = {
   play: async ({ args, canvas, userEvent }) => {
     const verify = canvas.getByRole('button', { name: /verify/i })
-    await expect(verify).toBeDisabled()
-    await userEvent.type(canvas.getByLabelText(/6-digit code/i), '123456')
+    await userEvent.type(canvas.getByLabelText(/6-digit code/i), '1234')
     await userEvent.click(verify)
-    await expect(args.onVerify).toHaveBeenCalledOnce()
+    await expect(await canvas.findByText(/enter the 6 digits/i)).toBeVisible()
+    await expect(args.onVerify).not.toHaveBeenCalled()
+
+    await userEvent.type(canvas.getByLabelText(/6-digit code/i), '56')
+    await userEvent.click(verify)
+    await expect(args.onVerify).toHaveBeenCalledWith({ code: '123456' }, expect.anything())
   },
 }
 
-export const Verifying: Story = { args: { state: { ...scan, code: '123456', isVerifying: true } } }
+export const Verifying: Story = { args: { state: { ...scan, isVerifying: true } } }
 
-export const InvalidCode: Story = { args: { state: { ...scan, code: '123456', invalidCode: true } } }
+export const InvalidCode: Story = { args: { state: { ...scan, invalidCode: true } } }
 
 export const RecoveryCodes: Story = { args: { state: { step: 'recovery', recoveryCodes, copied: false } } }
 

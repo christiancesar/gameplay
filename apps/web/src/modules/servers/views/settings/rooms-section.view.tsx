@@ -1,5 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { AudioLinesIcon, CheckIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+
+import { ROOM_NAME_MAX, roomNameSchema, type RoomNameError, type RoomNameValues } from '@/modules/servers/model/room.schema'
 
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
@@ -14,21 +18,16 @@ type RoomItem = {
   occupants: number
 }
 
-type RoomNameError = 'nameRequired' | 'nameTaken'
-
 type RoomsSectionViewProps = {
   rooms: readonly RoomItem[]
   roomLimit: number
-  newRoomName: string
-  newRoomError?: RoomNameError
   isCreating: boolean
-  /** Sala em edição de nome, com o texto atual. */
-  editing?: { roomId: string; name: string; error?: RoomNameError }
-  onNewRoomNameChange: (value: string) => void
-  onCreate: () => void
+  /** Sala com o nome em edição. */
+  editingRoomId?: string
+  /** Chamados só com nomes que passaram no schema (preenchido, até 40 caracteres, sem repetir). */
+  onCreate: (name: string) => void
   onStartRename: (roomId: string) => void
-  onRenameChange: (value: string) => void
-  onRenameSave: () => void
+  onRename: (roomId: string, name: string) => void
   onRenameCancel: () => void
   onDelete: (roomId: string) => void
 }
@@ -36,15 +35,11 @@ type RoomsSectionViewProps = {
 function RoomsSectionView({
   rooms,
   roomLimit,
-  newRoomName,
-  newRoomError,
   isCreating,
-  editing,
-  onNewRoomNameChange,
+  editingRoomId,
   onCreate,
   onStartRename,
-  onRenameChange,
-  onRenameSave,
+  onRename,
   onRenameCancel,
   onDelete,
 }: RoomsSectionViewProps) {
@@ -60,62 +55,23 @@ function RoomsSectionView({
           <AlertDescription>{t('serverSettings.rooms.blockedLimit', { count: rooms.length, max: roomLimit })}</AlertDescription>
         </Alert>
       ) : (
-        <form
-          noValidate
-          className="flex flex-col gap-2"
-          onSubmit={(event) => {
-            event.preventDefault()
-            onCreate()
-          }}
-        >
-          <div className="flex gap-2">
-            <Input
-              aria-label={t('serverSettings.rooms.newRoom')}
-              placeholder={t('serverSettings.rooms.newRoom')}
-              value={newRoomName}
-              maxLength={40}
-              aria-invalid={Boolean(newRoomError)}
-              onChange={(event) => onNewRoomNameChange(event.target.value)}
-            />
-            <Button type="submit" disabled={isCreating} aria-busy={isCreating}>
-              <PlusIcon data-icon="inline-start" aria-hidden />
-              {t('serverSettings.rooms.create')}
-            </Button>
-          </div>
-          {newRoomError && <FieldError>{t(`serverSettings.rooms.errors.${newRoomError}`)}</FieldError>}
-        </form>
+        // A key limpa o campo quando a sala criada entra na lista.
+        <NewRoomForm key={rooms.length} takenNames={rooms.map((room) => room.name)} isCreating={isCreating} onCreate={onCreate} />
       )}
 
       <ul className="divide-y rounded-md border">
         {rooms.map((room) => {
-          const isEditing = editing?.roomId === room.id
+          const isEditing = editingRoomId === room.id
           return (
             <li key={room.id} className="flex items-center gap-3 px-4 py-2.5">
               <AudioLinesIcon className="text-muted-foreground size-4 shrink-0" aria-hidden />
               {isEditing ? (
-                <form
-                  noValidate
-                  className="flex flex-1 flex-col gap-1"
-                  onSubmit={(event) => {
-                    event.preventDefault()
-                    onRenameSave()
-                  }}
-                >
-                  <div className="flex items-center gap-1">
-                    <Input
-                      autoFocus
-                      aria-label={t('serverSettings.rooms.rename')}
-                      value={editing.name}
-                      maxLength={40}
-                      aria-invalid={Boolean(editing.error)}
-                      onChange={(event) => onRenameChange(event.target.value)}
-                      onKeyDown={(event) => event.key === 'Escape' && onRenameCancel()}
-                    />
-                    <IconButton type="submit" label={t('common.save')} icon={<CheckIcon />} />
-                    <IconButton label={t('common.cancel')} icon={<XIcon />} onClick={onRenameCancel} />
-                  </div>
-                  {editing.error && <FieldError>{t(`serverSettings.rooms.errors.${editing.error}`)}</FieldError>}
-                </form>
+                <RenameRoomForm
+                  name={room.name}
+                  takenNames={rooms.filter((other) => other.id !== room.id).map((other) => other.name)}
+                  onSave={(name) => onRename(room.id, name)}
+                  onCancel={onRenameCancel}
+                />
               ) : (
                 <>
                   <div className="min-w-0 flex-1">
@@ -148,5 +104,67 @@ function RoomsSectionView({
   )
 }
 
+type NewRoomFormProps = {
+  takenNames: readonly string[]
+  isCreating: boolean
+  onCreate: (name: string) => void
+}
+
+function NewRoomForm({ takenNames, isCreating, onCreate }: NewRoomFormProps) {
+  const { t } = useTranslation()
+  const form = useForm<RoomNameValues>({ resolver: zodResolver(roomNameSchema(takenNames)), defaultValues: { name: '' } })
+  const error = form.formState.errors.name?.message as RoomNameError | undefined
+
+  return (
+    <form noValidate className="flex flex-col gap-2" onSubmit={form.handleSubmit(({ name }) => onCreate(name))}>
+      <div className="flex gap-2">
+        <Input
+          {...form.register('name')}
+          aria-label={t('serverSettings.rooms.newRoom')}
+          placeholder={t('serverSettings.rooms.newRoom')}
+          maxLength={ROOM_NAME_MAX + 20}
+          aria-invalid={Boolean(error)}
+        />
+        <Button type="submit" disabled={isCreating} aria-busy={isCreating}>
+          <PlusIcon data-icon="inline-start" aria-hidden />
+          {t('serverSettings.rooms.create')}
+        </Button>
+      </div>
+      {error && <FieldError>{t(`serverSettings.rooms.errors.${error}`)}</FieldError>}
+    </form>
+  )
+}
+
+type RenameRoomFormProps = {
+  name: string
+  takenNames: readonly string[]
+  onSave: (name: string) => void
+  onCancel: () => void
+}
+
+function RenameRoomForm({ name, takenNames, onSave, onCancel }: RenameRoomFormProps) {
+  const { t } = useTranslation()
+  const form = useForm<RoomNameValues>({ resolver: zodResolver(roomNameSchema(takenNames)), defaultValues: { name } })
+  const error = form.formState.errors.name?.message as RoomNameError | undefined
+
+  return (
+    <form noValidate className="flex flex-1 flex-col gap-1" onSubmit={form.handleSubmit((values) => onSave(values.name))}>
+      <div className="flex items-center gap-1">
+        <Input
+          {...form.register('name')}
+          autoFocus
+          aria-label={t('serverSettings.rooms.rename')}
+          maxLength={ROOM_NAME_MAX + 20}
+          aria-invalid={Boolean(error)}
+          onKeyDown={(event) => event.key === 'Escape' && onCancel()}
+        />
+        <IconButton type="submit" label={t('common.save')} icon={<CheckIcon />} />
+        <IconButton label={t('common.cancel')} icon={<XIcon />} onClick={onCancel} />
+      </div>
+      {error && <FieldError>{t(`serverSettings.rooms.errors.${error}`)}</FieldError>}
+    </form>
+  )
+}
+
 export { RoomsSectionView }
-export type { RoomItem, RoomNameError, RoomsSectionViewProps }
+export type { RoomItem, RoomsSectionViewProps }

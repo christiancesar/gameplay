@@ -20,7 +20,7 @@ type Overlay = 'none' | 'sessions' | 'resetPassword' | 'userLimit' | 'serverLimi
 
 type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean }
 
-const actions = { onOpenDevice: fn(), onSuspend: fn(), onEndSessions: fn(), onDeleteServer: fn(), onGenerateKey: fn(), onTabChange: fn() }
+const actions = { onOpenDevice: fn(), onSuspend: fn(), onEndSessions: fn(), onDeleteServer: fn(), onGenerateKey: fn(), onTabChange: fn(), onSaveLimits: fn(), onResetPassword: fn(), onSaveOverrides: fn() }
 
 function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
   const [tab, setTab] = useState(initialTab)
@@ -64,7 +64,7 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       />
     ),
     limits: (
-      <LimitsTabView values={{ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 2 }} isDirty={false} isSaving={false} onChange={fn()} onSave={fn()} />
+      <LimitsTabView values={{ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 2 }} isSaving={false} onSave={actions.onSaveLimits} />
     ),
     keys: (
       <KeysTabView
@@ -107,13 +107,12 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       <ResetPasswordDialogView
         open={overlay === 'resetPassword'}
         userName="Jacutinga"
-        password="vX9-tq2M-pL7w"
+        initialPassword="vX9-tq2M-pL7w"
         isSubmitting={false}
         onOpenChange={fn()}
-        onPasswordChange={fn()}
-        onGenerate={fn()}
+        onGenerate={() => 'Qr4-nB8z-Ws2k'}
         onCopy={fn()}
-        onSubmit={fn()}
+        onSubmit={actions.onResetPassword}
       />
       <LimitDialogView
         open={overlay === 'userLimit'}
@@ -121,8 +120,7 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
         fields={[{ id: 'servers', label: 'Servers per user', defaultValue: 1, override: 3 }]}
         isSaving={false}
         onOpenChange={fn()}
-        onOverrideChange={fn()}
-        onSave={fn()}
+        onSave={actions.onSaveOverrides}
       />
       <LimitDialogView
         open={overlay === 'serverLimits'}
@@ -133,8 +131,7 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
         ]}
         isSaving={false}
         onOpenChange={fn()}
-        onOverrideChange={fn()}
-        onSave={fn()}
+        onSave={actions.onSaveOverrides}
       />
     </>
   )
@@ -159,6 +156,39 @@ export const UsersEmpty: Story = { args: { empty: true } }
 export const UserSessions: Story = { args: { overlay: 'sessions' } }
 export const ResetPassword: Story = { args: { overlay: 'resetPassword' } }
 export const UserServerLimit: Story = { args: { overlay: 'userLimit' } }
+
+/** Validação do schema: senha curta não chega ao ViewModel; gerar preenche uma nova. */
+export const ResetPasswordValidation: Story = {
+  args: { overlay: 'resetPassword' },
+  play: async ({ userEvent }) => {
+    const input = await screen.findByLabelText(/new password/i)
+    await userEvent.clear(input)
+    await userEvent.type(input, 'abc')
+    await userEvent.click(screen.getByRole('button', { name: /reset password/i }))
+    await waitFor(() => expect(screen.getByText(/at least 8 characters/i)).toBeVisible())
+    await expect(actions.onResetPassword).not.toHaveBeenCalled()
+
+    await userEvent.click(screen.getByRole('button', { name: /generate/i }))
+    await expect(input).toHaveValue('Qr4-nB8z-Ws2k')
+    await userEvent.click(screen.getByRole('button', { name: /reset password/i }))
+    await expect(actions.onResetPassword).toHaveBeenCalledWith({ password: 'Qr4-nB8z-Ws2k' }, expect.anything())
+  },
+}
+
+export const ServerLimitsValidation: Story = {
+  args: { initialTab: 'servers', overlay: 'serverLimits' },
+  play: async ({ userEvent }) => {
+    const members = await screen.findByLabelText(/^members per server$/i)
+    await userEvent.clear(members)
+    await userEvent.click(screen.getByRole('button', { name: /save/i }))
+    await waitFor(() => expect(screen.getByText(/0 or more/i)).toBeVisible())
+    await expect(actions.onSaveOverrides).not.toHaveBeenCalled()
+
+    await userEvent.type(members, '25')
+    await userEvent.click(screen.getByRole('button', { name: /save/i }))
+    await expect(actions.onSaveOverrides).toHaveBeenCalledWith({ members: 25, rooms: undefined }, expect.anything())
+  },
+}
 
 export const SuspendUser: Story = {
   play: async ({ canvas, userEvent }) => {
@@ -207,6 +237,25 @@ export const DeleteServer: Story = {
 }
 
 export const GlobalLimits: Story = { args: { initialTab: 'limits' } }
+
+export const GlobalLimitsValidation: Story = {
+  args: { initialTab: 'limits' },
+  play: async ({ canvas, userEvent }) => {
+    const save = canvas.getByRole('button', { name: /^save$/i })
+    await expect(save).toBeDisabled()
+    const rooms = canvas.getByLabelText(/rooms per server/i)
+    await userEvent.clear(rooms)
+    await userEvent.type(rooms, '0')
+    await userEvent.click(save)
+    await expect(await canvas.findByText(/1 or more/i)).toBeVisible()
+    await expect(actions.onSaveLimits).not.toHaveBeenCalled()
+
+    await userEvent.clear(rooms)
+    await userEvent.type(rooms, '3')
+    await userEvent.click(save)
+    await expect(actions.onSaveLimits).toHaveBeenCalledWith({ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 3 }, expect.anything())
+  },
+}
 
 export const SignUpKeys: Story = { args: { initialTab: 'keys' } }
 export const NewSignUpKey: Story = { args: { initialTab: 'keys', overlay: 'newKey' } }

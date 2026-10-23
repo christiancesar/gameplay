@@ -1,93 +1,93 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
+import { Controller, useForm } from 'react-hook-form'
 import { Trans, useTranslation } from 'react-i18next'
+
+import {
+  INVITE_KEY_LENGTH,
+  signUpSchema,
+  type SignUpField,
+  type SignUpFieldError,
+  type SignUpInput,
+  type SignUpServerError,
+  type SignUpValues,
+} from '@/modules/auth/model/sign-up.schema'
+import { useServerErrors } from '@/shared/lib/form'
 
 import { Button } from '@/shared/ui/button'
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
 import { Input } from '@/shared/ui/input'
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/shared/ui/input-otp'
 
-import { AuthLayoutView, type AuthLayoutViewProps } from './auth-layout.view'
 import { SubmitButton } from '@/shared/ui/submit-button'
 
-type SignUpField = 'username' | 'email' | 'password' | 'confirmPassword' | 'inviteKey'
-
-type SignUpFieldError =
-  | 'required'
-  | 'usernameInvalid'
-  | 'usernameTaken'
-  | 'emailInvalid'
-  | 'emailTaken'
-  | 'passwordTooShort'
-  | 'passwordMismatch'
-  | 'inviteKeyIncomplete'
-  | 'inviteKeyInvalid'
-  | 'inviteKeyExpired'
-  | 'inviteKeyRevoked'
-  | 'inviteKeyUsed'
-  | 'tooManyAttempts'
+import { AuthLayoutView, type AuthLayoutViewProps } from './auth-layout.view'
 
 type SignUpFormError = 'unexpected'
 
 type SignUpViewProps = Omit<AuthLayoutViewProps, 'children'> & {
-  values: Record<SignUpField, string>
-  fieldErrors: Partial<Record<SignUpField, SignUpFieldError>>
+  defaultValues?: Partial<SignUpInput>
+  /** Erros por campo vindos do servidor; somem quando o usuário corrige o campo. */
+  fieldErrors?: Partial<Record<SignUpField, SignUpServerError>>
   formError?: SignUpFormError
   isSubmitting: boolean
   /** Nome do servidor quando o cadastro veio de um link de convite (F3). */
   invitedServerName?: string
-  onChange: (field: SignUpField, value: string) => void
-  onSubmit: () => void
+  /** Chamado só com dados que passaram no schema. */
+  onSubmit: (values: SignUpValues) => void
   onSignInClick: () => void
 }
 
-const INVITE_KEY_LENGTH = 6
-
 function SignUpView({
-  values,
+  defaultValues,
   fieldErrors,
   formError,
   isSubmitting,
   invitedServerName,
-  onChange,
   onSubmit,
   onSignInClick,
   ...layout
 }: SignUpViewProps) {
   const { t } = useTranslation()
+  const form = useForm<SignUpInput, unknown, SignUpValues>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: { username: '', email: '', password: '', confirmPassword: '', inviteKey: '', ...defaultValues },
+    errors: useServerErrors<SignUpInput>(fieldErrors),
+  })
 
   const textField = (
-    field: Exclude<SignUpField, 'inviteKey'>,
+    name: Exclude<SignUpField, 'inviteKey'>,
     props: { type?: string; autoComplete: string; autoFocus?: boolean },
-  ) => {
-    const error = fieldErrors[field]
-    const id = `sign-up-${field}`
-    return (
-      <Field data-invalid={Boolean(error)}>
-        <FieldLabel htmlFor={id}>{t(`auth.signUp.${field}`)}</FieldLabel>
-        <Input
-          id={id}
-          {...props}
-          value={values[field]}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-error` : undefined}
-          onChange={(event) => onChange(field, event.target.value)}
-        />
-        {error && <FieldError id={`${id}-error`}>{t(`auth.errors.${error}`)}</FieldError>}
-      </Field>
-    )
-  }
-
-  const inviteKeyError = fieldErrors.inviteKey
+  ) => (
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field, fieldState }) => {
+        const id = `sign-up-${name}`
+        const error = fieldState.error?.message as SignUpFieldError | undefined
+        return (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor={id}>{t(`auth.signUp.${name}`)}</FieldLabel>
+            <Input
+              {...field}
+              id={id}
+              {...props}
+              aria-invalid={fieldState.invalid}
+              aria-describedby={error ? `${id}-error` : undefined}
+            />
+            {error && <FieldError id={`${id}-error`}>{t(`auth.errors.${error}`)}</FieldError>}
+          </Field>
+        )
+      }}
+    />
+  )
 
   return (
     <AuthLayoutView {...layout}>
       <form
         noValidate
         className="bg-card text-card-foreground flex flex-col gap-6 rounded-lg border p-6"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSubmit()
-        }}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <div className="flex flex-col gap-1 text-center">
           <h1 className="text-xl font-medium">{t('auth.signUp.title')}</h1>
@@ -108,38 +108,48 @@ function SignUpView({
             {textField('password', { type: 'password', autoComplete: 'new-password' })}
             {textField('confirmPassword', { type: 'password', autoComplete: 'new-password' })}
           </div>
-          <Field data-invalid={Boolean(inviteKeyError)}>
-            <FieldLabel htmlFor="sign-up-invite-key">{t('auth.signUp.inviteKey')}</FieldLabel>
-            <InputOTP
-              id="sign-up-invite-key"
-              maxLength={INVITE_KEY_LENGTH}
-              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-              autoComplete="off"
-              spellCheck={false}
-              value={values.inviteKey}
-              aria-invalid={Boolean(inviteKeyError)}
-              aria-describedby={inviteKeyError ? 'sign-up-invite-key-error' : 'sign-up-invite-key-description'}
-              onChange={(value) => onChange('inviteKey', value)}
-            >
-              <InputOTPGroup className="w-full">
-                {Array.from({ length: INVITE_KEY_LENGTH }, (_, index) => (
-                  <InputOTPSlot
-                    key={index}
-                    index={index}
-                    className="h-10 flex-1 font-mono text-base uppercase"
-                    aria-invalid={Boolean(inviteKeyError)}
-                  />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
-            {inviteKeyError ? (
-              <FieldError id="sign-up-invite-key-error">{t(`auth.errors.${inviteKeyError}`)}</FieldError>
-            ) : (
-              <FieldDescription id="sign-up-invite-key-description">
-                {t('auth.signUp.inviteKeyDescription')}
-              </FieldDescription>
-            )}
-          </Field>
+          <Controller
+            name="inviteKey"
+            control={form.control}
+            render={({ field, fieldState }) => {
+              const error = fieldState.error?.message as SignUpFieldError | undefined
+              return (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="sign-up-invite-key">{t('auth.signUp.inviteKey')}</FieldLabel>
+                  <InputOTP
+                    id="sign-up-invite-key"
+                    ref={field.ref}
+                    name={field.name}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    maxLength={INVITE_KEY_LENGTH}
+                    pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                    autoComplete="off"
+                    spellCheck={false}
+                    aria-invalid={fieldState.invalid}
+                    aria-describedby={error ? 'sign-up-invite-key-error' : 'sign-up-invite-key-description'}
+                  >
+                    <InputOTPGroup className="w-full">
+                      {Array.from({ length: INVITE_KEY_LENGTH }, (_, index) => (
+                        <InputOTPSlot
+                          key={index}
+                          index={index}
+                          className="h-10 flex-1 font-mono text-base uppercase"
+                          aria-invalid={fieldState.invalid}
+                        />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                  {error ? (
+                    <FieldError id="sign-up-invite-key-error">{t(`auth.errors.${error}`)}</FieldError>
+                  ) : (
+                    <FieldDescription id="sign-up-invite-key-description">{t('auth.signUp.inviteKeyDescription')}</FieldDescription>
+                  )}
+                </Field>
+              )
+            }}
+          />
           {formError && <FieldError>{t(`auth.errors.${formError}`)}</FieldError>}
         </FieldGroup>
         <SubmitButton isSubmitting={isSubmitting} label={t('auth.signUp.submit')} />
@@ -155,4 +165,4 @@ function SignUpView({
 }
 
 export { SignUpView }
-export type { SignUpField, SignUpFieldError, SignUpFormError, SignUpViewProps }
+export type { SignUpFormError, SignUpViewProps }
