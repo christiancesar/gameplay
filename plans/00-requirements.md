@@ -231,18 +231,20 @@ apps/api/
 ### 3.4 Frontend (`apps/web`): MVVM
 - **React + Vite + TanStack Router** (rotas por arquivo, `beforeLoad` para auth, `loader` integrado ao TanStack Query).
 - **TanStack Query, Axios, Zustand, Tailwind, shadcn/ui.**
+- **Formulários: React Hook Form + Zod** (`@hookform/resolvers/zod`), com os campos montados no `Field` do shadcn.
 - Build estático servido pelo nginx.
 
 **MVVM é a arquitetura do frontend inteiro**, com View separada de lógica de negócio:
 
 | Camada | Responsabilidade | Pode usar |
 |---|---|---|
-| **Model** | `entities/` (tipos de domínio), `rules/` (regras de negócio como funções puras), `services/` (Axios, Socket.IO, `MediaTransport`), `mappers/` (DTO para entidade) | `packages/shared` |
+| **Model** | `entities/` (tipos de domínio), `rules/` (regras de negócio como funções puras), `*.schema.ts` (schemas Zod dos formulários; mensagens são chaves de i18n), `services/` (Axios, Socket.IO, `MediaTransport`), `mappers/` (DTO para entidade) | `packages/shared` |
 | **ViewModel** | Hook por tela/caso de uso. Orquestra TanStack Query (estado de servidor), Zustand (estado de cliente) e services/rules. Expõe estado pronto para exibir + comandos. Sem JSX. | Model |
-| **View** | Componentes de apresentação. Só props e callbacks. Sem query, store, axios ou regra. | `shared/ui` |
+| **View** | Componentes de apresentação. Só props e callbacks. Sem query, store, axios ou regra. Formulário: a View é dona do `useForm` (estado de digitação, campos tocados, erros na tela) com o schema do Model, e só chama o ViewModel com dados já validados (`onSubmit(values)`). Erros que só o servidor conhece chegam por prop e entram no form via `useServerErrors`. | `shared/ui`, schemas do Model |
 | **Screen** | Cola fina usada pela rota: chama o ViewModel e passa o resultado para a View. | ViewModel, View |
 
-- Dependência em uma direção só, **garantida por lint** (`eslint-plugin-boundaries`) no CI.
+- Dependência em uma direção só, **garantida por lint** (`eslint-plugin-boundaries`) no CI. Única exceção: a View importa os schemas Zod (`model/*.schema.ts`).
+- Schemas que o backend também valida (cadastro, nome de servidor, código de convite) migram para `packages/shared` quando a API existir, e o NestJS usa os mesmos via `ZodPipe`.
 
 ```
 apps/web/
