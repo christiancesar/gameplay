@@ -11,11 +11,8 @@ const sharePanel = (
   <SharePanelView
     state={{ status: 'idle' }}
     onStart={fn()}
-    onPresetChange={fn()}
-    onIncludeAudioChange={fn()}
-    onConfirm={fn()}
-    onCancel={fn()}
     onStop={fn()}
+    onOpenDetails={fn()}
   />
 )
 

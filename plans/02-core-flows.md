@@ -169,13 +169,22 @@
 
 ## F9 · Compartilhar tela
 
-**Gatilho:** painel de transmissão no card do usuário, enquanto está numa sala. Visual a desenhar no Storybook.
+**Gatilho:** painel de transmissão no card do usuário, enquanto está numa sala. Visual desenhado no Storybook (`ScreenShare/*`).
 
-1. **Parado:** o painel é um botão grande de compartilhar tela.
-2. Ao clicar: escolha da qualidade (720p30, 720p60, 1080p30 ou 1080p60) e opção de incluir áudio.
-3. Abre o seletor nativo do browser para escolher a tela, janela ou aba. Cancelar no seletor volta ao estado parado.
-4. **Transmitindo:** o painel vira um monitor com taxa de envio, banda, fps e resolução reais, número de espectadores e o botão de parar. A sala mostra para todos que a pessoa está "ao vivo".
-5. Se o upload não aguentar a qualidade, o monitor mostra um aviso sugerindo um preset menor.
+1. **Parado:** o painel é um botão verde grande de compartilhar tela.
+2. Ao clicar, abre o **modal de compartilhamento**:
+   - **O que compartilhar:** tela inteira, janela ou jogo, ou aba do navegador. O app não consegue listar as telas, janelas e jogos abertos (limitação do browser). Essa escolha vira a dica `displaySurface`, e o seletor nativo do Chrome abre já na aba certa.
+   - Dica para jogos: tela cheia exclusiva pode sair preta; usar modo janela sem bordas.
+   - **Resolução** (720p ou 1080p) e **FPS** (30 ou 60), formando os 4 presets.
+   - **Áudio**, com aviso de suporte: aba em qualquer SO, tela inteira só no Windows, janela não tem áudio.
+   - "Usar estas configurações da próxima vez": o modal abre com o padrão salvo do usuário.
+3. "Escolher e compartilhar" abre o seletor nativo do browser para escolher a tela, janela ou aba exata. Cancelar no seletor volta ao estado parado.
+4. **Transmitindo:** o painel vira um monitor com:
+   - **Alvo** (o que a pessoa escolheu) e **Entregando** (a pior qualidade real entre os espectadores), com barras de resolução e FPS em relação ao alvo, e a taxa de envio.
+   - Quando está abaixo do alvo, o **motivo**: rede ou computador (vem do `qualityLimitationReason` do WebRTC), com sugestão (baixar para 720p ou 30 fps, fechar downloads ou apps pesados).
+   - Número de espectadores, botão **Detalhes** e botão **Parar**.
+   - Sem espectadores, nada é enviado, então não há qualidade para medir.
+5. **Detalhes:** tabela por espectador (resolução, FPS, envio e status), porque em mesh cada espectador recebe uma cópia codificada separadamente e a qualidade pode variar entre eles.
 6. Parar: pelo botão do painel ou pelo "parar compartilhamento" do browser. Sair da sala também encerra a transmissão.
 
 ## F10 · Assistir tela

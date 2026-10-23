@@ -1,4 +1,6 @@
 // Estado fictício da tela do servidor, usado só nas stories.
+import type { SharePanelState } from '@/modules/screen-share/views/share-panel.view'
+import type { ViewerQuality } from '@/modules/screen-share/views/share-details-dialog.view'
 import type { StageParticipant } from '@/modules/rooms/views/participant-tile.view'
 import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
 
@@ -55,4 +57,47 @@ export const stageConnecting: StageParticipant[] = [
   { ...people.lua, ...stageBase, isDeafened: true, isMuted: true, volume: 60 },
 ]
 
-export const liveStats = { uploadKbps: 8400, bandwidthKbps: 9200, fps: 59.6, width: 1920, height: 1080 }
+// Estados ao vivo do painel de transmissão.
+
+const target = { resolution: '1080p', fps: 60 } as const
+
+export const liveOnTarget: SharePanelState = {
+  status: 'live',
+  source: 'window',
+  target,
+  delivering: { width: 1920, height: 1080, fps: 59.6, kbps: 8400 },
+  isOnTarget: true,
+  limitation: 'none',
+  viewerCount: 2,
+}
+
+export const liveLimitedByNetwork: SharePanelState = {
+  ...liveOnTarget,
+  delivering: { width: 1280, height: 720, fps: 42, kbps: 2100 },
+  isOnTarget: false,
+  limitation: 'bandwidth',
+  viewerCount: 3,
+}
+
+export const liveLimitedByCpu: SharePanelState = {
+  ...liveOnTarget,
+  source: 'screen',
+  delivering: { width: 1920, height: 1080, fps: 27, kbps: 5200 },
+  isOnTarget: false,
+  limitation: 'cpu',
+}
+
+export const liveNoViewers: SharePanelState = {
+  status: 'live',
+  source: 'tab',
+  target: { resolution: '720p', fps: 30 },
+  isOnTarget: true,
+  limitation: 'none',
+  viewerCount: 0,
+}
+
+export const viewerQualities: ViewerQuality[] = [
+  { ...people.jacutinga, quality: { width: 1920, height: 1080, fps: 59.8, kbps: 8600 }, isOnTarget: true, limitation: 'none' },
+  { ...people.kisnaider, quality: { width: 1280, height: 720, fps: 48, kbps: 3100 }, isOnTarget: false, limitation: 'bandwidth' },
+  { ...people.marreta, quality: { width: 1280, height: 720, fps: 42, kbps: 2100 }, isOnTarget: false, limitation: 'bandwidth' },
+]

@@ -130,10 +130,6 @@
   },
   "share": {
     "start": "Share screen",
-    "quality": "Quality",
-    "includeAudio": "Include audio",
-    "includeAudioHint": "Tab audio works on any system. Full screen audio only on Windows.",
-    "choose": "Choose screen",
     "waitingPicker": "Pick a screen, window or tab in the browser dialog…",
     "live": "Live",
     "stop": "Stop sharing",
@@ -141,18 +137,69 @@
     "viewers_other": "{{count}} viewers",
     "stats": {
       "upload": "Upload",
-      "bandwidth": "Bandwidth",
       "fps": "FPS",
-      "resolution": "Resolution"
+      "resolution": "Resolution",
+      "status": "Status"
     },
-    "degraded": "Your upload can't keep up with {{preset}}. Try a lower quality.",
     "watch": "Watch",
     "watching": "Watching",
     "stopWatching": "Stop watching",
     "fullscreen": "Fullscreen",
     "streamVolume": "Stream volume",
     "liveNow": "Live now",
-    "isLive": "{{name}} is live"
+    "isLive": "{{name}} is live",
+    "setup": {
+      "title": "Share your screen",
+      "description": "Pick what you want to share and the quality. Next, the browser asks you to choose the exact screen, window or tab.",
+      "source": "What to share",
+      "sources": {
+        "screen": {
+          "label": "Entire screen",
+          "hint": "Everything on one monitor."
+        },
+        "window": {
+          "label": "Window or game",
+          "hint": "A single app. Games show up here."
+        },
+        "tab": {
+          "label": "Browser tab",
+          "hint": "A Chrome tab, with its audio."
+        }
+      },
+      "gameTip": "Games in exclusive fullscreen can show up black. Use borderless window mode.",
+      "resolution": "Resolution",
+      "fps": "Frame rate",
+      "audio": "Share audio",
+      "audioSupport": {
+        "supported": "Tab audio works on any system.",
+        "windowsOnly": "Screen audio only works on Windows.",
+        "unsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab."
+      },
+      "saveAsDefault": "Use these settings next time",
+      "start": "Choose and share"
+    },
+    "monitor": {
+      "target": "Target",
+      "delivering": "Delivering",
+      "onTarget": "On target",
+      "belowTarget": "Below target",
+      "limitedBy": {
+        "bandwidth": "Limited by your network",
+        "cpu": "Limited by your computer",
+        "other": "Limited by the browser"
+      },
+      "tips": {
+        "bandwidth": "Try 720p or 30 fps, or close downloads.",
+        "cpu": "Try 30 fps or close heavy apps."
+      },
+      "perViewer": "Per viewer",
+      "details": "Details",
+      "detailsTitle": "Stream quality",
+      "detailsDescription": "Each viewer receives a separate copy of your stream, so quality can differ between them.",
+      "viewer": "Viewer",
+      "noViewers": "Nobody is watching yet. Quality is measured once someone watches."
+    },
+    "stopShort": "Stop"
   },
   "image": {
     "choose": "Choose image",

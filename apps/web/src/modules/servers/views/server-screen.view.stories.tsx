@@ -3,9 +3,11 @@ import type { ComponentProps } from 'react'
 import { fn } from 'storybook/test'
 
 import { images, me } from '@/fixtures'
-import { liveStats, roomsWithMe, roomsWithoutMe, stage, stageWithLive, turbex } from '@/fixtures/server'
+import { liveLimitedByNetwork, liveOnTarget, roomsWithMe, roomsWithoutMe, stage, stageWithLive, turbex, viewerQualities } from '@/fixtures/server'
 import { RoomStageView } from '@/modules/rooms/views/room-stage.view'
+import { ShareDetailsDialogView } from '@/modules/screen-share/views/share-details-dialog.view'
 import { SharePanelView, type SharePanelState } from '@/modules/screen-share/views/share-panel.view'
+import { ShareSetupDialogView } from '@/modules/screen-share/views/share-setup-dialog.view'
 import { StreamViewerView } from '@/modules/screen-share/views/stream-viewer.view'
 
 import { ServerScreenView } from './server-screen.view'
@@ -20,10 +22,11 @@ type ScenarioProps = {
   share: SharePanelState
   isMuted: boolean
   main: 'logo' | 'room' | 'roomWithLive' | 'micDenied' | 'watching'
+  overlay?: 'shareSetup' | 'shareDetails'
 }
 
 /** Monta a tela inteira a partir de um cenário, do jeito que a Screen fará com os ViewModels. */
-function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted, main }: ScenarioProps) {
+function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted, main, overlay }: ScenarioProps) {
   const inRoom = Boolean(currentRoomId)
   const stageProps: Omit<ComponentProps<typeof RoomStageView>, 'participants' | 'micDenied'> = {
     roomName: 'Room 01',
@@ -58,6 +61,18 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
   }[main]
 
   return (
+    <>
+    <ShareSetupDialogView
+      open={overlay === 'shareSetup'}
+      settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false }}
+      audioSupport="unsupported"
+      saveAsDefault
+      onOpenChange={fn()}
+      onChange={fn()}
+      onSaveAsDefaultChange={fn()}
+      onStart={fn()}
+    />
+    <ShareDetailsDialogView open={overlay === 'shareDetails'} target={{ resolution: '1080p', fps: 60 }} viewers={viewerQualities} onOpenChange={fn()} />
     <ServerScreenView
       sidebar={
         <ServerSidebarView
@@ -79,11 +94,8 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
                 <SharePanelView
                   state={share}
                   onStart={fn()}
-                  onPresetChange={fn()}
-                  onIncludeAudioChange={fn()}
-                  onConfirm={fn()}
-                  onCancel={fn()}
                   onStop={fn()}
+                  onOpenDetails={fn()}
                 />
               }
               onOpenServerSettings={fn()}
@@ -97,6 +109,7 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
       }
       main={mainContent}
     />
+    </>
   )
 }
 
@@ -132,9 +145,10 @@ export const InRoomMuted: Story = { args: { ...InRoom.args, isMuted: true } }
 
 export const MicrophoneDenied: Story = { args: { ...InRoom.args, isMuted: true, main: 'micDenied' } }
 
-export const ChoosingShareQuality: Story = {
-  args: { ...InRoom.args, share: { status: 'configuring', preset: '1080p60', includeAudio: true } },
-}
+/** Clicou no botão verde: modal para escolher fonte e qualidade. */
+export const ShareSetup: Story = { args: { ...InRoom.args, overlay: 'shareSetup' } }
+
+export const WaitingBrowserPicker: Story = { args: { ...InRoom.args, share: { status: 'picking' } } }
 
 export const Sharing: Story = {
   args: {
@@ -144,16 +158,18 @@ export const Sharing: Story = {
         ? { ...room, participants: room.participants.map((p) => (p.id === me.id ? { ...p, isLive: true } : p)) }
         : room,
     ),
-    share: { status: 'live', preset: '1080p60', stats: liveStats, viewers: 2, degraded: false },
+    share: liveOnTarget,
   },
 }
 
 export const SharingDegraded: Story = {
   args: {
     ...Sharing.args,
-    share: { status: 'live', preset: '1080p60', stats: { ...liveStats, uploadKbps: 2100, fps: 24 }, viewers: 4, degraded: true },
+    share: liveLimitedByNetwork,
   },
 }
+
+export const SharingDetails: Story = { args: { ...SharingDegraded.args, overlay: 'shareDetails' } }
 
 export const OthersLive: Story = { args: { ...InRoom.args, main: 'roomWithLive' } }
 

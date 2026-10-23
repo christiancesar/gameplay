@@ -130,10 +130,6 @@
   },
   "share": {
     "start": "Compartilhar tela",
-    "quality": "Qualidade",
-    "includeAudio": "Incluir áudio",
-    "includeAudioHint": "Áudio de aba funciona em qualquer sistema. Áudio da tela inteira só no Windows.",
-    "choose": "Escolher tela",
     "waitingPicker": "Escolha a tela, janela ou aba na janela do browser…",
     "live": "Ao vivo",
     "stop": "Parar de compartilhar",
@@ -141,18 +137,69 @@
     "viewers_other": "{{count}} assistindo",
     "stats": {
       "upload": "Envio",
-      "bandwidth": "Banda",
       "fps": "FPS",
-      "resolution": "Resolução"
+      "resolution": "Resolução",
+      "status": "Status"
     },
-    "degraded": "Seu upload não está dando conta de {{preset}}. Tente uma qualidade menor.",
     "watch": "Assistir",
     "watching": "Assistindo",
     "stopWatching": "Parar de assistir",
     "fullscreen": "Tela cheia",
     "streamVolume": "Volume da transmissão",
     "liveNow": "Ao vivo agora",
-    "isLive": "{{name}} está ao vivo"
+    "isLive": "{{name}} está ao vivo",
+    "setup": {
+      "title": "Compartilhar sua tela",
+      "description": "Escolha o que compartilhar e a qualidade. Depois o browser pede para você escolher a tela, janela ou aba exata.",
+      "source": "O que compartilhar",
+      "sources": {
+        "screen": {
+          "label": "Tela inteira",
+          "hint": "Tudo de um monitor."
+        },
+        "window": {
+          "label": "Janela ou jogo",
+          "hint": "Um app só. Os jogos aparecem aqui."
+        },
+        "tab": {
+          "label": "Aba do navegador",
+          "hint": "Uma aba do Chrome, com o áudio dela."
+        }
+      },
+      "gameTip": "Jogos em tela cheia exclusiva podem aparecer pretos. Use o modo janela sem bordas.",
+      "resolution": "Resolução",
+      "fps": "Taxa de quadros",
+      "audio": "Compartilhar áudio",
+      "audioSupport": {
+        "supported": "Áudio de aba funciona em qualquer sistema.",
+        "windowsOnly": "Áudio da tela inteira só funciona no Windows.",
+        "unsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba."
+      },
+      "saveAsDefault": "Usar estas configurações da próxima vez",
+      "start": "Escolher e compartilhar"
+    },
+    "monitor": {
+      "target": "Alvo",
+      "delivering": "Entregando",
+      "onTarget": "No alvo",
+      "belowTarget": "Abaixo do alvo",
+      "limitedBy": {
+        "bandwidth": "Limitado pela sua rede",
+        "cpu": "Limitado pelo seu computador",
+        "other": "Limitado pelo browser"
+      },
+      "tips": {
+        "bandwidth": "Tente 720p ou 30 fps, ou feche downloads.",
+        "cpu": "Tente 30 fps ou feche apps pesados."
+      },
+      "perViewer": "Por espectador",
+      "details": "Detalhes",
+      "detailsTitle": "Qualidade da transmissão",
+      "detailsDescription": "Cada espectador recebe uma cópia separada da sua transmissão, então a qualidade pode variar entre eles.",
+      "viewer": "Espectador",
+      "noViewers": "Ninguém assistindo ainda. A qualidade é medida quando alguém assiste."
+    },
+    "stopShort": "Parar"
   },
   "image": {
     "choose": "Escolher imagem",
