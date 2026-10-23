@@ -1,4 +1,4 @@
-import { EllipsisVerticalIcon, SearchIcon, SlidersHorizontalIcon, Trash2Icon } from 'lucide-react'
+import { EllipsisVerticalIcon, SearchIcon, SlidersHorizontalIcon, Trash2Icon, UsersIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -24,11 +24,12 @@ type ServersTabViewProps = {
   servers: readonly AdminServerItem[]
   search: string
   onSearchChange: (value: string) => void
+  onViewMembers: (serverId: string) => void
   onEditLimits: (serverId: string) => void
   onDelete: (serverId: string) => void
 }
 
-function ServersTabView({ servers, search, onSearchChange, onEditLimits, onDelete }: ServersTabViewProps) {
+function ServersTabView({ servers, search, onSearchChange, onViewMembers, onEditLimits, onDelete }: ServersTabViewProps) {
   const { t } = useTranslation()
   const [deleteTarget, setDeleteTarget] = useState<AdminServerItem>()
 
@@ -85,6 +86,10 @@ function ServersTabView({ servers, search, onSearchChange, onEditLimits, onDelet
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => onViewMembers(server.id)}>
+                        <UsersIcon />
+                        {t('admin.servers.viewMembers')}
+                      </DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => onEditLimits(server.id)}>
                         <SlidersHorizontalIcon />
                         {t('admin.servers.editLimits')}

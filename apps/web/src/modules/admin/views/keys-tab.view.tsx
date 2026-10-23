@@ -64,7 +64,7 @@ function KeysTabView({
             <SelectContent>
               {KEY_DURATIONS.map((value) => (
                 <SelectItem key={value} value={value}>
-                  {t(`serverSettings.invites.durations.${value}`)}
+                  {t(`common.durations.${value}`)}
                 </SelectItem>
               ))}
             </SelectContent>

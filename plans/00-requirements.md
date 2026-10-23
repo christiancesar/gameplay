@@ -52,8 +52,9 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - O owner é intocável: ninguém no servidor pode rebaixá-lo ou removê-lo.
 
 ### 2.4 Convite de servidor
-- Código de **8 caracteres** (o link carrega o mesmo código), de **múltiplos usos**, com **máximo de usos** e **expiração** gravados.
-- A interface mostra usos restantes e validade de cada convite.
+- Código de **8 caracteres** (o link carrega o mesmo código), de **uso único** e com **validade fixa de 1 hora**, sem configuração. Para convidar várias pessoas, gera-se um convite para cada uma. *(Revisado em 2026-10-23: antes era multiuso com máximo de usos e validade configuráveis.)*
+- Owner e admin geram e revogam convites.
+- O convite registra **quem criou**, **quem usou** e **quando**. Owner/admin veem isso no servidor (convites e membros) e o admin da plataforma vê na lista de membros de cada servidor.
 - Com o servidor no limite de membros, a **geração de convite fica bloqueada**.
 
 ### 2.5 Entrada e moderação

@@ -1,10 +1,12 @@
 // Dados fictícios do painel admin, usados só nas stories.
 import type { AdminServerItem } from '@/modules/admin/views/servers-tab.view'
+import type { AdminServerMember } from '@/modules/admin/views/server-members-dialog.view'
 import type { AdminSessionItem } from '@/modules/admin/views/sessions-dialog.view'
 import type { AdminUserItem } from '@/modules/admin/views/users-tab.view'
 import type { RegistrationKeyItem } from '@/modules/admin/views/keys-tab.view'
 
 import { people, servers } from './index'
+import { members } from './server-settings'
 
 const hour = 3_600_000
 const at = (offset: number) => new Date(Date.now() + offset).toISOString()
@@ -64,3 +66,5 @@ export const fakeQrCode = (() => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges">${cells}${finder(0, 0)}${finder(size - 7, 0)}${finder(0, size - 7)}</svg>`
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 })()
+
+export const adminServerMembers: AdminServerMember[] = members

@@ -10,6 +10,7 @@ type JoinRequestItem = {
   id: string
   user: { name: string; email: string; avatarUrl?: string }
   requestedAt: string
+  invite: { code: string; createdBy: string }
 }
 
 type RequestsSectionViewProps = {
@@ -52,6 +53,9 @@ function RequestsSectionView({ autoApprove, requests, memberCount, memberLimit, 
                   <p className="truncate font-medium">{request.user.name}</p>
                   <p className="text-muted-foreground truncate text-xs">
                     {request.user.email} · {t('serverSettings.requests.requestedAt', { date: formatRelativeTime(request.requestedAt, i18n.language) })}
+                  </p>
+                  <p className="text-muted-foreground truncate text-xs">
+                    {t('serverSettings.requests.viaInvite', { code: request.invite.code, name: request.invite.createdBy })}
                   </p>
                 </div>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={() => onDecline(request.id)}>

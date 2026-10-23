@@ -2,18 +2,19 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor, within } from 'storybook/test'
 
-import { adminServers, adminSessions, adminUsers, registrationKeys } from '@/fixtures/admin'
+import { adminServerMembers, adminServers, adminSessions, adminUsers, registrationKeys } from '@/fixtures/admin'
 
 import { AdminLayoutView, type AdminTab } from './admin-layout.view'
 import { KeysTabView } from './keys-tab.view'
 import { LimitDialogView } from './limit-dialog.view'
 import { LimitsTabView } from './limits-tab.view'
 import { ResetPasswordDialogView } from './reset-password-dialog.view'
+import { ServerMembersDialogView } from './server-members-dialog.view'
 import { ServersTabView } from './servers-tab.view'
 import { SessionsDialogView } from './sessions-dialog.view'
 import { UsersTabView } from './users-tab.view'
 
-type Overlay = 'none' | 'sessions' | 'resetPassword' | 'userLimit' | 'serverLimits' | 'newKey'
+type Overlay = 'none' | 'sessions' | 'resetPassword' | 'userLimit' | 'serverLimits' | 'serverMembers' | 'newKey'
 
 type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean }
 
@@ -39,7 +40,14 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       />
     ),
     servers: (
-      <ServersTabView servers={empty ? [] : adminServers} search="" onSearchChange={fn()} onEditLimits={fn()} onDelete={actions.onDeleteServer} />
+      <ServersTabView
+        servers={empty ? [] : adminServers}
+        search=""
+        onSearchChange={fn()}
+        onViewMembers={fn()}
+        onEditLimits={fn()}
+        onDelete={actions.onDeleteServer}
+      />
     ),
     limits: (
       <LimitsTabView values={{ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 2 }} isDirty={false} isSaving={false} onChange={fn()} onSave={fn()} />
@@ -72,6 +80,7 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       >
         {content}
       </AdminLayoutView>
+      <ServerMembersDialogView open={overlay === 'serverMembers'} serverName="Turbex" members={adminServerMembers} onOpenChange={fn()} />
       <SessionsDialogView open={overlay === 'sessions'} userName="Lua Nova" sessions={adminSessions} onOpenChange={fn()} onEndSession={fn()} />
       <ResetPasswordDialogView
         open={overlay === 'resetPassword'}
@@ -116,7 +125,7 @@ const meta = {
   args: { initialTab: 'users', overlay: 'none', empty: false },
   argTypes: {
     initialTab: { control: 'inline-radio', options: ['users', 'servers', 'limits', 'keys'] },
-    overlay: { control: 'select', options: ['none', 'sessions', 'resetPassword', 'userLimit', 'serverLimits', 'newKey'] },
+    overlay: { control: 'select', options: ['none', 'sessions', 'resetPassword', 'userLimit', 'serverLimits', 'serverMembers', 'newKey'] },
   },
 } satisfies Meta<typeof Scenario>
 
@@ -148,6 +157,7 @@ export const SearchUsers: Story = {
 }
 
 export const Servers: Story = { args: { initialTab: 'servers' } }
+export const ServerMembers: Story = { args: { initialTab: 'servers', overlay: 'serverMembers' } }
 export const ServerLimits: Story = { args: { initialTab: 'servers', overlay: 'serverLimits' } }
 export const DeleteServer: Story = {
   args: { initialTab: 'servers' },

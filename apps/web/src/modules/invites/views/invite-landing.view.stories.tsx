@@ -38,6 +38,6 @@ export const Joining: Story = { args: { state: { status: 'confirm', server, isJo
 export const NoServerIcon: Story = { args: { state: { status: 'confirm', server: { ...server, iconUrl: undefined }, isJoining: false } } }
 
 export const Expired: Story = { args: { state: { status: 'error', error: 'expired' } } }
-export const NoUsesLeft: Story = { args: { state: { status: 'error', error: 'exhausted' } } }
+export const AlreadyUsed: Story = { args: { state: { status: 'error', error: 'exhausted' } } }
 export const ServerFull: Story = { args: { state: { status: 'error', error: 'serverFull' } } }
 export const NotFound: Story = { args: { state: { status: 'error', error: 'notFound' } } }

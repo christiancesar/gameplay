@@ -15,6 +15,7 @@ import {
 } from '@/shared/ui/alert-dialog'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
+import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/ui/dropdown-menu'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
@@ -23,6 +24,8 @@ type MemberItem = {
   user: { name: string; email: string; avatarUrl?: string }
   role: ServerRole
   isMe: boolean
+  /** Como entrou: convite usado e quem o criou. Ausente para o owner, que criou o servidor. */
+  joinedVia?: { inviteCode: string; invitedBy: string; joinedAt: string }
 }
 
 type MembersSectionViewProps = {
@@ -34,7 +37,7 @@ type MembersSectionViewProps = {
 }
 
 function MembersSectionView({ members, memberLimit, onPromote, onDemote, onKick }: MembersSectionViewProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   // Membro aguardando confirmação de kick (estado do diálogo, só apresentação).
   const [kickTarget, setKickTarget] = useState<MemberItem>()
 
@@ -51,6 +54,15 @@ function MembersSectionView({ members, memberLimit, onPromote, onDemote, onKick 
                 {member.isMe && <span className="text-muted-foreground font-normal"> ({t('serverSettings.members.you')})</span>}
               </p>
               <p className="text-muted-foreground truncate text-xs">{member.user.email}</p>
+              <p className="text-muted-foreground truncate text-xs">
+                {member.joinedVia
+                  ? t('serverSettings.members.invitedBy', {
+                      name: member.joinedVia.invitedBy,
+                      code: member.joinedVia.inviteCode,
+                      date: formatRelativeTime(member.joinedVia.joinedAt, i18n.language),
+                    })
+                  : t('serverSettings.members.founder')}
+              </p>
             </div>
             <Badge variant={member.role === 'member' ? 'outline' : 'secondary'}>
               {member.role === 'owner' && <CrownIcon data-icon="inline-start" aria-hidden />}

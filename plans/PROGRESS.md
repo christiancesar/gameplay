@@ -48,7 +48,8 @@ Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Selo "LIVE" e botão "Assistir" no bloco do participante; volume por pessoa num popover ao clicar no bloco.
 - Assistindo: tela na área principal, faixa de participantes embaixo e troca entre transmissões quando há mais de uma.
 - Modal do servidor e Configurações usam o mesmo modal com navegação lateral; "Sair ou excluir" e "Conta" ficam no fim, em vermelho.
-- Convites: máximo de usos 1, 5, 10 ou 25; validade 1 hora, 1 dia, 7 dias ou 30 dias.
+- Convite de servidor (decisão do usuário): uso único, validade fixa de 1 hora, registra quem criou e quem usou.
+- Pedido de entrada recusado: o convite já conta como usado.
 - Keys de cadastro: validade 1, 7 ou 30 dias; a key aparece uma única vez (só o hash fica guardado) e a lista mostra os 3 últimos caracteres. Isso exige guardar esse sufixo junto do hash.
 - Admin redefine senha digitando ou gerando uma nova senha, que ele repassa por canal privado.
 - Avisos do F13 como toasts; queda de conexão como faixa amarela no topo.

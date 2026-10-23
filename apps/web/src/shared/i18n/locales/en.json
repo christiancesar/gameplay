@@ -21,7 +21,13 @@
     "saving": "Saving…",
     "never": "Never",
     "unlimited": "Unlimited",
-    "actions": "Actions"
+    "actions": "Actions",
+    "durations": {
+      "1h": "1 hour",
+      "1d": "1 day",
+      "7d": "7 days",
+      "30d": "30 days"
+    }
   },
   "auth": {
     "signIn": {
@@ -86,7 +92,7 @@
     "joinErrors": {
       "inviteNotFound": "Invite not found. Check the code.",
       "inviteExpired": "This invite has expired.",
-      "inviteExhausted": "This invite has no uses left.",
+      "inviteExhausted": "This invite was already used. Ask for a new one.",
       "serverFull": "This server is full.",
       "alreadyMember": "You are already a member of this server.",
       "unexpected": "Something went wrong. Try again."
@@ -245,17 +251,7 @@
     },
     "invites": {
       "generate": "Generate invite",
-      "maxUses": "Max uses",
-      "expiresIn": "Expires in",
-      "durations": {
-        "1h": "1 hour",
-        "1d": "1 day",
-        "7d": "7 days",
-        "30d": "30 days"
-      },
-      "usesLeft": "{{left}} of {{max}} uses left",
       "expiresAt": "Expires {{date}}",
-      "expired": "Expired",
       "revoke": "Revoke",
       "revokeTitle": "Revoke invite {{code}}?",
       "revokeDescription": "The link stops working right away.",
@@ -263,7 +259,17 @@
       "blockedFull": "The server is full ({{count}}/{{max}} members). Free a spot to generate invites.",
       "copyLink": "Copy link",
       "autoApprove": "Approve new members automatically",
-      "autoApproveHint": "People who join with an invite get in right away while there is room. Off: each request waits for an owner or admin."
+      "autoApproveHint": "People who join with an invite get in right away while there is room. Off: each request waits for an owner or admin.",
+      "rules": "Each invite works for one person and expires in 1 hour.",
+      "active": "Active",
+      "history": "History",
+      "createdBy": "Created by {{name}}",
+      "statuses": {
+        "active": "Expires {{date}}",
+        "used": "Used by {{name}} {{date}}",
+        "expired": "Expired, not used",
+        "revoked": "Revoked"
+      }
     },
     "requests": {
       "approve": "Approve",
@@ -271,7 +277,8 @@
       "requestedAt": "Requested {{date}}",
       "empty": "No pending requests.",
       "blockedFull": "The server is full ({{count}}/{{max}} members). Approving is blocked until a spot opens.",
-      "autoApproveOn": "Auto approval is on. Requests only wait here when the server is full."
+      "autoApproveOn": "Auto approval is on. Requests only wait here when the server is full.",
+      "viaInvite": "Invite {{code}} from {{name}}"
     },
     "members": {
       "count": "{{count}} of {{max}} members",
@@ -280,7 +287,9 @@
       "kick": "Kick",
       "kickTitle": "Kick {{name}}?",
       "kickDescription": "They leave the server now and need a new invite to come back.",
-      "you": "you"
+      "you": "you",
+      "invitedBy": "Invited by {{name}} · {{code}} · {{date}}",
+      "founder": "Created the server"
     },
     "rooms": {
       "count": "{{count}} of {{max}} rooms",
@@ -359,7 +368,7 @@
     "requestSent": "Request sent. Wait for approval.",
     "errors": {
       "expired": "This invite has expired.",
-      "exhausted": "This invite has no uses left.",
+      "exhausted": "This invite was already used. Ask for a new one.",
       "serverFull": "This server is full.",
       "notFound": "This invite doesn't exist or was revoked."
     }
@@ -448,7 +457,11 @@
       "members": "Members",
       "rooms": "Rooms",
       "editLimits": "Adjust limits",
-      "delete": "Delete server"
+      "delete": "Delete server",
+      "viewMembers": "View members",
+      "membersTitle": "Members of {{name}}",
+      "role": "Role",
+      "joinedVia": "How they joined"
     },
     "limits": {
       "description": "Defaults used when a user or server has no custom value. Changes apply without redeploy.",

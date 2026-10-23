@@ -76,14 +76,10 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
           setAutoApprove(value)
         }}
         invites={empty ? [] : invites}
-        maxUses={5}
-        duration="7d"
         isGenerating={false}
         memberCount={memberList.length}
         memberLimit={10}
         copiedCode={empty ? undefined : 'JH34SD32'}
-        onMaxUsesChange={fn()}
-        onDurationChange={fn()}
         onGenerate={actions.onGenerate}
         onCopy={actions.onCopy}
         onRevoke={actions.onRevoke}

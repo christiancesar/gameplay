@@ -64,7 +64,7 @@
 1. **Sem conta:** a tela mostra "Você foi convidado para *Turbex*" e leva ao SignUp. Quem convidou envia o link junto com uma key de cadastro (a key é gerada só pelo admin da plataforma).
 2. **Com conta e sem sessão:** leva ao SignIn e depois retoma o convite.
 3. **Com sessão:** confirma "Entrar em *Turbex*?".
-4. Link expirado, sem usos restantes ou servidor cheio: mensagem clara e volta ao Hub.
+4. Link expirado, já usado, revogado ou servidor cheio: mensagem clara e volta ao Hub.
 5. Já é membro: abre o servidor direto.
 6. Servidor com auto aprovação ligada (e com vaga): entra e abre a tela do servidor.
 7. Sem auto aprovação: cria o pedido de entrada, volta ao Hub e mostra o toast "Pedido enviado, aguarde a aprovação". Não há lista de pedidos pendentes; o servidor aparece no Hub quando for aprovado.
@@ -150,9 +150,9 @@
 **Gatilho:** card do servidor no painel lateral (owner e admin). Modal com sidebar de seções. Visual a desenhar no Storybook.
 
 1. **Geral:** nome, ícone, cover e descrição.
-2. **Convites:** toggle de **auto aprovação** no topo (aprovar novos membros automaticamente enquanto houver vaga); gerar código/link com máximo de usos e validade, copiar, ver usos restantes e validade, revogar. No limite de membros, gerar fica bloqueado com o motivo.
+2. **Convites:** toggle de **auto aprovação** no topo (aprovar novos membros automaticamente enquanto houver vaga). Botão de gerar convite: cada convite vale para **uma pessoa** e **expira em 1 hora**, sem opções. Lista de ativos (copiar link, revogar) e histórico (usado por quem e quando, expirado sem uso, revogado), sempre com quem criou. No limite de membros, gerar fica bloqueado com o motivo.
 3. **Pedidos:** aprovar ou recusar. Com a auto aprovação ligada, um aviso explica que pedidos só esperam aqui quando o servidor está cheio. No limite de membros, aprovar fica bloqueado com o motivo.
-4. **Membros:** lista com papel. Ações por membro: promover a admin, rebaixar a member, kick (com confirmação). O owner aparece sem ações.
+4. **Membros:** lista com papel e como cada um entrou (convite, quem convidou e quando; o owner aparece como quem criou o servidor). Ações por membro: promover a admin, rebaixar a member, kick (com confirmação). O owner aparece sem ações.
 5. **Salas:** criar, renomear e excluir. No limite de salas, criar fica bloqueado com o motivo. Excluir uma sala com gente dentro pede confirmação e desconecta quem estiver nela.
 6. **Sair ou excluir:**
    - Admin: "Sair do servidor", com confirmação.
@@ -214,7 +214,7 @@
 
 1. Primeiro login do admin: obriga a configurar o app autenticador (QR code) e mostra os códigos de recuperação.
 2. **Usuários:** lista com online/offline, sessões com IP e navegador. Ações: suspender ou reativar, encerrar sessões, redefinir senha, ajustar limite de servidores.
-3. **Servidores:** lista com owner, membros e salas. Ações: ajustar limites de membros e salas, excluir servidor (com confirmação).
+3. **Servidores:** lista com owner, membros e salas. Ações: ver membros (com o convite e quem convidou cada um), ajustar limites de membros e salas, excluir servidor (com confirmação).
 4. **Limites globais:** editar os padrões (1 servidor, 10 membros, 2 salas).
 5. **Keys de cadastro:** gerar com validade, copiar, ver quem usou, revogar.
 

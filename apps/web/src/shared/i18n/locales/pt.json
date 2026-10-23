@@ -21,7 +21,13 @@
     "saving": "Salvando…",
     "never": "Nunca",
     "unlimited": "Ilimitado",
-    "actions": "Ações"
+    "actions": "Ações",
+    "durations": {
+      "1h": "1 hora",
+      "1d": "1 dia",
+      "7d": "7 dias",
+      "30d": "30 dias"
+    }
   },
   "auth": {
     "signIn": {
@@ -86,7 +92,7 @@
     "joinErrors": {
       "inviteNotFound": "Convite não encontrado. Confira o código.",
       "inviteExpired": "Este convite expirou.",
-      "inviteExhausted": "Este convite não tem mais usos.",
+      "inviteExhausted": "Este convite já foi usado. Peça um novo.",
       "serverFull": "Este servidor está cheio.",
       "alreadyMember": "Você já é membro deste servidor.",
       "unexpected": "Algo deu errado. Tente de novo."
@@ -245,17 +251,7 @@
     },
     "invites": {
       "generate": "Gerar convite",
-      "maxUses": "Máximo de usos",
-      "expiresIn": "Expira em",
-      "durations": {
-        "1h": "1 hora",
-        "1d": "1 dia",
-        "7d": "7 dias",
-        "30d": "30 dias"
-      },
-      "usesLeft": "{{left}} de {{max}} usos restantes",
       "expiresAt": "Expira {{date}}",
-      "expired": "Expirado",
       "revoke": "Revogar",
       "revokeTitle": "Revogar o convite {{code}}?",
       "revokeDescription": "O link para de funcionar na hora.",
@@ -263,7 +259,17 @@
       "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Libere uma vaga para gerar convites.",
       "copyLink": "Copiar link",
       "autoApprove": "Aprovar novos membros automaticamente",
-      "autoApproveHint": "Quem entra por convite já entra na hora, enquanto houver vaga. Desligado: cada pedido espera um owner ou admin."
+      "autoApproveHint": "Quem entra por convite já entra na hora, enquanto houver vaga. Desligado: cada pedido espera um owner ou admin.",
+      "rules": "Cada convite vale para uma pessoa e expira em 1 hora.",
+      "active": "Ativos",
+      "history": "Histórico",
+      "createdBy": "Criado por {{name}}",
+      "statuses": {
+        "active": "Expira {{date}}",
+        "used": "Usado por {{name}} {{date}}",
+        "expired": "Expirou sem uso",
+        "revoked": "Revogado"
+      }
     },
     "requests": {
       "approve": "Aprovar",
@@ -271,7 +277,8 @@
       "requestedAt": "Pediu {{date}}",
       "empty": "Nenhum pedido pendente.",
       "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Aprovar fica bloqueado até abrir uma vaga.",
-      "autoApproveOn": "A auto aprovação está ligada. Pedidos só ficam aqui quando o servidor está cheio."
+      "autoApproveOn": "A auto aprovação está ligada. Pedidos só ficam aqui quando o servidor está cheio.",
+      "viaInvite": "Convite {{code}} de {{name}}"
     },
     "members": {
       "count": "{{count}} de {{max}} membros",
@@ -280,7 +287,9 @@
       "kick": "Remover",
       "kickTitle": "Remover {{name}}?",
       "kickDescription": "A pessoa sai do servidor agora e precisa de um novo convite para voltar.",
-      "you": "você"
+      "you": "você",
+      "invitedBy": "Convidado por {{name}} · {{code}} · {{date}}",
+      "founder": "Criou o servidor"
     },
     "rooms": {
       "count": "{{count}} de {{max}} salas",
@@ -359,7 +368,7 @@
     "requestSent": "Pedido enviado, aguarde a aprovação.",
     "errors": {
       "expired": "Este convite expirou.",
-      "exhausted": "Este convite não tem mais usos.",
+      "exhausted": "Este convite já foi usado. Peça um novo.",
       "serverFull": "Este servidor está cheio.",
       "notFound": "Este convite não existe ou foi revogado."
     }
@@ -448,7 +457,11 @@
       "members": "Membros",
       "rooms": "Salas",
       "editLimits": "Ajustar limites",
-      "delete": "Excluir servidor"
+      "delete": "Excluir servidor",
+      "viewMembers": "Ver membros",
+      "membersTitle": "Membros de {{name}}",
+      "role": "Papel",
+      "joinedVia": "Como entrou"
     },
     "limits": {
       "description": "Padrões usados quando o usuário ou servidor não tem valor próprio. Mudanças valem sem redeploy.",
