@@ -2,8 +2,9 @@
 import avatarKisnaider from './images/avatar-kisnaider.webp'
 import avatarShinigame from './images/avatar-shinigame.webp'
 import serverTurbex from './images/server-turbex.webp'
+import streamFrame from './images/stream-frame.webp'
 
-export const images = { avatarKisnaider, avatarShinigame, serverTurbex }
+export const images = { avatarKisnaider, avatarShinigame, serverTurbex, streamFrame }
 
 export const me = {
   id: 'u1',

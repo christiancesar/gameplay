@@ -7,7 +7,12 @@
       "toDark": "Switch to dark theme"
     },
     "settings": "Settings",
-    "adminPanel": "Platform admin"
+    "adminPanel": "Platform admin",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "save": "Save",
+    "backToHub": "Back to Hub"
   },
   "auth": {
     "signIn": {
@@ -77,5 +82,67 @@
       "alreadyMember": "You are already a member of this server.",
       "unexpected": "Something went wrong. Try again."
     }
+  },
+  "server": {
+    "rooms": "Rooms",
+    "ownedBy": "Owner: {{name}}",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "joinRoom": "Join {{room}}",
+    "youAreHere": "You are here",
+    "serverSettings": "Server settings",
+    "pendingRequests_one": "{{count}} pending request",
+    "pendingRequests_other": "{{count}} pending requests",
+    "leaveServer": "Leave server",
+    "leaveServerTitle": "Leave {{server}}?",
+    "leaveServerDescription": "You will need a new invite to come back.",
+    "leaveServerConfirm": "Leave",
+    "noRooms": "No rooms yet."
+  },
+  "voice": {
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "deafen": "Deafen",
+    "undeafen": "Undeafen",
+    "leaveRoom": "Leave room",
+    "muted": "Muted",
+    "deafened": "Deafened",
+    "speaking": "Speaking",
+    "connecting": "Connecting…",
+    "connectionFailed": "Connection failed. Retrying…",
+    "volumeFor": "Volume for {{name}}",
+    "you": "you",
+    "micDeniedTitle": "Microphone blocked",
+    "micDeniedDescription": "You joined listening only. Allow the microphone in the browser address bar and rejoin the room to talk.",
+    "roomEmpty": "Nobody here yet. Others will see you as soon as they join."
+  },
+  "share": {
+    "start": "Share screen",
+    "quality": "Quality",
+    "includeAudio": "Include audio",
+    "includeAudioHint": "Tab audio works on any system. Full screen audio only on Windows.",
+    "choose": "Choose screen",
+    "waitingPicker": "Pick a screen, window or tab in the browser dialog…",
+    "live": "Live",
+    "stop": "Stop sharing",
+    "viewers_one": "{{count}} viewer",
+    "viewers_other": "{{count}} viewers",
+    "stats": {
+      "upload": "Upload",
+      "bandwidth": "Bandwidth",
+      "fps": "FPS",
+      "resolution": "Resolution"
+    },
+    "degraded": "Your upload can't keep up with {{preset}}. Try a lower quality.",
+    "watch": "Watch",
+    "watching": "Watching",
+    "stopWatching": "Stop watching",
+    "fullscreen": "Fullscreen",
+    "streamVolume": "Stream volume",
+    "liveNow": "Live now",
+    "isLive": "{{name}} is live"
   }
 }
