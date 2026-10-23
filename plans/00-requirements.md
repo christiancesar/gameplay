@@ -1,0 +1,326 @@
+# 00 · Levantamento de Requisitos
+
+> Registro das decisões tomadas na fase de levantamento (workflow ágil, fase 00).
+> Data: 2026-10-22. Status: **acordado**, base para Epic Brief, Core Flows e Tech Plan.
+
+## 1. Visão
+
+App web de voz e compartilhamento de tela entre grupos fechados de pessoas, como alternativa ao Discord (que deixou de oferecer compartilhamento de tela de qualidade sem cobrança). A mídia usa o hardware dos próprios usuários (WebRTC P2P). O servidor guarda apenas metadados: usuários, servidores, salas, convites e configurações. Não há chat de texto.
+
+## 2. Requisitos de produto
+
+### 2.1 Cadastro e acesso
+- Cadastro com **username, email, senha e convite (token)**. Sem validação de email.
+- Convite de cadastro é gerado **somente pelo admin da plataforma** (ver 2.10).
+- Convite é de **uso único**, tem **expiração gravada** e pode ser **revogado**. O admin vê quem usou cada convite.
+- Key de cadastro com **6 caracteres alfanuméricos** (sem caracteres ambíguos como 0/O e 1/I, sem diferença de maiúsculas), digitada num input OTP. Gerada aleatoriamente, armazenada como **hash**, com rate limit nas tentativas.
+- Login por **email ou username** + senha. Cadastro com confirmação de senha. Sem "esqueci minha senha": a redefinição é feita pelo admin da plataforma.
+- Quem convida uma pessoa nova envia o **link do servidor** junto com uma **key de cadastro** (obtida com o admin da plataforma). Abrir o link sem conta leva ao cadastro; depois do cadastro o pedido de entrada no servidor é criado sozinho.
+- Há **dois níveis de acesso independentes**: papéis **dentro de um servidor** (2.3) e o papel **de plataforma** (2.10). Ambos usam o mesmo app e o mesmo login.
+
+### 2.2 Limites
+Padrões globais, **editáveis pelo admin da plataforma** sem redeploy, com **override por usuário ou por servidor**:
+
+| Limite | Padrão | Override |
+|---|---|---|
+| Servidores criados por usuário | 1 | por usuário |
+| Membros por servidor (incluindo o owner) | 10 | por servidor |
+| Salas por servidor | 2 | por servidor |
+
+O limite efetivo é o override, quando existe, senão o padrão global.
+
+### 2.3 Servidores e papéis
+- Quem cria o servidor vira **owner**. Os demais entram como **member**.
+- Papéis no servidor: `owner`, `admin`, `member`.
+
+| Ação | owner | admin | member |
+|---|---|---|---|
+| Aprovar/recusar pedidos de entrada | sim | sim | não |
+| Gerar e revogar convites do servidor | sim | sim | não |
+| Kick de member | sim | sim | não |
+| Kick de admin | sim | sim | não |
+| Promover member a admin | sim | sim | não |
+| Rebaixar admin a member | sim | sim | não |
+| Criar, editar e excluir salas | sim | sim | não |
+| Editar nome, ícone, cover, descrição e auto aprovação | sim | sim | não |
+| Sair do servidor | **não** (só excluindo) | sim | sim |
+| Kick ou rebaixar o owner | não se aplica | **não** | não |
+| Excluir o servidor | sim | **não** | não |
+| Transferir posse | não existe no MVP | | |
+| Entrar nas salas, voz e tela | sim | sim | sim |
+
+- O owner é intocável: ninguém no servidor pode rebaixá-lo ou removê-lo.
+
+### 2.4 Convite de servidor
+- Código de **8 caracteres** (o link carrega o mesmo código), de **múltiplos usos**, com **máximo de usos** e **expiração** gravados.
+- A interface mostra usos restantes e validade de cada convite.
+- Com o servidor no limite de membros, a **geração de convite fica bloqueada**.
+
+### 2.5 Entrada e moderação
+- Entrada pelo convite gera **pedido de entrada**, aprovado por owner ou admin.
+- Toggle **"auto aprovação"** por servidor, **desligado por padrão**.
+- Com o servidor no limite de membros, **aprovar pedidos de entrada fica bloqueado** (inclusive com auto aprovação ligada; o pedido fica pendente).
+- Moderação no servidor: apenas **kick**, que libera a vaga. **Não existe ban no servidor.**
+
+### 2.6 Salas
+- Servidores contêm salas, até o limite (padrão 2). Apenas metadados persistidos.
+
+### 2.7 Imagens
+- **Avatar do usuário**, **ícone do servidor** e **cover do servidor**, todos **opcionais**. Sem avatar ou ícone, a interface mostra um fallback com iniciais.
+- Cover processado em WebP 16:9 (1280x720). Onde o cover aparece na interface ainda está em aberto.
+- Upload até **2 MB**, formatos **JPG, PNG e WebP**. Tipo validado pelo conteúdo real (magic bytes), não pela extensão.
+- O Nest processa com `sharp`: recorte quadrado, **WebP 256px**, remoção de EXIF.
+- O usuário troca ou remove o próprio avatar. Owner e admin trocam ou removem ícone e cover do servidor.
+
+### 2.8 Voz
+- Transmissão **contínua**. Sem push-to-talk no MVP.
+- **Mute** (envio) e **deafen** (recepção) independentes, como no Discord.
+- **Indicador de quem está falando** (Web Audio).
+- **Volume por usuário** e **seleção de dispositivo** (microfone e saída).
+
+### 2.9 Compartilhamento de tela
+- Seleção de janela ou tela pelo seletor nativo do browser (`getDisplayMedia`).
+- Presets: **720p30, 720p60, 1080p30, 1080p60**, escolhidos por quem compartilha.
+- **Áudio da aba/sistema** quando o SO e o browser permitirem (aba em qualquer SO no Chromium; tela inteira com áudio só no Windows).
+- **Várias telas simultâneas** na mesma sala.
+- **Assistir sob demanda**: a tela só é enviada para quem clicar em assistir. Voz vai para todos.
+
+### 2.10 Admin da plataforma
+- Papel de plataforma `platform_admin`, separado dos papéis de servidor. **Mesmo app e mesmo login**, sem aplicação administrativa separada.
+- Atribuído **somente por seed** (script/env). Não há promoção a admin da plataforma pela interface.
+- **Login com verificação extra:** 2FA por **TOTP obrigatório** para `platform_admin`, com códigos de recuperação. Rotas e telas administrativas exigem papel **e** sessão com 2FA verificado, checados no backend a cada requisição. Usuários comuns nunca acessam o painel.
+- Painel administrativo:
+  - Listar usuários, com status **online/offline** (presença do Socket.IO).
+  - Ver **IP e user agent** das sessões (gravados pelo Better Auth; Nest confia no `X-Forwarded-For` do nginx/cloudflared).
+  - Listar servidores, com owner, membros e salas.
+  - Editar **limites globais** e **overrides** por usuário/servidor (2.2).
+  - **Suspender e reativar conta**: bloqueia login e derruba sessões e conexões ativas.
+  - **Encerrar sessões** de um usuário em todos os dispositivos.
+  - **Excluir servidor** de qualquer usuário (remove salas, membros e convites; desconecta quem estiver nas salas).
+  - Gerar, listar e revogar **convites de cadastro**.
+  - **Redefinir senha** de um usuário.
+- Observação: em WebRTC P2P os participantes de uma sala trocam IPs entre si pelo próprio protocolo (exceto quando a conexão passa por TURN).
+
+### 2.11 Interface
+- Sem dock e sem home pública. Entrada pelo SignIn; após login, sempre o **Hub**. Detalhes em `02-core-flows.md`.
+- **Tema escuro (padrão) e claro**, alternável e lembrado por usuário.
+- **Idiomas inglês e português**, detectados pelo browser, com seletor no SignIn, SignUp, Hub e Configurações.
+- **Favicon** em rotação com ícones Lucide da categoria gaming.
+- Marca: logos "Gameplay" e "Gameplay UNLIMITED" fornecidos pelo usuário.
+
+### 2.12 Browsers
+- Alvo do MVP: **Chromium (Chrome/Edge)**. Firefox e Safari sem garantia.
+
+## 3. Arquitetura
+
+### 3.1 Topologia de mídia
+- **WebRTC mesh P2P**. O limite prático vem do upload e da CPU de quem compartilha (cada espectador recebe um stream codificado separadamente). Voz aguenta a sala cheia (10). Tela é mitigada pelo "assistir sob demanda".
+- Camada de mídia abstraída na interface `MediaTransport` (implementação `MeshTransport`) para permitir troca futura por SFU (LiveKit ou Cloudflare Realtime SFU).
+- **ICE** escolhido por env, sem mudança de código: `ICE_PROVIDER=cloudflare | coturn | stun-only`.
+  - Fase local: STUN + TURN do **Cloudflare Realtime** (1.000 GB/mês grátis; STUN grátis e ilimitado), com credenciais efêmeras emitidas pela API.
+  - Fase EC2: **coturn** em container no IP público.
+
+### 3.2 Monorepo
+- **npm workspaces + Turborepo**.
+
+```
+gameplay/
+├── apps/
+│   ├── web/                      # React + Vite
+│   └── api/                      # NestJS (REST + Socket.IO)
+├── packages/
+│   └── shared/                   # schemas zod, DTOs, eventos Socket.IO tipados
+├── infra/
+│   ├── nginx/default.conf
+│   ├── docker-compose.dev.yml    # nginx, web, api, mongo (replica set), cloudflared
+│   └── docker-compose.prod.yml   # nginx, web, api, coturn
+├── plans/
+├── turbo.json
+└── package.json
+```
+
+### 3.3 Backend (`apps/api`)
+- **NestJS**. REST e **Socket.IO Gateway** (`@nestjs/websockets`) no mesmo processo, para sinalização WebRTC e presença.
+- **Prisma 6.x** com MongoDB. O Prisma 7 não tem conector MongoDB estável. Schema dividido em vários arquivos (`prisma/schema/*.prisma`).
+- **Better Auth** com `prismaAdapter` (provider `mongodb`) e integração `@thallesp/nestjs-better-auth`. Plugins: `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para `platform_admin`). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
+- MongoDB local em **replica set de nó único** (`--replSet`), exigido pelas transações do Prisma.
+- SOLID leve: cada use-case é um `@Injectable` com um único `execute()` (SRP). Repositório como `abstract class` usada como token de DI, com implementações `prisma` e `in-memory` (DIP). Testes unitários usam `in-memory`.
+- **Storage de imagens:** upload multipart para o Nest. `StorageProvider` (abstract class) com `LocalStorageProvider` e `S3StorageProvider`, ambos implementados desde o início e escolhidos por `STORAGE_DRIVER=local | s3`. Driver local grava em volume Docker servido pelo nginx (`/uploads`). Driver S3 serve por URL pública do bucket (ou CloudFront). O banco guarda só a chave/URL da imagem.
+
+```
+apps/api/
+├── prisma/
+│   └── schema/
+│       ├── schema.prisma               # generator + datasource
+│       ├── auth.prisma                 # User, Session, Account, Verification (Better Auth)
+│       ├── registration-invite.prisma
+│       ├── server.prisma               # Server, ServerMember, JoinRequest
+│       ├── server-invite.prisma
+│       └── room.prisma
+├── src/
+│   ├── @types/                         # augmentations (Request.user etc.)
+│   ├── env/                            # schema zod + EnvService
+│   ├── generated/                      # prisma client (gitignored)
+│   ├── lib/
+│   │   ├── auth.ts                     # instância Better Auth + hook do convite
+│   │   ├── prisma.ts                   # PrismaService
+│   │   ├── logger.ts                   # pino
+│   │   ├── otel.ts                     # OpenTelemetry
+│   │   └── openapi-document.ts         # Swagger
+│   ├── common/                         # guards, @CurrentUser, filters, ZodPipe, DomainError base
+│   ├── modules/
+│   │   ├── registration-invites/
+│   │   │   ├── registration-invites.module.ts
+│   │   │   ├── controllers/
+│   │   │   ├── dtos/
+│   │   │   ├── entities/
+│   │   │   ├── errors/
+│   │   │   ├── providers/              # TokenGenerator, TokenHasher (interface + impl)
+│   │   │   ├── repositories/
+│   │   │   │   ├── registration-invites-repository.ts   # abstract class (token de DI)
+│   │   │   │   ├── in-memory/
+│   │   │   │   └── prisma/
+│   │   │   └── use-cases/              # *.use-case.ts + *.use-case.spec.ts
+│   │   ├── accounts/                   # perfil, avatar, seed do platform_admin
+│   │   ├── platform-admin/             # painel: usuários, IP, sessões, suspender, excluir servidor
+│   │   ├── limits/                     # padrões globais + overrides, resolução do limite efetivo
+│   │   ├── servers/                    # criar (limite), ícone, auto aprovação, papéis
+│   │   ├── server-invites/             # multi-uso, expiração, bloqueio em 10
+│   │   ├── memberships/                # pedidos de entrada, aprovar, kick, promover/rebaixar
+│   │   ├── rooms/
+│   │   ├── realtime/                   # gateway Socket.IO: presença + sinalização
+│   │   │   ├── gateways/
+│   │   │   ├── events/
+│   │   │   └── use-cases/
+│   │   ├── ice/                        # credenciais TURN efêmeras por provider
+│   │   └── storage/                    # upload e processamento de imagem
+│   │       ├── providers/
+│   │       │   ├── storage-provider.ts         # abstract class (token de DI)
+│   │       │   ├── local-storage.provider.ts
+│   │       │   ├── s3-storage.provider.ts
+│   │       │   └── in-memory-storage.provider.ts
+│   │       ├── image-processor.ts      # sharp: validação, WebP 256px, sem EXIF
+│   │       └── use-cases/
+│   ├── app.module.ts
+│   └── main.ts
+└── test/
+    ├── e2e/                            # supertest + mongo docker
+    └── factories/
+```
+
+### 3.4 Frontend (`apps/web`): MVVM
+- **React + Vite + TanStack Router** (rotas por arquivo, `beforeLoad` para auth, `loader` integrado ao TanStack Query).
+- **TanStack Query, Axios, Zustand, Tailwind, shadcn/ui.**
+- Build estático servido pelo nginx.
+
+**MVVM é a arquitetura do frontend inteiro**, com View separada de lógica de negócio:
+
+| Camada | Responsabilidade | Pode usar |
+|---|---|---|
+| **Model** | `entities/` (tipos de domínio), `rules/` (regras de negócio como funções puras), `services/` (Axios, Socket.IO, `MediaTransport`), `mappers/` (DTO para entidade) | `packages/shared` |
+| **ViewModel** | Hook por tela/caso de uso. Orquestra TanStack Query (estado de servidor), Zustand (estado de cliente) e services/rules. Expõe estado pronto para exibir + comandos. Sem JSX. | Model |
+| **View** | Componentes de apresentação. Só props e callbacks. Sem query, store, axios ou regra. | `shared/ui` |
+| **Screen** | Cola fina usada pela rota: chama o ViewModel e passa o resultado para a View. | ViewModel, View |
+
+- Dependência em uma direção só, **garantida por lint** (`eslint-plugin-boundaries`) no CI.
+
+```
+apps/web/
+├── .storybook/
+├── cypress/
+│   ├── e2e/
+│   ├── support/
+│   └── tasks/peer-bot.ts               # peer B headless via cy.task
+└── src/
+    ├── routes/                         # TanStack Router (file-based)
+    ├── modules/
+    │   ├── servers/
+    │   │   ├── model/
+    │   │   │   ├── entities/
+    │   │   │   ├── rules/              # funções puras + .spec.ts
+    │   │   │   ├── services/
+    │   │   │   └── mappers/
+    │   │   ├── view-models/
+    │   │   │   ├── use-server-members.view-model.ts (+ .spec.ts)
+    │   │   │   └── stores/             # zustand, só estado de cliente
+    │   │   ├── views/
+    │   │   │   ├── member-list.view.tsx
+    │   │   │   └── member-list.view.stories.tsx
+    │   │   └── screens/
+    │   │       └── server-members.screen.tsx
+    │   ├── auth/
+    │   ├── admin/                      # convites de cadastro
+    │   ├── rooms/
+    │   ├── voice/                      # mute/deafen, volume, dispositivos, quem fala
+    │   └── screen-share/               # presets, assistir sob demanda
+    └── shared/
+        ├── ui/                         # shadcn/ui
+        ├── lib/                        # http.ts, query-client.ts, socket.ts, sentry.ts, monitoring.ts
+        └── media/                      # MediaTransport + MeshTransport (WebRTC)
+```
+
+### 3.5 Storybook
+- Story para **toda View** e todo componente de `shared/ui`, cobrindo todos os estados (loading, vazio, cheio, erro, bloqueado).
+- **Interaction tests** (play functions) rodando no Vitest via addon, como parte do CI.
+
+## 4. Ambientes e infraestrutura
+
+- **nginx** na frente de tudo, mesmo domínio: `/` para web, `/api` para Nest, `/socket.io` para Nest com upgrade. Cookies do Better Auth sem CORS.
+- **Storage:** fase local usa `STORAGE_DRIVER=local` (volume Docker). Fase EC2 usa `STORAGE_DRIVER=s3`. Os testes do driver S3 rodam contra **MinIO** em container.
+- **Fase 1, local (máquina do desenvolvedor):** `docker-compose.dev.yml` com nginx, web, api, mongo (replica set) e **cloudflared** (Cloudflare Tunnel) para os testers acessarem. O tunnel só carrega HTTP/WebSocket; a mídia vai direto entre os browsers. TURN via Cloudflare Realtime.
+- **Fase 2, EC2 t3.medium:** `docker-compose.prod.yml` com nginx, web, api e coturn. Banco no **MongoDB Atlas free**.
+- **Estimativa de custo da Fase 2 (ideação, us-east-1, sob demanda).** Valores a revisar com medição real depois que o app estiver rodando.
+
+  | Item | Cálculo | US$/mês |
+  |---|---|---|
+  | t3.medium (referência) | 0,0416 × 730 h | 30,37 |
+  | EBS gp3 30 GB | 30 × 0,08 | 2,40 |
+  | IPv4 público | 0,005 × 730 h | 3,65 |
+  | **Total base t3.medium** | | **~36,40** |
+
+  - Variáveis: transferência de saída (100 GB/mês grátis, depois US$ 0,09/GB, pesa principalmente no relay do coturn), S3 (centavos), créditos de CPU da t3 em modo unlimited (configurar como standard).
+  - t3.medium não entra no free tier. EBS e IPv4 podem ser cobertos se a conta for elegível; contas novas usam o modelo de créditos.
+  - **Recomendação inicial: t4g.small** (ARM, 2 GB, ~US$ 12 de instância). Na EC2 rodam só nginx, Nest e coturn (frontend estático, Mongo no Atlas, mídia P2P). Subir para t4g.medium se a medição pedir.
+  - Segurança da instância: SSH restrito ao IP do admin (ou SSM Session Manager), EBS criptografado, portas do coturn abertas (3478 UDP/TCP, 5349 TCP e faixa UDP de relay).
+- Deploy na Vercel **descartado**: a Vercel não mantém um processo Node persistente para o Socket.IO (WebSocket lá é experimental e preso a instância).
+
+## 5. Observabilidade
+
+- **Backend:** OpenTelemetry no Nest exportando para **Grafana Cloud free** (10k séries de métricas, 50 GB de logs, 50 GB de traces, retenção de 14 dias). Logs pino em JSON. Healthchecks no compose.
+- **Frontend: Sentry** (`@sentry/react`), plano Developer grátis (o trial Business ativo volta sozinho para o Developer).
+  - DSN em env (`VITE_SENTRY_DSN`); `environment` e `release` vindos de env/CI.
+  - `tracesSampleRate` 1.0 em dev e 0.1 em prod.
+  - Replay: `replaysSessionSampleRate: 0`, `replaysOnErrorSampleRate: 1.0`. Manter `maskAllText` e `blockAllMedia`.
+  - `Sentry.tanstackRouterBrowserTracingIntegration(router)` para nomes de rota parametrizados.
+  - `tracePropagationTargets` apontando para `/api` para ligar traces do browser aos do Nest.
+  - Source maps via `@sentry/vite-plugin`, com `SENTRY_AUTH_TOKEN` como **segredo do CI** (arquivo local do wizard no `.gitignore`).
+  - Inicialização em `shared/lib/sentry.ts`, `ErrorBoundary` no layout raiz. ViewModels reportam via wrapper `shared/lib/monitoring.ts`; Views nunca importam o Sentry.
+
+## 6. Testes
+
+- **Unitários (Vitest):** use-cases do Nest com repositórios e storage in-memory; rules, ViewModels (`renderHook`) e stores do frontend; Testing Library onde fizer sentido.
+- **E2E da API:** supertest + Mongo em Docker.
+- **E2E do app (Cypress):** usuário A dirigido pelo Cypress; usuário B é um **peer bot** headless (Chromium com mídia fake) controlado por `cy.task`, validando P2P real.
+- **Storybook interaction tests** no CI.
+- **Lint de fronteiras MVVM** no CI.
+
+## 7. Planejamento e delegação
+
+- Todos os artefatos em `plans/`.
+- Estimativa em **story points (Fibonacci)** por ticket, com complexidade, dependências e **ondas paralelas**; totais por épico.
+- Modelo sugerido por ticket:
+  - **Opus:** planejamento, orquestração, revisão de arquitetura.
+  - **Sonnet:** implementação de features.
+  - **Haiku:** tarefas mecânicas e boilerplate.
+
+## 8. Fora do escopo do MVP
+
+- Chat de texto, push-to-talk, ban dentro do servidor, transferência de posse do servidor, promoção de admin da plataforma pela interface, SFU, suporte garantido a Firefox/Safari, validação de email, deploy na Vercel.
+
+## 9. Próximas fases
+
+1. `01-epic-brief.md`: Epic Brief.
+2. `02-core-flows.md`: fluxos do usuário.
+3. `03-prd-validate.md`: validação do PRD.
+4. `04-tech-plan.md`: plano técnico.
+5. Tickets com estimativa e delegação a agentes.
