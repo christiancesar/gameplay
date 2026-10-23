@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { Label } from '@/shared/ui/label'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { Switch } from '@/shared/ui/switch'
 
 const INVITE_MAX_USES = [1, 5, 10, 25] as const
 const INVITE_DURATIONS = ['1h', '1d', '7d', '30d'] as const
@@ -22,6 +23,7 @@ type ServerInviteItem = {
 }
 
 type InvitesSectionViewProps = {
+  autoApprove: boolean
   invites: readonly ServerInviteItem[]
   maxUses: number
   duration: InviteDuration
@@ -30,6 +32,7 @@ type InvitesSectionViewProps = {
   memberCount: number
   memberLimit: number
   copiedCode?: string
+  onAutoApproveChange: (value: boolean) => void
   onMaxUsesChange: (value: number) => void
   onDurationChange: (value: InviteDuration) => void
   onGenerate: () => void
@@ -38,6 +41,7 @@ type InvitesSectionViewProps = {
 }
 
 function InvitesSectionView({
+  autoApprove,
   invites,
   maxUses,
   duration,
@@ -45,6 +49,7 @@ function InvitesSectionView({
   memberCount,
   memberLimit,
   copiedCode,
+  onAutoApproveChange,
   onMaxUsesChange,
   onDurationChange,
   onGenerate,
@@ -56,6 +61,14 @@ function InvitesSectionView({
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex items-start justify-between gap-6 rounded-md border p-4">
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="server-auto-approve">{t('serverSettings.invites.autoApprove')}</Label>
+          <p className="text-muted-foreground text-xs leading-snug">{t('serverSettings.invites.autoApproveHint')}</p>
+        </div>
+        <Switch id="server-auto-approve" checked={autoApprove} onCheckedChange={onAutoApproveChange} />
+      </div>
+
       {isFull && (
         <Alert>
           <AlertDescription>{t('serverSettings.invites.blockedFull', { count: memberCount, max: memberLimit })}</AlertDescription>

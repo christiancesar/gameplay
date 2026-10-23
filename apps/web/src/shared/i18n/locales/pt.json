@@ -241,8 +241,6 @@
       "cover": "Cover",
       "coverHint": "16:9, exibido em 1280×720.",
       "description": "Descrição",
-      "autoApprove": "Auto aprovação",
-      "autoApproveHint": "Pedidos de entrada são aprovados sozinhos enquanto houver vaga.",
       "saved": "Alterações salvas."
     },
     "invites": {
@@ -263,14 +261,17 @@
       "revokeDescription": "O link para de funcionar na hora.",
       "empty": "Nenhum convite ativo.",
       "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Libere uma vaga para gerar convites.",
-      "copyLink": "Copiar link"
+      "copyLink": "Copiar link",
+      "autoApprove": "Aprovar novos membros automaticamente",
+      "autoApproveHint": "Quem entra por convite já entra na hora, enquanto houver vaga. Desligado: cada pedido espera um owner ou admin."
     },
     "requests": {
       "approve": "Aprovar",
       "decline": "Recusar",
       "requestedAt": "Pediu {{date}}",
       "empty": "Nenhum pedido pendente.",
-      "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Aprovar fica bloqueado até abrir uma vaga."
+      "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Aprovar fica bloqueado até abrir uma vaga.",
+      "autoApproveOn": "A auto aprovação está ligada. Pedidos só ficam aqui quando o servidor está cheio."
     },
     "members": {
       "count": "{{count}} de {{max}} membros",

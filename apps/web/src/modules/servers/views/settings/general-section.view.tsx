@@ -1,16 +1,15 @@
 import { useTranslation } from 'react-i18next'
 
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
 import { ImagePicker, type ImageError } from '@/shared/ui/image-picker'
 import { Input } from '@/shared/ui/input'
 import { SubmitButton } from '@/shared/ui/submit-button'
-import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 
 type GeneralField = 'name' | 'description'
 
 type GeneralSectionViewProps = {
-  values: { name: string; description: string; autoApprove: boolean }
+  values: { name: string; description: string }
   iconUrl?: string
   coverUrl?: string
   nameError?: 'nameRequired' | 'nameTooLong'
@@ -20,7 +19,6 @@ type GeneralSectionViewProps = {
   isDirty: boolean
   isSaving: boolean
   onChange: (field: GeneralField, value: string) => void
-  onAutoApproveChange: (value: boolean) => void
   onSelectIcon: (file: File) => void
   onRemoveIcon: () => void
   onSelectCover: (file: File) => void
@@ -39,7 +37,6 @@ function GeneralSectionView({
   isDirty,
   isSaving,
   onChange,
-  onAutoApproveChange,
   onSelectIcon,
   onRemoveIcon,
   onSelectCover,
@@ -106,13 +103,6 @@ function GeneralSectionView({
             onSelectFile={onSelectCover}
             onRemove={onRemoveCover}
           />
-        </Field>
-        <Field orientation="horizontal" className="justify-between gap-6">
-          <div className="flex flex-col gap-1">
-            <FieldLabel htmlFor="server-auto-approve">{t('serverSettings.general.autoApprove')}</FieldLabel>
-            <FieldDescription>{t('serverSettings.general.autoApproveHint')}</FieldDescription>
-          </div>
-          <Switch id="server-auto-approve" checked={values.autoApprove} onCheckedChange={onAutoApproveChange} />
         </Field>
       </FieldGroup>
       <div className="flex justify-end">

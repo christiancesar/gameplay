@@ -241,8 +241,6 @@
       "cover": "Cover",
       "coverHint": "16:9, shown at 1280×720.",
       "description": "Description",
-      "autoApprove": "Auto approval",
-      "autoApproveHint": "Join requests are approved automatically while there is room.",
       "saved": "Changes saved."
     },
     "invites": {
@@ -263,14 +261,17 @@
       "revokeDescription": "The link stops working right away.",
       "empty": "No active invites.",
       "blockedFull": "The server is full ({{count}}/{{max}} members). Free a spot to generate invites.",
-      "copyLink": "Copy link"
+      "copyLink": "Copy link",
+      "autoApprove": "Approve new members automatically",
+      "autoApproveHint": "People who join with an invite get in right away while there is room. Off: each request waits for an owner or admin."
     },
     "requests": {
       "approve": "Approve",
       "decline": "Decline",
       "requestedAt": "Requested {{date}}",
       "empty": "No pending requests.",
-      "blockedFull": "The server is full ({{count}}/{{max}} members). Approving is blocked until a spot opens."
+      "blockedFull": "The server is full ({{count}}/{{max}} members). Approving is blocked until a spot opens.",
+      "autoApproveOn": "Auto approval is on. Requests only wait here when the server is full."
     },
     "members": {
       "count": "{{count}} of {{max}} members",

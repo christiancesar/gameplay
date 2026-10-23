@@ -149,9 +149,9 @@
 
 **Gatilho:** card do servidor no painel lateral (owner e admin). Modal com sidebar de seções. Visual a desenhar no Storybook.
 
-1. **Geral:** nome, ícone, cover, descrição e auto aprovação.
-2. **Convites:** gerar código/link com máximo de usos e validade, copiar, ver usos restantes e validade, revogar. No limite de membros, gerar fica bloqueado com o motivo.
-3. **Pedidos:** aprovar ou recusar. No limite de membros, aprovar fica bloqueado com o motivo.
+1. **Geral:** nome, ícone, cover e descrição.
+2. **Convites:** toggle de **auto aprovação** no topo (aprovar novos membros automaticamente enquanto houver vaga); gerar código/link com máximo de usos e validade, copiar, ver usos restantes e validade, revogar. No limite de membros, gerar fica bloqueado com o motivo.
+3. **Pedidos:** aprovar ou recusar. Com a auto aprovação ligada, um aviso explica que pedidos só esperam aqui quando o servidor está cheio. No limite de membros, aprovar fica bloqueado com o motivo.
 4. **Membros:** lista com papel. Ações por membro: promover a admin, rebaixar a member, kick (com confirmação). O owner aparece sem ações.
 5. **Salas:** criar, renomear e excluir. No limite de salas, criar fica bloqueado com o motivo. Excluir uma sala com gente dentro pede confirmação e desconecta quem estiver nela.
 6. **Sair ou excluir:**

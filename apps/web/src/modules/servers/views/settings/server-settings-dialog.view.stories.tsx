@@ -20,9 +20,11 @@ type ScenarioProps = {
   roomLimitReached: boolean
   empty: boolean
   generalErrors: boolean
+  autoApprove: boolean
 }
 
 const actions = {
+  onAutoApproveChange: fn(),
   onSectionChange: fn(),
   onPromote: fn(),
   onDemote: fn(),
@@ -40,7 +42,8 @@ const actions = {
 }
 
 /** Modal completo com navegação entre seções; os dados vêm das fixtures. */
-function Scenario({ initialSection, role, full, roomLimitReached, empty, generalErrors }: ScenarioProps) {
+function Scenario({ initialSection, role, full, roomLimitReached, empty, generalErrors, autoApprove: initialAutoApprove }: ScenarioProps) {
+  const [autoApprove, setAutoApprove] = useState(initialAutoApprove)
   const [section, setSection] = useState(initialSection)
   const memberList = full ? fullMembers : members
   const requestList = empty ? [] : requests
@@ -49,7 +52,7 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
   const content = {
     general: (
       <GeneralSectionView
-        values={{ name: 'Turbex', description: 'Dota toda sexta à noite.', autoApprove: false }}
+        values={{ name: 'Turbex', description: 'Dota toda sexta à noite.' }}
         iconUrl={images.serverTurbex}
         coverUrl={generalErrors ? undefined : images.streamFrame}
         nameError={generalErrors ? 'nameRequired' : undefined}
@@ -58,7 +61,6 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
         isDirty
         isSaving={false}
         onChange={fn()}
-        onAutoApproveChange={fn()}
         onSelectIcon={fn()}
         onRemoveIcon={fn()}
         onSelectCover={fn()}
@@ -68,6 +70,11 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
     ),
     invites: (
       <InvitesSectionView
+        autoApprove={autoApprove}
+        onAutoApproveChange={(value) => {
+          actions.onAutoApproveChange(value)
+          setAutoApprove(value)
+        }}
         invites={empty ? [] : invites}
         maxUses={5}
         duration="7d"
@@ -84,6 +91,7 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
     ),
     requests: (
       <RequestsSectionView
+        autoApprove={autoApprove}
         requests={requestList}
         memberCount={memberList.length}
         memberLimit={10}
@@ -138,7 +146,7 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
 const meta = {
   title: 'Servers/ServerSettings',
   component: Scenario,
-  args: { initialSection: 'general', role: 'owner', full: false, roomLimitReached: false, empty: false, generalErrors: false },
+  args: { initialSection: 'general', role: 'owner', full: false, roomLimitReached: false, empty: false, generalErrors: false, autoApprove: false },
   argTypes: {
     initialSection: { control: 'select', options: ['general', 'invites', 'requests', 'members', 'rooms', 'danger'] },
     role: { control: 'inline-radio', options: ['owner', 'admin'] },
@@ -152,6 +160,17 @@ export const General: Story = {}
 export const GeneralWithErrors: Story = { args: { generalErrors: true } }
 
 export const Invites: Story = { args: { initialSection: 'invites' } }
+export const InvitesAutoApproveOn: Story = { args: { initialSection: 'invites', autoApprove: true } }
+
+export const ToggleAutoApprove: Story = {
+  args: { initialSection: 'invites' },
+  play: async ({ userEvent }) => {
+    await userEvent.click(screen.getByRole('switch', { name: /approve new members automatically/i }))
+    await expect(actions.onAutoApproveChange).toHaveBeenCalledWith(true)
+    await expect(screen.getByRole('switch', { name: /approve new members automatically/i })).toBeChecked()
+  },
+}
+
 export const InvitesEmpty: Story = { args: { initialSection: 'invites', empty: true } }
 export const InvitesBlockedServerFull: Story = {
   args: { initialSection: 'invites', full: true },
@@ -167,6 +186,7 @@ export const Requests: Story = {
     await expect(actions.onApprove).toHaveBeenCalledWith('j1')
   },
 }
+export const RequestsWithAutoApprove: Story = { args: { initialSection: 'requests', autoApprove: true, full: true } }
 export const RequestsEmpty: Story = { args: { initialSection: 'requests', empty: true } }
 export const RequestsBlockedServerFull: Story = {
   args: { initialSection: 'requests', full: true },

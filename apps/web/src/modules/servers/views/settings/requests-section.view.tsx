@@ -13,6 +13,7 @@ type JoinRequestItem = {
 }
 
 type RequestsSectionViewProps = {
+  autoApprove: boolean
   requests: readonly JoinRequestItem[]
   memberCount: number
   memberLimit: number
@@ -22,12 +23,17 @@ type RequestsSectionViewProps = {
   onDecline: (requestId: string) => void
 }
 
-function RequestsSectionView({ requests, memberCount, memberLimit, busyRequestId, onApprove, onDecline }: RequestsSectionViewProps) {
+function RequestsSectionView({ autoApprove, requests, memberCount, memberLimit, busyRequestId, onApprove, onDecline }: RequestsSectionViewProps) {
   const { t, i18n } = useTranslation()
   const isFull = memberCount >= memberLimit
 
   return (
     <div className="flex flex-col gap-4">
+      {autoApprove && (
+        <Alert>
+          <AlertDescription>{t('serverSettings.requests.autoApproveOn')}</AlertDescription>
+        </Alert>
+      )}
       {isFull && requests.length > 0 && (
         <Alert>
           <AlertDescription>{t('serverSettings.requests.blockedFull', { count: memberCount, max: memberLimit })}</AlertDescription>
