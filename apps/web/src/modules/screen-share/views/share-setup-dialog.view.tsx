@@ -82,9 +82,14 @@ function ShareSetupDialogView({
                       selected && 'border-foreground bg-accent',
                     )}
                   >
-                    <span className="relative">
-                      <Icon className="size-6" aria-hidden />
-                      {source === 'window' && <Gamepad2Icon className="bg-background absolute -right-2 -bottom-1 size-4 rounded-sm" aria-hidden />}
+                    <span className="flex items-center gap-1.5" aria-hidden>
+                      <Icon className="size-6" />
+                      {source === 'window' && (
+                        <>
+                          <span className="text-muted-foreground text-sm">/</span>
+                          <Gamepad2Icon className="size-6" />
+                        </>
+                      )}
                     </span>
                     <span className="text-sm font-medium">{t(`share.setup.sources.${source}.label`)}</span>
                     <span className="text-muted-foreground text-[11px] leading-snug">{t(`share.setup.sources.${source}.hint`)}</span>
