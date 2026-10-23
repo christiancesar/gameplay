@@ -1,6 +1,16 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronRightIcon, LayoutGridIcon, Loader2Icon, SettingsIcon, ShieldUserIcon, TicketIcon, UserIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+
+import {
+  inviteCodeSchema,
+  type InviteCodeError,
+  type InviteCodeInput,
+  type InviteCodeValues,
+} from '@/modules/invites/model/invite-code.schema'
+import { useServerErrors } from '@/shared/lib/form'
 
 import { BrandLogo } from '@/shared/ui/brand-logo'
 import { Button } from '@/shared/ui/button'
@@ -43,16 +53,18 @@ type HubViewProps = {
   servers: readonly HubServer[]
   isLoadingServers: boolean
   canCreateServer: boolean
-  joinCode: string
+  /** Código já preenchido (ex.: veio de um link). */
+  defaultJoinCode?: string
   isJoining: boolean
+  /** Erro do servidor ao entrar; some quando o usuário edita o código. */
   joinError?: HubJoinError
   theme: 'dark' | 'light'
   language: string
   languageOptions: readonly LanguageOption[]
   onOpenServer: (serverId: string) => void
   onCreateServer: () => void
-  onJoinCodeChange: (value: string) => void
-  onJoin: () => void
+  /** Chamado só com um código que passou no schema (sem espaços, em maiúsculas). */
+  onJoin: (code: string) => void
   onOpenAdmin: () => void
   onOpenSettings: () => void
   onToggleTheme: () => void
@@ -66,7 +78,7 @@ function HubView({
   servers,
   isLoadingServers,
   canCreateServer,
-  joinCode,
+  defaultJoinCode,
   isJoining,
   joinError,
   theme,
@@ -74,7 +86,6 @@ function HubView({
   languageOptions,
   onOpenServer,
   onCreateServer,
-  onJoinCodeChange,
   onJoin,
   onOpenAdmin,
   onOpenSettings,
@@ -172,33 +183,7 @@ function HubView({
             <SectionLabel id="hub-join" icon={TicketIcon}>
               {t('hub.joinTitle')}
             </SectionLabel>
-            <form
-              noValidate
-              className="flex w-full flex-col gap-2"
-              onSubmit={(event) => {
-                event.preventDefault()
-                onJoin()
-              }}
-            >
-              <div className="flex gap-2">
-                <Input
-                  aria-label={t('hub.joinPlaceholder')}
-                  placeholder={t('hub.joinPlaceholder')}
-                  value={joinCode}
-                  onChange={(event) => onJoinCodeChange(event.target.value)}
-                  aria-invalid={Boolean(joinError)}
-                  autoComplete="off"
-                  spellCheck={false}
-                  className="h-9 flex-1 font-semibold tracking-wide uppercase placeholder:font-normal placeholder:tracking-normal placeholder:normal-case"
-                />
-                <Button type="submit" variant="secondary" className="h-9" disabled={isJoining || !joinCode.trim()}>
-                  {isJoining && <Loader2Icon className="animate-spin" aria-hidden />}
-                  {t('hub.join')}
-                  <ChevronRightIcon data-icon="inline-end" />
-                </Button>
-              </div>
-              {joinError && <FieldError>{t(`hub.joinErrors.${joinError}`)}</FieldError>}
-            </form>
+            <JoinByCodeForm defaultCode={defaultJoinCode} isJoining={isJoining} joinError={joinError} onJoin={onJoin} />
           </section>
         </div>
 
@@ -210,6 +195,46 @@ function HubView({
         )}
       </div>
     </div>
+  )
+}
+
+type JoinByCodeFormProps = {
+  defaultCode?: string
+  isJoining: boolean
+  joinError?: HubJoinError
+  onJoin: (code: string) => void
+}
+
+function JoinByCodeForm({ defaultCode = '', isJoining, joinError, onJoin }: JoinByCodeFormProps) {
+  const { t } = useTranslation()
+  const form = useForm<InviteCodeInput, unknown, InviteCodeValues>({
+    resolver: zodResolver(inviteCodeSchema),
+    defaultValues: { code: defaultCode },
+    errors: useServerErrors<InviteCodeInput>(joinError ? { code: joinError } : undefined),
+  })
+  const code = useWatch({ control: form.control, name: 'code' })
+  const error = form.formState.errors.code?.message as InviteCodeError | HubJoinError | undefined
+
+  return (
+    <form noValidate className="flex w-full flex-col gap-2" onSubmit={form.handleSubmit((values) => onJoin(values.code))}>
+      <div className="flex gap-2">
+        <Input
+          {...form.register('code')}
+          aria-label={t('hub.joinPlaceholder')}
+          placeholder={t('hub.joinPlaceholder')}
+          aria-invalid={Boolean(error)}
+          autoComplete="off"
+          spellCheck={false}
+          className="h-9 flex-1 font-semibold tracking-wide uppercase placeholder:font-normal placeholder:tracking-normal placeholder:normal-case"
+        />
+        <Button type="submit" variant="secondary" className="h-9" disabled={isJoining || !code.trim()}>
+          {isJoining && <Loader2Icon className="animate-spin" aria-hidden />}
+          {t('hub.join')}
+          <ChevronRightIcon data-icon="inline-end" />
+        </Button>
+      </div>
+      {error && <FieldError>{t(`hub.joinErrors.${error}`)}</FieldError>}
+    </form>
   )
 }
 

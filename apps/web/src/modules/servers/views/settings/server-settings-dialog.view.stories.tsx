@@ -163,7 +163,7 @@ export const GeneralWithErrors: Story = {
     await userEvent.clear(screen.getByLabelText(/^name$/i))
     await expect(save).toBeEnabled()
     await userEvent.click(save)
-    await expect(await screen.findByText(/give your server a name/i)).toBeVisible()
+    await waitFor(() => expect(screen.getByText(/give your server a name/i)).toBeVisible())
     await expect(actions.onSave).not.toHaveBeenCalled()
   },
 }
@@ -236,7 +236,7 @@ export const RoomNameTaken: Story = {
     const existing = 'Room 01'
     await userEvent.type(screen.getByLabelText(/new room/i), existing.toUpperCase())
     await userEvent.click(screen.getByRole('button', { name: /create/i }))
-    await expect(await screen.findByText(/already a room with this name/i)).toBeVisible()
+    await waitFor(() => expect(screen.getByText(/already a room with this name/i)).toBeVisible())
     await expect(actions.onCreateRoom).not.toHaveBeenCalled()
 
     await userEvent.clear(screen.getByLabelText(/new room/i))
@@ -254,7 +254,7 @@ export const RenameRoom: Story = {
     const input = screen.getByRole('textbox', { name: /^rename$/i })
     await userEvent.clear(input)
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
-    await expect(await screen.findByText(/give the room a name/i)).toBeVisible()
+    await waitFor(() => expect(screen.getByText(/give the room a name/i)).toBeVisible())
 
     await userEvent.type(input, 'Lobby 2')
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }))

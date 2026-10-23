@@ -8,7 +8,7 @@ import { useStoryTheme } from '@/fixtures/theme'
 
 import { NotificationsPanelView, type HubNotification } from '@/modules/notifications/views/notifications-panel.view'
 
-import { HubView } from './hub.view'
+import { HubView, type HubJoinError } from './hub.view'
 
 const meta = {
   title: 'Hub/Hub',
@@ -20,14 +20,12 @@ const meta = {
     servers: [servers.turbex],
     isLoadingServers: false,
     canCreateServer: true,
-    joinCode: '',
     isJoining: false,
     theme: 'dark',
     language: 'en',
     languageOptions,
     onOpenServer: fn(),
     onCreateServer: fn(),
-    onJoinCodeChange: fn(),
     onJoin: fn(),
     onOpenAdmin: fn(),
     onOpenSettings: fn(),
@@ -35,7 +33,6 @@ const meta = {
     onLanguageChange: fn(),
   },
   render: function Render(args) {
-    const [joinCode, setJoinCode] = useState(args.joinCode)
     const language = useStoryLanguage()
     const theme = useStoryTheme()
     return (
@@ -43,11 +40,6 @@ const meta = {
         {...args}
         {...language}
         {...theme}
-        joinCode={joinCode}
-        onJoinCodeChange={(value) => {
-          args.onJoinCodeChange(value)
-          setJoinCode(value)
-        }}
       />
     )
   },
@@ -57,7 +49,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /** Igual ao mock home-logado.png. */
-export const Default: Story = { args: { joinCode: 'JH34SD32' } }
+export const Default: Story = { args: { defaultJoinCode: 'JH34SD32' } }
 
 export const FirstAccess: Story = { args: { servers: [] } }
 
@@ -84,11 +76,42 @@ export const PlatformAdmin: Story = {
 
 export const NoAvatar: Story = { args: { user: { ...me, avatarUrl: undefined } } }
 
-export const Joining: Story = { args: { joinCode: 'JH34SD32', isJoining: true } }
+export const Joining: Story = { args: { defaultJoinCode: 'JH34SD32', isJoining: true } }
 
-export const JoinInviteExpired: Story = { args: { joinCode: 'JH34SD32', joinError: 'inviteExpired' } }
+export const JoinInviteExpired: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'inviteExpired' } }
 
-export const JoinServerFull: Story = { args: { joinCode: 'JH34SD32', joinError: 'serverFull' } }
+export const JoinServerFull: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'serverFull' } }
+
+/** Simula o ViewModel: o servidor recusa o código e o erro some quando o usuário edita o campo. */
+export const JoinErrorClearsOnEdit: Story = {
+  render: function Render(args) {
+    const [joinError, setJoinError] = useState<HubJoinError>()
+    const language = useStoryLanguage()
+    const theme = useStoryTheme()
+    return (
+      <HubView
+        {...args}
+        {...language}
+        {...theme}
+        joinError={joinError}
+        onJoin={(code) => {
+          args.onJoin(code)
+          setJoinError('inviteNotFound')
+        }}
+      />
+    )
+  },
+  play: async ({ args, canvas, userEvent }) => {
+    const input = canvas.getByLabelText(/invite code/i)
+    await userEvent.type(input, 'wrong1')
+    await userEvent.click(canvas.getByRole('button', { name: /join/i }))
+    await expect(args.onJoin).toHaveBeenCalledWith('WRONG1')
+    await expect(await canvas.findByText(/invite not found/i)).toBeVisible()
+
+    await userEvent.type(input, '2')
+    await expect(canvas.queryByText(/invite not found/i)).not.toBeInTheDocument()
+  },
+}
 
 export const OpenServer: Story = {
   play: async ({ args, canvas, userEvent }) => {
@@ -103,7 +126,7 @@ export const JoinByCode: Story = {
     await expect(join).toBeDisabled()
     await userEvent.type(canvas.getByLabelText(/invite code/i), 'jh34sd32')
     await userEvent.click(join)
-    await expect(args.onJoin).toHaveBeenCalledOnce()
+    await expect(args.onJoin).toHaveBeenCalledWith('JH34SD32')
   },
 }
 

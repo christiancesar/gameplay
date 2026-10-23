@@ -103,7 +103,7 @@ export const SwitchWhileInRoom: Story = {
     await userEvent.click(canvas.getByRole('button', { name: /switch server: turbex/i }))
     await userEvent.click(await screen.findByRole('option', { name: /clan zero/i }))
     const dialog = await screen.findByRole('alertdialog')
-    await expect(within(dialog).getByText(/switch to clan zero/i)).toBeVisible()
+    await waitFor(() => expect(within(dialog).getByText(/switch to clan zero/i)).toBeVisible())
     await userEvent.click(within(dialog).getByRole('button', { name: /cancel/i }))
     await waitFor(() => expect(args.onDismissSwitch).toHaveBeenCalledOnce())
     await expect(args.onConfirmSwitch).not.toHaveBeenCalled()

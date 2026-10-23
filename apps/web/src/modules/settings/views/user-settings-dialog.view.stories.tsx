@@ -148,7 +148,7 @@ export const HardwareCompleteManually: Story = {
     await userEvent.type(screen.getByLabelText(/^ram/i), 'muito')
     await userEvent.type(screen.getByLabelText(/^upload/i), '50,5')
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
-    await expect(await screen.findByText(/greater than zero/i)).toBeVisible()
+    await waitFor(() => expect(screen.getByText(/greater than zero/i)).toBeVisible())
     await expect(onSaveManual).not.toHaveBeenCalled()
 
     await userEvent.clear(screen.getByLabelText(/^ram/i))
