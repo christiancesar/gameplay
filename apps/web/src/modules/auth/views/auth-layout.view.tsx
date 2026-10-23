@@ -6,18 +6,23 @@ import { LanguageSwitcher, type LanguageOption } from '@/shared/ui/language-swit
 
 type AuthLayoutViewProps = {
   children: ReactNode
+  /** Aviso opcional acima do formulário (ex.: browser sem suporte). */
+  notice?: ReactNode
   language: string
   languageOptions: readonly LanguageOption[]
   onLanguageChange: (language: string) => void
 }
 
-function AuthLayoutView({ children, language, languageOptions, onLanguageChange }: AuthLayoutViewProps) {
+function AuthLayoutView({ children, notice, language, languageOptions, onLanguageChange }: AuthLayoutViewProps) {
   const { t } = useTranslation()
 
   return (
     <div className="bg-background text-foreground flex min-h-dvh flex-col items-center justify-center gap-8 px-4 py-10">
       <BrandLogo className="w-36" />
-      <div className="w-full max-w-sm">{children}</div>
+      <div className="flex w-full max-w-sm flex-col gap-4">
+        {notice}
+        {children}
+      </div>
       <LanguageSwitcher
         value={language}
         options={languageOptions}

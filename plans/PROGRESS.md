@@ -53,6 +53,7 @@ Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Keys de cadastro: validade 1, 7 ou 30 dias; a key aparece uma única vez (só o hash fica guardado) e a lista mostra os 3 últimos caracteres. Isso exige guardar esse sufixo junto do hash.
 - Admin redefine senha digitando ou gerando uma nova senha, que ele repassa por canal privado.
 - Hardware: coletado no login e sob demanda, um registro por dispositivo; o aviso de permissão dos monitores some depois de Permitir ou Agora não.
+- Versão mínima do Chromium: valor configurável (exemplo usado: 130); o alerta dispensado não volta na mesma sessão.
 - Avisos do F13 como toasts; queda de conexão como faixa amarela no topo.
 
 - i18n com `i18next` + `react-i18next` + detector de idioma do browser (lib não estava definida no levantamento).

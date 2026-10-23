@@ -551,5 +551,14 @@
       "description": "Permita que o Gameplay veja seus monitores. O resto das informações de hardware é coletado sem pedir permissão.",
       "notNow": "Agora não"
     }
+  },
+  "browserSupport": {
+    "unsupportedTitle": "O {{browser}} não tem suporte completo",
+    "unsupportedDescription": "Voz e compartilhamento de tela são feitos e testados para navegadores Chromium. Aqui alguns recursos podem falhar ou ficar mais lentos.",
+    "outdatedTitle": "Seu {{browser}} está desatualizado",
+    "outdatedDescription": "Você está na versão {{version}}. O Gameplay precisa da {{min}} ou mais nova para voz e transmissão estáveis.",
+    "howToUpdate": "Abra o menu do navegador › Ajuda › Sobre para atualizar e depois reinicie.",
+    "recommended": "Navegadores recomendados",
+    "continueAnyway": "Continuar mesmo assim"
   }
 }

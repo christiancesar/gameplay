@@ -35,6 +35,7 @@
 3. Conta suspensa: mensagem informando que a conta está suspensa.
 4. Conta de admin da plataforma: após a senha, pede o código de 6 dígitos do app autenticador (ou um código de recuperação).
 5. Sucesso: vai para o Hub. Se chegou por link de servidor, segue para o F3.
+6. Browser não Chromium ou desatualizado: alerta acima do formulário com os navegadores recomendados ou como atualizar; dá para continuar mesmo assim.
 
 ## F2 · SignUp
 
@@ -98,6 +99,7 @@
 3. "Create your server" abre o F5. Com o limite de servidores atingido, o card fica desabilitado com "Limite atingido".
 4. "Or join a server": campo para o código de 8 caracteres (colar o link inteiro também funciona) e botão Join. Segue o F3.
 5. Primeiro acesso, sem servidores: só o card de criar e o campo de entrar.
+7. O mesmo alerta de browser do SignIn aparece no Hub enquanto não for dispensado.
 6. Enquanto a permissão de ver os monitores não foi decidida, um aviso abaixo do perfil pede essa permissão (Permitir / Agora não). O resto do hardware é coletado sem pedir.
 
 ## F5 · Criar servidor

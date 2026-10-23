@@ -551,5 +551,14 @@
       "description": "Allow Gameplay to see your monitors. The rest of the hardware info is collected without prompts.",
       "notNow": "Not now"
     }
+  },
+  "browserSupport": {
+    "unsupportedTitle": "{{browser}} isn't fully supported",
+    "unsupportedDescription": "Voice and screen share are built and tested for Chromium browsers. Some features may fail or perform worse here.",
+    "outdatedTitle": "Your {{browser}} is out of date",
+    "outdatedDescription": "You're on version {{version}}. Gameplay needs {{min}} or newer for stable voice and screen share.",
+    "howToUpdate": "Open the browser menu › Help › About to update, then restart it.",
+    "recommended": "Recommended browsers",
+    "continueAnyway": "Continue anyway"
   }
 }

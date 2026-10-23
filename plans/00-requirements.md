@@ -119,6 +119,10 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 
 ### 2.13 Browsers
 - Alvo do MVP: **Chromium (Chrome/Edge)**. Firefox e Safari sem garantia.
+- O app detecta o browser (User-Agent Client Hints, com fallback no user agent) e mostra um alerta no SignIn e no Hub *(adicionado em 2026-10-23)*:
+  - **Não Chromium:** recomenda Chrome, Edge, Brave, Opera ou Vivaldi, com links de download.
+  - **Chromium abaixo da versão mínima:** mostra a versão atual e a mínima e como atualizar.
+  - Dispensável com "Continuar mesmo assim" (não bloqueia o uso).
 
 ## 3. Arquitetura
 

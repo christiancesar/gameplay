@@ -6,6 +6,7 @@ import { me, servers } from '@/fixtures'
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
 import { useStoryTheme } from '@/fixtures/theme'
 
+import { BrowserSupportAlertView } from '@/modules/browser-support/views/browser-support-alert.view'
 import { HardwarePermissionBannerView } from '@/modules/hardware/views/hardware-permission-banner.view'
 
 import { HubView } from './hub.view'
@@ -110,6 +111,13 @@ export const JoinByCode: Story = {
 /** Primeira visita: pede a permissão de ver os monitores. */
 export const HardwarePermission: Story = {
   args: { banner: <HardwarePermissionBannerView onAllow={fn()} onDismiss={fn()} /> },
+}
+
+/** Chromium desatualizado. */
+export const OutdatedBrowser: Story = {
+  args: {
+    banner: <BrowserSupportAlertView status={{ type: 'outdated', browser: { name: 'Chrome', version: '109' }, minVersion: 130 }} onDismiss={fn()} />,
+  },
 }
 
 export const Portuguese: Story = { globals: { locale: 'pt' }, args: { isPlatformAdmin: true } }
