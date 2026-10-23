@@ -4,10 +4,9 @@ import { SubmitButton } from '@/shared/ui/submit-button'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
-import { ImagePicker } from '@/shared/ui/image-picker'
+import { ImagePicker, type ImageError } from '@/shared/ui/image-picker'
 import { Input } from '@/shared/ui/input'
 
-type ImageError = 'tooLarge' | 'invalidType' | 'uploadFailed'
 type CreateServerError = 'nameRequired' | 'nameTooLong' | 'limitReached' | 'unexpected'
 
 type CreateServerDialogViewProps = {
@@ -98,4 +97,4 @@ function CreateServerDialogView({
 }
 
 export { CreateServerDialogView }
-export type { CreateServerDialogViewProps, CreateServerError, ImageError }
+export type { CreateServerDialogViewProps, CreateServerError }

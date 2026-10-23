@@ -262,5 +262,72 @@
       "confirmName": "Digite {{name}} para confirmar",
       "ownerCantLeave": "O owner não pode sair. Exclua o servidor no lugar."
     }
+  },
+  "settings": {
+    "title": "Configurações",
+    "sections": {
+      "profile": "Perfil",
+      "audio": "Áudio",
+      "appearance": "Aparência",
+      "account": "Conta"
+    },
+    "profile": {
+      "avatar": "Avatar",
+      "username": "Username",
+      "email": "Email",
+      "readOnly": "Peça ao admin da plataforma para trocar seu email ou senha."
+    },
+    "audio": {
+      "microphone": "Microfone",
+      "output": "Saída",
+      "default": "Padrão do sistema",
+      "testMic": "Testar microfone",
+      "stopTest": "Parar teste",
+      "level": "Nível de entrada",
+      "testHint": "Fale e veja a barra se mexer.",
+      "permissionNeeded": "Libere o microfone para ver seus dispositivos.",
+      "allow": "Liberar microfone"
+    },
+    "appearance": {
+      "theme": "Tema",
+      "dark": "Escuro",
+      "light": "Claro",
+      "language": "Idioma"
+    },
+    "account": {
+      "signOut": "Sair da conta",
+      "signOutDescription": "Você será desconectado de qualquer sala."
+    }
+  },
+  "invite": {
+    "invitedTitle": "Você foi convidado para {{server}}",
+    "createAccount": "Criar conta",
+    "haveAccount": "Já tenho conta",
+    "keyHint": "Você precisa da key de convite enviada junto com este link.",
+    "confirmTitle": "Entrar em {{server}}?",
+    "confirmDescription_one": "{{count}} membro",
+    "confirmDescription_other": "{{count}} membros",
+    "join": "Entrar no servidor",
+    "requestSent": "Pedido enviado, aguarde a aprovação.",
+    "errors": {
+      "expired": "Este convite expirou.",
+      "exhausted": "Este convite não tem mais usos.",
+      "serverFull": "Este servidor está cheio.",
+      "notFound": "Este convite não existe ou foi revogado."
+    }
+  },
+  "connection": {
+    "reconnecting": "Reconectando…",
+    "reconnected": "Conectado de novo.",
+    "offlineHint": "Você volta para a mesma sala."
+  },
+  "notices": {
+    "kicked": "Você foi removido de {{server}}.",
+    "serverDeleted": "{{server}} foi excluído.",
+    "promoted": "Agora você é admin de {{server}}.",
+    "demoted": "Você não é mais admin de {{server}}.",
+    "suspended": "Sua conta foi suspensa.",
+    "sessionEnded": "Sua sessão foi encerrada. Entre de novo.",
+    "joinApproved": "Seu pedido para entrar em {{server}} foi aprovado."
   }
 }

@@ -5,6 +5,8 @@ import { useId, useRef } from 'react'
 import { Button } from '@/shared/ui/button'
 import { initialsOf } from '@/shared/ui/initials'
 
+type ImageError = 'tooLarge' | 'invalidType' | 'uploadFailed'
+
 type ImagePickerProps = {
   /** Nome usado no fallback de iniciais (vazio mostra só o ícone). */
   name?: string
@@ -87,4 +89,4 @@ function ImagePicker({ name, previewUrl, shape, isUploading, error, hint, labels
 }
 
 export { ImagePicker }
-export type { ImagePickerProps }
+export type { ImageError, ImagePickerProps }

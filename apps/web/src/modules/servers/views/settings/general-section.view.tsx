@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
-import type { ImageError } from '@/modules/servers/views/create-server-dialog.view'
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
-import { ImagePicker } from '@/shared/ui/image-picker'
+import { ImagePicker, type ImageError } from '@/shared/ui/image-picker'
 import { Input } from '@/shared/ui/input'
 import { SubmitButton } from '@/shared/ui/submit-button'
 import { Switch } from '@/shared/ui/switch'

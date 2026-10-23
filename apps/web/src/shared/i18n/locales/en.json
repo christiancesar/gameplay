@@ -262,5 +262,72 @@
       "confirmName": "Type {{name}} to confirm",
       "ownerCantLeave": "The owner can't leave. Delete the server instead."
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "profile": "Profile",
+      "audio": "Audio",
+      "appearance": "Appearance",
+      "account": "Account"
+    },
+    "profile": {
+      "avatar": "Avatar",
+      "username": "Username",
+      "email": "Email",
+      "readOnly": "Ask the platform admin to change your email or password."
+    },
+    "audio": {
+      "microphone": "Microphone",
+      "output": "Output",
+      "default": "System default",
+      "testMic": "Test microphone",
+      "stopTest": "Stop test",
+      "level": "Input level",
+      "testHint": "Speak and watch the bar move.",
+      "permissionNeeded": "Allow microphone access to see your devices.",
+      "allow": "Allow microphone"
+    },
+    "appearance": {
+      "theme": "Theme",
+      "dark": "Dark",
+      "light": "Light",
+      "language": "Language"
+    },
+    "account": {
+      "signOut": "Sign out",
+      "signOutDescription": "You will be disconnected from any room."
+    }
+  },
+  "invite": {
+    "invitedTitle": "You were invited to {{server}}",
+    "createAccount": "Create account",
+    "haveAccount": "I already have an account",
+    "keyHint": "You need the invite key sent together with this link.",
+    "confirmTitle": "Join {{server}}?",
+    "confirmDescription_one": "{{count}} member",
+    "confirmDescription_other": "{{count}} members",
+    "join": "Join server",
+    "requestSent": "Request sent. Wait for approval.",
+    "errors": {
+      "expired": "This invite has expired.",
+      "exhausted": "This invite has no uses left.",
+      "serverFull": "This server is full.",
+      "notFound": "This invite doesn't exist or was revoked."
+    }
+  },
+  "connection": {
+    "reconnecting": "Reconnecting…",
+    "reconnected": "Back online.",
+    "offlineHint": "We'll put you back in the same room."
+  },
+  "notices": {
+    "kicked": "You were removed from {{server}}.",
+    "serverDeleted": "{{server}} was deleted.",
+    "promoted": "You are now an admin of {{server}}.",
+    "demoted": "You are no longer an admin of {{server}}.",
+    "suspended": "Your account was suspended.",
+    "sessionEnded": "Your session was ended. Sign in again.",
+    "joinApproved": "Your request to join {{server}} was approved."
   }
 }
