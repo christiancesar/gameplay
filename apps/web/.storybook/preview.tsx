@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { I18nextProvider } from 'react-i18next'
 
 import { i18n, SUPPORTED_LANGUAGES } from '../src/shared/i18n'
+import { TooltipProvider } from '../src/shared/ui/tooltip'
 import '../src/index.css'
 
 const preview: Preview = {
@@ -41,9 +42,11 @@ const preview: Preview = {
       }, [locale])
       return (
         <I18nextProvider i18n={i18n}>
-          <div className="bg-background text-foreground min-h-full p-4">
-            <Story />
-          </div>
+          <TooltipProvider>
+            <div className={context.parameters.layout === 'fullscreen' ? 'bg-background text-foreground' : 'bg-background text-foreground min-h-full p-4'}>
+              <Story />
+            </div>
+          </TooltipProvider>
         </I18nextProvider>
       )
     },

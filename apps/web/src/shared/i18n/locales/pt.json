@@ -1,7 +1,13 @@
 {
   "common": {
     "appName": "Gameplay",
-    "language": "Idioma"
+    "language": "Idioma",
+    "theme": {
+      "toLight": "Usar tema claro",
+      "toDark": "Usar tema escuro"
+    },
+    "settings": "Configurações",
+    "adminPanel": "Admin da plataforma"
   },
   "auth": {
     "signIn": {
@@ -51,6 +57,24 @@
       "inviteKeyRevoked": "Esta key de convite foi revogada.",
       "inviteKeyUsed": "Esta key de convite já foi usada.",
       "tooManyAttempts": "Muitas tentativas. Aguarde um pouco e tente de novo.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    }
+  },
+  "hub": {
+    "servers": "Seus servidores",
+    "createServer": "Crie seu servidor",
+    "createServerDescription": "Reúna seu clã e compartilhe sua gameplay",
+    "createServerLimit": "Limite atingido",
+    "createServerLimitDescription": "Você já tem o número máximo de servidores.",
+    "orJoin": "Ou entre em um servidor",
+    "joinPlaceholder": "Código ou link do convite",
+    "join": "Entrar",
+    "joinErrors": {
+      "inviteNotFound": "Convite não encontrado. Confira o código.",
+      "inviteExpired": "Este convite expirou.",
+      "inviteExhausted": "Este convite não tem mais usos.",
+      "serverFull": "Este servidor está cheio.",
+      "alreadyMember": "Você já é membro deste servidor.",
       "unexpected": "Algo deu errado. Tente de novo."
     }
   }

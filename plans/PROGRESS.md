@@ -21,7 +21,7 @@ Escopo mínimo para começar:
 1. ~~`git init` e branch de trabalho~~. Feito: repo com branch `chore/monorepo-setup` (sem commits ainda).
 2. ~~Monorepo npm workspaces + Turborepo com `apps/web`~~. Feito: Vite 8, React 19, TS 6, Tailwind 4, shadcn (radix, preset nova) com componentes em `src/shared/ui`.
 3. ~~Storybook com interaction tests~~. Feito: Storybook 10 + `@storybook/addon-vitest` (Chromium headless via Playwright). `npm test` roda as play functions.
-4. ~~Tema claro/escuro e EN/PT~~. Feito na infra: toolbar de tema (padrão escuro) e de idioma no Storybook; i18next em `src/shared/i18n`. Paleta do Gameplay aplicada em `src/index.css`: escuro amostrado do `home-logado.png`, claro derivado dele.
+4. ~~Tema claro/escuro e EN/PT~~. Feito na infra: toolbar de tema (padrão escuro) e de idioma no Storybook; i18next em `src/shared/i18n`. Paleta: **neutral padrão do shadcn** (decisão do usuário), com cores do Tailwind para destaques (`emerald` para transmitir, `red` para sair da sala).
 5. Primeiras Views. **SignIn e SignUp feitos** (`src/modules/auth/views`), com stories de todos os estados e interaction tests. Faltam: Hub, tela do servidor com o card do usuário e o painel de transmissão, e o modal do servidor. Views listadas: (só apresentação, seguindo o MVVM do `00-requirements.md` §3.4): SignIn, SignUp (com input OTP de 6 caracteres), Hub, tela do servidor com o card do usuário e o painel de transmissão, e o modal do servidor.
 
 ## Assets fornecidos pelo usuário
@@ -40,7 +40,6 @@ Escopo mínimo para começar:
 
 - i18n com `i18next` + `react-i18next` + detector de idioma do browser (lib não estava definida no levantamento).
 - Não há mock específico de SignIn/SignUp (o `Frame 2.png` é só o logo). O visual segue o ASCII do `02-core-flows.md` com o estilo do Hub.
-- Botão principal branco no tema escuro (o mock não mostra um CTA principal). Textos secundários mais claros que no mock, para ter contraste legível.
 - Username com 3 a 32 caracteres (letras, números, `.`, `-`, `_`).
 - Key de convite mostrada em maiúsculas; a View aceita letras e números e o ViewModel normaliza.
 - 2FA do admin: código TOTP em 6 caixas, com opção de código de recuperação em campo de texto.

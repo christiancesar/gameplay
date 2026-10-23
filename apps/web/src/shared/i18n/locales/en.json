@@ -1,7 +1,13 @@
 {
   "common": {
     "appName": "Gameplay",
-    "language": "Language"
+    "language": "Language",
+    "theme": {
+      "toLight": "Switch to light theme",
+      "toDark": "Switch to dark theme"
+    },
+    "settings": "Settings",
+    "adminPanel": "Platform admin"
   },
   "auth": {
     "signIn": {
@@ -51,6 +57,24 @@
       "inviteKeyRevoked": "This invite key was revoked.",
       "inviteKeyUsed": "This invite key was already used.",
       "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "hub": {
+    "servers": "Your servers",
+    "createServer": "Create your server",
+    "createServerDescription": "Grouping your clan and sharing your gameplay",
+    "createServerLimit": "Limit reached",
+    "createServerLimitDescription": "You already have the maximum number of servers.",
+    "orJoin": "Or join a server",
+    "joinPlaceholder": "Invite code or link",
+    "join": "Join",
+    "joinErrors": {
+      "inviteNotFound": "Invite not found. Check the code.",
+      "inviteExpired": "This invite has expired.",
+      "inviteExhausted": "This invite has no uses left.",
+      "serverFull": "This server is full.",
+      "alreadyMember": "You are already a member of this server.",
       "unexpected": "Something went wrong. Try again."
     }
   }

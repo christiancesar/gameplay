@@ -83,7 +83,7 @@ function SignUpView({
     <AuthLayoutView {...layout}>
       <form
         noValidate
-        className="bg-card text-card-foreground flex flex-col gap-6 rounded-lg p-6"
+        className="bg-card text-card-foreground flex flex-col gap-6 rounded-lg border p-6"
         onSubmit={(event) => {
           event.preventDefault()
           onSubmit()

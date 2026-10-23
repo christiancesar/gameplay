@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn } from 'storybook/test'
 
-import { languageOptions, useStoryLanguage } from './auth-story-helpers'
+import { languageOptions, useStoryLanguage } from '@/fixtures/language'
 import { SignInView, type SignInField } from './sign-in.view'
 
 const emptyValues: Record<SignInField, string> = { identifier: '', password: '', twoFactorCode: '' }
