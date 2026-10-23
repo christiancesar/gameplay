@@ -27,6 +27,7 @@ const preview: Preview = {
   },
   initialGlobals: {
     locale: 'en',
+    theme: 'dark',
   },
   decorators: [
     withThemeByClassName<ReactRenderer>({

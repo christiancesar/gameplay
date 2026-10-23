@@ -1,5 +1,57 @@
 {
   "common": {
-    "appName": "Gameplay"
+    "appName": "Gameplay",
+    "language": "Idioma"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bem-vindo de volta",
+      "identifier": "Email ou username",
+      "password": "Senha",
+      "submit": "Entrar",
+      "noAccount": "Não tem conta?",
+      "signUpLink": "Cadastre-se",
+      "twoFactorTitle": "Verificação em duas etapas",
+      "twoFactorDescription": "Digite o código de 6 dígitos do seu app autenticador.",
+      "recoveryDescription": "Digite um dos seus códigos de recuperação.",
+      "twoFactorCode": "Código de autenticação",
+      "recoveryCode": "Código de recuperação",
+      "useRecoveryCode": "Usar um código de recuperação",
+      "useAuthenticatorCode": "Usar código do autenticador",
+      "verify": "Verificar",
+      "back": "Voltar ao login"
+    },
+    "signUp": {
+      "title": "Crie sua conta",
+      "invitedTo": "Você foi convidado para <strong>{{serverName}}</strong>",
+      "username": "Username",
+      "email": "Email",
+      "password": "Senha",
+      "confirmPassword": "Confirmar senha",
+      "inviteKey": "Key de convite",
+      "inviteKeyDescription": "6 letras ou números. Você pode colar a key inteira.",
+      "submit": "Criar conta",
+      "hasAccount": "Já tem conta?",
+      "signInLink": "Entrar"
+    },
+    "errors": {
+      "required": "Campo obrigatório.",
+      "invalidCredentials": "Credenciais inválidas. Confira o login e a senha.",
+      "accountSuspended": "Esta conta está suspensa. Fale com o admin da plataforma.",
+      "invalidTwoFactorCode": "Código inválido. Tente de novo.",
+      "usernameInvalid": "Use de 3 a 32 letras, números, pontos, hífens ou underscores.",
+      "usernameTaken": "Este username já está em uso.",
+      "emailInvalid": "Digite um email válido.",
+      "emailTaken": "Este email já está em uso.",
+      "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres.",
+      "passwordMismatch": "As senhas não conferem.",
+      "inviteKeyIncomplete": "A key de convite tem 6 caracteres.",
+      "inviteKeyInvalid": "Key de convite inválida.",
+      "inviteKeyExpired": "Esta key de convite expirou.",
+      "inviteKeyRevoked": "Esta key de convite foi revogada.",
+      "inviteKeyUsed": "Esta key de convite já foi usada.",
+      "tooManyAttempts": "Muitas tentativas. Aguarde um pouco e tente de novo.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    }
   }
 }

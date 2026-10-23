@@ -1,5 +1,57 @@
 {
   "common": {
-    "appName": "Gameplay"
+    "appName": "Gameplay",
+    "language": "Language"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome back",
+      "identifier": "Email or username",
+      "password": "Password",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "twoFactorTitle": "Two-factor authentication",
+      "twoFactorDescription": "Enter the 6-digit code from your authenticator app.",
+      "recoveryDescription": "Enter one of your recovery codes.",
+      "twoFactorCode": "Authentication code",
+      "recoveryCode": "Recovery code",
+      "useRecoveryCode": "Use a recovery code",
+      "useAuthenticatorCode": "Use authenticator code",
+      "verify": "Verify",
+      "back": "Back to login"
+    },
+    "signUp": {
+      "title": "Create your account",
+      "invitedTo": "You were invited to <strong>{{serverName}}</strong>",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "inviteKey": "Invite key",
+      "inviteKeyDescription": "6 letters or numbers. You can paste the whole key.",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "errors": {
+      "required": "This field is required.",
+      "invalidCredentials": "Invalid credentials. Check your login and password.",
+      "accountSuspended": "This account is suspended. Contact the platform admin.",
+      "invalidTwoFactorCode": "Invalid code. Try again.",
+      "usernameInvalid": "Use 3 to 32 letters, numbers, dots, dashes or underscores.",
+      "usernameTaken": "This username is already taken.",
+      "emailInvalid": "Enter a valid email.",
+      "emailTaken": "This email is already in use.",
+      "passwordTooShort": "Password must have at least 8 characters.",
+      "passwordMismatch": "Passwords don't match.",
+      "inviteKeyIncomplete": "The invite key has 6 characters.",
+      "inviteKeyInvalid": "Invalid invite key.",
+      "inviteKeyExpired": "This invite key has expired.",
+      "inviteKeyRevoked": "This invite key was revoked.",
+      "inviteKeyUsed": "This invite key was already used.",
+      "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
   }
 }
