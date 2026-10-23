@@ -86,7 +86,6 @@
     "createServerDescription": "Grouping your clan and sharing your gameplay",
     "createServerLimit": "Limit reached",
     "createServerLimitDescription": "You already own the maximum.",
-    "orJoin": "Or join a server",
     "joinPlaceholder": "Invite code or link",
     "join": "Join",
     "joinErrors": {
@@ -96,7 +95,9 @@
       "serverFull": "This server is full.",
       "alreadyMember": "You are already a member of this server.",
       "unexpected": "Something went wrong. Try again."
-    }
+    },
+    "profile": "Profile",
+    "joinTitle": "Join a server"
   },
   "server": {
     "rooms": "Rooms",

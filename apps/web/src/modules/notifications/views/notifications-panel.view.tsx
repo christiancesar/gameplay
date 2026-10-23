@@ -18,6 +18,7 @@ import { RECOMMENDED_BROWSERS } from '@/modules/browser-support/views/browser-su
 import { Button } from '@/shared/ui/button'
 import { IconButton } from '@/shared/ui/icon-button'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
+import { SectionLabel } from '@/shared/ui/section-label'
 
 /** Cada tipo tem conteúdo próprio; o ViewModel decide quais existem. */
 type HubNotification = { id: string; createdAt?: string } & (
@@ -135,20 +136,19 @@ function NotificationsPanelView({ notifications, onDismiss, onClearAll, onAllowM
 
   return (
     <section aria-label={t('notifications.title')} className={cn('flex w-full flex-col gap-2', className)}>
-      <header className="flex items-center justify-between gap-2 px-1">
-        <h2 className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
-          <BellIcon className="size-3.5" aria-hidden />
-          {t('notifications.title')}
-          {notifications.length > 0 && (
-            <span className="bg-muted text-foreground rounded-full px-1.5 text-[10px] tabular-nums">{notifications.length}</span>
-          )}
-        </h2>
-        {notifications.length > 1 && (
-          <Button variant="ghost" size="xs" onClick={onClearAll}>
-            {t('notifications.clearAll')}
-          </Button>
-        )}
-      </header>
+      <SectionLabel
+        icon={BellIcon}
+        count={notifications.length}
+        action={
+          notifications.length > 1 && (
+            <Button variant="ghost" size="xs" className="-my-1" onClick={onClearAll}>
+              {t('notifications.clearAll')}
+            </Button>
+          )
+        }
+      >
+        {t('notifications.title')}
+      </SectionLabel>
 
       {notifications.length === 0 ? (
         <p className="text-muted-foreground rounded-md border border-dashed px-3 py-4 text-center text-xs">{t('notifications.empty')}</p>

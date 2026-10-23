@@ -119,7 +119,7 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - O usuário vê o que foi coletado em Configurações > Hardware. O admin vê por usuário e numa aba com o resumo da base (menos núcleos, menos memória, % com aceleração, % com H.264 por hardware).
 
 ### 2.12.1 Notificações no Hub
-- Painel de notificações no Hub: à esquerda em telas grandes, acima do conteúdo em telas pequenas. *(Adicionado em 2026-10-23.)*
+- Painel de notificações no Hub: à direita em telas grandes, separado do conteúdo por um divisor vertical e centralizado junto com ele; acima do conteúdo em telas pequenas. *(Adicionado em 2026-10-23.)*
 - Reúne alertas (browser, VPN, aceleração gráfica desligada, permissão de monitores) e avisos (pedido enviado/aprovado, removido, servidor excluído, promovido/rebaixado).
 - O usuário dispensa cada uma ou limpa tudo.
 

@@ -86,7 +86,6 @@
     "createServerDescription": "Reúna seu clã e compartilhe sua gameplay",
     "createServerLimit": "Limite atingido",
     "createServerLimitDescription": "Você já tem o máximo permitido.",
-    "orJoin": "Ou entre em um servidor",
     "joinPlaceholder": "Código ou link do convite",
     "join": "Entrar",
     "joinErrors": {
@@ -96,7 +95,9 @@
       "serverFull": "Este servidor está cheio.",
       "alreadyMember": "Você já é membro deste servidor.",
       "unexpected": "Algo deu errado. Tente de novo."
-    }
+    },
+    "profile": "Perfil",
+    "joinTitle": "Entrar em um servidor"
   },
   "server": {
     "rooms": "Salas",
