@@ -7,6 +7,7 @@ import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
 import { people, servers } from './index'
 
 export const turbex = servers.turbex
+export const myServers = Object.values(servers)
 
 const base = { isMuted: false, isDeafened: false, isSpeaking: false, isLive: false }
 

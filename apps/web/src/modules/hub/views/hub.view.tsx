@@ -138,7 +138,7 @@ function HubView({
                           onClick={() => onOpenServer(server.id)}
                           className="bg-card text-card-foreground hover:bg-accent focus-visible:ring-ring/50 flex size-20 flex-col items-center justify-center gap-1.5 rounded-md border px-1 text-xs font-medium outline-none focus-visible:ring-3"
                         >
-                          <ServerIcon name={server.name} imageUrl={server.iconUrl} className="size-7" />
+                          <ServerIcon name={server.name} imageUrl={server.iconUrl} className="size-9 rounded-md text-xs" />
                           <span className="w-full truncate text-center">{server.name}</span>
                         </button>
                       </li>

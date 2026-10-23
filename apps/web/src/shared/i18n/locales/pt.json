@@ -116,7 +116,16 @@
     "leaveServerTitle": "Sair de {{server}}?",
     "leaveServerDescription": "Você vai precisar de um novo convite para voltar.",
     "leaveServerConfirm": "Sair",
-    "noRooms": "Nenhuma sala ainda."
+    "noRooms": "Nenhuma sala ainda.",
+    "toggleSidebar": "Expandir ou recolher a barra lateral",
+    "switcher": {
+      "label": "Trocar de servidor",
+      "search": "Buscar servidor...",
+      "empty": "Nenhum servidor encontrado.",
+      "confirmTitle": "Trocar para {{server}}?",
+      "confirmDescription": "Você está conectado em {{room}}. Entrar em outro servidor encerra sua conexão de voz e qualquer transmissão desta sala.",
+      "confirm": "Desconectar e trocar"
+    }
   },
   "voice": {
     "mute": "Silenciar microfone",

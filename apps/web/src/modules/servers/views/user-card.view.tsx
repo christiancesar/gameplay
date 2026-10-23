@@ -2,7 +2,7 @@ import { HeadphoneOffIcon, HeadphonesIcon, MicIcon, MicOffIcon, PhoneOffIcon, Se
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { IconButton } from '@/shared/ui/icon-button'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/shared/ui/sidebar'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
 type UserCardViewProps = {
@@ -10,7 +10,7 @@ type UserCardViewProps = {
   inRoom: boolean
   isMuted: boolean
   isDeafened: boolean
-  /** Painel de transmissão (F9), mostrado só dentro de uma sala. */
+  /** Painel de transmissão (F9), mostrado só dentro de uma sala e com a sidebar aberta. */
   sharePanel?: ReactNode
   /** Abre as configurações do usuário (F11). */
   onOpenSettings: () => void
@@ -19,6 +19,7 @@ type UserCardViewProps = {
   onLeaveRoom: () => void
 }
 
+/** Rodapé da sidebar do servidor: transmissão, controles de voz e o usuário. Com a sidebar recolhida, os controles empilham. */
 function UserCardView({
   user,
   inRoom,
@@ -33,36 +34,64 @@ function UserCardView({
   const { t } = useTranslation()
 
   return (
-    <section aria-label={user.name} className="bg-card text-card-foreground flex flex-col gap-3 rounded-xl border p-3">
-      {inRoom && sharePanel}
-
-      <div className="flex items-center gap-3">
-        <UserAvatar name={user.name} imageUrl={user.avatarUrl} size="lg" />
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">{user.name}</p>
-          <p className="text-muted-foreground truncate text-xs">{user.email}</p>
-        </div>
-        {!inRoom && <IconButton label={t('common.settings')} icon={<SettingsIcon />} onClick={onOpenSettings} />}
-      </div>
+    <section aria-label={user.name} className="flex flex-col gap-2">
+      {inRoom && sharePanel && <div className="group-data-[collapsible=icon]:hidden">{sharePanel}</div>}
 
       {inRoom && (
-        <div className="flex items-center gap-1">
-          <IconButton
-            label={isMuted ? t('voice.unmute') : t('voice.mute')}
-            icon={isMuted ? <MicOffIcon className="text-red-500" /> : <MicIcon />}
-            aria-pressed={isMuted}
-            onClick={onToggleMute}
-          />
-          <IconButton
-            label={isDeafened ? t('voice.undeafen') : t('voice.deafen')}
-            icon={isDeafened ? <HeadphoneOffIcon className="text-red-500" /> : <HeadphonesIcon />}
-            aria-pressed={isDeafened}
-            onClick={onToggleDeafen}
-          />
-          <IconButton label={t('common.settings')} icon={<SettingsIcon />} onClick={onOpenSettings} />
-          <IconButton label={t('voice.leaveRoom')} icon={<PhoneOffIcon />} variant="danger" className="ml-auto" onClick={onLeaveRoom} />
-        </div>
+        <SidebarMenu className="flex-row group-data-[collapsible=icon]:flex-col">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={isMuted ? t('voice.unmute') : t('voice.mute')}
+              aria-label={isMuted ? t('voice.unmute') : t('voice.mute')}
+              aria-pressed={isMuted}
+              onClick={onToggleMute}
+              className="size-8 justify-center p-0"
+            >
+              {isMuted ? <MicOffIcon className="text-red-500" /> : <MicIcon />}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={isDeafened ? t('voice.undeafen') : t('voice.deafen')}
+              aria-label={isDeafened ? t('voice.undeafen') : t('voice.deafen')}
+              aria-pressed={isDeafened}
+              onClick={onToggleDeafen}
+              className="size-8 justify-center p-0"
+            >
+              {isDeafened ? <HeadphoneOffIcon className="text-red-500" /> : <HeadphonesIcon />}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="ml-auto group-data-[collapsible=icon]:ml-0">
+            <SidebarMenuButton
+              tooltip={t('voice.leaveRoom')}
+              aria-label={t('voice.leaveRoom')}
+              onClick={onLeaveRoom}
+              className="size-8 justify-center bg-red-600 p-0 text-white hover:bg-red-700 hover:text-white active:bg-red-700 active:text-white"
+            >
+              <PhoneOffIcon />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       )}
+
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            size="lg"
+            tooltip={t('common.settings')}
+            aria-label={`${t('common.settings')}: ${user.name}`}
+            onClick={onOpenSettings}
+            className="group-data-[collapsible=icon]:p-0!"
+          >
+            <UserAvatar name={user.name} imageUrl={user.avatarUrl} className="size-8 rounded-md" />
+            <span className="grid min-w-0 flex-1 text-left leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="text-muted-foreground truncate text-xs">{user.email}</span>
+            </span>
+            <SettingsIcon className="text-muted-foreground" aria-hidden />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
     </section>
   )
 }

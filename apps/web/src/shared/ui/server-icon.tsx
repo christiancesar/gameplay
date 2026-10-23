@@ -12,7 +12,7 @@ function ServerIcon({ name, imageUrl, className }: ServerIconProps) {
   return (
     <span
       className={cn(
-        'bg-muted text-foreground inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-sm text-[10px] font-semibold',
+        'bg-muted text-foreground ring-border inline-flex size-6 shrink-0 ring-1 ring-inset items-center justify-center overflow-hidden rounded-sm text-[10px] font-semibold',
         className,
       )}
     >

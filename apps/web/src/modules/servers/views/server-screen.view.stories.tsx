@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import type { ComponentProps } from 'react'
-import { fn } from 'storybook/test'
+import { useState, type ComponentProps } from 'react'
+import { expect, fn } from 'storybook/test'
 
 import { images, me } from '@/fixtures'
-import { liveLimitedByNetwork, liveOnTarget, roomsWithMe, roomsWithoutMe, stage, stageWithLive, turbex, viewerQualities } from '@/fixtures/server'
+import { liveLimitedByNetwork, liveOnTarget, myServers, roomsWithMe, roomsWithoutMe, stage, stageWithLive, turbex, viewerQualities } from '@/fixtures/server'
 import { RoomStageView } from '@/modules/rooms/views/room-stage.view'
 import { ShareDetailsDialogView } from '@/modules/screen-share/views/share-details-dialog.view'
 import { SharePanelView, type SharePanelState } from '@/modules/screen-share/views/share-panel.view'
@@ -23,10 +23,12 @@ type ScenarioProps = {
   isMuted: boolean
   main: 'logo' | 'room' | 'roomWithLive' | 'micDenied' | 'watching'
   overlay?: 'shareSetup' | 'shareDetails'
+  sidebarCollapsed?: boolean
 }
 
 /** Monta a tela inteira a partir de um cenário, do jeito que a Screen fará com os ViewModels. */
-function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted, main, overlay }: ScenarioProps) {
+function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted, main, overlay, sidebarCollapsed }: ScenarioProps) {
+  const [isSidebarOpen, setSidebarOpen] = useState(!sidebarCollapsed)
   const inRoom = Boolean(currentRoomId)
   const stageProps: Omit<ComponentProps<typeof RoomStageView>, 'participants' | 'micDenied'> = {
     roomName: 'Room 01',
@@ -77,6 +79,11 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
       sidebar={
         <ServerSidebarView
           server={turbex}
+          servers={myServers}
+          currentServerId={turbex.id}
+          onSelectServer={fn()}
+          onConfirmSwitch={fn()}
+          onDismissSwitch={fn()}
           role={role}
           pendingRequests={pendingRequests}
           rooms={rooms}
@@ -108,6 +115,8 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
         />
       }
       main={mainContent}
+      isSidebarOpen={isSidebarOpen}
+      onSidebarOpenChange={setSidebarOpen}
     />
     </>
   )
@@ -176,3 +185,20 @@ export const SharingDetails: Story = { args: { ...SharingDegraded.args, overlay:
 export const OthersLive: Story = { args: { ...InRoom.args, main: 'roomWithLive' } }
 
 export const WatchingStream: Story = { args: { ...InRoom.args, main: 'watching' } }
+
+/** Sidebar recolhida em ícones para dar mais espaço à transmissão. */
+export const WatchingWithSidebarCollapsed: Story = { args: { ...WatchingStream.args, sidebarCollapsed: true } }
+
+/** O botão ao lado do logo recolhe e expande a sidebar (atalho: Ctrl/Cmd + B). */
+export const ToggleSidebar: Story = {
+  args: { ...InRoom.args },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const sidebar = canvasElement.querySelector('[data-slot="sidebar"]')
+    const toggle = () => canvas.getAllByRole('button', { name: /expand or collapse sidebar/i })[0]
+    await expect(sidebar).toHaveAttribute('data-state', 'expanded')
+    await userEvent.click(toggle())
+    await expect(sidebar).toHaveAttribute('data-state', 'collapsed')
+    await userEvent.click(toggle())
+    await expect(sidebar).toHaveAttribute('data-state', 'expanded')
+  },
+}

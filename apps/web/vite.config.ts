@@ -33,6 +33,8 @@ export default defineConfig({
           enabled: true,
           headless: true,
           provider: playwright({}),
+          // Desktop: abaixo de 768px a sidebar vira um Sheet fechado.
+          viewport: { width: 1280, height: 800 },
           instances: [{
             browser: 'chromium'
           }]

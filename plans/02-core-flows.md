@@ -134,22 +134,23 @@
  └───────────┴──────────────────────────────────────┘
 ```
 
-1. O painel lateral mostra **só o servidor atual**: logo (volta ao Hub), card do servidor, salas e, abaixo de cada sala, os avatares de quem está nela.
-2. **Card do servidor:** ícone e nome.
-   - **Owner e admin:** engrenagem na frente; clicar no card abre o modal do servidor (F7). Um contador na engrenagem mostra os pedidos de entrada pendentes.
-   - **Member:** no lugar da engrenagem, o ícone de sair do servidor, com confirmação. Ao sair, volta ao Hub.
-3. **Clicar numa sala já entra nela** (F8).
-4. Card do usuário, embaixo:
+1. O painel lateral segue o padrão de sidebar do shadcn e mostra **só o servidor atual**: logo do Gameplay, seletor de servidor, grupo "Salas" e, abaixo de cada sala, quem está nela (com contador).
+2. **Logo:** volta ao Hub **sem desconectar** da sala. Ao lado dele fica o botão de recolher e expandir a sidebar (também pela borda da sidebar ou Ctrl/Cmd + B). Recolhida, vira uma coluna de ícones com tooltips, dando mais espaço à transmissão; o painel de transmissão e a lista de participantes ficam ocultos.
+3. **Seletor de servidor:** ícone, nome e papel (Owner, Admin, Member). Abre uma lista com busca dos servidores do usuário.
+   - **Uma conexão por vez:** escolher outro servidor estando numa sala mostra um aviso de que a voz e as transmissões serão encerradas. Continuar desconecta e abre o outro servidor; cancelar mantém o usuário onde está. Fora de sala, troca direto. A mesma regra vale ao abrir outro servidor pelo Hub enquanto conectado.
+   - **Owner e admin:** "Configurações do servidor" abre o modal (F7). O contador de pedidos pendentes aparece no seletor e no item (um ponto vermelho com a sidebar recolhida).
+   - **Member:** "Sair do servidor", com confirmação. Ao sair, volta ao Hub.
+4. **Clicar numa sala já entra nela** (F8).
+5. Rodapé do usuário:
    - Painel de transmissão (F9), visível enquanto está numa sala.
-   - Linha com avatar, nome e email.
-   - Engrenagem que abre as **configurações do usuário** (F11).
    - Enquanto está numa sala: **mute**, **deafen** e o **telefone vermelho** para sair da sala.
-5. As configurações pessoais (F11) abrem pela engrenagem do card do usuário e também pelo Hub.
-6. O **cover** e a descrição do servidor ainda não têm lugar definido na tela (decisão pendente do usuário).
+   - Linha com avatar, nome e email; clicar nela abre as **configurações do usuário** (F11).
+6. As configurações pessoais (F11) abrem pela linha do usuário e também pelo Hub.
+7. O **cover** e a descrição do servidor ainda não têm lugar definido na tela (decisão pendente do usuário).
 
 ## F7 · Modal do servidor (owner e admin)
 
-**Gatilho:** card do servidor no painel lateral (owner e admin). Modal com sidebar de seções. Visual a desenhar no Storybook.
+**Gatilho:** "Configurações do servidor" no seletor de servidor do painel lateral (owner e admin). Modal com sidebar de seções. Visual a desenhar no Storybook.
 
 1. **Geral:** nome, ícone, cover e descrição.
 2. **Convites:** toggle de **auto aprovação** no topo (aprovar novos membros automaticamente enquanto houver vaga). Botão de gerar convite: cada convite vale para **uma pessoa** e **expira em 1 hora**, sem opções. Lista de ativos (copiar link, revogar) e histórico (usado por quem e quando, expirado sem uso, revogado), sempre com quem criou. No limite de membros, gerar fica bloqueado com o motivo.

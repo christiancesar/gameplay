@@ -4,6 +4,7 @@ import { expect, fn } from 'storybook/test'
 
 import { me } from '@/fixtures'
 import { SharePanelView } from '@/modules/screen-share/views/share-panel.view'
+import { SidebarProvider } from '@/shared/ui/sidebar'
 
 import { UserCardView, type UserCardViewProps } from './user-card.view'
 
@@ -12,7 +13,14 @@ const sharePanel = <SharePanelView state={{ status: 'idle' }} onStart={fn()} onS
 const meta = {
   title: 'Servers/UserCard',
   component: UserCardView,
-  decorators: [(Story, context) => (context.parameters.wide ? Story() : <div className="w-72">{Story()}</div>)],
+  // Mesmo fundo e largura do rodapé da sidebar.
+  decorators: [
+    (Story, context) => (
+      <SidebarProvider className="min-h-0">
+        {context.parameters.wide ? Story() : <div className="bg-sidebar w-72 rounded-lg p-2">{Story()}</div>}
+      </SidebarProvider>
+    ),
+  ],
   args: {
     user: me,
     inRoom: false,
@@ -49,10 +57,10 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Fora de sala: a engrenagem abre as configurações do usuário. */
+/** Clicar no usuário abre as configurações do usuário. */
 export const OutsideRoom: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole('button', { name: /^settings$/i }))
+    await userEvent.click(canvas.getByRole('button', { name: /^settings:/i }))
     await expect(args.onOpenSettings).toHaveBeenCalledOnce()
   },
 }
@@ -91,7 +99,9 @@ export const Variants: Story = {
       {variants.map((variant) => (
         <figure key={variant.title} className="flex flex-col gap-2">
           <figcaption className="text-muted-foreground text-xs">{variant.title}</figcaption>
-          <UserCardView {...args} {...variant.props} />
+          <div className="bg-sidebar rounded-lg p-2">
+            <UserCardView {...args} {...variant.props} />
+          </div>
         </figure>
       ))}
     </div>
