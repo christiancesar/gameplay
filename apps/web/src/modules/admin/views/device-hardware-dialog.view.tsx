@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { DeviceHardwareView } from '@/modules/hardware/views/device-hardware.view'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 import type { AdminDeviceItem } from './hardware-tab.view'
@@ -23,7 +24,7 @@ function DeviceHardwareDialogView({ open, userName, devices, currentDeviceId, on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t('admin.hardware.deviceTitle', { name: userName })}</DialogTitle>
           {device && (
@@ -50,7 +51,9 @@ function DeviceHardwareDialogView({ open, userName, devices, currentDeviceId, on
           </ToggleGroup>
         )}
         {device ? (
-          <DeviceHardwareView hardware={device.hardware} displaysPermission="granted" />
+          <ScrollArea type="hover" className="-mr-3 h-[min(30rem,calc(100dvh-14rem))] pr-3">
+            <DeviceHardwareView hardware={device.hardware} displaysPermission="granted" />
+          </ScrollArea>
         ) : (
           <p className="text-muted-foreground text-sm">{t('admin.hardware.noDevices')}</p>
         )}

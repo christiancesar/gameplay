@@ -2,6 +2,7 @@ import { cn } from 'cn'
 import type { ComponentType, ReactNode } from 'react'
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 
 type DialogSection<Id extends string> = {
   id: Id
@@ -69,10 +70,13 @@ function SectionDialog<Id extends string>({
             </button>
           ))}
         </nav>
-        <section className="min-h-0 flex-1 overflow-y-auto p-6">
-          <h2 className="mb-5 text-lg font-medium">{currentSection?.label}</h2>
-          {children}
-        </section>
+        {/* Só o conteúdo rola, com a barra fina do ScrollArea dentro do painel. */}
+        <ScrollArea key={current} type="hover" className="min-h-0 flex-1">
+          <section className="p-6 pr-7">
+            <h2 className="mb-5 text-lg font-medium">{currentSection?.label}</h2>
+            {children}
+          </section>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   )

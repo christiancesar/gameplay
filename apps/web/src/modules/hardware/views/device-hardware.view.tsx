@@ -41,7 +41,7 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
   const { os, browser, cpu, memoryGb, gpu, encoders, displays, network } = hardware
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
       <Group icon={MonitorSmartphoneIcon} title={t('hardware.groups.system')}>
         <Row label={t('hardware.os')}>{[os.name, os.version].filter(Boolean).join(' ')}</Row>
         <Row label={t('hardware.architecture')}>{os.architecture ? [os.architecture, os.bitness && `${os.bitness}-bit`].filter(Boolean).join(' · ') : unknown}</Row>
@@ -110,23 +110,23 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
 
 function Group({ icon: Icon, title, children }: { icon: ComponentType<{ className?: string }>; title: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-1.5">
-      <h3 className="flex items-center gap-2 text-sm font-medium">
-        <Icon className="text-muted-foreground size-4" />
+    <section className="flex flex-col gap-1">
+      <h3 className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
+        <Icon className="size-3.5" />
         {title}
       </h3>
-      <dl className="divide-y rounded-md border text-sm">{children}</dl>
+      <dl className="divide-y rounded-md border text-[13px]">{children}</dl>
     </section>
   )
 }
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-[minmax(0,10rem)_1fr] gap-3 px-3 py-2">
+    <div className="grid grid-cols-[minmax(0,9rem)_1fr] gap-3 px-3 py-1.5">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className={cn('min-w-0 text-right break-words')}>
         {children}
-        {hint && <span className="text-muted-foreground mt-0.5 block text-[11px]">{hint}</span>}
+        {hint && <span className="text-muted-foreground block text-[11px] leading-snug">{hint}</span>}
       </dd>
     </div>
   )

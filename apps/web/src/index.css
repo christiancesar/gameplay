@@ -131,4 +131,9 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
     }
+  /* Barras de rolagem nativas finas e discretas em todo o app. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
+    }
 }
