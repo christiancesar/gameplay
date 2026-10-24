@@ -149,6 +149,12 @@ Quem transmite:
 - `maxBitrate` e `maxFramerate` por preset via `RTCRtpSender.setParameters`, com teto coerente com o upload medido.
 - Voz com `priority: 'high'`: quando a banda aperta, cai a imagem, não a voz.
 
+Áudio (o WebRTC já cuida de: Opus com bitrate adaptativo, FEC e DTX, cancelamento de eco, supressão de ruído, ganho automático, jitter buffer e ocultação de perda, e sincronia com o vídeo do mesmo stream). O app cuida de:
+- Voz: `echoCancellation`, `noiseSuppression` e `autoGainControl` ligados no `getUserMedia`.
+- Áudio do jogo (compartilhamento): os três desligados, porque estragam música e efeitos. Opus em estéreo e bitrate maior (`stereo=1` e `maxaveragebitrate` no SDP, por exemplo 128 kbps), já que o padrão do WebRTC é afinado para voz.
+- **Eco da chamada no áudio do sistema**: no Windows, capturar a tela inteira com áudio inclui o som da própria chamada, e os outros ouvem a si mesmos. Mitigar com a constraint de excluir o áudio da própria página (`restrictOwnAudio`, em versões recentes do Chromium; verificar suporte) e preferir compartilhar a janela ou aba do jogo.
+- Dispositivos (`enumerateDevices`, `setSinkId`), volume por pessoa (Web Audio `GainNode`), mute (`track.enabled = false`), deafen (silencia o áudio recebido e o microfone) e indicador de quem fala (`AnalyserNode`).
+
 Rede:
 - Caminho direto em UDP é o caso ideal. TURN sobre TCP/TLS só como último recurso (head-of-line blocking).
 - Perda de pacote recuperada sem esperar: FEC (Opus inband FEC e RED na voz) e NACK (custa um RTT só no pacote perdido).
@@ -254,6 +260,16 @@ apps/api/
     ├── e2e/                            # supertest + mongo docker
     └── factories/
 ```
+
+### 3.3.1 Contrato REST e Socket.IO (decidido em 2026-10-24)
+- **REST** para o que o cliente pede e espera resposta, principalmente o que grava no banco (auth, conta, servidores, convites, membros, salas, admin, hardware, notificações, credenciais TURN). **Socket.IO** para o que o servidor precisa avisar sem ser perguntado e para o estado efêmero da conexão (presença, entrar/sair da sala de voz, sinalização WebRTC, mute/deafen, início/fim de transmissão, "assistir").
+- Padrão combinado: a ação que muda o banco vai por REST; depois de gravar, o servidor emite o evento para os interessados (kick, aprovação de entrada, suspensão). No frontend, o evento só invalida a query do TanStack Query ou atualiza a store; o REST continua a fonte dos dados.
+- **Tipagem compartilhada em `packages/shared`** (decisão do usuário): schemas zod de DTOs e payloads, interfaces `ClientToServerEvents` e `ServerToClientEvents` usadas como genéricos do Socket.IO nos dois lados (`Server<...>` na API, `Socket<...>` no web), e constantes com os nomes dos eventos para o `@SubscribeMessage`. Erro de nome ou de payload vira erro de compilação na API e no web.
+- O gateway valida todo payload recebido com o schema zod (`ZodPipe`), porque os tipos não existem em runtime.
+- Nome dos eventos no formato `dominio:acao` (`room:join`, `signal:send`, `presence:update`). A direção fica no tipo, não no nome. Pedido e resposta pelo socket usam ack (callback como último argumento).
+- **Documentação** (decisão do usuário: os eventos também são documentados):
+  - REST: OpenAPI gerado pelo Nest, exibido no **Scalar**.
+  - Socket.IO: **AsyncAPI**, gerado a partir dos mesmos schemas do `packages/shared`. Ferramenta pendente: `nestjs-asyncapi` (decorators nos gateways, aceita Nest 12, exige `@nestjs/swagger`) ou script próprio que monta o documento a partir dos schemas. Exibição no Scalar se a integração JS já aceitar AsyncAPI (o suporte do Scalar é experimental); senão, no visualizador do AsyncAPI.
 
 ### 3.4 Frontend (`apps/web`): MVVM
 - **React + Vite + TanStack Router** (rotas por arquivo, `beforeLoad` para auth, `loader` integrado ao TanStack Query).
