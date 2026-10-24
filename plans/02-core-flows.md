@@ -33,13 +33,19 @@
 1. Usuário informa email **ou** username e senha. Sem login social, sem "esqueci minha senha".
 2. Credenciais inválidas: mensagem genérica no formulário, sem dizer qual campo errou.
 3. Conta suspensa: mensagem informando que a conta está suspensa.
-4. Conta de admin da plataforma: após a senha, pede o código de 6 dígitos do app autenticador (ou um código de recuperação).
+4. Conta de admin da plataforma: após a senha, pede o código de 6 dígitos do app autenticador (ou um código de recuperação). Cada etapa muda a URL na mesma rota, e o voltar do navegador retorna à etapa anterior *(decidido em 2026-10-24)*:
+   - `/sign-in`: email ou username e senha
+   - `/sign-in?step=two-factor`: código do app autenticador
+   - `/sign-in?step=recovery-code`: código de recuperação
+   - Abrir uma etapa de 2FA sem login pendente válido (link direto, refresh depois de expirar) volta para `/sign-in` com `replace`. A URL leva só `step`, nunca email ou username.
 5. Sucesso: vai para o Hub. Se chegou por link de servidor, segue para o F3.
 6. Browser não Chromium ou desatualizado: alerta acima do formulário com os navegadores recomendados ou como atualizar; dá para continuar mesmo assim.
 
 ## F2 · SignUp
 
 **Gatilho:** "Sign up" no SignIn, ou link de servidor aberto sem conta (F3).
+
+Página própria em `/sign-up`, separada do SignIn. Os links "Sign up" e "Sign in" navegam entre as duas páginas *(decidido em 2026-10-24)*.
 
 ```
    ┌──────────────────────────────┐

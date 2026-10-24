@@ -62,7 +62,7 @@ Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Username com 3 a 32 caracteres (letras, números, `.`, `-`, `_`).
 - Key de convite mostrada em maiúsculas; a View aceita letras e números e o ViewModel normaliza.
 - 2FA do admin: código TOTP em 6 caixas, com opção de código de recuperação em campo de texto.
-- Lint segue com `oxlint` (veio do template do Vite). O `eslint-plugin-boundaries` para as fronteiras MVVM ainda não foi configurado.
+- Lint segue com `oxlint` (veio do template do Vite), agora junto com `oxfmt`. O `eslint-plugin-boundaries` para as fronteiras MVVM ainda não foi configurado. Ele deve entrar pelo suporte a plugins JS do oxlint.
 
 - Admin sai do servidor pelo modal ("Sair do servidor"), já que vê a engrenagem em vez do ícone de sair.
 - Servidor novo já nasce com 1 sala (ocupa 1 das 2 vagas padrão).

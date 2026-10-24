@@ -233,6 +233,9 @@ apps/api/
 - **TanStack Query, Axios, Zustand, Tailwind, shadcn/ui.**
 - **Formulários: React Hook Form + Zod** (`@hookform/resolvers/zod`), com os campos montados no `Field` do shadcn.
 - Build estático servido pelo nginx.
+- **Estado na URL:** search params pelo `validateSearch` do TanStack Router com schema Zod (sem nuqs). Etapas de um mesmo fluxo ficam na mesma rota, controladas por query param, para o voltar do navegador e o refresh funcionarem *(decidido em 2026-10-24)*.
+- **Lint e formatação:** `oxlint` (com `react/no-multi-comp`) e `oxfmt` (sem ponto e vírgula, aspas simples, 120 colunas) *(decidido em 2026-10-24)*.
+- **Um componente por arquivo** em todo código nosso. Ficam de fora `shared/ui` (componentes compostos do shadcn, atualizados pelo CLI) e `*.stories.tsx` *(decidido em 2026-10-24)*.
 
 **MVVM é a arquitetura do frontend inteiro**, com View separada de lógica de negócio:
 
