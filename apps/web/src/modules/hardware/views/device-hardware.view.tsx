@@ -1,4 +1,3 @@
-import { cn } from 'cn'
 import {
   CpuIcon,
   GaugeIcon,
@@ -8,11 +7,13 @@ import {
   VideoIcon,
   WifiIcon,
 } from 'lucide-react'
-import type { ComponentType, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
+
+import { HardwareGroup } from './hardware-group.view'
+import { HardwareRow } from './hardware-row.view'
 
 type EncoderStatus = 'hardware' | 'software' | 'unsupported'
 
@@ -76,79 +77,81 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
 
   return (
     <div className="flex flex-col gap-4">
-      <Group icon={MonitorSmartphoneIcon} title={t('hardware.groups.system')}>
-        <Row label={t('hardware.os')}>{[os.name, os.version].filter(Boolean).join(' ')}</Row>
-        <Row label={t('hardware.architecture')}>
+      <HardwareGroup icon={MonitorSmartphoneIcon} title={t('hardware.groups.system')}>
+        <HardwareRow label={t('hardware.os')}>{[os.name, os.version].filter(Boolean).join(' ')}</HardwareRow>
+        <HardwareRow label={t('hardware.architecture')}>
           {os.architecture ? [os.architecture, os.bitness && `${os.bitness}-bit`].filter(Boolean).join(' · ') : unknown}
-        </Row>
-        <Row label={t('hardware.browser')}>
+        </HardwareRow>
+        <HardwareRow label={t('hardware.browser')}>
           {browser.name} {browser.version}
-        </Row>
-      </Group>
+        </HardwareRow>
+      </HardwareGroup>
 
-      <Group icon={CpuIcon} title={t('hardware.groups.cpu')}>
+      <HardwareGroup icon={CpuIcon} title={t('hardware.groups.cpu')}>
         {manual.cpuModel && (
-          <Row label={t('hardware.manual.cpuModel')}>
+          <HardwareRow label={t('hardware.manual.cpuModel')}>
             {manual.cpuModel}
             {informed}
-          </Row>
+          </HardwareRow>
         )}
-        <Row label={t('hardware.cores')}>{cpu.logicalCores ?? unknown}</Row>
-      </Group>
+        <HardwareRow label={t('hardware.cores')}>{cpu.logicalCores ?? unknown}</HardwareRow>
+      </HardwareGroup>
 
-      <Group icon={MemoryStickIcon} title={t('hardware.groups.memory')}>
+      <HardwareGroup icon={MemoryStickIcon} title={t('hardware.groups.memory')}>
         {manual.ramGb !== undefined ? (
-          <Row label="RAM">
+          <HardwareRow label="RAM">
             {manual.ramGb} GB{informed}
-          </Row>
+          </HardwareRow>
         ) : (
-          <Row label="RAM" hint={t('hardware.memoryHint')}>
+          <HardwareRow label="RAM" hint={t('hardware.memoryHint')}>
             {memoryGb !== undefined ? t('hardware.memoryApprox', { value: memoryGb }) : unknown}
-          </Row>
+          </HardwareRow>
         )}
-      </Group>
+      </HardwareGroup>
 
-      <Group icon={GaugeIcon} title={t('hardware.groups.gpu')}>
-        <Row label={t('hardware.gpu')}>{gpu.renderer ?? unknown}</Row>
+      <HardwareGroup icon={GaugeIcon} title={t('hardware.groups.gpu')}>
+        <HardwareRow label={t('hardware.gpu')}>{gpu.renderer ?? unknown}</HardwareRow>
         {manual.gpuModel && (
-          <Row label={t('hardware.manual.gpuModel')}>
+          <HardwareRow label={t('hardware.manual.gpuModel')}>
             {manual.gpuModel}
             {informed}
-          </Row>
+          </HardwareRow>
         )}
         {manual.vramGb !== undefined && (
-          <Row label={t('hardware.vram')}>
+          <HardwareRow label={t('hardware.vram')}>
             {manual.vramGb} GB{informed}
-          </Row>
+          </HardwareRow>
         )}
-        <Row
+        <HardwareRow
           label={t('hardware.acceleration')}
           hint={gpu.hardwareAcceleration ? undefined : t('hardware.accelerationOffHint')}
         >
           <span className={gpu.hardwareAcceleration ? 'text-emerald-500' : 'text-amber-500'}>
             {gpu.hardwareAcceleration ? t('hardware.accelerationOn') : t('hardware.accelerationOff')}
           </span>
-        </Row>
-        <Row label={t('hardware.webgpu')}>{gpu.webgpu ? t('hardware.available') : t('hardware.unavailable')}</Row>
-      </Group>
+        </HardwareRow>
+        <HardwareRow label={t('hardware.webgpu')}>
+          {gpu.webgpu ? t('hardware.available') : t('hardware.unavailable')}
+        </HardwareRow>
+      </HardwareGroup>
 
-      <Group icon={VideoIcon} title={t('hardware.groups.encoding')}>
+      <HardwareGroup icon={VideoIcon} title={t('hardware.groups.encoding')}>
         {encoders.map((encoder) => (
-          <Row key={encoder.codec} label={`${encoder.codec} · 1080p60`}>
+          <HardwareRow key={encoder.codec} label={`${encoder.codec} · 1080p60`}>
             <span className={ENCODER_CLASS[encoder.status]}>{t(`hardware.encoder.${encoder.status}`)}</span>
-          </Row>
+          </HardwareRow>
         ))}
-      </Group>
+      </HardwareGroup>
 
-      <Group icon={MonitorIcon} title={t('hardware.groups.displays')}>
+      <HardwareGroup icon={MonitorIcon} title={t('hardware.groups.displays')}>
         {displays.map((display, index) => (
-          <Row key={index} label={display.label ?? `#${index + 1}`}>
+          <HardwareRow key={index} label={display.label ?? `#${index + 1}`}>
             <span className="flex items-center justify-end gap-2">
               {t('hardware.displayItem', { width: display.width, height: display.height, scale: display.scale })}
               {display.refreshRate && ` · ${display.refreshRate} Hz`}
               {display.isPrimary && <Badge variant="secondary">{t('hardware.primary')}</Badge>}
             </span>
-          </Row>
+          </HardwareRow>
         ))}
         {displaysPermission === 'prompt' && onAllowDisplays && (
           <div className="bg-muted/60 flex items-center justify-between gap-3 rounded-md p-3 text-xs">
@@ -161,59 +164,27 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
         {displaysPermission === 'denied' && (
           <p className="text-muted-foreground text-xs">{t('hardware.displaysDenied')}</p>
         )}
-      </Group>
+      </HardwareGroup>
 
-      <Group icon={WifiIcon} title={t('hardware.groups.network')}>
-        <Row label={t('hardware.groups.network')}>
+      <HardwareGroup icon={WifiIcon} title={t('hardware.groups.network')}>
+        <HardwareRow label={t('hardware.groups.network')}>
           {network
             ? t('hardware.networkValue', { type: network.type, downlink: network.downlinkMbps, rtt: network.rttMs })
             : unknown}
-        </Row>
+        </HardwareRow>
         {manual.connection && (
-          <Row label={t('hardware.connectionType')}>
+          <HardwareRow label={t('hardware.connectionType')}>
             {t(`hardware.manual.connections.${manual.connection}`)}
             {informed}
-          </Row>
+          </HardwareRow>
         )}
         {(manual.downloadMbps !== undefined || manual.uploadMbps !== undefined) && (
-          <Row label={t('hardware.plan')}>
+          <HardwareRow label={t('hardware.plan')}>
             {t('hardware.planValue', { download: manual.downloadMbps ?? '?', upload: manual.uploadMbps ?? '?' })}
             {informed}
-          </Row>
+          </HardwareRow>
         )}
-      </Group>
-    </div>
-  )
-}
-
-function Group({
-  icon: Icon,
-  title,
-  children,
-}: {
-  icon: ComponentType<{ className?: string }>
-  title: string
-  children: ReactNode
-}) {
-  return (
-    <section className="flex flex-col gap-1">
-      <h3 className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
-        <Icon className="size-3.5" />
-        {title}
-      </h3>
-      <dl className="divide-y rounded-md border text-[13px]">{children}</dl>
-    </section>
-  )
-}
-
-function Row({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
-  return (
-    <div className="grid grid-cols-[minmax(0,9rem)_1fr] gap-3 px-3 py-1.5">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className={cn('min-w-0 text-right break-words')}>
-        {children}
-        {hint && <span className="text-muted-foreground block text-[11px] leading-snug">{hint}</span>}
-      </dd>
+      </HardwareGroup>
     </div>
   )
 }

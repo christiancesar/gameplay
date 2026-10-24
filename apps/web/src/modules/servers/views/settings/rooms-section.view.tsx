@@ -1,21 +1,12 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { AudioLinesIcon, CheckIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { AudioLinesIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  ROOM_NAME_MAX,
-  roomNameSchema,
-  type RoomNameError,
-  type RoomNameValues,
-} from '@/modules/servers/model/room.schema'
-
 import { Alert, AlertDescription } from '@/shared/ui/alert'
-import { Button } from '@/shared/ui/button'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
-import { FieldError } from '@/shared/ui/field'
 import { IconButton } from '@/shared/ui/icon-button'
-import { Input } from '@/shared/ui/input'
+
+import { NewRoomForm } from './new-room-form.view'
+import { RenameRoomForm } from './rename-room-form.view'
 
 type RoomItem = {
   id: string
@@ -127,75 +118,6 @@ function RoomsSectionView({
         })}
       </ul>
     </div>
-  )
-}
-
-type NewRoomFormProps = {
-  takenNames: readonly string[]
-  isCreating: boolean
-  onCreate: (name: string) => void
-}
-
-function NewRoomForm({ takenNames, isCreating, onCreate }: NewRoomFormProps) {
-  const { t } = useTranslation()
-  const form = useForm<RoomNameValues>({
-    resolver: zodResolver(roomNameSchema(takenNames)),
-    defaultValues: { name: '' },
-  })
-  const error = form.formState.errors.name?.message as RoomNameError | undefined
-
-  return (
-    <form noValidate className="flex flex-col gap-2" onSubmit={form.handleSubmit(({ name }) => onCreate(name))}>
-      <div className="flex gap-2">
-        <Input
-          {...form.register('name')}
-          aria-label={t('serverSettings.rooms.newRoom')}
-          placeholder={t('serverSettings.rooms.newRoom')}
-          maxLength={ROOM_NAME_MAX + 20}
-          aria-invalid={Boolean(error)}
-        />
-        <Button type="submit" disabled={isCreating} aria-busy={isCreating}>
-          <PlusIcon data-icon="inline-start" aria-hidden />
-          {t('serverSettings.rooms.create')}
-        </Button>
-      </div>
-      {error && <FieldError>{t(`serverSettings.rooms.errors.${error}`)}</FieldError>}
-    </form>
-  )
-}
-
-type RenameRoomFormProps = {
-  name: string
-  takenNames: readonly string[]
-  onSave: (name: string) => void
-  onCancel: () => void
-}
-
-function RenameRoomForm({ name, takenNames, onSave, onCancel }: RenameRoomFormProps) {
-  const { t } = useTranslation()
-  const form = useForm<RoomNameValues>({ resolver: zodResolver(roomNameSchema(takenNames)), defaultValues: { name } })
-  const error = form.formState.errors.name?.message as RoomNameError | undefined
-
-  return (
-    <form
-      noValidate
-      className="flex flex-1 flex-col gap-1"
-      onSubmit={form.handleSubmit((values) => onSave(values.name))}
-    >
-      <div className="flex items-center gap-1">
-        <Input
-          {...form.register('name')}
-          autoFocus
-          aria-label={t('serverSettings.rooms.rename')}
-          maxLength={ROOM_NAME_MAX + 20}
-          aria-invalid={Boolean(error)}
-          onKeyDown={(event) => event.key === 'Escape' && onCancel()}
-        />
-        <IconButton type="submit" label={t('common.save')} icon={<CheckIcon />} />
-        <IconButton label={t('common.cancel')} icon={<XIcon />} onClick={onCancel} />
-      </div>
-      {error && <FieldError>{t(`serverSettings.rooms.errors.${error}`)}</FieldError>}
-    </form>
   )
 }
 

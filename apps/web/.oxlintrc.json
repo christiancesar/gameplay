@@ -4,12 +4,27 @@
   "ignorePatterns": ["storybook-static", "dist"],
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ],
+    "react/no-multi-comp": "error"
   },
   "overrides": [
     {
       "files": ["src/shared/ui/**"],
-      "rules": { "react/only-export-components": "off" }
+      "rules": {
+        "react/only-export-components": "off",
+        "react/no-multi-comp": "off"
+      }
+    },
+    {
+      "files": ["**/*.stories.tsx"],
+      "rules": {
+        "react/no-multi-comp": "off"
+      }
     }
   ]
 }

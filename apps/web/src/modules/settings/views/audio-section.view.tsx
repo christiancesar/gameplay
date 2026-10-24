@@ -5,7 +5,8 @@ import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/shared/ui/field'
 import { Progress } from '@/shared/ui/progress'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+
+import { DeviceSelect } from './device-select.view'
 
 type AudioDevice = { id: string; label: string }
 
@@ -88,42 +89,6 @@ function AudioSectionView({
         {isTesting && <FieldDescription>{t('settings.audio.testHint')}</FieldDescription>}
       </Field>
     </FieldGroup>
-  )
-}
-
-function DeviceSelect({
-  id,
-  label,
-  devices,
-  value,
-  disabled,
-  onChange,
-}: {
-  id: string
-  label: string
-  devices: readonly AudioDevice[]
-  value: string
-  disabled: boolean
-  onChange: (deviceId: string) => void
-}) {
-  const { t } = useTranslation()
-  return (
-    <Field>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
-        <SelectTrigger id={id} className="w-full">
-          <SelectValue placeholder={t('settings.audio.default')} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="default">{t('settings.audio.default')}</SelectItem>
-          {devices.map((device) => (
-            <SelectItem key={device.id} value={device.id}>
-              {device.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </Field>
   )
 }
 

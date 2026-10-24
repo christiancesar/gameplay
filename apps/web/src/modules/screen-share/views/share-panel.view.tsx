@@ -11,9 +11,9 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/shared/ui/button'
 import { formatKbps } from '@/shared/ui/format-kbps'
-import { Progress } from '@/shared/ui/progress'
 
 import type { ShareFps, ShareResolution, ShareSource } from './share-setup-dialog.view'
+import { ShareMeter } from './share-meter.view'
 
 type StreamQuality = { width: number; height: number; fps: number; kbps: number }
 
@@ -104,8 +104,8 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails }: SharePanelVie
 
       {delivering ? (
         <div className="flex flex-col gap-1.5">
-          <Meter label={t('share.setup.resolution')} value={delivering.height / targetHeight} />
-          <Meter label="FPS" value={delivering.fps / target.fps} />
+          <ShareMeter label={t('share.setup.resolution')} value={delivering.height / targetHeight} />
+          <ShareMeter label="FPS" value={delivering.fps / target.fps} />
           <p className="grid grid-cols-[4.5rem_1fr] gap-2 text-[11px]">
             <span className="text-muted-foreground">{t('share.stats.upload')}</span>
             <span className="text-right font-mono tabular-nums">{formatKbps(delivering.kbps)}</span>
@@ -135,26 +135,6 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails }: SharePanelVie
           {t('share.stopShort')}
         </Button>
       </div>
-    </div>
-  )
-}
-
-function Meter({ label, value }: { label: string; value: number }) {
-  const percent = Math.min(100, Math.round(value * 100))
-  // Mesma tolerância visual para cada medida: 95% do alvo já conta como no alvo.
-  const below = percent < 95
-  return (
-    <div className="grid grid-cols-[4.5rem_1fr_2.5rem] items-center gap-2 text-[11px]">
-      <span className="text-muted-foreground">{label}</span>
-      <Progress
-        aria-label={label}
-        value={percent}
-        className={cn(
-          'h-1',
-          below ? '*:data-[slot=progress-indicator]:bg-amber-500' : '*:data-[slot=progress-indicator]:bg-emerald-500',
-        )}
-      />
-      <span className="text-right font-mono tabular-nums">{percent}%</span>
     </div>
   )
 }
