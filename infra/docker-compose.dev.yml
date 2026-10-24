@@ -18,10 +18,8 @@ services:
       timeout: 3s
       retries: 10
 
-  # Production build of the API. Off by default (the API usually runs with
-  # `npm run dev`); start it with `docker compose --profile api up --build`.
+  # Production build of the API, next to `npm run dev` on the host (port 3333).
   api:
-    profiles: [api]
     build:
       context: ..
       dockerfile: apps/api/Dockerfile
@@ -31,7 +29,7 @@ services:
       LOG_LEVEL: info
       DATABASE_URL: postgresql://gameplay:gameplay@postgres:5432/gameplay
     ports:
-      - '3333:3333'
+      - '3334:3333'
     depends_on:
       postgres:
         condition: service_healthy

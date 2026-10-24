@@ -16,13 +16,18 @@ npm run dev               # http://localhost:3333/api/health
 
 ## Build em Docker
 
-A imagem de produção (`apps/api/Dockerfile`, contexto na raiz) também sobe pelo compose, no profile `api`:
+O compose sobe, junto do Postgres, a imagem de produção da API (`apps/api/Dockerfile`, contexto na raiz). Ela roda ao lado do `npm run dev`:
+
+|                         | Porta | Origem                              |
+| ----------------------- | ----- | ----------------------------------- |
+| `npm run dev` (máquina) | 3333  | código fonte, watch                 |
+| container `api`         | 3334  | imagem de produção (build completo) |
 
 ```bash
-npm run docker:api        # na raiz: build da imagem e sobe api + postgres em http://localhost:3333
+npm run docker:api        # na raiz: refaz a imagem e sobe postgres + api
 ```
 
-Pare o `npm run dev` antes, porque os dois usam a porta 3333. As migrations ainda não rodam dentro do container: aplique com `npm run db:deploy` apontando para o banco.
+Os dois usam o mesmo banco de dev. As migrations ainda não rodam dentro do container: aplique com `npm run db:deploy` apontando para o banco.
 
 ## Scripts
 

@@ -16,7 +16,7 @@
     "build-storybook": "turbo run build-storybook",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
-    "docker:api": "docker compose -f infra/docker-compose.dev.yml --profile api up --build"
+    "docker:api": "docker compose -f infra/docker-compose.dev.yml up -d --build --wait"
   },
   "devDependencies": {
     "turbo": "^2.11.10"
