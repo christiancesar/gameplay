@@ -357,6 +357,7 @@ apps/web/
   - t3.medium não entra no free tier. EBS e IPv4 podem ser cobertos se a conta for elegível; contas novas usam o modelo de créditos.
   - **Recomendação inicial: t4g.small** (ARM, 2 GB, ~US$ 12 de instância). Na EC2 rodam só nginx, Nest e coturn (frontend estático, Postgres no Neon, mídia P2P). Subir para t4g.medium se a medição pedir.
   - Segurança da instância: SSH restrito ao IP do admin (ou SSM Session Manager), EBS criptografado, portas do coturn abertas (3478 UDP/TCP, 5349 TCP e faixa UDP de relay).
+- **Imagens de produção** são geradas só no CI, para a arquitetura do servidor (ARM64 se a EC2 for t4g). A imagem buildada na máquina do desenvolvedor (`npm run docker:api`) serve só para pegar erros de build e medir tamanho e memória; nunca vai para produção *(decidido em 2026-10-24)*.
 - Deploy na Vercel **descartado**: a Vercel não mantém um processo Node persistente para o Socket.IO (WebSocket lá é experimental e preso a instância).
 
 ## 5. Observabilidade
