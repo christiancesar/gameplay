@@ -10,7 +10,7 @@ Só se cadastra quem tem uma key, gerada pelo admin da plataforma. A key tem 6 c
 - Providers: `TokenGenerator` (alfabeto sem ambíguos, aleatório criptográfico) e `TokenHasher` (HMAC), cada um com interface e implementação.
 - Use-cases, com repositório `prisma` e `in-memory`:
   - `GenerateRegistrationInvite`;
-  - `ListRegistrationInvites` (sufixo, validade, status, quem usou e quando);
+  - `ListRegistrationInvites` (sufixo, validade, status calculado: ativa, vencida, usada ou revogada; quem usou e quando; sem limpeza, tudo fica como registro);
   - `RevokeRegistrationInvite`;
   - `ConsumeRegistrationInvite`, que valida, marca como usada e é atômico contra uso duplo.
 - Rotas de admin (`PlatformAdminGuard`): gerar, listar e revogar.

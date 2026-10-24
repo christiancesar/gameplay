@@ -11,7 +11,7 @@
 ## Escopo
 - Modelos `ServerInvite` e `JoinRequest` e migration.
 - Use-cases:
-  - `CreateServerInvite` (permissão, limite de membros, validade de 1 h), `RevokeServerInvite` e `ListServerInvites` (quem criou, quem usou, quando);
+  - `CreateServerInvite` (permissão, limite de membros, validade de 1 h), `RevokeServerInvite` e `ListServerInvites` (quem criou, quem usou, quando e o status calculado: ativo, vencido, usado ou revogado; sem limpeza, tudo fica como registro);
   - `ResolveInviteCode`, público, para a landing do convite: nome e ícone do servidor e status do convite;
   - `RequestToJoin` (consome o convite numa transação; já membro ou pedido pendente dão erro; auto aprovação aplica quando há vaga);
   - `ApproveJoinRequest` (bloqueia no limite) e `DeclineJoinRequest`;

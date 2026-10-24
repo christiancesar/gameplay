@@ -44,7 +44,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 
 1. Onde o **cover** do servidor aparece na interface (proporção 16:9 assumida até lá).
 2. Confirmar as suposições abaixo.
-3. Transporte de mídia: MVP só mesh, SFU na fase seguinte (decidido). Pendente: seletor de qualidade do espectador no MVP (`media-transport-options.md`, seção 6, item 7).
+3. Banco da Fase 2: Postgres na EC2 (recomendado) ou Neon. Não bloqueia os tickets.
+4. Transporte de mídia: MVP só mesh, SFU na fase seguinte (decidido). Pendente: seletor de qualidade do espectador no MVP (`media-transport-options.md`, seção 6, item 7).
 
 ## Suposições a confirmar
 

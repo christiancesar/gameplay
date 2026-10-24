@@ -55,6 +55,7 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - Código de **8 caracteres** (o link carrega o mesmo código), de **uso único** e com **validade fixa de 1 hora**, sem configuração. Para convidar várias pessoas, gera-se um convite para cada uma. *(Revisado em 2026-10-23: antes era multiuso com máximo de usos e validade configuráveis.)*
 - Owner e admin geram e revogam convites.
 - O convite é **consumido quando o pedido de entrada é criado**. Quem abre o link sem conta e demora mais de 1 hora no cadastro tem a conta criada normalmente, e o Hub avisa que o convite expirou e que é preciso pedir outro *(decidido em 2026-10-24)*.
+- Os convites ficam guardados como registro, sem limpeza. A lista mostra o status de cada um: ativo, vencido, usado ou revogado *(decidido em 2026-10-24)*.
 - O convite registra **quem criou**, **quem usou** e **quando**. Owner/admin veem isso no servidor (convites e membros) e o admin da plataforma vê na lista de membros de cada servidor.
 - Com o servidor no limite de membros, a **geração de convite fica bloqueada**.
 
