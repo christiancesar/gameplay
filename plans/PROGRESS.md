@@ -21,8 +21,10 @@ Escopo mínimo para começar:
 1. ~~`git init` e branch de trabalho~~. Feito: repo com branch `chore/monorepo-setup` (sem commits ainda).
 2. ~~Monorepo npm workspaces + Turborepo com `apps/web`~~. Feito: Vite 8, React 19, TS 6, Tailwind 4, shadcn (radix, preset nova) com componentes em `src/shared/ui`.
 3. ~~Storybook com interaction tests~~. Feito: Storybook 10 + `@storybook/addon-vitest` (Chromium headless via Playwright). `npm test` roda as play functions.
-4. ~~Tema claro/escuro e EN/PT~~. Feito na infra: toolbar de tema (padrão escuro) e de idioma no Storybook; i18next em `src/shared/i18n`. Paleta própria do Gameplay ainda não definida (usa a neutra do shadcn).
-5. Primeiras Views (só apresentação, seguindo o MVVM do `00-requirements.md` §3.4): SignIn, SignUp (com input OTP de 6 caracteres), Hub, tela do servidor com o card do usuário e o painel de transmissão, e o modal do servidor.
+4. ~~Tema claro/escuro e EN/PT~~. Feito na infra: toolbar de tema (padrão escuro) e de idioma no Storybook; i18next em `src/shared/i18n`. Paleta: **neutral padrão do shadcn** (decisão do usuário), com cores do Tailwind para destaques (`emerald` para transmitir, `red` para sair da sala).
+5. **Todas as Views dos fluxos F1 a F13 estão no Storybook**, com stories de todos os estados e interaction tests (157 testes). A página "Introdução" do Storybook liga cada fluxo às stories.
+
+Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
 
 ## Assets fornecidos pelo usuário
 
@@ -38,8 +40,29 @@ Escopo mínimo para começar:
 
 ## Suposições a confirmar
 
+Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
+- Card do servidor (decisão do usuário): ícone, nome e engrenagem; clicar abre o modal do servidor. Member vê o ícone de sair do servidor no lugar da engrenagem.
+- Card do usuário: a engrenagem abre as configurações do usuário; na sala, mute, deafen, engrenagem e telefone vermelho à direita.
+- Painel de transmissão: um botão verde grande (Frame 9); ao clicar, abre a escolha de qualidade e áudio antes do seletor do browser.
+- Ao vivo: monitor com envio, banda, FPS, resolução, espectadores e aviso de upload insuficiente.
+- Selo "LIVE" e botão "Assistir" no bloco do participante; volume por pessoa num popover ao clicar no bloco.
+- Assistindo: tela na área principal, faixa de participantes embaixo e troca entre transmissões quando há mais de uma.
+- Modal do servidor e Configurações usam o mesmo modal com navegação lateral; "Sair ou excluir" e "Conta" ficam no fim, em vermelho.
+- Convite de servidor (decisão do usuário): uso único, validade fixa de 1 hora, registra quem criou e quem usou.
+- Pedido de entrada recusado: o convite já conta como usado.
+- Keys de cadastro: validade 1, 7 ou 30 dias; a key aparece uma única vez (só o hash fica guardado) e a lista mostra os 3 últimos caracteres. Isso exige guardar esse sufixo junto do hash.
+- Admin redefine senha digitando ou gerando uma nova senha, que ele repassa por canal privado.
+- Hardware: coletado no login e sob demanda, um registro por dispositivo; o aviso de permissão dos monitores some depois de Permitir ou Agora não.
+- Versão mínima do Chromium: valor configurável (exemplo usado: 130); o alerta dispensado não volta na mesma sessão.
+- Notificações do Hub ficam guardadas por usuário até serem dispensadas; avisos em tempo real dentro do servidor continuam como toast.
+- Avisos do F13 como toasts; queda de conexão como faixa amarela no topo.
+
 - i18n com `i18next` + `react-i18next` + detector de idioma do browser (lib não estava definida no levantamento).
-- Lint segue com `oxlint` (veio do template do Vite). O `eslint-plugin-boundaries` para as fronteiras MVVM ainda não foi configurado.
+- Não há mock específico de SignIn/SignUp (o `Frame 2.png` é só o logo). O visual segue o ASCII do `02-core-flows.md` com o estilo do Hub.
+- Username com 3 a 32 caracteres (letras, números, `.`, `-`, `_`).
+- Key de convite mostrada em maiúsculas; a View aceita letras e números e o ViewModel normaliza.
+- 2FA do admin: código TOTP em 6 caixas, com opção de código de recuperação em campo de texto.
+- Lint segue com `oxlint` (veio do template do Vite), agora junto com `oxfmt`. O `eslint-plugin-boundaries` para as fronteiras MVVM ainda não foi configurado. Ele deve entrar pelo suporte a plugins JS do oxlint.
 
 - Admin sai do servidor pelo modal ("Sair do servidor"), já que vê a engrenagem em vez do ícone de sair.
 - Servidor novo já nasce com 1 sala (ocupa 1 das 2 vagas padrão).

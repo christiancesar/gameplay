@@ -52,8 +52,9 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - O owner é intocável: ninguém no servidor pode rebaixá-lo ou removê-lo.
 
 ### 2.4 Convite de servidor
-- Código de **8 caracteres** (o link carrega o mesmo código), de **múltiplos usos**, com **máximo de usos** e **expiração** gravados.
-- A interface mostra usos restantes e validade de cada convite.
+- Código de **8 caracteres** (o link carrega o mesmo código), de **uso único** e com **validade fixa de 1 hora**, sem configuração. Para convidar várias pessoas, gera-se um convite para cada uma. *(Revisado em 2026-10-23: antes era multiuso com máximo de usos e validade configuráveis.)*
+- Owner e admin geram e revogam convites.
+- O convite registra **quem criou**, **quem usou** e **quando**. Owner/admin veem isso no servidor (convites e membros) e o admin da plataforma vê na lista de membros de cada servidor.
 - Com o servidor no limite de membros, a **geração de convite fica bloqueada**.
 
 ### 2.5 Entrada e moderação
@@ -108,8 +109,27 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - **Favicon** em rotação com ícones Lucide da categoria gaming.
 - Marca: logos "Gameplay" e "Gameplay UNLIMITED" fornecidos pelo usuário.
 
-### 2.12 Browsers
+### 2.12 Hardware dos dispositivos
+- O app coleta o hardware de cada dispositivo para o admin da plataforma entender onde o Gameplay roda, qual o mínimo viável e quais recursos existem. *(Adicionado em 2026-10-23.)*
+- Coletado no Chrome, sem pedir permissão: SO, versão, arquitetura e bits (User-Agent Client Hints), versão do browser, núcleos lógicos (`hardwareConcurrency`), RAM aproximada (`deviceMemory`, arredondada e com teto), GPU e se a aceleração gráfica está ligada (WebGL/WebGPU), codificação de vídeo por hardware para H.264, VP9 e AV1 a 1080p60 (Media Capabilities), rede (Network Information).
+- Com permissão: todos os monitores com resolução, escala e taxa de atualização (Window Management API). A permissão é pedida num aviso no Hub e também na seção Hardware das Configurações.
+- **Não disponível no browser:** modelo do processador, RAM exata, memória da GPU, disco e placa-mãe. Isso exigiria um app desktop.
+- O usuário pode **complementar manualmente** o que o browser não expõe: modelo do processador, RAM, placa de vídeo, VRAM, tipo de conexão e plano de internet (download/upload). Esses campos aparecem marcados como "informado pelo usuário".
+- Enviado ao servidor no login e quando o usuário pede "Coletar de novo"; um registro por dispositivo.
+- O usuário vê o que foi coletado em Configurações > Hardware. O admin vê por usuário e numa aba com o resumo da base (menos núcleos, menos memória, % com aceleração, % com H.264 por hardware).
+
+### 2.12.1 Notificações no Hub
+- Painel de notificações no Hub: à direita em telas grandes, separado do conteúdo por um divisor vertical e centralizado junto com ele; abaixo de "Entrar em um servidor" em telas pequenas. *(Adicionado em 2026-10-23.)*
+- Reúne alertas (browser, VPN, aceleração gráfica desligada, permissão de monitores) e avisos (pedido enviado/aprovado, removido, servidor excluído, promovido/rebaixado).
+- O usuário dispensa cada uma ou limpa tudo.
+
+### 2.13 Browsers
 - Alvo do MVP: **Chromium (Chrome/Edge)**. Firefox e Safari sem garantia.
+- O app detecta o browser (User-Agent Client Hints, com fallback no user agent) e mostra um alerta no SignIn e no Hub *(adicionado em 2026-10-23)*:
+  - **Não Chromium:** recomenda Chrome, Edge, Brave, Opera ou Vivaldi, com links de download.
+  - **Chromium abaixo da versão mínima:** mostra a versão atual e a mínima e como atualizar.
+  - Dispensável com "Continuar mesmo assim" (não bloqueia o uso).
+- **VPN/proxy:** detecção por heurística (sem garantia), só para avisar: IP público visto pelo STUN diferente do IP da requisição HTTP (proxy/VPN de navegador), IP em faixa de datacenter/VPN conhecida no backend, e fuso horário do browser incompatível com a região do IP.
 
 ## 3. Arquitetura
 
@@ -211,18 +231,23 @@ apps/api/
 ### 3.4 Frontend (`apps/web`): MVVM
 - **React + Vite + TanStack Router** (rotas por arquivo, `beforeLoad` para auth, `loader` integrado ao TanStack Query).
 - **TanStack Query, Axios, Zustand, Tailwind, shadcn/ui.**
+- **Formulários: React Hook Form + Zod** (`@hookform/resolvers/zod`), com os campos montados no `Field` do shadcn.
 - Build estático servido pelo nginx.
+- **Estado na URL:** search params pelo `validateSearch` do TanStack Router com schema Zod (sem nuqs). Etapas de um mesmo fluxo ficam na mesma rota, controladas por query param, para o voltar do navegador e o refresh funcionarem *(decidido em 2026-10-24)*.
+- **Lint e formatação:** `oxlint` (com `react/no-multi-comp`) e `oxfmt` (sem ponto e vírgula, aspas simples, 120 colunas) *(decidido em 2026-10-24)*.
+- **Um componente por arquivo** em todo código nosso. Ficam de fora `shared/ui` (componentes compostos do shadcn, atualizados pelo CLI) e `*.stories.tsx` *(decidido em 2026-10-24)*.
 
 **MVVM é a arquitetura do frontend inteiro**, com View separada de lógica de negócio:
 
 | Camada | Responsabilidade | Pode usar |
 |---|---|---|
-| **Model** | `entities/` (tipos de domínio), `rules/` (regras de negócio como funções puras), `services/` (Axios, Socket.IO, `MediaTransport`), `mappers/` (DTO para entidade) | `packages/shared` |
+| **Model** | `entities/` (tipos de domínio), `rules/` (regras de negócio como funções puras), `*.schema.ts` (schemas Zod dos formulários; mensagens são chaves de i18n), `services/` (Axios, Socket.IO, `MediaTransport`), `mappers/` (DTO para entidade) | `packages/shared` |
 | **ViewModel** | Hook por tela/caso de uso. Orquestra TanStack Query (estado de servidor), Zustand (estado de cliente) e services/rules. Expõe estado pronto para exibir + comandos. Sem JSX. | Model |
-| **View** | Componentes de apresentação. Só props e callbacks. Sem query, store, axios ou regra. | `shared/ui` |
+| **View** | Componentes de apresentação. Só props e callbacks. Sem query, store, axios ou regra. Formulário: a View é dona do `useForm` (estado de digitação, campos tocados, erros na tela) com o schema do Model, e só chama o ViewModel com dados já validados (`onSubmit(values)`). Erros que só o servidor conhece chegam por prop e entram no form via `useServerErrors`. | `shared/ui`, schemas do Model |
 | **Screen** | Cola fina usada pela rota: chama o ViewModel e passa o resultado para a View. | ViewModel, View |
 
-- Dependência em uma direção só, **garantida por lint** (`eslint-plugin-boundaries`) no CI.
+- Dependência em uma direção só, **garantida por lint** (`eslint-plugin-boundaries`) no CI. Única exceção: a View importa os schemas Zod (`model/*.schema.ts`).
+- Schemas que o backend também valida (cadastro, nome de servidor, código de convite) migram para `packages/shared` quando a API existir, e o NestJS usa os mesmos via `ZodPipe`.
 
 ```
 apps/web/

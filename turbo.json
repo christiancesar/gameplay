@@ -10,6 +10,10 @@
       "outputs": ["storybook-static/**"]
     },
     "lint": {},
+    "format": {
+      "cache": false
+    },
+    "format:check": {},
     "typecheck": {
       "dependsOn": ["^build"]
     },

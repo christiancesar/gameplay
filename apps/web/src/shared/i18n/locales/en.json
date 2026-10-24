@@ -1,5 +1,649 @@
 {
   "common": {
-    "appName": "Gameplay"
+    "appName": "Gameplay",
+    "language": "Language",
+    "theme": {
+      "toLight": "Switch to light theme",
+      "toDark": "Switch to dark theme"
+    },
+    "settings": "Settings",
+    "adminPanel": "Platform admin",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "save": "Save",
+    "backToHub": "Back to Hub",
+    "copy": "Copy",
+    "copied": "Copied",
+    "remove": "Remove",
+    "upload": "Upload",
+    "change": "Change",
+    "saving": "Saving…",
+    "never": "Never",
+    "unlimited": "Unlimited",
+    "actions": "Actions",
+    "durations": {
+      "1h": "1 hour",
+      "1d": "1 day",
+      "7d": "7 days",
+      "30d": "30 days"
+    },
+    "signOut": "Sign out",
+    "signOutTitle": "Sign out of your account?",
+    "signOutDescription": "You will be disconnected from any room."
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome back",
+      "identifier": "Email or username",
+      "password": "Password",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "twoFactorTitle": "Two-factor authentication",
+      "twoFactorDescription": "Enter the 6-digit code from your authenticator app.",
+      "recoveryDescription": "Enter one of your recovery codes.",
+      "twoFactorCode": "Authentication code",
+      "recoveryCode": "Recovery code",
+      "useRecoveryCode": "Use a recovery code",
+      "useAuthenticatorCode": "Use authenticator code",
+      "verify": "Verify",
+      "back": "Back to login"
+    },
+    "signUp": {
+      "title": "Create your account",
+      "invitedTo": "You were invited to <strong>{{serverName}}</strong>",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "inviteKey": "Invite key",
+      "inviteKeyDescription": "6 letters or numbers. You can paste the whole key.",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "errors": {
+      "required": "This field is required.",
+      "invalidCredentials": "Invalid credentials. Check your login and password.",
+      "accountSuspended": "This account is suspended. Contact the platform admin.",
+      "invalidTwoFactorCode": "Invalid code. Try again.",
+      "usernameInvalid": "Use 3 to 32 letters, numbers, dots, dashes or underscores.",
+      "usernameTaken": "This username is already taken.",
+      "emailInvalid": "Enter a valid email.",
+      "emailTaken": "This email is already in use.",
+      "passwordTooShort": "Password must have at least 8 characters.",
+      "passwordMismatch": "Passwords don't match.",
+      "inviteKeyIncomplete": "The invite key has 6 characters.",
+      "inviteKeyInvalid": "Invalid invite key.",
+      "inviteKeyExpired": "This invite key has expired.",
+      "inviteKeyRevoked": "This invite key was revoked.",
+      "inviteKeyUsed": "This invite key was already used.",
+      "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
+      "unexpected": "Something went wrong. Try again.",
+      "twoFactorCodeIncomplete": "Enter the 6 digits from your authenticator app."
+    }
+  },
+  "hub": {
+    "servers": "Your servers",
+    "createServer": "Create your server",
+    "createServerDescription": "Grouping your clan and sharing your gameplay",
+    "createServerLimit": "Limit reached",
+    "createServerLimitDescription": "You already own the maximum.",
+    "joinPlaceholder": "Invite code or link",
+    "join": "Join",
+    "joinErrors": {
+      "inviteNotFound": "Invite not found. Check the code.",
+      "inviteExpired": "This invite has expired.",
+      "inviteExhausted": "This invite was already used. Ask for a new one.",
+      "serverFull": "This server is full.",
+      "alreadyMember": "You are already a member of this server.",
+      "unexpected": "Something went wrong. Try again.",
+      "codeRequired": "Enter an invite code."
+    },
+    "profile": "Profile",
+    "joinTitle": "Join a server"
+  },
+  "server": {
+    "rooms": "Rooms",
+    "ownedBy": "Owner: {{name}}",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "joinRoom": "Join {{room}}",
+    "youAreHere": "You are here",
+    "serverSettings": "Server settings",
+    "pendingRequests_one": "{{count}} pending request",
+    "pendingRequests_other": "{{count}} pending requests",
+    "leaveServer": "Leave server",
+    "leaveServerTitle": "Leave {{server}}?",
+    "leaveServerDescription": "You will need a new invite to come back.",
+    "leaveServerConfirm": "Leave",
+    "noRooms": "No rooms yet.",
+    "toggleSidebar": "Expand or collapse sidebar",
+    "switcher": {
+      "label": "Switch server",
+      "search": "Search servers...",
+      "empty": "No server found.",
+      "confirmTitle": "Switch to {{server}}?",
+      "confirmDescription": "You are connected to {{room}}. Entering another server ends your voice connection and any stream in this room.",
+      "confirm": "Disconnect and switch"
+    }
+  },
+  "voice": {
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "deafen": "Deafen",
+    "undeafen": "Undeafen",
+    "leaveRoom": "Leave room",
+    "muted": "Muted",
+    "deafened": "Deafened",
+    "speaking": "Speaking",
+    "connecting": "Connecting…",
+    "connectionFailed": "Connection failed. Retrying…",
+    "volumeFor": "Volume for {{name}}",
+    "you": "you",
+    "micDeniedTitle": "Microphone blocked",
+    "micDeniedDescription": "You joined listening only. Allow the microphone in the browser address bar and rejoin the room to talk.",
+    "roomEmpty": "Nobody here yet. Others will see you as soon as they join."
+  },
+  "share": {
+    "start": "Share screen",
+    "waitingPicker": "Pick a screen, window or tab in the browser dialog…",
+    "live": "Live",
+    "stop": "Stop sharing",
+    "viewers_one": "{{count}} viewer",
+    "viewers_other": "{{count}} viewers",
+    "stats": {
+      "upload": "Upload",
+      "fps": "FPS",
+      "resolution": "Resolution",
+      "status": "Status"
+    },
+    "watch": "Watch",
+    "watching": "Watching",
+    "stopWatching": "Stop watching",
+    "fullscreen": "Fullscreen",
+    "streamVolume": "Stream volume",
+    "liveNow": "Live now",
+    "isLive": "{{name}} is live",
+    "setup": {
+      "title": "Share your screen",
+      "description": "Pick what you want to share and the quality. Next, the browser asks you to choose the exact screen, window or tab.",
+      "source": "What to share",
+      "sources": {
+        "screen": {
+          "label": "Entire screen",
+          "hint": "Everything on one monitor."
+        },
+        "window": {
+          "label": "Window or game",
+          "hint": "A single app. Games show up here."
+        },
+        "tab": {
+          "label": "Browser tab",
+          "hint": "A Chrome tab, with its audio."
+        }
+      },
+      "gameTip": "Games in exclusive fullscreen can show up black. Use borderless window mode.",
+      "resolution": "Resolution",
+      "fps": "Frame rate",
+      "audio": "Share audio",
+      "audioSupport": {
+        "supported": "Tab audio works on any system.",
+        "windowsOnly": "Screen audio only works on Windows.",
+        "unsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab."
+      },
+      "saveAsDefault": "Use these settings next time",
+      "start": "Choose and share"
+    },
+    "monitor": {
+      "target": "Target",
+      "delivering": "Delivering",
+      "onTarget": "On target",
+      "belowTarget": "Below target",
+      "limitedBy": {
+        "bandwidth": "Limited by your network",
+        "cpu": "Limited by your computer",
+        "other": "Limited by the browser"
+      },
+      "tips": {
+        "bandwidth": "Try 720p or 30 fps, or close downloads.",
+        "cpu": "Try 30 fps or close heavy apps."
+      },
+      "perViewer": "Per viewer",
+      "details": "Details",
+      "detailsTitle": "Stream quality",
+      "detailsDescription": "Each viewer receives a separate copy of your stream, so quality can differ between them.",
+      "viewer": "Viewer",
+      "noViewers": "Nobody is watching yet. Quality is measured once someone watches."
+    },
+    "stopShort": "Stop"
+  },
+  "image": {
+    "choose": "Choose image",
+    "change": "Change image",
+    "remove": "Remove image",
+    "hint": "JPG, PNG or WebP up to 2 MB.",
+    "errors": {
+      "tooLarge": "Image is larger than 2 MB.",
+      "invalidType": "Use a JPG, PNG or WebP image.",
+      "uploadFailed": "Upload failed. Try again."
+    }
+  },
+  "createServer": {
+    "title": "Create your server",
+    "description": "You can add a description and a cover later in the server settings.",
+    "name": "Server name",
+    "icon": "Icon",
+    "submit": "Create server",
+    "errors": {
+      "nameRequired": "Give your server a name.",
+      "nameTooLong": "Use up to 40 characters.",
+      "limitReached": "You reached your server limit.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "serverSettings": {
+    "title": "Server settings",
+    "sections": {
+      "general": "General",
+      "invites": "Invites",
+      "requests": "Requests",
+      "members": "Members",
+      "rooms": "Rooms",
+      "danger": "Leave or delete"
+    },
+    "general": {
+      "name": "Name",
+      "icon": "Icon",
+      "cover": "Cover",
+      "coverHint": "16:9, shown at 1280×720.",
+      "description": "Description",
+      "saved": "Changes saved."
+    },
+    "invites": {
+      "generate": "Generate invite",
+      "expiresAt": "Expires {{date}}",
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke invite {{code}}?",
+      "revokeDescription": "The link stops working right away.",
+      "empty": "No active invites.",
+      "blockedFull": "The server is full ({{count}}/{{max}} members). Free a spot to generate invites.",
+      "copyLink": "Copy link",
+      "autoApprove": "Approve new members automatically",
+      "autoApproveHint": "People who join with an invite get in right away while there is room. Off: each request waits for an owner or admin.",
+      "rules": "Each invite works for one person and expires in 1 hour.",
+      "active": "Active",
+      "history": "History",
+      "createdBy": "Created by {{name}}",
+      "statuses": {
+        "active": "Expires {{date}}",
+        "used": "Used by {{name}} {{date}}",
+        "expired": "Expired, not used",
+        "revoked": "Revoked"
+      }
+    },
+    "requests": {
+      "approve": "Approve",
+      "decline": "Decline",
+      "requestedAt": "Requested {{date}}",
+      "empty": "No pending requests.",
+      "blockedFull": "The server is full ({{count}}/{{max}} members). Approving is blocked until a spot opens.",
+      "autoApproveOn": "Auto approval is on. Requests only wait here when the server is full.",
+      "viaInvite": "Invite {{code}} from {{name}}"
+    },
+    "members": {
+      "count": "{{count}} of {{max}} members",
+      "promote": "Make admin",
+      "demote": "Make member",
+      "kick": "Kick",
+      "kickTitle": "Kick {{name}}?",
+      "kickDescription": "They leave the server now and need a new invite to come back.",
+      "you": "you",
+      "invitedBy": "Invited by {{name}} · {{code}} · {{date}}",
+      "founder": "Created the server"
+    },
+    "rooms": {
+      "count": "{{count}} of {{max}} rooms",
+      "newRoom": "New room name",
+      "create": "Create room",
+      "rename": "Rename",
+      "delete": "Delete",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteDescription": "This room can't be recovered.",
+      "deleteOccupied_one": "{{count}} person is in this room and will be disconnected.",
+      "deleteOccupied_other": "{{count}} people are in this room and will be disconnected.",
+      "blockedLimit": "Room limit reached ({{count}}/{{max}}). Delete a room to create another.",
+      "occupants_one": "{{count}} person",
+      "occupants_other": "{{count}} people",
+      "errors": {
+        "nameRequired": "Give the room a name.",
+        "nameTaken": "There is already a room with this name.",
+        "nameTooLong": "Use up to 40 characters."
+      }
+    },
+    "danger": {
+      "leaveTitle": "Leave server",
+      "leaveDescription": "You stop being an admin and need a new invite to come back.",
+      "leave": "Leave server",
+      "deleteTitle": "Delete server",
+      "deleteDescription": "Removes the server with all members, rooms and invites. Everyone connected is sent back to the Hub. This can't be undone.",
+      "delete": "Delete server",
+      "confirmName": "Type {{name}} to confirm",
+      "ownerCantLeave": "The owner can't leave. Delete the server instead."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "profile": "Profile",
+      "audio": "Audio",
+      "appearance": "Appearance",
+      "account": "Account",
+      "hardware": "Hardware"
+    },
+    "profile": {
+      "avatar": "Avatar",
+      "username": "Username",
+      "email": "Email",
+      "readOnly": "Ask the platform admin to change your email or password."
+    },
+    "audio": {
+      "microphone": "Microphone",
+      "output": "Output",
+      "default": "System default",
+      "testMic": "Test microphone",
+      "stopTest": "Stop test",
+      "level": "Input level",
+      "testHint": "Speak and watch the bar move.",
+      "permissionNeeded": "Allow microphone access to see your devices.",
+      "allow": "Allow microphone"
+    },
+    "appearance": {
+      "theme": "Theme",
+      "dark": "Dark",
+      "light": "Light",
+      "language": "Language"
+    }
+  },
+  "invite": {
+    "invitedTitle": "You were invited to {{server}}",
+    "createAccount": "Create account",
+    "haveAccount": "I already have an account",
+    "keyHint": "You need the invite key sent together with this link.",
+    "confirmTitle": "Join {{server}}?",
+    "confirmDescription_one": "{{count}} member",
+    "confirmDescription_other": "{{count}} members",
+    "join": "Join server",
+    "requestSent": "Request sent. Wait for approval.",
+    "errors": {
+      "expired": "This invite has expired.",
+      "exhausted": "This invite was already used. Ask for a new one.",
+      "serverFull": "This server is full.",
+      "notFound": "This invite doesn't exist or was revoked."
+    }
+  },
+  "connection": {
+    "reconnecting": "Reconnecting…",
+    "reconnected": "Back online.",
+    "offlineHint": "We'll put you back in the same room."
+  },
+  "notices": {
+    "kicked": "You were removed from {{server}}.",
+    "serverDeleted": "{{server}} was deleted.",
+    "promoted": "You are now an admin of {{server}}.",
+    "demoted": "You are no longer an admin of {{server}}.",
+    "suspended": "Your account was suspended.",
+    "sessionEnded": "Your session was ended. Sign in again.",
+    "joinApproved": "Your request to join {{server}} was approved."
+  },
+  "admin": {
+    "title": "Platform admin",
+    "tabs": {
+      "users": "Users",
+      "servers": "Servers",
+      "limits": "Limits",
+      "keys": "Sign-up keys",
+      "hardware": "Hardware"
+    },
+    "search": "Search",
+    "empty": "Nothing found.",
+    "default": "default",
+    "setup": {
+      "title": "Set up two-factor authentication",
+      "description": "Platform admins must use an authenticator app.",
+      "scan": "1. Scan the QR code with your authenticator app.",
+      "manual": "Or type this key:",
+      "verify": "2. Enter the 6-digit code it shows.",
+      "verifyButton": "Verify",
+      "recoveryTitle": "Save your recovery codes",
+      "recoveryDescription": "Each code works once if you lose access to the app. They won't be shown again.",
+      "copyAll": "Copy codes",
+      "download": "Download .txt",
+      "saved": "I saved my codes"
+    },
+    "users": {
+      "user": "User",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline",
+      "suspended": "Suspended",
+      "serverLimit": "Server limit",
+      "sessions": "Sessions",
+      "viewSessions": "View sessions",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "endSessions": "End all sessions",
+      "resetPassword": "Reset password",
+      "editLimit": "Adjust server limit",
+      "suspendTitle": "Suspend {{name}}?",
+      "suspendDescription": "Blocks login and drops every session and connection right away.",
+      "endSessionsTitle": "End all sessions of {{name}}?",
+      "endSessionsDescription": "They will be signed out on every device.",
+      "viewHardware": "View hardware"
+    },
+    "sessions": {
+      "title": "Sessions of {{name}}",
+      "ip": "IP",
+      "device": "Browser",
+      "lastActive": "Last active",
+      "current": "active now",
+      "end": "End",
+      "empty": "No active sessions."
+    },
+    "resetPassword": {
+      "title": "Reset password of {{name}}",
+      "description": "Their sessions are ended. Share the new password privately.",
+      "newPassword": "New password",
+      "generate": "Generate",
+      "submit": "Reset password"
+    },
+    "limitDialog": {
+      "useDefault": "Use the global default ({{value}})",
+      "override": "Custom value",
+      "save": "Save limit"
+    },
+    "servers": {
+      "server": "Server",
+      "owner": "Owner",
+      "members": "Members",
+      "rooms": "Rooms",
+      "editLimits": "Adjust limits",
+      "delete": "Delete server",
+      "viewMembers": "View members",
+      "membersTitle": "Members of {{name}}",
+      "role": "Role",
+      "joinedVia": "How they joined"
+    },
+    "limits": {
+      "description": "Defaults used when a user or server has no custom value. Changes apply without redeploy.",
+      "serversPerUser": "Servers per user",
+      "membersPerServer": "Members per server",
+      "roomsPerServer": "Rooms per server",
+      "saved": "Limits saved.",
+      "errors": {
+        "atLeastOne": "Use a whole number, 1 or more.",
+        "atLeastZero": "Use a whole number, 0 or more."
+      }
+    },
+    "keys": {
+      "generate": "Generate key",
+      "validity": "Valid for",
+      "newKeyTitle": "New sign-up key",
+      "newKeyDescription": "Copy it now. Only a hash is stored, so it can't be shown again.",
+      "key": "Key",
+      "created": "Created",
+      "expires": "Expires",
+      "status": "Status",
+      "statuses": {
+        "active": "Active",
+        "used": "Used by {{name}}",
+        "revoked": "Revoked",
+        "expired": "Expired"
+      },
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke this key?",
+      "revokeDescription": "Nobody will be able to sign up with it."
+    },
+    "hardware": {
+      "devices": "Devices",
+      "minCores": "Fewest cores",
+      "minMemory": "Least memory",
+      "acceleration": "With graphics acceleration",
+      "h264": "H.264 hardware encoding",
+      "device": "Device",
+      "user": "User",
+      "lastSeen": "Last seen",
+      "deviceTitle": "Hardware of {{name}}",
+      "noDevices": "No device reported yet."
+    }
+  },
+  "hardware": {
+    "title": "Hardware",
+    "description": "What this device reports to the browser. It is sent to the platform admin to understand where Gameplay runs.",
+    "lastSent": "Sent {{date}}",
+    "refresh": "Collect again",
+    "groups": {
+      "system": "System",
+      "cpu": "Processor",
+      "memory": "Memory",
+      "gpu": "Graphics",
+      "encoding": "Video encoding (screen share)",
+      "displays": "Displays",
+      "network": "Network",
+      "internet": "Internet plan"
+    },
+    "os": "Operating system",
+    "architecture": "Architecture",
+    "browser": "Browser",
+    "cores": "Logical cores",
+    "memoryApprox": "≈ {{value}} GB",
+    "memoryHint": "Rounded by the browser, with a ceiling.",
+    "gpu": "GPU",
+    "acceleration": "Hardware acceleration",
+    "accelerationOn": "On",
+    "accelerationOff": "Off (software rendering)",
+    "accelerationOffHint": "Turn on \"Use graphics acceleration\" in Chrome settings for smoother screen share.",
+    "webgpu": "WebGPU",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "encoder": {
+      "hardware": "Hardware",
+      "software": "Software",
+      "unsupported": "Not supported"
+    },
+    "displayItem": "{{width}}×{{height}} · {{scale}}x",
+    "primary": "primary",
+    "displaysPermission": "Allow Gameplay to see all your monitors (resolution and scale).",
+    "displaysDenied": "Monitor access was blocked. Only the current screen is shown.",
+    "allow": "Allow",
+    "networkValue": "{{type}} · ≈ {{downlink}} Mbps · {{rtt}} ms",
+    "unknown": "Not reported",
+    "limits": "The browser doesn't expose CPU model, exact RAM, GPU memory, disk or motherboard.",
+    "banner": {
+      "title": "Help us understand your setup",
+      "description": "Allow Gameplay to see your monitors. The rest of the hardware info is collected without prompts.",
+      "notNow": "Not now"
+    },
+    "userProvided": "informed by user",
+    "manual": {
+      "title": "Complete manually",
+      "description": "Fill in what the browser can't see. It makes the data more reliable for everyone.",
+      "cpuModel": "Processor model",
+      "cpuModelPlaceholder": "e.g. AMD Ryzen 7 5800X",
+      "ramGb": "RAM (GB)",
+      "gpuModel": "Graphics card",
+      "gpuModelPlaceholder": "e.g. NVIDIA RTX 3070",
+      "vramGb": "VRAM (GB)",
+      "connection": "Connection",
+      "connections": {
+        "ethernet": "Cable (Ethernet)",
+        "wifi": "Wi-Fi",
+        "mobile": "Mobile data"
+      },
+      "downloadMbps": "Download (Mbps)",
+      "uploadMbps": "Upload (Mbps)",
+      "uploadHint": "Upload matters most for screen share: each viewer receives a separate copy.",
+      "save": "Save",
+      "saved": "Saved",
+      "errors": {
+        "positiveNumber": "Enter a number greater than zero."
+      }
+    },
+    "vram": "Graphics memory",
+    "connectionType": "Connection",
+    "plan": "Plan",
+    "planValue": "↓ {{download}} Mbps · ↑ {{upload}} Mbps"
+  },
+  "browserSupport": {
+    "unsupportedTitle": "{{browser}} isn't fully supported",
+    "unsupportedDescription": "Voice and screen share are built and tested for Chromium browsers. Some features may fail or perform worse here.",
+    "outdatedTitle": "Your {{browser}} is out of date",
+    "outdatedDescription": "You're on version {{version}}. Gameplay needs {{min}} or newer for stable voice and screen share.",
+    "howToUpdate": "Open the browser menu › Help › About to update, then restart it.",
+    "recommended": "Recommended browsers",
+    "continueAnyway": "Continue anyway"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "clearAll": "Clear all",
+    "dismiss": "Dismiss",
+    "empty": "You're all caught up.",
+    "vpn": {
+      "title": "Looks like you're using a VPN or proxy",
+      "description": "Voice and screen share may have more delay and use the relay server. Turn it off while you play, if you can."
+    },
+    "accelerationOff": {
+      "title": "Graphics acceleration is off",
+      "description": "Screen share will use your CPU and may drop quality. Turn on \"Use graphics acceleration\" in the browser settings."
+    },
+    "monitors": {
+      "title": "Allow monitor detection",
+      "description": "Lets Gameplay see your monitors to understand your setup."
+    },
+    "joinApproved": {
+      "title": "Welcome to {{server}}",
+      "description": "Your request to join was approved."
+    },
+    "requestSent": {
+      "title": "Request sent to {{server}}",
+      "description": "Wait for an owner or admin to approve it."
+    },
+    "kicked": {
+      "title": "Removed from {{server}}"
+    },
+    "serverDeleted": {
+      "title": "{{server}} was deleted"
+    },
+    "promoted": {
+      "title": "You are now an admin of {{server}}"
+    },
+    "demoted": {
+      "title": "You are no longer an admin of {{server}}"
+    },
+    "open": "Open"
   }
 }

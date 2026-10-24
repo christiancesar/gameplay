@@ -33,12 +33,19 @@
 1. Usuário informa email **ou** username e senha. Sem login social, sem "esqueci minha senha".
 2. Credenciais inválidas: mensagem genérica no formulário, sem dizer qual campo errou.
 3. Conta suspensa: mensagem informando que a conta está suspensa.
-4. Conta de admin da plataforma: após a senha, pede o código de 6 dígitos do app autenticador (ou um código de recuperação).
+4. Conta de admin da plataforma: após a senha, pede o código de 6 dígitos do app autenticador (ou um código de recuperação). Cada etapa muda a URL na mesma rota, e o voltar do navegador retorna à etapa anterior *(decidido em 2026-10-24)*:
+   - `/sign-in`: email ou username e senha
+   - `/sign-in?step=two-factor`: código do app autenticador
+   - `/sign-in?step=recovery-code`: código de recuperação
+   - Abrir uma etapa de 2FA sem login pendente válido (link direto, refresh depois de expirar) volta para `/sign-in` com `replace`. A URL leva só `step`, nunca email ou username.
 5. Sucesso: vai para o Hub. Se chegou por link de servidor, segue para o F3.
+6. Browser não Chromium ou desatualizado: alerta acima do formulário com os navegadores recomendados ou como atualizar; dá para continuar mesmo assim.
 
 ## F2 · SignUp
 
 **Gatilho:** "Sign up" no SignIn, ou link de servidor aberto sem conta (F3).
+
+Página própria em `/sign-up`, separada do SignIn. Os links "Sign up" e "Sign in" navegam entre as duas páginas *(decidido em 2026-10-24)*.
 
 ```
    ┌──────────────────────────────┐
@@ -64,7 +71,7 @@
 1. **Sem conta:** a tela mostra "Você foi convidado para *Turbex*" e leva ao SignUp. Quem convidou envia o link junto com uma key de cadastro (a key é gerada só pelo admin da plataforma).
 2. **Com conta e sem sessão:** leva ao SignIn e depois retoma o convite.
 3. **Com sessão:** confirma "Entrar em *Turbex*?".
-4. Link expirado, sem usos restantes ou servidor cheio: mensagem clara e volta ao Hub.
+4. Link expirado, já usado, revogado ou servidor cheio: mensagem clara e volta ao Hub.
 5. Já é membro: abre o servidor direto.
 6. Servidor com auto aprovação ligada (e com vaga): entra e abre a tela do servidor.
 7. Sem auto aprovação: cria o pedido de entrada, volta ao Hub e mostra o toast "Pedido enviado, aguarde a aprovação". Não há lista de pedidos pendentes; o servidor aparece no Hub quando for aprovado.
@@ -93,11 +100,12 @@
      └─────────────────────────────────────┘
 ```
 
-1. No topo: logo, card do perfil e os ícones de painel admin (só para o admin da plataforma), configurações, tema e idioma.
+1. No topo: logo, card do perfil e os ícones de painel admin (só para o admin da plataforma), configurações, tema e idioma. O card do perfil tem um atalho para **sair da conta** (ícone à direita), que sempre pede confirmação. Na tela do servidor não há atalho: sair fica no Hub e nas Configurações (F11) *(decidido em 2026-10-24)*.
 2. Os servidores dos quais o usuário é membro aparecem como **blocos** (ícone e nome) à esquerda do card "Create your server". Clicar abre a tela do servidor (F6).
 3. "Create your server" abre o F5. Com o limite de servidores atingido, o card fica desabilitado com "Limite atingido".
 4. "Or join a server": campo para o código de 8 caracteres (colar o link inteiro também funciona) e botão Join. Segue o F3.
 5. Primeiro acesso, sem servidores: só o card de criar e o campo de entrar.
+6. **Notificações:** painel à direita em telas grandes, separado por um divisor vertical (nas pequenas, abaixo de "Entrar em um servidor") com alertas e avisos: browser sem suporte ou desatualizado, VPN/proxy detectado, aceleração gráfica desligada, pedido de permissão dos monitores, pedido enviado ou aprovado (com botão para abrir o servidor), removido de um servidor, servidor excluído, promovido ou rebaixado. Cada uma pode ser dispensada, ou todas de uma vez.
 
 ## F5 · Criar servidor
 
@@ -132,25 +140,28 @@
  └───────────┴──────────────────────────────────────┘
 ```
 
-1. O painel lateral mostra **só o servidor atual**: logo (volta ao Hub), card do servidor (nome e owner), salas e, abaixo de cada sala, os avatares de quem está nela.
-2. **Clicar numa sala já entra nela** (F8).
-3. Card do usuário, embaixo:
+1. O painel lateral segue o padrão de sidebar do shadcn e mostra **só o servidor atual**: logo do Gameplay, seletor de servidor, grupo "Salas" e, abaixo de cada sala, quem está nela (com contador).
+2. **Logo:** volta ao Hub **sem desconectar** da sala. Ao lado dele fica o botão de recolher e expandir a sidebar (também pela borda da sidebar ou Ctrl/Cmd + B). Recolhida, vira uma coluna de ícones com tooltips, dando mais espaço à transmissão; o painel de transmissão e a lista de participantes ficam ocultos.
+3. **Seletor de servidor:** ícone, nome e papel (Owner, Admin, Member). Abre uma lista com busca dos servidores do usuário.
+   - **Uma conexão por vez:** escolher outro servidor estando numa sala mostra um aviso de que a voz e as transmissões serão encerradas. Continuar desconecta e abre o outro servidor; cancelar mantém o usuário onde está. Fora de sala, troca direto. A mesma regra vale ao abrir outro servidor pelo Hub enquanto conectado.
+   - **Owner e admin:** "Configurações do servidor" abre o modal (F7). O contador de pedidos pendentes aparece no seletor e no item (um ponto vermelho com a sidebar recolhida).
+   - **Member:** "Sair do servidor", com confirmação. Ao sair, volta ao Hub.
+4. **Clicar numa sala já entra nela** (F8).
+5. Rodapé do usuário:
    - Painel de transmissão (F9), visível enquanto está numa sala.
-   - Linha com avatar, nome e email.
-   - **Owner e admin:** engrenagem que abre o modal do servidor (F7). Um indicador na engrenagem mostra quantos pedidos de entrada estão pendentes.
-   - **Member:** ícone de sair do servidor, com confirmação. Ao sair, volta ao Hub.
    - Enquanto está numa sala: **mute**, **deafen** e o **telefone vermelho** para sair da sala.
-4. Configurações pessoais (perfil, áudio, tema, idioma) ficam no Hub (F11).
-5. O **cover** e a descrição do servidor ainda não têm lugar definido na tela (decisão pendente do usuário).
+   - Linha com avatar, nome e email; clicar nela abre as **configurações do usuário** (F11).
+6. As configurações pessoais (F11) abrem pela linha do usuário e também pelo Hub.
+7. O **cover** e a descrição do servidor ainda não têm lugar definido na tela (decisão pendente do usuário).
 
 ## F7 · Modal do servidor (owner e admin)
 
-**Gatilho:** engrenagem no card do usuário. Modal com sidebar de seções. Visual a desenhar no Storybook.
+**Gatilho:** "Configurações do servidor" no seletor de servidor do painel lateral (owner e admin). Modal com sidebar de seções. Visual a desenhar no Storybook.
 
-1. **Geral:** nome, ícone, cover, descrição e auto aprovação.
-2. **Convites:** gerar código/link com máximo de usos e validade, copiar, ver usos restantes e validade, revogar. No limite de membros, gerar fica bloqueado com o motivo.
-3. **Pedidos:** aprovar ou recusar. No limite de membros, aprovar fica bloqueado com o motivo.
-4. **Membros:** lista com papel. Ações por membro: promover a admin, rebaixar a member, kick (com confirmação). O owner aparece sem ações.
+1. **Geral:** nome, ícone, cover e descrição.
+2. **Convites:** toggle de **auto aprovação** no topo (aprovar novos membros automaticamente enquanto houver vaga). Botão de gerar convite: cada convite vale para **uma pessoa** e **expira em 1 hora**, sem opções. Lista de ativos (copiar link, revogar) e histórico (usado por quem e quando, expirado sem uso, revogado), sempre com quem criou. No limite de membros, gerar fica bloqueado com o motivo.
+3. **Pedidos:** aprovar ou recusar. Com a auto aprovação ligada, um aviso explica que pedidos só esperam aqui quando o servidor está cheio. No limite de membros, aprovar fica bloqueado com o motivo.
+4. **Membros:** lista com papel e como cada um entrou (convite, quem convidou e quando; o owner aparece como quem criou o servidor). Ações por membro: promover a admin, rebaixar a member, kick (com confirmação). O owner aparece sem ações.
 5. **Salas:** criar, renomear e excluir. No limite de salas, criar fica bloqueado com o motivo. Excluir uma sala com gente dentro pede confirmação e desconecta quem estiver nela.
 6. **Sair ou excluir:**
    - Admin: "Sair do servidor", com confirmação.
@@ -169,13 +180,22 @@
 
 ## F9 · Compartilhar tela
 
-**Gatilho:** painel de transmissão no card do usuário, enquanto está numa sala. Visual a desenhar no Storybook.
+**Gatilho:** painel de transmissão no card do usuário, enquanto está numa sala. Visual desenhado no Storybook (`ScreenShare/*`).
 
-1. **Parado:** o painel é um botão grande de compartilhar tela.
-2. Ao clicar: escolha da qualidade (720p30, 720p60, 1080p30 ou 1080p60) e opção de incluir áudio.
-3. Abre o seletor nativo do browser para escolher a tela, janela ou aba. Cancelar no seletor volta ao estado parado.
-4. **Transmitindo:** o painel vira um monitor com taxa de envio, banda, fps e resolução reais, número de espectadores e o botão de parar. A sala mostra para todos que a pessoa está "ao vivo".
-5. Se o upload não aguentar a qualidade, o monitor mostra um aviso sugerindo um preset menor.
+1. **Parado:** o painel é um botão verde grande de compartilhar tela.
+2. Ao clicar, abre o **modal de compartilhamento**:
+   - **O que compartilhar:** tela inteira, janela ou jogo, ou aba do navegador. O app não consegue listar as telas, janelas e jogos abertos (limitação do browser). Essa escolha vira a dica `displaySurface`, e o seletor nativo do Chrome abre já na aba certa.
+   - Dica para jogos: tela cheia exclusiva pode sair preta; usar modo janela sem bordas.
+   - **Resolução** (720p ou 1080p) e **FPS** (30 ou 60), formando os 4 presets.
+   - **Áudio**, com aviso de suporte: aba em qualquer SO, tela inteira só no Windows, janela não tem áudio.
+   - "Usar estas configurações da próxima vez": o modal abre com o padrão salvo do usuário.
+3. "Escolher e compartilhar" abre o seletor nativo do browser para escolher a tela, janela ou aba exata. Cancelar no seletor volta ao estado parado.
+4. **Transmitindo:** o painel vira um monitor com:
+   - **Alvo** (o que a pessoa escolheu) e **Entregando** (a pior qualidade real entre os espectadores), com barras de resolução e FPS em relação ao alvo, e a taxa de envio.
+   - Quando está abaixo do alvo, o **motivo**: rede ou computador (vem do `qualityLimitationReason` do WebRTC), com sugestão (baixar para 720p ou 30 fps, fechar downloads ou apps pesados).
+   - Número de espectadores, botão **Detalhes** e botão **Parar**.
+   - Sem espectadores, nada é enviado, então não há qualidade para medir.
+5. **Detalhes:** tabela por espectador (resolução, FPS, envio e status), porque em mesh cada espectador recebe uma cópia codificada separadamente e a qualidade pode variar entre eles.
 6. Parar: pelo botão do painel ou pelo "parar compartilhamento" do browser. Sair da sala também encerra a transmissão.
 
 ## F10 · Assistir tela
@@ -195,17 +215,19 @@
 1. **Perfil:** avatar (trocar ou remover) e dados da conta.
 2. **Áudio:** escolher microfone e saída, com teste de microfone (barra de nível).
 3. **Aparência:** tema e idioma.
-4. **Sair** da conta.
+4. **Hardware:** o que este dispositivo informou, um formulário para complementar manualmente (processador, RAM, placa de vídeo, VRAM, conexão, plano de internet) (sistema, CPU, memória, GPU e aceleração, codificação de vídeo, monitores, rede), quando foi enviado, botão para coletar de novo e o pedido de permissão dos monitores.
+5. **Sair** da conta, com a mesma confirmação do atalho no Hub *(decidido em 2026-10-24)*.
 
 ## F12 · Painel admin da plataforma
 
 **Gatilho:** ícone de escudo no Hub, só para o admin da plataforma. Visual a desenhar no Storybook.
 
 1. Primeiro login do admin: obriga a configurar o app autenticador (QR code) e mostra os códigos de recuperação.
-2. **Usuários:** lista com online/offline, sessões com IP e navegador. Ações: suspender ou reativar, encerrar sessões, redefinir senha, ajustar limite de servidores.
-3. **Servidores:** lista com owner, membros e salas. Ações: ajustar limites de membros e salas, excluir servidor (com confirmação).
-4. **Limites globais:** editar os padrões (1 servidor, 10 membros, 2 salas).
-5. **Keys de cadastro:** gerar com validade, copiar, ver quem usou, revogar.
+2. **Usuários:** lista com online/offline, sessões com IP e navegador. Ações: ver sessões, ver hardware dos dispositivos, suspender ou reativar, encerrar sessões, redefinir senha, ajustar limite de servidores.
+3. **Servidores:** lista com owner, membros e salas. Ações: ver membros (com o convite e quem convidou cada um), ajustar limites de membros e salas, excluir servidor (com confirmação).
+4. **Hardware:** resumo da base (dispositivos, menos núcleos, menos memória, % com aceleração gráfica, % com H.264 por hardware) e tabela de dispositivos; clicar abre o detalhe.
+5. **Limites globais:** editar os padrões (1 servidor, 10 membros, 2 salas).
+6. **Keys de cadastro:** gerar com validade, copiar, ver quem usou, revogar.
 
 ## F13 · Desconexões e remoções
 

@@ -1,0 +1,143 @@
+import { cn } from 'cn'
+import {
+  ChartNoAxesColumnIcon,
+  Loader2Icon,
+  MonitorUpIcon,
+  SquareIcon,
+  TriangleAlertIcon,
+  UsersIcon,
+} from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+
+import { Button } from '@/shared/ui/button'
+import { formatKbps } from '@/shared/ui/format-kbps'
+
+import type { ShareFps, ShareResolution, ShareSource } from './share-setup-dialog.view'
+import { ShareMeter } from './share-meter.view'
+
+type StreamQuality = { width: number; height: number; fps: number; kbps: number }
+
+/** Vem do `qualityLimitationReason` das estatísticas do WebRTC. */
+type QualityLimitation = 'none' | 'bandwidth' | 'cpu' | 'other'
+
+type SharePanelState =
+  | { status: 'idle' }
+  | { status: 'picking' }
+  | {
+      status: 'live'
+      source: ShareSource
+      target: { resolution: ShareResolution; fps: ShareFps }
+      /** Pior qualidade entre os espectadores; ausente enquanto ninguém assiste. */
+      delivering?: StreamQuality
+      isOnTarget: boolean
+      limitation: QualityLimitation
+      viewerCount: number
+    }
+
+type SharePanelViewProps = {
+  state: SharePanelState
+  onStart: () => void
+  onStop: () => void
+  onOpenDetails: () => void
+}
+
+const TARGET_HEIGHT = { '720p': 720, '1080p': 1080 } as const
+
+function SharePanelView({ state, onStart, onStop, onOpenDetails }: SharePanelViewProps) {
+  const { t } = useTranslation()
+
+  if (state.status === 'idle') {
+    return (
+      <Button variant="success" className="h-14 w-full" onClick={onStart} aria-label={t('share.start')}>
+        <MonitorUpIcon className="size-5" aria-hidden />
+      </Button>
+    )
+  }
+
+  if (state.status === 'picking') {
+    return (
+      <div className="bg-muted text-muted-foreground flex items-center gap-2 rounded-md p-3 text-xs" role="status">
+        <Loader2Icon className="size-4 shrink-0 animate-spin" aria-hidden />
+        {t('share.waitingPicker')}
+      </div>
+    )
+  }
+
+  const { source, target, delivering, isOnTarget, limitation, viewerCount } = state
+  const below = Boolean(delivering) && !isOnTarget
+  const targetHeight = TARGET_HEIGHT[target.resolution]
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-3 rounded-md border p-3',
+        below ? 'border-amber-500/60' : 'border-emerald-600/60',
+      )}
+    >
+      <div className="flex items-center justify-between text-xs">
+        <span className="flex items-center gap-1.5 font-semibold text-red-500">
+          <span className="size-2 animate-pulse rounded-full bg-red-500" aria-hidden />
+          {t('share.live')}
+          <span className="text-muted-foreground font-normal">· {t(`share.setup.sources.${source}.label`)}</span>
+        </span>
+        <span className="text-muted-foreground flex items-center gap-1">
+          <UsersIcon className="size-3.5" aria-hidden />
+          {t('share.viewers', { count: viewerCount })}
+        </span>
+      </div>
+
+      <dl className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 text-xs">
+        <dt className="text-muted-foreground">{t('share.monitor.target')}</dt>
+        <dd className="text-right font-mono tabular-nums">
+          {target.resolution} · {target.fps} fps
+        </dd>
+        <dt className="text-muted-foreground">{t('share.monitor.delivering')}</dt>
+        <dd
+          className={cn(
+            'text-right font-mono tabular-nums',
+            below ? 'text-amber-500' : delivering && 'text-emerald-500',
+          )}
+        >
+          {delivering ? `${delivering.height}p · ${Math.round(delivering.fps)} fps` : '–'}
+        </dd>
+      </dl>
+
+      {delivering ? (
+        <div className="flex flex-col gap-1.5">
+          <ShareMeter label={t('share.setup.resolution')} value={delivering.height / targetHeight} />
+          <ShareMeter label="FPS" value={delivering.fps / target.fps} />
+          <p className="grid grid-cols-[4.5rem_1fr] gap-2 text-[11px]">
+            <span className="text-muted-foreground">{t('share.stats.upload')}</span>
+            <span className="text-right font-mono tabular-nums">{formatKbps(delivering.kbps)}</span>
+          </p>
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-[11px] leading-snug">{t('share.monitor.noViewers')}</p>
+      )}
+
+      {below && limitation !== 'none' && (
+        <p role="alert" className="flex items-start gap-1.5 text-[11px] leading-snug text-amber-500">
+          <TriangleAlertIcon className="mt-px size-3.5 shrink-0" aria-hidden />
+          <span>
+            <span className="font-medium">{t(`share.monitor.limitedBy.${limitation}`)}.</span>{' '}
+            {limitation !== 'other' && t(`share.monitor.tips.${limitation}`)}
+          </span>
+        </p>
+      )}
+
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" className="flex-1" onClick={onOpenDetails} disabled={viewerCount === 0}>
+          <ChartNoAxesColumnIcon data-icon="inline-start" aria-hidden />
+          {t('share.monitor.details')}
+        </Button>
+        <Button variant="danger" size="sm" className="flex-1" onClick={onStop} aria-label={t('share.stop')}>
+          <SquareIcon data-icon="inline-start" aria-hidden />
+          {t('share.stopShort')}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+export { SharePanelView }
+export type { QualityLimitation, SharePanelState, SharePanelViewProps, StreamQuality }
