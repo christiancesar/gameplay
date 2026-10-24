@@ -11,7 +11,9 @@ export default defineConfig({
     fileParallelism: false,
     env: {
       NODE_ENV: 'test',
-      LOG_LEVEL: 'silent',
+      LOG_LEVEL: process.env.E2E_LOG_LEVEL ?? 'silent',
+      BETTER_AUTH_SECRET: 'e2e-secret-e2e-secret-e2e-secret-e2e',
+      BETTER_AUTH_URL: 'http://localhost:3333',
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test',
     },
   },

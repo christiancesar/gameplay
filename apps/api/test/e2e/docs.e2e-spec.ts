@@ -47,6 +47,13 @@ describe('API docs (e2e)', () => {
     expect(JSON.stringify(response.body)).toContain('test:ping')
   })
 
+  it('serves the OpenAPI document of the auth routes', async () => {
+    const response = await request(app.getHttpServer()).get('/api/auth/open-api/generate-schema')
+
+    expect(response.status).toBe(200)
+    expect(Object.keys(response.body.paths)).toContain('/sign-in/username')
+  })
+
   it('serves the Scalar page', async () => {
     const response = await request(app.getHttpServer()).get('/api/docs')
 

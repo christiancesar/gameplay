@@ -28,6 +28,9 @@ services:
       PORT: 3333
       LOG_LEVEL: info
       DATABASE_URL: postgresql://gameplay:gameplay@postgres:5432/gameplay
+      # Local only; production gets its own secret.
+      BETTER_AUTH_SECRET: local-docker-secret-local-docker-secret
+      BETTER_AUTH_URL: http://localhost:3334
     ports:
       - '3334:3333'
     depends_on:

@@ -35,7 +35,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - Grafana Cloud configurado pelo usuário (stack `technologies`, sa-east-1); variáveis OTLP em `apps/api/.env` (gitignored), usadas no BE-16.
 - BE-02 concluído: Postgres 18 no compose, env validado, Prisma 7, logs pino, `/api/health`, base dos e2e e imagem Docker da API (`npm run docker:api`).
 - BE-03 concluído: contrato de erro, validação com zod, docs REST e Socket.IO no Scalar (só fora de produção), throttler e barramento de eventos.
-- Próximo: BE-04 (ou BE-07/BE-16, da mesma onda do BE-03).
+- BE-04 concluído: Better Auth (email ou username, admin, 2FA), guard global, `@PlatformAdmin()`, seed do admin e primeira migration.
+- Próximo: BE-05, BE-06, BE-08 ou BE-14 (onda 5), ou BE-07/BE-16 (onda 3).
 
 ## Assets fornecidos pelo usuário
 

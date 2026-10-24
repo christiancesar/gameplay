@@ -33,6 +33,7 @@ export function setupDocs(app: INestApplication) {
     apiReference({
       sources: [
         { title: 'REST', slug: 'rest', url: '/api/docs/openapi.json' },
+        { title: 'Auth (Better Auth)', slug: 'auth', url: '/api/auth/open-api/generate-schema' },
         { title: 'Socket.IO events', slug: 'events', url: '/api/docs/asyncapi.json' },
       ],
     }),

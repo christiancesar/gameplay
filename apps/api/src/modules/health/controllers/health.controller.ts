@@ -1,6 +1,7 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common'
 import { ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger'
 import { SkipThrottle } from '@nestjs/throttler'
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth'
 import type { Response } from 'express'
 import { ZodResponse } from 'nestjs-zod'
 import { type HealthReport, HealthReportDto } from '../dtos/health-report.dto'
@@ -8,6 +9,7 @@ import { CheckHealthUseCase } from '../use-cases/check-health.use-case'
 
 @ApiTags('health')
 @SkipThrottle()
+@AllowAnonymous()
 @Controller('health')
 export class HealthController {
   constructor(private readonly checkHealth: CheckHealthUseCase) {}

@@ -43,6 +43,16 @@ Os dois usam o mesmo banco de dev. As migrations ainda não rodam dentro do cont
 | `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                           |
 | `db:studio`                                   | abre o Prisma Studio                                                                                                 |
 
+## Autenticação
+
+Better Auth em `/api/auth/*` (cadastro, login por email ou username, sessão, 2FA). Toda rota da API exige sessão, exceto as marcadas com `@AllowAnonymous()`. Rotas do admin da plataforma usam `@PlatformAdmin()` (papel `admin` com 2FA ligado).
+
+Criar o admin da plataforma:
+
+```bash
+ADMIN_EMAIL=... ADMIN_USERNAME=... ADMIN_PASSWORD=... npm run seed:admin
+```
+
 ## Documentação
 
 Com a API em dev: http://localhost:3333/api/docs (Scalar). O seletor no topo troca entre REST (OpenAPI) e os eventos do Socket.IO (AsyncAPI). Desligada em produção; `DOCS_ENABLED=true|false` força.

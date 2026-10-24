@@ -14,7 +14,7 @@ Só se cadastra quem tem uma key, gerada pelo admin da plataforma. A key tem 6 c
   - `RevokeRegistrationInvite`;
   - `ConsumeRegistrationInvite`, que valida, marca como usada e é atômico contra uso duplo.
 - Rotas de admin (`PlatformAdminGuard`): gerar, listar e revogar.
-- Hook `before` do sign-up chamando o `ConsumeRegistrationInvite`. A key normalizada para maiúsculas. Se o sign-up falhar depois, a key não pode ficar queimada (transação, ou consumo no `after` com reserva; decidir no ticket).
+- Hook `before` do sign-up (`src/modules/auth/hooks/sign-up.hook.ts`, criado no BE-04, hoje só valida o formato) chamando o `ConsumeRegistrationInvite`. A key normalizada para maiúsculas. Se o sign-up falhar depois, a key não pode ficar queimada (transação, ou consumo no `after` com reserva; decidir no ticket).
 - Rate limit específico nas tentativas de key.
 - `REGISTRATION_KEY_SECRET` no `EnvService`.
 

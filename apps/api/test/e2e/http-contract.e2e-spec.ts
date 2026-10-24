@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Module, Post } from '@nestjs/common'
 import type { INestApplication } from '@nestjs/common'
 import { usernameSchema } from '@gameplay/shared'
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth'
 import { createZodDto } from 'nestjs-zod'
 import request from 'supertest'
 import { z } from 'zod'
@@ -14,6 +15,7 @@ class NameTakenError extends DomainError {
   override readonly status = HttpStatus.CONFLICT
 }
 
+@AllowAnonymous()
 @Controller('contract-test')
 class ContractTestController {
   @Post()

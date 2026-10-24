@@ -14,7 +14,7 @@ type Options = {
 export async function createTestApp({ imports = [], override }: Options = {}): Promise<INestApplication> {
   const builder = Test.createTestingModule({ imports: [AppModule, ...imports] })
   const moduleRef = await (override ? override(builder) : builder).compile()
-  const app = moduleRef.createNestApplication({ bufferLogs: true })
+  const app = moduleRef.createNestApplication({ bufferLogs: true, bodyParser: false })
   await setupApp(app)
   await app.init()
   return app
