@@ -31,7 +31,9 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - 2026-10-24: scaffold inicial em NestJS 12 (commit 25ff3fb). Na validação do plano, o usuário decidiu **NestJS 11** (o `nestjs-asyncapi` e o `nestjs-zod` não aceitam o 12) e **Postgres + Prisma 7** (o Prisma 6 sai do suporte em 19/11/2026 e o Prisma 8 com Mongo ainda é RC). O scaffold será refeito no BE-01.
 - Outras decisões do mesmo dia: `nestjs-asyncapi` para documentar os eventos, contrato tipado em `packages/shared`, VPN só pelo check do STUN, convite de servidor consumido na criação do pedido.
 - Tech plan em `04-tech-plan.md`; tickets em `tickets/` (índice e grafo em `tickets/README.md`).
-- Próximo passo: o usuário revisa o tech plan e os tickets (as suposições estão marcadas lá) e depois começa pelo BE-01.
+- BE-01 concluído (branch `feature/be-01-nest11-shared`): API em NestJS 11 (CommonJS) e `packages/shared` (`@gameplay/shared`, ESM) consumido pela API e pelo web.
+- Grafana Cloud configurado pelo usuário (stack `technologies`, sa-east-1); variáveis OTLP em `apps/api/.env` (gitignored), usadas no BE-16.
+- Próximo: BE-02.
 
 ## Assets fornecidos pelo usuário
 

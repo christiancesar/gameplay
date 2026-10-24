@@ -12,7 +12,7 @@ Todo DTO nasce de um schema zod do `packages/shared` (`nestjs-zod`). O REST é d
 - `nestjs-asyncapi` com servidor `socket.io`, documento em `/api/docs/events`. Testar se o Scalar renderiza AsyncAPI; se não renderizar, usar o visualizador do próprio `nestjs-asyncapi`.
 - `@nestjs/event-emitter` configurado e o tipo `DomainEvents` em `src/common/events` (lista em `04-tech-plan.md` seção 3), com um helper tipado para publicar e assinar.
 - `@nestjs/throttler` global com limites padrão. Os limites específicos de login e cadastro ficam para o BE-04 e o BE-05.
-- `packages/shared`: estrutura `src/http/` (schemas de DTO) e `src/realtime/` (eventos). Remover o schema de exemplo do BE-01.
+- `packages/shared`: estrutura `src/http/` (schemas de DTO) e `src/realtime/` (eventos). Organizar o `usernameSchema` do BE-01 em `src/http/` ou manter em `src/account/`, conforme a estrutura escolhida.
 
 ## Fora do escopo
 Endpoints de domínio, gateway real (BE-11).
