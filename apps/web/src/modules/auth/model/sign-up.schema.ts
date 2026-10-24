@@ -34,7 +34,11 @@ const signUpSchema = z
       .trim()
       .min(1, message('required'))
       .regex(/^[a-zA-Z0-9._-]{3,32}$/, message('usernameInvalid')),
-    email: z.string().trim().min(1, message('required')).pipe(z.email(message('emailInvalid'))),
+    email: z
+      .string()
+      .trim()
+      .min(1, message('required'))
+      .pipe(z.email(message('emailInvalid'))),
     password: passwordSchema,
     confirmPassword: z.string().min(1, message('required')),
     inviteKey: z

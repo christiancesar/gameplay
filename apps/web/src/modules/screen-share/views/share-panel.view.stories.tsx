@@ -73,7 +73,12 @@ export const OpenDetails: Story = {
             setOpen(true)
           }}
         />
-        <ShareDetailsDialogView open={open} target={{ resolution: '1080p', fps: 60 }} viewers={viewerQualities} onOpenChange={setOpen} />
+        <ShareDetailsDialogView
+          open={open}
+          target={{ resolution: '1080p', fps: 60 }}
+          viewers={viewerQualities}
+          onOpenChange={setOpen}
+        />
       </>
     )
   },

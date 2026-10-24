@@ -11,7 +11,11 @@ import {
   type ManualHardwareField,
   type ManualHardwareInput,
 } from '@/modules/hardware/model/manual-hardware.schema'
-import { DeviceHardwareView, type DeviceHardware, type DisplaysPermission } from '@/modules/hardware/views/device-hardware.view'
+import {
+  DeviceHardwareView,
+  type DeviceHardware,
+  type DisplaysPermission,
+} from '@/modules/hardware/views/device-hardware.view'
 import { Button } from '@/shared/ui/button'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/shared/ui/field'
 import { Input } from '@/shared/ui/input'
@@ -49,10 +53,22 @@ function HardwareSectionView({
   const { t, i18n } = useTranslation()
   const form = useForm<ManualHardwareInput, unknown, ManualHardware>({
     resolver: zodResolver(manualHardwareSchema),
-    defaultValues: { cpuModel: '', ramGb: '', gpuModel: '', vramGb: '', connection: '', downloadMbps: '', uploadMbps: '', ...defaultManual },
+    defaultValues: {
+      cpuModel: '',
+      ramGb: '',
+      gpuModel: '',
+      vramGb: '',
+      connection: '',
+      downloadMbps: '',
+      uploadMbps: '',
+      ...defaultManual,
+    },
   })
 
-  const textField = (name: Exclude<ManualHardwareField, 'connection'>, props: { placeholder?: string; numeric?: boolean } = {}) => {
+  const textField = (
+    name: Exclude<ManualHardwareField, 'connection'>,
+    props: { placeholder?: string; numeric?: boolean } = {},
+  ) => {
     const error = form.formState.errors[name]?.message as ManualHardwareError | undefined
     return (
       <Field data-invalid={Boolean(error)}>
@@ -74,7 +90,11 @@ function HardwareSectionView({
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-sm">{t('hardware.description')}</p>
-          {lastSentAt && <p className="text-muted-foreground text-xs">{t('hardware.lastSent', { date: formatRelativeTime(lastSentAt, i18n.language) })}</p>}
+          {lastSentAt && (
+            <p className="text-muted-foreground text-xs">
+              {t('hardware.lastSent', { date: formatRelativeTime(lastSentAt, i18n.language) })}
+            </p>
+          )}
         </div>
         <Button variant="outline" size="sm" onClick={onRefresh} disabled={isCollecting} aria-busy={isCollecting}>
           <RefreshCwIcon data-icon="inline-start" className={isCollecting ? 'animate-spin' : undefined} aria-hidden />
@@ -82,13 +102,13 @@ function HardwareSectionView({
         </Button>
       </div>
 
-      <DeviceHardwareView hardware={hardware} displaysPermission={displaysPermission} onAllowDisplays={onAllowDisplays} />
+      <DeviceHardwareView
+        hardware={hardware}
+        displaysPermission={displaysPermission}
+        onAllowDisplays={onAllowDisplays}
+      />
 
-      <form
-        noValidate
-        className="flex flex-col gap-4 rounded-md border p-4"
-        onSubmit={form.handleSubmit(onSaveManual)}
-      >
+      <form noValidate className="flex flex-col gap-4 rounded-md border p-4" onSubmit={form.handleSubmit(onSaveManual)}>
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-medium">{t('hardware.manual.title')}</h3>
           <p className="text-muted-foreground text-xs">{t('hardware.manual.description')}</p>

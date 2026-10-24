@@ -1,5 +1,13 @@
 import { cn } from 'cn'
-import { CpuIcon, GaugeIcon, MemoryStickIcon, MonitorIcon, MonitorSmartphoneIcon, VideoIcon, WifiIcon } from 'lucide-react'
+import {
+  CpuIcon,
+  GaugeIcon,
+  MemoryStickIcon,
+  MonitorIcon,
+  MonitorSmartphoneIcon,
+  VideoIcon,
+  WifiIcon,
+} from 'lucide-react'
 import type { ComponentType, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -18,7 +26,14 @@ type DeviceHardware = {
   memoryGb?: number
   gpu: { vendor?: string; renderer?: string; hardwareAcceleration: boolean; webgpu: boolean }
   encoders: readonly { codec: 'H.264' | 'VP9' | 'AV1'; status: EncoderStatus }[]
-  displays: readonly { width: number; height: number; scale: number; refreshRate?: number; isPrimary?: boolean; label?: string }[]
+  displays: readonly {
+    width: number
+    height: number
+    scale: number
+    refreshRate?: number
+    isPrimary?: boolean
+    label?: string
+  }[]
   network?: { type: string; downlinkMbps: number; rttMs: number }
   /** Complemento digitado pelo usuário (o browser não expõe esses dados). */
   userProvided?: UserProvidedHardware
@@ -53,13 +68,19 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
   const { t } = useTranslation()
   const unknown = <span className="text-muted-foreground">{t('hardware.unknown')}</span>
   const { os, browser, cpu, memoryGb, gpu, encoders, displays, network, userProvided: manual = {} } = hardware
-  const informed = <Badge variant="outline" className="ml-1.5 h-4 px-1.5 text-[10px] font-normal">{t('hardware.userProvided')}</Badge>
+  const informed = (
+    <Badge variant="outline" className="ml-1.5 h-4 px-1.5 text-[10px] font-normal">
+      {t('hardware.userProvided')}
+    </Badge>
+  )
 
   return (
     <div className="flex flex-col gap-4">
       <Group icon={MonitorSmartphoneIcon} title={t('hardware.groups.system')}>
         <Row label={t('hardware.os')}>{[os.name, os.version].filter(Boolean).join(' ')}</Row>
-        <Row label={t('hardware.architecture')}>{os.architecture ? [os.architecture, os.bitness && `${os.bitness}-bit`].filter(Boolean).join(' · ') : unknown}</Row>
+        <Row label={t('hardware.architecture')}>
+          {os.architecture ? [os.architecture, os.bitness && `${os.bitness}-bit`].filter(Boolean).join(' · ') : unknown}
+        </Row>
         <Row label={t('hardware.browser')}>
           {browser.name} {browser.version}
         </Row>
@@ -100,7 +121,10 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
             {manual.vramGb} GB{informed}
           </Row>
         )}
-        <Row label={t('hardware.acceleration')} hint={gpu.hardwareAcceleration ? undefined : t('hardware.accelerationOffHint')}>
+        <Row
+          label={t('hardware.acceleration')}
+          hint={gpu.hardwareAcceleration ? undefined : t('hardware.accelerationOffHint')}
+        >
           <span className={gpu.hardwareAcceleration ? 'text-emerald-500' : 'text-amber-500'}>
             {gpu.hardwareAcceleration ? t('hardware.accelerationOn') : t('hardware.accelerationOff')}
           </span>
@@ -134,12 +158,16 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
             </Button>
           </div>
         )}
-        {displaysPermission === 'denied' && <p className="text-muted-foreground text-xs">{t('hardware.displaysDenied')}</p>}
+        {displaysPermission === 'denied' && (
+          <p className="text-muted-foreground text-xs">{t('hardware.displaysDenied')}</p>
+        )}
       </Group>
 
       <Group icon={WifiIcon} title={t('hardware.groups.network')}>
         <Row label={t('hardware.groups.network')}>
-          {network ? t('hardware.networkValue', { type: network.type, downlink: network.downlinkMbps, rtt: network.rttMs }) : unknown}
+          {network
+            ? t('hardware.networkValue', { type: network.type, downlink: network.downlinkMbps, rtt: network.rttMs })
+            : unknown}
         </Row>
         {manual.connection && (
           <Row label={t('hardware.connectionType')}>
@@ -158,7 +186,15 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
   )
 }
 
-function Group({ icon: Icon, title, children }: { icon: ComponentType<{ className?: string }>; title: string; children: ReactNode }) {
+function Group({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: ComponentType<{ className?: string }>
+  title: string
+  children: ReactNode
+}) {
   return (
     <section className="flex flex-col gap-1">
       <h3 className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
@@ -183,4 +219,11 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 }
 
 export { DeviceHardwareView }
-export type { ConnectionType, DeviceHardware, DeviceHardwareViewProps, DisplaysPermission, EncoderStatus, UserProvidedHardware }
+export type {
+  ConnectionType,
+  DeviceHardware,
+  DeviceHardwareViewProps,
+  DisplaysPermission,
+  EncoderStatus,
+  UserProvidedHardware,
+}

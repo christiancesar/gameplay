@@ -43,7 +43,13 @@ const preview: Preview = {
       return (
         <I18nextProvider i18n={i18n}>
           <TooltipProvider>
-            <div className={context.parameters.layout === 'fullscreen' ? 'bg-background text-foreground' : 'bg-background text-foreground min-h-full p-4'}>
+            <div
+              className={
+                context.parameters.layout === 'fullscreen'
+                  ? 'bg-background text-foreground'
+                  : 'bg-background text-foreground min-h-full p-4'
+              }
+            >
               <Story />
             </div>
           </TooltipProvider>

@@ -5,7 +5,15 @@ import { useTranslation } from 'react-i18next'
 
 import { ParticipantStatusView } from '@/modules/rooms/views/participant-status.view'
 import { BrandLogo } from '@/shared/ui/brand-logo'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/shared/ui/command'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/shared/ui/command'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { ServerIcon } from '@/shared/ui/server-icon'
@@ -131,7 +139,10 @@ function ServerSidebarView({
                   <span className="relative shrink-0">
                     <ServerIcon name={server.name} imageUrl={server.iconUrl} className="size-8 rounded-md text-xs" />
                     {canManage && pendingRequests > 0 && (
-                      <span aria-hidden className="ring-sidebar absolute -top-0.5 -right-0.5 hidden size-2.5 rounded-full bg-red-600 ring-2 group-data-[collapsible=icon]:block" />
+                      <span
+                        aria-hidden
+                        className="ring-sidebar absolute -top-0.5 -right-0.5 hidden size-2.5 rounded-full bg-red-600 ring-2 group-data-[collapsible=icon]:block"
+                      />
                     )}
                   </span>
                   <span className="grid min-w-0 flex-1 text-left leading-tight">
@@ -139,7 +150,10 @@ function ServerSidebarView({
                     <span className="text-muted-foreground truncate text-xs">{t(`server.roles.${role}`)}</span>
                   </span>
                   {canManage && pendingRequests > 0 && (
-                    <span aria-hidden className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-semibold text-white tabular-nums">
+                    <span
+                      aria-hidden
+                      className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-semibold text-white tabular-nums"
+                    >
                       {pendingLabel}
                     </span>
                   )}
@@ -238,7 +252,9 @@ function ServerSidebarView({
         <SidebarGroup>
           <SidebarGroupLabel>{t('server.rooms')}</SidebarGroupLabel>
           {rooms.length === 0 ? (
-            <p className="text-muted-foreground px-2 text-sm group-data-[collapsible=icon]:hidden">{t('server.noRooms')}</p>
+            <p className="text-muted-foreground px-2 text-sm group-data-[collapsible=icon]:hidden">
+              {t('server.noRooms')}
+            </p>
           ) : (
             <SidebarMenu>
               {rooms.map((room) => {
@@ -250,17 +266,26 @@ function ServerSidebarView({
                       tooltip={room.name}
                       onClick={() => onSelectRoom(room.id)}
                       aria-current={isCurrent ? 'true' : undefined}
-                      aria-label={isCurrent ? `${room.name}, ${t('server.youAreHere')}` : t('server.joinRoom', { room: room.name })}
+                      aria-label={
+                        isCurrent
+                          ? `${room.name}, ${t('server.youAreHere')}`
+                          : t('server.joinRoom', { room: room.name })
+                      }
                     >
                       <AudioLinesIcon />
                       <span>{room.name}</span>
                     </SidebarMenuButton>
                     {room.participants.length > 0 && (
                       <>
-                        <SidebarMenuBadge className="text-muted-foreground">{room.participants.length}</SidebarMenuBadge>
+                        <SidebarMenuBadge className="text-muted-foreground">
+                          {room.participants.length}
+                        </SidebarMenuBadge>
                         <SidebarMenuSub>
                           {room.participants.map((participant) => (
-                            <SidebarMenuSubItem key={participant.id} className="flex h-8 items-center gap-2 px-2 text-sm">
+                            <SidebarMenuSubItem
+                              key={participant.id}
+                              className="flex h-8 items-center gap-2 px-2 text-sm"
+                            >
                               <UserAvatar
                                 name={participant.name}
                                 imageUrl={participant.avatarUrl}
@@ -268,8 +293,13 @@ function ServerSidebarView({
                                 className={cn('size-5', participant.isSpeaking && 'ring-2 ring-emerald-500')}
                               />
                               <span className="min-w-0 flex-1 truncate">{participant.name}</span>
-                              {participant.isLive && <RadioIcon className="size-3.5 text-red-500" role="img" aria-label={t('share.live')} />}
-                              <ParticipantStatusView isMuted={participant.isMuted} isDeafened={participant.isDeafened} />
+                              {participant.isLive && (
+                                <RadioIcon className="size-3.5 text-red-500" role="img" aria-label={t('share.live')} />
+                              )}
+                              <ParticipantStatusView
+                                isMuted={participant.isMuted}
+                                isDeafened={participant.isDeafened}
+                              />
                             </SidebarMenuSubItem>
                           ))}
                         </SidebarMenuSub>

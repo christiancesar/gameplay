@@ -144,7 +144,9 @@ function SignUpView({
                   {error ? (
                     <FieldError id="sign-up-invite-key-error">{t(`auth.errors.${error}`)}</FieldError>
                   ) : (
-                    <FieldDescription id="sign-up-invite-key-description">{t('auth.signUp.inviteKeyDescription')}</FieldDescription>
+                    <FieldDescription id="sign-up-invite-key-description">
+                      {t('auth.signUp.inviteKeyDescription')}
+                    </FieldDescription>
                   )}
                 </Field>
               )

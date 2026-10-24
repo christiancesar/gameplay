@@ -45,5 +45,7 @@ export const macbook: DeviceHardware = {
     { codec: 'VP9', status: 'software' },
     { codec: 'AV1', status: 'unsupported' },
   ],
-  displays: [{ label: 'Built-in Retina Display', width: 1512, height: 982, scale: 2, refreshRate: 120, isPrimary: true }],
+  displays: [
+    { label: 'Built-in Retina Display', width: 1512, height: 982, scale: 2, refreshRate: 120, isPrimary: true },
+  ],
 }

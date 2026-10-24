@@ -15,7 +15,10 @@ type SectionLabelProps = {
 function SectionLabel({ icon: Icon, children, count, action, id, className }: SectionLabelProps) {
   return (
     <header className={cn('flex min-h-6 w-full items-center justify-between gap-2 px-1', className)}>
-      <h2 id={id} className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
+      <h2
+        id={id}
+        className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase"
+      >
         <Icon className="size-3.5" aria-hidden />
         {children}
         {count !== undefined && count > 0 && (

@@ -35,7 +35,9 @@ export const ConfirmJoin: Story = { args: { state: { status: 'confirm', server, 
 
 export const Joining: Story = { args: { state: { status: 'confirm', server, isJoining: true } } }
 
-export const NoServerIcon: Story = { args: { state: { status: 'confirm', server: { ...server, iconUrl: undefined }, isJoining: false } } }
+export const NoServerIcon: Story = {
+  args: { state: { status: 'confirm', server: { ...server, iconUrl: undefined }, isJoining: false } },
+}
 
 export const Expired: Story = { args: { state: { status: 'error', error: 'expired' } } }
 export const AlreadyUsed: Story = { args: { state: { status: 'error', error: 'exhausted' } } }

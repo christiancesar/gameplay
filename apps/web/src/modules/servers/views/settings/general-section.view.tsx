@@ -51,11 +51,7 @@ function GeneralSectionView({
   const name = useWatch({ control: form.control, name: 'name' })
 
   return (
-    <form
-      noValidate
-      className="flex flex-col gap-6"
-      onSubmit={form.handleSubmit(onSave)}
-    >
+    <form noValidate className="flex flex-col gap-6" onSubmit={form.handleSubmit(onSave)}>
       <FieldGroup>
         <Field>
           <FieldLabel>{t('serverSettings.general.icon')}</FieldLabel>

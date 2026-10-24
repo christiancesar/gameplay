@@ -1,5 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronRightIcon, LayoutGridIcon, Loader2Icon, SettingsIcon, ShieldUserIcon, TicketIcon, UserIcon } from 'lucide-react'
+import {
+  ChevronRightIcon,
+  LayoutGridIcon,
+  Loader2Icon,
+  SettingsIcon,
+  ShieldUserIcon,
+  TicketIcon,
+  UserIcon,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -113,7 +121,9 @@ function HubView({
               </div>
             </div>
             <div className="flex items-center justify-center gap-1">
-              {isPlatformAdmin && <IconButton label={t('common.adminPanel')} icon={<ShieldUserIcon />} onClick={onOpenAdmin} />}
+              {isPlatformAdmin && (
+                <IconButton label={t('common.adminPanel')} icon={<ShieldUserIcon />} onClick={onOpenAdmin} />
+              )}
               <IconButton label={t('common.settings')} icon={<SettingsIcon />} onClick={onOpenSettings} />
               <ThemeToggle
                 theme={theme}
@@ -149,7 +159,11 @@ function HubView({
                           onClick={() => onOpenServer(server.id)}
                           className="bg-card text-card-foreground hover:bg-accent focus-visible:ring-ring/50 flex size-20 flex-col items-center justify-center gap-1.5 rounded-md border px-1 text-xs font-medium outline-none focus-visible:ring-3"
                         >
-                          <ServerIcon name={server.name} imageUrl={server.iconUrl} className="size-9 rounded-md text-xs" />
+                          <ServerIcon
+                            name={server.name}
+                            imageUrl={server.iconUrl}
+                            className="size-9 rounded-md text-xs"
+                          />
                           <span className="w-full truncate text-center">{server.name}</span>
                         </button>
                       </li>
@@ -173,7 +187,9 @@ function HubView({
                     <ChevronRightIcon className="size-4" />
                   </span>
                 ) : (
-                  <span className="bg-muted shrink-0 rounded-sm px-2 py-0.5 text-[11px]">{t('hub.createServerLimit')}</span>
+                  <span className="bg-muted shrink-0 rounded-sm px-2 py-0.5 text-[11px]">
+                    {t('hub.createServerLimit')}
+                  </span>
                 )}
               </button>
             </div>
@@ -216,7 +232,11 @@ function JoinByCodeForm({ defaultCode = '', isJoining, joinError, onJoin }: Join
   const error = form.formState.errors.code?.message as InviteCodeError | HubJoinError | undefined
 
   return (
-    <form noValidate className="flex w-full flex-col gap-2" onSubmit={form.handleSubmit((values) => onJoin(values.code))}>
+    <form
+      noValidate
+      className="flex w-full flex-col gap-2"
+      onSubmit={form.handleSubmit((values) => onJoin(values.code))}
+    >
       <div className="flex gap-2">
         <Input
           {...form.register('code')}

@@ -12,7 +12,13 @@ type ProfileSectionViewProps = {
   onRemoveAvatar: () => void
 }
 
-function ProfileSectionView({ user, isUploadingAvatar, avatarError, onSelectAvatar, onRemoveAvatar }: ProfileSectionViewProps) {
+function ProfileSectionView({
+  user,
+  isUploadingAvatar,
+  avatarError,
+  onSelectAvatar,
+  onRemoveAvatar,
+}: ProfileSectionViewProps) {
   const { t } = useTranslation()
 
   return (

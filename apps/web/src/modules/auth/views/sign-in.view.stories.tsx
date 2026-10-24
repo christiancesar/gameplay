@@ -79,7 +79,10 @@ export const SubmitCredentials: Story = {
     await userEvent.type(canvas.getByLabelText(/^password$/i), 'hunter22')
     await userEvent.click(canvas.getByRole('button', { name: /login/i }))
 
-    await expect(args.onSubmitCredentials).toHaveBeenCalledWith({ identifier: 'shinigame', password: 'hunter22' }, expect.anything())
+    await expect(args.onSubmitCredentials).toHaveBeenCalledWith(
+      { identifier: 'shinigame', password: 'hunter22' },
+      expect.anything(),
+    )
   },
 }
 
@@ -124,7 +127,14 @@ export const TypeTwoFactorCode: Story = {
 
 /** Entrou com um browser que não é Chromium. */
 export const UnsupportedBrowser: Story = {
-  args: { notice: <BrowserSupportAlertView status={{ type: 'unsupported', browser: { name: 'Firefox', version: '144' } }} onDismiss={fn()} /> },
+  args: {
+    notice: (
+      <BrowserSupportAlertView
+        status={{ type: 'unsupported', browser: { name: 'Firefox', version: '144' } }}
+        onDismiss={fn()}
+      />
+    ),
+  },
 }
 
 export const Portuguese: Story = {

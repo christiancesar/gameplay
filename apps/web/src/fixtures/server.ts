@@ -98,7 +98,22 @@ export const liveNoViewers: SharePanelState = {
 }
 
 export const viewerQualities: ViewerQuality[] = [
-  { ...people.jacutinga, quality: { width: 1920, height: 1080, fps: 59.8, kbps: 8600 }, isOnTarget: true, limitation: 'none' },
-  { ...people.kisnaider, quality: { width: 1280, height: 720, fps: 48, kbps: 3100 }, isOnTarget: false, limitation: 'bandwidth' },
-  { ...people.marreta, quality: { width: 1280, height: 720, fps: 42, kbps: 2100 }, isOnTarget: false, limitation: 'bandwidth' },
+  {
+    ...people.jacutinga,
+    quality: { width: 1920, height: 1080, fps: 59.8, kbps: 8600 },
+    isOnTarget: true,
+    limitation: 'none',
+  },
+  {
+    ...people.kisnaider,
+    quality: { width: 1280, height: 720, fps: 48, kbps: 3100 },
+    isOnTarget: false,
+    limitation: 'bandwidth',
+  },
+  {
+    ...people.marreta,
+    quality: { width: 1280, height: 720, fps: 42, kbps: 2100 },
+    isOnTarget: false,
+    limitation: 'bandwidth',
+  },
 ]

@@ -4,7 +4,12 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { TOTP_LENGTH, totpCodeSchema, type TwoFactorCodeError, type TwoFactorCodeValues } from '@/modules/auth/model/two-factor.schema'
+import {
+  TOTP_LENGTH,
+  totpCodeSchema,
+  type TwoFactorCodeError,
+  type TwoFactorCodeValues,
+} from '@/modules/auth/model/two-factor.schema'
 
 import { BrandLogo } from '@/shared/ui/brand-logo'
 import { Button } from '@/shared/ui/button'
@@ -13,7 +18,13 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/shared/ui/input-otp'
 import { SubmitButton } from '@/shared/ui/submit-button'
 
 type TwoFactorSetupState =
-  | { step: 'scan'; qrCodeUrl: string; secret: string; isVerifying: boolean; /** Servidor recusou o código. */ invalidCode: boolean }
+  | {
+      step: 'scan'
+      qrCodeUrl: string
+      secret: string
+      isVerifying: boolean
+      /** Servidor recusou o código. */ invalidCode: boolean
+    }
   | { step: 'recovery'; recoveryCodes: readonly string[]; copied: boolean }
 
 type TwoFactorSetupViewProps = {
@@ -43,7 +54,9 @@ function TwoFactorSetupView({ state, onVerify, onCopyCodes, onDownloadCodes, onF
               <p className="self-start text-sm">{t('admin.setup.scan')}</p>
               <img src={state.qrCodeUrl} alt="QR code" className="size-44 rounded-md bg-white p-2" />
               <p className="text-muted-foreground text-xs">{t('admin.setup.manual')}</p>
-              <code className="bg-muted rounded-sm px-2 py-1 font-mono text-xs tracking-wider break-all">{state.secret}</code>
+              <code className="bg-muted rounded-sm px-2 py-1 font-mono text-xs tracking-wider break-all">
+                {state.secret}
+              </code>
             </div>
             <VerifyCodeForm isVerifying={state.isVerifying} invalidCode={state.invalidCode} onVerify={onVerify} />
           </>
@@ -95,7 +108,9 @@ function VerifyCodeForm({ isVerifying, invalidCode, onVerify }: VerifyCodeFormPr
         control={form.control}
         render={({ field, fieldState }) => {
           const invalid = fieldState.invalid || invalidCode
-          const error = (fieldState.error?.message as TwoFactorCodeError | undefined) ?? (invalidCode ? 'invalidTwoFactorCode' : undefined)
+          const error =
+            (fieldState.error?.message as TwoFactorCodeError | undefined) ??
+            (invalidCode ? 'invalidTwoFactorCode' : undefined)
           return (
             <Field data-invalid={invalid}>
               <FieldLabel htmlFor="admin-totp">{t('admin.setup.verify')}</FieldLabel>

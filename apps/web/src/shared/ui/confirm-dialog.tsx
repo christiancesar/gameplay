@@ -29,7 +29,18 @@ type ConfirmDialogProps = {
   onConfirm: () => void
 }
 
-function ConfirmDialog({ trigger, defaultOpen, onClose, title, description, confirmLabel, cancelLabel, destructive, typeToConfirm, onConfirm }: ConfirmDialogProps) {
+function ConfirmDialog({
+  trigger,
+  defaultOpen,
+  onClose,
+  title,
+  description,
+  confirmLabel,
+  cancelLabel,
+  destructive,
+  typeToConfirm,
+  onConfirm,
+}: ConfirmDialogProps) {
   // Texto digitado é estado de apresentação do próprio diálogo.
   const [typed, setTyped] = useState('')
   const locked = typeToConfirm ? typed.trim() !== typeToConfirm.value : false
@@ -52,7 +63,12 @@ function ConfirmDialog({ trigger, defaultOpen, onClose, title, description, conf
         {typeToConfirm && (
           <div className="flex flex-col gap-2">
             <Label htmlFor="confirm-dialog-input">{typeToConfirm.label}</Label>
-            <Input id="confirm-dialog-input" autoComplete="off" value={typed} onChange={(event) => setTyped(event.target.value)} />
+            <Input
+              id="confirm-dialog-input"
+              autoComplete="off"
+              value={typed}
+              onChange={(event) => setTyped(event.target.value)}
+            />
           </div>
         )}
         <AlertDialogFooter>

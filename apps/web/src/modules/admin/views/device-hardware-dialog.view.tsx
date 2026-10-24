@@ -18,7 +18,14 @@ type DeviceHardwareDialogViewProps = {
   onOpenChange: (open: boolean) => void
 }
 
-function DeviceHardwareDialogView({ open, userName, devices, currentDeviceId, onDeviceChange, onOpenChange }: DeviceHardwareDialogViewProps) {
+function DeviceHardwareDialogView({
+  open,
+  userName,
+  devices,
+  currentDeviceId,
+  onDeviceChange,
+  onOpenChange,
+}: DeviceHardwareDialogViewProps) {
   const { t, i18n } = useTranslation()
   const device = devices.find((item) => item.id === currentDeviceId) ?? devices[0]
 

@@ -37,7 +37,15 @@ function ResetPasswordDialogView({ open, onOpenChange, ...props }: ResetPassword
 
 type ResetPasswordFormProps = Omit<ResetPasswordDialogViewProps, 'open' | 'onOpenChange'> & { onCancel: () => void }
 
-function ResetPasswordForm({ userName, initialPassword, isSubmitting, onGenerate, onCopy, onSubmit, onCancel }: ResetPasswordFormProps) {
+function ResetPasswordForm({
+  userName,
+  initialPassword,
+  isSubmitting,
+  onGenerate,
+  onCopy,
+  onSubmit,
+  onCancel,
+}: ResetPasswordFormProps) {
   const { t } = useTranslation()
   const form = useForm<ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -55,13 +63,26 @@ function ResetPasswordForm({ userName, initialPassword, isSubmitting, onGenerate
       <Field data-invalid={Boolean(error)}>
         <FieldLabel htmlFor="reset-password">{t('admin.resetPassword.newPassword')}</FieldLabel>
         <div className="flex gap-1">
-          <Input {...form.register('password')} id="reset-password" className="font-mono" autoComplete="off" aria-invalid={Boolean(error)} />
+          <Input
+            {...form.register('password')}
+            id="reset-password"
+            className="font-mono"
+            autoComplete="off"
+            aria-invalid={Boolean(error)}
+          />
           <IconButton
             label={t('admin.resetPassword.generate')}
             icon={<RefreshCwIcon />}
-            onClick={() => form.setValue('password', onGenerate(), { shouldDirty: true, shouldValidate: form.formState.isSubmitted })}
+            onClick={() =>
+              form.setValue('password', onGenerate(), { shouldDirty: true, shouldValidate: form.formState.isSubmitted })
+            }
           />
-          <IconButton label={t('common.copy')} icon={<CopyIcon />} onClick={() => onCopy(password)} disabled={!password} />
+          <IconButton
+            label={t('common.copy')}
+            icon={<CopyIcon />}
+            onClick={() => onCopy(password)}
+            disabled={!password}
+          />
         </div>
         {error && <FieldError>{t(`auth.errors.${error}`)}</FieldError>}
       </Field>

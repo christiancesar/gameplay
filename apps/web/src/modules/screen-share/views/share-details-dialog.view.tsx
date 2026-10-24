@@ -69,7 +69,9 @@ function ShareDetailsDialogView({ open, target, viewers, onOpenChange }: ShareDe
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="border-amber-500/50 text-amber-500">
-                        {viewer.limitation === 'none' ? t('share.monitor.belowTarget') : t(`share.monitor.limitedBy.${viewer.limitation}`)}
+                        {viewer.limitation === 'none'
+                          ? t('share.monitor.belowTarget')
+                          : t(`share.monitor.limitedBy.${viewer.limitation}`)}
                       </Badge>
                     )}
                   </TableCell>

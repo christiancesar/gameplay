@@ -60,7 +60,12 @@ function SessionsDialogView({ open, userName, sessions, onOpenChange, onEndSessi
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => onEndSession(session.id)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() => onEndSession(session.id)}
+                      >
                         {t('admin.sessions.end')}
                       </Button>
                     </TableCell>

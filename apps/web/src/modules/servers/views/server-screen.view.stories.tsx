@@ -3,7 +3,17 @@ import { useState, type ComponentProps } from 'react'
 import { expect, fn } from 'storybook/test'
 
 import { images, me } from '@/fixtures'
-import { liveLimitedByNetwork, liveOnTarget, myServers, roomsWithMe, roomsWithoutMe, stage, stageWithLive, turbex, viewerQualities } from '@/fixtures/server'
+import {
+  liveLimitedByNetwork,
+  liveOnTarget,
+  myServers,
+  roomsWithMe,
+  roomsWithoutMe,
+  stage,
+  stageWithLive,
+  turbex,
+  viewerQualities,
+} from '@/fixtures/server'
 import { RoomStageView } from '@/modules/rooms/views/room-stage.view'
 import { ShareDetailsDialogView } from '@/modules/screen-share/views/share-details-dialog.view'
 import { SharePanelView, type SharePanelState } from '@/modules/screen-share/views/share-panel.view'
@@ -27,7 +37,17 @@ type ScenarioProps = {
 }
 
 /** Monta a tela inteira a partir de um cenário, do jeito que a Screen fará com os ViewModels. */
-function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted, main, overlay, sidebarCollapsed }: ScenarioProps) {
+function Scenario({
+  role,
+  pendingRequests,
+  rooms,
+  currentRoomId,
+  share,
+  isMuted,
+  main,
+  overlay,
+  sidebarCollapsed,
+}: ScenarioProps) {
   const [isSidebarOpen, setSidebarOpen] = useState(!sidebarCollapsed)
   const inRoom = Boolean(currentRoomId)
   const stageProps: Omit<ComponentProps<typeof RoomStageView>, 'participants' | 'micDenied'> = {
@@ -64,60 +84,58 @@ function Scenario({ role, pendingRequests, rooms, currentRoomId, share, isMuted,
 
   return (
     <>
-    <ShareSetupDialogView
-      open={overlay === 'shareSetup'}
-      settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false }}
-      audioSupport="unsupported"
-      saveAsDefault
-      onOpenChange={fn()}
-      onChange={fn()}
-      onSaveAsDefaultChange={fn()}
-      onStart={fn()}
-    />
-    <ShareDetailsDialogView open={overlay === 'shareDetails'} target={{ resolution: '1080p', fps: 60 }} viewers={viewerQualities} onOpenChange={fn()} />
-    <ServerScreenView
-      sidebar={
-        <ServerSidebarView
-          server={turbex}
-          servers={myServers}
-          currentServerId={turbex.id}
-          onSelectServer={fn()}
-          onConfirmSwitch={fn()}
-          onDismissSwitch={fn()}
-          role={role}
-          pendingRequests={pendingRequests}
-          rooms={rooms}
-          currentRoomId={currentRoomId}
-          onSelectRoom={fn()}
-          onBackToHub={fn()}
-          onOpenServerSettings={fn()}
-          onLeaveServer={fn()}
-          userCard={
-            <UserCardView
-              user={me}
-              inRoom={inRoom}
-              isMuted={isMuted}
-              isDeafened={false}
-              sharePanel={
-                <SharePanelView
-                  state={share}
-                  onStart={fn()}
-                  onStop={fn()}
-                  onOpenDetails={fn()}
-                />
-              }
-              onOpenSettings={fn()}
-              onToggleMute={fn()}
-              onToggleDeafen={fn()}
-              onLeaveRoom={fn()}
-            />
-          }
-        />
-      }
-      main={mainContent}
-      isSidebarOpen={isSidebarOpen}
-      onSidebarOpenChange={setSidebarOpen}
-    />
+      <ShareSetupDialogView
+        open={overlay === 'shareSetup'}
+        settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false }}
+        audioSupport="unsupported"
+        saveAsDefault
+        onOpenChange={fn()}
+        onChange={fn()}
+        onSaveAsDefaultChange={fn()}
+        onStart={fn()}
+      />
+      <ShareDetailsDialogView
+        open={overlay === 'shareDetails'}
+        target={{ resolution: '1080p', fps: 60 }}
+        viewers={viewerQualities}
+        onOpenChange={fn()}
+      />
+      <ServerScreenView
+        sidebar={
+          <ServerSidebarView
+            server={turbex}
+            servers={myServers}
+            currentServerId={turbex.id}
+            onSelectServer={fn()}
+            onConfirmSwitch={fn()}
+            onDismissSwitch={fn()}
+            role={role}
+            pendingRequests={pendingRequests}
+            rooms={rooms}
+            currentRoomId={currentRoomId}
+            onSelectRoom={fn()}
+            onBackToHub={fn()}
+            onOpenServerSettings={fn()}
+            onLeaveServer={fn()}
+            userCard={
+              <UserCardView
+                user={me}
+                inRoom={inRoom}
+                isMuted={isMuted}
+                isDeafened={false}
+                sharePanel={<SharePanelView state={share} onStart={fn()} onStop={fn()} onOpenDetails={fn()} />}
+                onOpenSettings={fn()}
+                onToggleMute={fn()}
+                onToggleDeafen={fn()}
+                onLeaveRoom={fn()}
+              />
+            }
+          />
+        }
+        main={mainContent}
+        isSidebarOpen={isSidebarOpen}
+        onSidebarOpenChange={setSidebarOpen}
+      />
     </>
   )
 }

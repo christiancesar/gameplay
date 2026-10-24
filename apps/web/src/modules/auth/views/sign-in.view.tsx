@@ -3,7 +3,11 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { signInCredentialsSchema, type SignInCredentials, type SignInFieldError } from '@/modules/auth/model/sign-in.schema'
+import {
+  signInCredentialsSchema,
+  type SignInCredentials,
+  type SignInFieldError,
+} from '@/modules/auth/model/sign-in.schema'
 import {
   recoveryCodeSchema,
   TOTP_LENGTH,
@@ -113,7 +117,9 @@ function CredentialsForm({ defaultValues, isSubmitting, formError, onSubmit, onS
               <Field data-invalid={invalid}>
                 <FieldLabel htmlFor="sign-in-identifier">{t('auth.signIn.identifier')}</FieldLabel>
                 <Input {...field} id="sign-in-identifier" autoComplete="username" autoFocus aria-invalid={invalid} />
-                {fieldState.error?.message && <FieldError>{t(`auth.errors.${fieldState.error.message as SignInFieldError}`)}</FieldError>}
+                {fieldState.error?.message && (
+                  <FieldError>{t(`auth.errors.${fieldState.error.message as SignInFieldError}`)}</FieldError>
+                )}
               </Field>
             )
           }}
@@ -126,8 +132,16 @@ function CredentialsForm({ defaultValues, isSubmitting, formError, onSubmit, onS
             return (
               <Field data-invalid={invalid}>
                 <FieldLabel htmlFor="sign-in-password">{t('auth.signIn.password')}</FieldLabel>
-                <Input {...field} id="sign-in-password" type="password" autoComplete="current-password" aria-invalid={invalid} />
-                {fieldState.error?.message && <FieldError>{t(`auth.errors.${fieldState.error.message as SignInFieldError}`)}</FieldError>}
+                <Input
+                  {...field}
+                  id="sign-in-password"
+                  type="password"
+                  autoComplete="current-password"
+                  aria-invalid={invalid}
+                />
+                {fieldState.error?.message && (
+                  <FieldError>{t(`auth.errors.${fieldState.error.message as SignInFieldError}`)}</FieldError>
+                )}
               </Field>
             )
           }}
@@ -154,7 +168,14 @@ type TwoFactorFormProps = {
   onBack: () => void
 }
 
-function TwoFactorForm({ useRecoveryCode, isSubmitting, formError, onSubmit, onToggleRecoveryCode, onBack }: TwoFactorFormProps) {
+function TwoFactorForm({
+  useRecoveryCode,
+  isSubmitting,
+  formError,
+  onSubmit,
+  onToggleRecoveryCode,
+  onBack,
+}: TwoFactorFormProps) {
   const { t } = useTranslation()
   const form = useForm<TwoFactorCodeValues>({
     resolver: zodResolver(useRecoveryCode ? recoveryCodeSchema : totpCodeSchema),
@@ -213,13 +234,22 @@ function TwoFactorForm({ useRecoveryCode, isSubmitting, formError, onSubmit, onT
                     >
                       <InputOTPGroup>
                         {Array.from({ length: TOTP_LENGTH }, (_, index) => (
-                          <InputOTPSlot key={index} index={index} className="size-10 text-base" aria-invalid={invalid} />
+                          <InputOTPSlot
+                            key={index}
+                            index={index}
+                            className="size-10 text-base"
+                            aria-invalid={invalid}
+                          />
                         ))}
                       </InputOTPGroup>
                     </InputOTP>
                   </Field>
                 )}
-                {message && <FieldError className={useRecoveryCode ? undefined : 'text-center'}>{t(`auth.errors.${message}`)}</FieldError>}
+                {message && (
+                  <FieldError className={useRecoveryCode ? undefined : 'text-center'}>
+                    {t(`auth.errors.${message}`)}
+                  </FieldError>
+                )}
               </>
             )
           }}

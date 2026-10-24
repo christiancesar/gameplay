@@ -41,7 +41,11 @@ function InviteLandingView({ state, onCreateAccount, onSignIn, onJoin, onBackToH
           </>
         ) : (
           <>
-            <ServerIcon name={state.server.name} imageUrl={state.server.iconUrl} className="size-16 rounded-xl text-xl" />
+            <ServerIcon
+              name={state.server.name}
+              imageUrl={state.server.iconUrl}
+              className="size-16 rounded-xl text-xl"
+            />
             <div className="flex flex-col gap-1">
               <h1 className="text-lg font-medium">
                 {state.status === 'signedOut'

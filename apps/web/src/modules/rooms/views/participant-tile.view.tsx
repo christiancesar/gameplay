@@ -33,7 +33,13 @@ type ParticipantTileViewProps = {
   onVolumeChange: (participantId: string, volume: number) => void
 }
 
-function ParticipantTileView({ participant, compact = false, isWatched = false, onWatch, onVolumeChange }: ParticipantTileViewProps) {
+function ParticipantTileView({
+  participant,
+  compact = false,
+  isWatched = false,
+  onWatch,
+  onVolumeChange,
+}: ParticipantTileViewProps) {
   const { t } = useTranslation()
   const { id, name, avatarUrl, isMe, isMuted, isDeafened, isSpeaking, isLive, connection, volume } = participant
 

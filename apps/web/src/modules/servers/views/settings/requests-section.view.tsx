@@ -24,7 +24,15 @@ type RequestsSectionViewProps = {
   onDecline: (requestId: string) => void
 }
 
-function RequestsSectionView({ autoApprove, requests, memberCount, memberLimit, busyRequestId, onApprove, onDecline }: RequestsSectionViewProps) {
+function RequestsSectionView({
+  autoApprove,
+  requests,
+  memberCount,
+  memberLimit,
+  busyRequestId,
+  onApprove,
+  onDecline,
+}: RequestsSectionViewProps) {
   const { t, i18n } = useTranslation()
   const isFull = memberCount >= memberLimit
 
@@ -37,7 +45,9 @@ function RequestsSectionView({ autoApprove, requests, memberCount, memberLimit, 
       )}
       {isFull && requests.length > 0 && (
         <Alert>
-          <AlertDescription>{t('serverSettings.requests.blockedFull', { count: memberCount, max: memberLimit })}</AlertDescription>
+          <AlertDescription>
+            {t('serverSettings.requests.blockedFull', { count: memberCount, max: memberLimit })}
+          </AlertDescription>
         </Alert>
       )}
       {requests.length === 0 ? (
@@ -52,10 +62,16 @@ function RequestsSectionView({ autoApprove, requests, memberCount, memberLimit, 
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{request.user.name}</p>
                   <p className="text-muted-foreground truncate text-xs">
-                    {request.user.email} · {t('serverSettings.requests.requestedAt', { date: formatRelativeTime(request.requestedAt, i18n.language) })}
+                    {request.user.email} ·{' '}
+                    {t('serverSettings.requests.requestedAt', {
+                      date: formatRelativeTime(request.requestedAt, i18n.language),
+                    })}
                   </p>
                   <p className="text-muted-foreground truncate text-xs">
-                    {t('serverSettings.requests.viaInvite', { code: request.invite.code, name: request.invite.createdBy })}
+                    {t('serverSettings.requests.viaInvite', {
+                      code: request.invite.code,
+                      name: request.invite.createdBy,
+                    })}
                   </p>
                 </div>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={() => onDecline(request.id)}>

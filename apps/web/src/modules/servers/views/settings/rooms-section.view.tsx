@@ -3,7 +3,12 @@ import { AudioLinesIcon, CheckIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } fr
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { ROOM_NAME_MAX, roomNameSchema, type RoomNameError, type RoomNameValues } from '@/modules/servers/model/room.schema'
+import {
+  ROOM_NAME_MAX,
+  roomNameSchema,
+  type RoomNameError,
+  type RoomNameValues,
+} from '@/modules/servers/model/room.schema'
 
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
@@ -48,15 +53,24 @@ function RoomsSectionView({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-muted-foreground text-sm">{t('serverSettings.rooms.count', { count: rooms.length, max: roomLimit })}</p>
+      <p className="text-muted-foreground text-sm">
+        {t('serverSettings.rooms.count', { count: rooms.length, max: roomLimit })}
+      </p>
 
       {atLimit ? (
         <Alert>
-          <AlertDescription>{t('serverSettings.rooms.blockedLimit', { count: rooms.length, max: roomLimit })}</AlertDescription>
+          <AlertDescription>
+            {t('serverSettings.rooms.blockedLimit', { count: rooms.length, max: roomLimit })}
+          </AlertDescription>
         </Alert>
       ) : (
         // A key limpa o campo quando a sala criada entra na lista.
-        <NewRoomForm key={rooms.length} takenNames={rooms.map((room) => room.name)} isCreating={isCreating} onCreate={onCreate} />
+        <NewRoomForm
+          key={rooms.length}
+          takenNames={rooms.map((room) => room.name)}
+          isCreating={isCreating}
+          onCreate={onCreate}
+        />
       )}
 
       <ul className="divide-y rounded-md border">
@@ -77,12 +91,24 @@ function RoomsSectionView({
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{room.name}</p>
                     {room.occupants > 0 && (
-                      <p className="text-muted-foreground text-xs">{t('serverSettings.rooms.occupants', { count: room.occupants })}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {t('serverSettings.rooms.occupants', { count: room.occupants })}
+                      </p>
                     )}
                   </div>
-                  <IconButton label={`${t('serverSettings.rooms.rename')} ${room.name}`} icon={<PencilIcon />} onClick={() => onStartRename(room.id)} />
+                  <IconButton
+                    label={`${t('serverSettings.rooms.rename')} ${room.name}`}
+                    icon={<PencilIcon />}
+                    onClick={() => onStartRename(room.id)}
+                  />
                   <ConfirmDialog
-                    trigger={<IconButton label={`${t('serverSettings.rooms.delete')} ${room.name}`} icon={<Trash2Icon />} className="text-destructive" />}
+                    trigger={
+                      <IconButton
+                        label={`${t('serverSettings.rooms.delete')} ${room.name}`}
+                        icon={<Trash2Icon />}
+                        className="text-destructive"
+                      />
+                    }
                     title={t('serverSettings.rooms.deleteTitle', { name: room.name })}
                     description={
                       room.occupants > 0
@@ -112,7 +138,10 @@ type NewRoomFormProps = {
 
 function NewRoomForm({ takenNames, isCreating, onCreate }: NewRoomFormProps) {
   const { t } = useTranslation()
-  const form = useForm<RoomNameValues>({ resolver: zodResolver(roomNameSchema(takenNames)), defaultValues: { name: '' } })
+  const form = useForm<RoomNameValues>({
+    resolver: zodResolver(roomNameSchema(takenNames)),
+    defaultValues: { name: '' },
+  })
   const error = form.formState.errors.name?.message as RoomNameError | undefined
 
   return (
@@ -148,7 +177,11 @@ function RenameRoomForm({ name, takenNames, onSave, onCancel }: RenameRoomFormPr
   const error = form.formState.errors.name?.message as RoomNameError | undefined
 
   return (
-    <form noValidate className="flex flex-1 flex-col gap-1" onSubmit={form.handleSubmit((values) => onSave(values.name))}>
+    <form
+      noValidate
+      className="flex flex-1 flex-col gap-1"
+      onSubmit={form.handleSubmit((values) => onSave(values.name))}
+    >
       <div className="flex items-center gap-1">
         <Input
           {...form.register('name')}

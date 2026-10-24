@@ -2,7 +2,15 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor, within } from 'storybook/test'
 
-import { adminDevices, adminServerMembers, adminServers, adminSessions, adminUsers, registrationKeys, hardwareSummary } from '@/fixtures/admin'
+import {
+  adminDevices,
+  adminServerMembers,
+  adminServers,
+  adminSessions,
+  adminUsers,
+  registrationKeys,
+  hardwareSummary,
+} from '@/fixtures/admin'
 
 import { AdminLayoutView, type AdminTab } from './admin-layout.view'
 import { DeviceHardwareDialogView } from './device-hardware-dialog.view'
@@ -16,11 +24,29 @@ import { ServersTabView } from './servers-tab.view'
 import { SessionsDialogView } from './sessions-dialog.view'
 import { UsersTabView } from './users-tab.view'
 
-type Overlay = 'none' | 'sessions' | 'resetPassword' | 'userLimit' | 'serverLimits' | 'serverMembers' | 'userHardware' | 'newKey'
+type Overlay =
+  | 'none'
+  | 'sessions'
+  | 'resetPassword'
+  | 'userLimit'
+  | 'serverLimits'
+  | 'serverMembers'
+  | 'userHardware'
+  | 'newKey'
 
 type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean }
 
-const actions = { onOpenDevice: fn(), onSuspend: fn(), onEndSessions: fn(), onDeleteServer: fn(), onGenerateKey: fn(), onTabChange: fn(), onSaveLimits: fn(), onResetPassword: fn(), onSaveOverrides: fn() }
+const actions = {
+  onOpenDevice: fn(),
+  onSuspend: fn(),
+  onEndSessions: fn(),
+  onDeleteServer: fn(),
+  onGenerateKey: fn(),
+  onTabChange: fn(),
+  onSaveLimits: fn(),
+  onResetPassword: fn(),
+  onSaveOverrides: fn(),
+}
 
 function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
   const [tab, setTab] = useState(initialTab)
@@ -64,7 +90,11 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       />
     ),
     limits: (
-      <LimitsTabView values={{ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 2 }} isSaving={false} onSave={actions.onSaveLimits} />
+      <LimitsTabView
+        values={{ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 2 }}
+        isSaving={false}
+        onSave={actions.onSaveLimits}
+      />
     ),
     keys: (
       <KeysTabView
@@ -97,13 +127,26 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       <DeviceHardwareDialogView
         open={overlay === 'userHardware' || Boolean(deviceId)}
         userName={deviceId ? (adminDevices.find((d) => d.id === deviceId)?.user.name ?? '') : 'Shinigame'}
-        devices={deviceId ? adminDevices.filter((d) => d.id === deviceId) : adminDevices.filter((d) => d.user.id === 'u1')}
+        devices={
+          deviceId ? adminDevices.filter((d) => d.id === deviceId) : adminDevices.filter((d) => d.user.id === 'u1')
+        }
         currentDeviceId={deviceId}
         onDeviceChange={setDeviceId}
         onOpenChange={(open) => !open && setDeviceId(undefined)}
       />
-      <ServerMembersDialogView open={overlay === 'serverMembers'} serverName="Turbex" members={adminServerMembers} onOpenChange={fn()} />
-      <SessionsDialogView open={overlay === 'sessions'} userName="Lua Nova" sessions={adminSessions} onOpenChange={fn()} onEndSession={fn()} />
+      <ServerMembersDialogView
+        open={overlay === 'serverMembers'}
+        serverName="Turbex"
+        members={adminServerMembers}
+        onOpenChange={fn()}
+      />
+      <SessionsDialogView
+        open={overlay === 'sessions'}
+        userName="Lua Nova"
+        sessions={adminSessions}
+        onOpenChange={fn()}
+        onEndSession={fn()}
+      />
       <ResetPasswordDialogView
         open={overlay === 'resetPassword'}
         userName="Jacutinga"
@@ -144,7 +187,19 @@ const meta = {
   args: { initialTab: 'users', overlay: 'none', empty: false },
   argTypes: {
     initialTab: { control: 'inline-radio', options: ['users', 'servers', 'hardware', 'limits', 'keys'] },
-    overlay: { control: 'select', options: ['none', 'sessions', 'resetPassword', 'userLimit', 'serverLimits', 'serverMembers', 'userHardware', 'newKey'] },
+    overlay: {
+      control: 'select',
+      options: [
+        'none',
+        'sessions',
+        'resetPassword',
+        'userLimit',
+        'serverLimits',
+        'serverMembers',
+        'userHardware',
+        'newKey',
+      ],
+    },
   },
 } satisfies Meta<typeof Scenario>
 
@@ -253,7 +308,10 @@ export const GlobalLimitsValidation: Story = {
     await userEvent.clear(rooms)
     await userEvent.type(rooms, '3')
     await userEvent.click(save)
-    await expect(actions.onSaveLimits).toHaveBeenCalledWith({ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 3 }, expect.anything())
+    await expect(actions.onSaveLimits).toHaveBeenCalledWith(
+      { serversPerUser: 1, membersPerServer: 10, roomsPerServer: 3 },
+      expect.anything(),
+    )
   },
 }
 

@@ -138,7 +138,9 @@ function KeysTabView({
             <DialogTitle>{t('admin.keys.newKeyTitle')}</DialogTitle>
             <DialogDescription>{t('admin.keys.newKeyDescription')}</DialogDescription>
           </DialogHeader>
-          <p className="bg-muted rounded-md py-4 text-center font-mono text-3xl font-semibold tracking-[0.4em]">{newKey}</p>
+          <p className="bg-muted rounded-md py-4 text-center font-mono text-3xl font-semibold tracking-[0.4em]">
+            {newKey}
+          </p>
           <Button onClick={onCopyNewKey}>
             {newKeyCopied ? <CheckIcon data-icon="inline-start" /> : <CopyIcon data-icon="inline-start" />}
             {newKeyCopied ? t('common.copied') : t('common.copy')}

@@ -10,7 +10,16 @@ import { ServerSidebarView } from './server-sidebar.view'
 import { UserCardView } from './user-card.view'
 
 const userCard = (
-  <UserCardView user={me} inRoom={false} isMuted={false} isDeafened={false} onOpenSettings={fn()} onToggleMute={fn()} onToggleDeafen={fn()} onLeaveRoom={fn()} />
+  <UserCardView
+    user={me}
+    inRoom={false}
+    isMuted={false}
+    isDeafened={false}
+    onOpenSettings={fn()}
+    onToggleMute={fn()}
+    onToggleDeafen={fn()}
+    onLeaveRoom={fn()}
+  />
 )
 
 const meta = {
@@ -121,7 +130,10 @@ export const ConfirmSwitch: Story = {
 
 export const InRoom: Story = { args: { rooms: roomsWithMe, currentRoomId: 'r1' } }
 
-export const Collapsed: Story = { args: { rooms: roomsWithMe, currentRoomId: 'r1', pendingRequests: 3 }, parameters: { sidebarCollapsed: true } }
+export const Collapsed: Story = {
+  args: { rooms: roomsWithMe, currentRoomId: 'r1', pendingRequests: 3 },
+  parameters: { sidebarCollapsed: true },
+}
 
 export const NoRooms: Story = { args: { rooms: [] } }
 
@@ -129,7 +141,11 @@ export const ManyRooms: Story = {
   args: {
     rooms: [
       ...roomsWithoutMe,
-      ...Array.from({ length: 6 }, (_, index) => ({ id: `x${index}`, name: `Room ${String(index + 3).padStart(2, '0')}`, participants: [] })),
+      ...Array.from({ length: 6 }, (_, index) => ({
+        id: `x${index}`,
+        name: `Room ${String(index + 3).padStart(2, '0')}`,
+        participants: [],
+      })),
     ],
   },
 }

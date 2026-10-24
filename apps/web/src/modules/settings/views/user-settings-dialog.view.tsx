@@ -7,7 +7,13 @@ import { SectionDialog } from '@/shared/ui/section-dialog'
 const USER_SETTINGS_SECTIONS = ['profile', 'audio', 'appearance', 'hardware', 'account'] as const
 type UserSettingsSection = (typeof USER_SETTINGS_SECTIONS)[number]
 
-const ICONS = { profile: UserIcon, audio: Volume2Icon, appearance: PaletteIcon, hardware: CpuIcon, account: LogOutIcon } as const
+const ICONS = {
+  profile: UserIcon,
+  audio: Volume2Icon,
+  appearance: PaletteIcon,
+  hardware: CpuIcon,
+  account: LogOutIcon,
+} as const
 
 type UserSettingsDialogViewProps = {
   open: boolean

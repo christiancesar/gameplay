@@ -2,7 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { limitOverridesSchema, type LimitError, type LimitOverrides, type LimitOverridesInput } from '@/modules/admin/model/limits.schema'
+import {
+  limitOverridesSchema,
+  type LimitError,
+  type LimitOverrides,
+  type LimitOverridesInput,
+} from '@/modules/admin/model/limits.schema'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Field, FieldError, FieldLabel } from '@/shared/ui/field'
@@ -48,7 +53,10 @@ function LimitForm({ title, fields, isSaving, onSave, onCancel }: LimitFormProps
   const form = useForm<LimitOverridesInput, unknown, LimitOverrides>({
     resolver: zodResolver(limitOverridesSchema),
     defaultValues: Object.fromEntries(
-      fields.map((field) => [field.id, { custom: field.override !== undefined, value: field.override ?? field.defaultValue }]),
+      fields.map((field) => [
+        field.id,
+        { custom: field.override !== undefined, value: field.override ?? field.defaultValue },
+      ]),
     ),
   })
   const values = useWatch({ control: form.control })
@@ -69,11 +77,17 @@ function LimitForm({ title, fields, isSaving, onSave, onCancel }: LimitFormProps
                 name={`${field.id}.custom`}
                 control={form.control}
                 render={({ field: control }) => (
-                  <Switch id={`${field.id}-custom`} checked={control.value === true} onCheckedChange={control.onChange} />
+                  <Switch
+                    id={`${field.id}-custom`}
+                    checked={control.value === true}
+                    onCheckedChange={control.onChange}
+                  />
                 )}
               />
               <Label htmlFor={`${field.id}-custom`} className="font-normal">
-                {custom ? t('admin.limitDialog.override') : t('admin.limitDialog.useDefault', { value: field.defaultValue })}
+                {custom
+                  ? t('admin.limitDialog.override')
+                  : t('admin.limitDialog.useDefault', { value: field.defaultValue })}
               </Label>
             </div>
             {custom && (

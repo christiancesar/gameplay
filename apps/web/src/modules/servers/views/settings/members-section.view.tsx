@@ -16,7 +16,13 @@ import {
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
 type MemberItem = {
@@ -43,7 +49,9 @@ function MembersSectionView({ members, memberLimit, onPromote, onDemote, onKick 
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-muted-foreground text-sm">{t('serverSettings.members.count', { count: members.length, max: memberLimit })}</p>
+      <p className="text-muted-foreground text-sm">
+        {t('serverSettings.members.count', { count: members.length, max: memberLimit })}
+      </p>
       <ul className="divide-y rounded-md border">
         {members.map((member) => (
           <li key={member.id} className="flex items-center gap-3 px-4 py-3">
@@ -51,7 +59,9 @@ function MembersSectionView({ members, memberLimit, onPromote, onDemote, onKick 
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">
                 {member.user.name}
-                {member.isMe && <span className="text-muted-foreground font-normal"> ({t('serverSettings.members.you')})</span>}
+                {member.isMe && (
+                  <span className="text-muted-foreground font-normal"> ({t('serverSettings.members.you')})</span>
+                )}
               </p>
               <p className="text-muted-foreground truncate text-xs">{member.user.email}</p>
               <p className="text-muted-foreground truncate text-xs">
@@ -105,7 +115,9 @@ function MembersSectionView({ members, memberLimit, onPromote, onDemote, onKick 
       <AlertDialog open={Boolean(kickTarget)} onOpenChange={(open) => !open && setKickTarget(undefined)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('serverSettings.members.kickTitle', { name: kickTarget?.user.name })}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t('serverSettings.members.kickTitle', { name: kickTarget?.user.name })}
+            </AlertDialogTitle>
             <AlertDialogDescription>{t('serverSettings.members.kickDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

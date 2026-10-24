@@ -42,7 +42,9 @@ function StreamViewerView({
   return (
     <div className="flex h-full flex-col gap-4 p-4">
       <header className="flex flex-wrap items-center gap-3">
-        <span className="rounded-sm bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white">LIVE</span>
+        <span className="rounded-sm bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white">
+          LIVE
+        </span>
         <h1 className="font-medium">{t('share.isLive', { name: streamerName })}</h1>
 
         {liveStreams.length > 1 && (

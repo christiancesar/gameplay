@@ -4,7 +4,13 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/shared/ui/button'
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 import { Input } from '@/shared/ui/input'
 import { ServerIcon } from '@/shared/ui/server-icon'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
@@ -29,7 +35,14 @@ type ServersTabViewProps = {
   onDelete: (serverId: string) => void
 }
 
-function ServersTabView({ servers, search, onSearchChange, onViewMembers, onEditLimits, onDelete }: ServersTabViewProps) {
+function ServersTabView({
+  servers,
+  search,
+  onSearchChange,
+  onViewMembers,
+  onEditLimits,
+  onDelete,
+}: ServersTabViewProps) {
   const { t } = useTranslation()
   const [deleteTarget, setDeleteTarget] = useState<AdminServerItem>()
 
@@ -44,7 +57,13 @@ function ServersTabView({ servers, search, onSearchChange, onViewMembers, onEdit
     <div className="flex flex-col gap-4">
       <div className="relative max-w-xs">
         <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" aria-hidden />
-        <Input aria-label={t('admin.search')} placeholder={t('admin.search')} value={search} className="pl-8" onChange={(event) => onSearchChange(event.target.value)} />
+        <Input
+          aria-label={t('admin.search')}
+          placeholder={t('admin.search')}
+          value={search}
+          className="pl-8"
+          onChange={(event) => onSearchChange(event.target.value)}
+        />
       </div>
       <div className="rounded-md border">
         <Table>
@@ -118,7 +137,10 @@ function ServersTabView({ servers, search, onSearchChange, onViewMembers, onEdit
           confirmLabel={t('admin.servers.delete')}
           cancelLabel={t('common.cancel')}
           destructive
-          typeToConfirm={{ value: deleteTarget.name, label: t('serverSettings.danger.confirmName', { name: deleteTarget.name }) }}
+          typeToConfirm={{
+            value: deleteTarget.name,
+            label: t('serverSettings.danger.confirmName', { name: deleteTarget.name }),
+          }}
           onConfirm={() => onDelete(deleteTarget.id)}
         />
       )}

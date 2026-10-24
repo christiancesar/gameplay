@@ -52,7 +52,9 @@ function ServerMembersDialogView({ open, serverName, members, onOpenChange }: Se
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={member.role === 'member' ? 'outline' : 'secondary'}>{t(`server.roles.${member.role}`)}</Badge>
+                    <Badge variant={member.role === 'member' ? 'outline' : 'secondary'}>
+                      {t(`server.roles.${member.role}`)}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">
                     {member.joinedVia

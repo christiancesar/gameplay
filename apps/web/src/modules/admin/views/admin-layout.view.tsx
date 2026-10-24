@@ -9,7 +9,13 @@ import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 const ADMIN_TABS = ['users', 'servers', 'hardware', 'limits', 'keys'] as const
 type AdminTab = (typeof ADMIN_TABS)[number]
 
-const ICONS = { users: UsersIcon, servers: ServerIcon, hardware: CpuIcon, limits: SlidersHorizontalIcon, keys: KeyRoundIcon } as const
+const ICONS = {
+  users: UsersIcon,
+  servers: ServerIcon,
+  hardware: CpuIcon,
+  limits: SlidersHorizontalIcon,
+  keys: KeyRoundIcon,
+} as const
 
 type AdminLayoutViewProps = {
   tab: AdminTab

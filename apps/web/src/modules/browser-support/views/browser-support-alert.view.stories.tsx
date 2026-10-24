@@ -26,4 +26,6 @@ export const Firefox: Story = {
 
 export const Safari: Story = { args: { status: { type: 'unsupported', browser: { name: 'Safari', version: '18.4' } } } }
 
-export const OutdatedChrome: Story = { args: { status: { type: 'outdated', browser: { name: 'Chrome', version: '109' }, minVersion: 130 } } }
+export const OutdatedChrome: Story = {
+  args: { status: { type: 'outdated', browser: { name: 'Chrome', version: '109' }, minVersion: 130 } },
+}

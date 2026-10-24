@@ -39,7 +39,15 @@ const onAllowDisplays = fn()
 const onSaveManual = fn()
 const lastSentAt = new Date(Date.now() - 5 * 60_000).toISOString()
 
-function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar, weakDevice, displaysPermission }: ScenarioProps) {
+function Scenario({
+  initialSection,
+  permission,
+  isTesting,
+  avatarError,
+  noAvatar,
+  weakDevice,
+  displaysPermission,
+}: ScenarioProps) {
   const [section, setSection] = useState(initialSection)
   const language = useStoryLanguage()
   const theme = useStoryTheme()
@@ -80,7 +88,13 @@ function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar
     ),
     hardware: (
       <HardwareSectionView
-        hardware={weakDevice ? oldNotebook : displaysPermission === 'granted' ? gamingPc : { ...gamingPc, displays: gamingPc.displays.slice(0, 1) }}
+        hardware={
+          weakDevice
+            ? oldNotebook
+            : displaysPermission === 'granted'
+              ? gamingPc
+              : { ...gamingPc, displays: gamingPc.displays.slice(0, 1) }
+        }
         displaysPermission={displaysPermission}
         lastSentAt={lastSentAt}
         isCollecting={false}
@@ -104,7 +118,15 @@ function Scenario({ initialSection, permission, isTesting, avatarError, noAvatar
 const meta = {
   title: 'Settings/UserSettings',
   component: Scenario,
-  args: { initialSection: 'profile', permission: 'granted', isTesting: false, avatarError: false, noAvatar: false, weakDevice: false, displaysPermission: 'granted' },
+  args: {
+    initialSection: 'profile',
+    permission: 'granted',
+    isTesting: false,
+    avatarError: false,
+    noAvatar: false,
+    weakDevice: false,
+    displaysPermission: 'granted',
+  },
   argTypes: {
     initialSection: { control: 'select', options: ['profile', 'audio', 'appearance', 'hardware', 'account'] },
     permission: { control: 'inline-radio', options: ['granted', 'prompt', 'denied'] },
@@ -171,7 +193,9 @@ export const HardwareCompleteManually: Story = {
 }
 
 /** Notebook sem aceleração gráfica e sem codificação por hardware. */
-export const HardwareWeakDevice: Story = { args: { initialSection: 'hardware', weakDevice: true, displaysPermission: 'denied' } }
+export const HardwareWeakDevice: Story = {
+  args: { initialSection: 'hardware', weakDevice: true, displaysPermission: 'denied' },
+}
 
 export const Account: Story = {
   args: { initialSection: 'account' },

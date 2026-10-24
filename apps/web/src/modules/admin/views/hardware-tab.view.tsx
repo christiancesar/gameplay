@@ -37,7 +37,10 @@ function HardwareTabView({ summary, devices, onOpenDevice }: HardwareTabViewProp
   const cards = [
     { label: t('admin.hardware.devices'), value: String(summary.devices) },
     { label: t('admin.hardware.minCores'), value: summary.minCores !== undefined ? String(summary.minCores) : '–' },
-    { label: t('admin.hardware.minMemory'), value: summary.minMemoryGb !== undefined ? `${summary.minMemoryGb} GB` : '–' },
+    {
+      label: t('admin.hardware.minMemory'),
+      value: summary.minMemoryGb !== undefined ? `${summary.minMemoryGb} GB` : '–',
+    },
     { label: t('admin.hardware.acceleration'), value: `${summary.accelerationPercent}%` },
     { label: t('admin.hardware.h264'), value: `${summary.h264HardwarePercent}%` },
   ]
@@ -86,7 +89,11 @@ function HardwareTabView({ summary, devices, onOpenDevice }: HardwareTabViewProp
                     </span>
                   </TableCell>
                   <TableCell>
-                    <button type="button" className="hover:underline focus-visible:underline focus-visible:outline-none" onClick={() => onOpenDevice(device.id)}>
+                    <button
+                      type="button"
+                      className="hover:underline focus-visible:underline focus-visible:outline-none"
+                      onClick={() => onOpenDevice(device.id)}
+                    >
                       {device.label}
                     </button>
                   </TableCell>
@@ -102,10 +109,20 @@ function HardwareTabView({ summary, devices, onOpenDevice }: HardwareTabViewProp
                       )}
                     </span>
                   </TableCell>
-                  <TableCell className={cn(h264 === 'hardware' ? 'text-emerald-500' : h264 === 'software' ? 'text-amber-500' : 'text-muted-foreground')}>
+                  <TableCell
+                    className={cn(
+                      h264 === 'hardware'
+                        ? 'text-emerald-500'
+                        : h264 === 'software'
+                          ? 'text-amber-500'
+                          : 'text-muted-foreground',
+                    )}
+                  >
                     {t(`hardware.encoder.${h264}`)}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{formatRelativeTime(device.lastSeenAt, i18n.language)}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatRelativeTime(device.lastSeenAt, i18n.language)}
+                  </TableCell>
                 </TableRow>
               )
             })}

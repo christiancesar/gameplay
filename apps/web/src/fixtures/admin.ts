@@ -12,7 +12,13 @@ import { members } from './server-settings'
 
 const hour = 3_600_000
 const at = (offset: number) => new Date(Date.now() + offset).toISOString()
-const userBase = { isSuspended: false, isPlatformAdmin: false, sessionCount: 1, serverLimit: { value: 1, isOverride: false }, serversOwned: 0 }
+const userBase = {
+  isSuspended: false,
+  isPlatformAdmin: false,
+  sessionCount: 1,
+  serverLimit: { value: 1, isOverride: false },
+  serversOwned: 0,
+}
 
 export const adminUsers: AdminUserItem[] = [
   { ...people.shinigame, ...userBase, isOnline: true, isPlatformAdmin: true, sessionCount: 2, serversOwned: 1 },
@@ -25,7 +31,13 @@ export const adminUsers: AdminUserItem[] = [
 export const adminSessions: AdminSessionItem[] = [
   { id: 'se1', ip: '187.64.12.201', device: 'Chrome 141 · Windows', lastActiveAt: at(0), isActiveNow: true },
   { id: 'se2', ip: '177.32.90.15', device: 'Edge 140 · Windows', lastActiveAt: at(-3 * hour), isActiveNow: false },
-  { id: 'se3', ip: '2804:14c:5b:8a::1', device: 'Chrome 141 · Android', lastActiveAt: at(-50 * hour), isActiveNow: false },
+  {
+    id: 'se3',
+    ip: '2804:14c:5b:8a::1',
+    device: 'Chrome 141 · Android',
+    lastActiveAt: at(-50 * hour),
+    isActiveNow: false,
+  },
 ]
 
 export const adminServers: AdminServerItem[] = [
@@ -45,18 +57,33 @@ export const adminServers: AdminServerItem[] = [
 
 export const registrationKeys: RegistrationKeyItem[] = [
   { id: 'k1', hint: 'X4P', createdAt: at(-2 * hour), expiresAt: at(5 * 24 * hour), status: { type: 'active' } },
-  { id: 'k2', hint: 'M9Q', createdAt: at(-30 * hour), expiresAt: at(6 * 24 * hour), status: { type: 'used', userName: people.lua.name } },
+  {
+    id: 'k2',
+    hint: 'M9Q',
+    createdAt: at(-30 * hour),
+    expiresAt: at(6 * 24 * hour),
+    status: { type: 'used', userName: people.lua.name },
+  },
   { id: 'k3', hint: 'B7T', createdAt: at(-80 * hour), expiresAt: at(-8 * hour), status: { type: 'expired' } },
   { id: 'k4', hint: 'R2W', createdAt: at(-10 * hour), expiresAt: at(20 * 24 * hour), status: { type: 'revoked' } },
 ]
 
-export const recoveryCodes = ['8F3K-29QM', 'TX7P-4LNA', 'Q2WE-9RT5', 'ZB6Y-HU81', 'M4KD-7CXP', 'N8VS-3JQ2', 'J5GR-6FLW', 'C1HT-2YZB']
+export const recoveryCodes = [
+  '8F3K-29QM',
+  'TX7P-4LNA',
+  'Q2WE-9RT5',
+  'ZB6Y-HU81',
+  'M4KD-7CXP',
+  'N8VS-3JQ2',
+  'J5GR-6FLW',
+  'C1HT-2YZB',
+]
 
 /** QR fictício (não é um código válido), só para a story. */
 export const fakeQrCode = (() => {
   const size = 25
   let seed = 7
-  const rand = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280)
+  const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
   const finder = (x: number, y: number) =>
     `<rect x="${x}" y="${y}" width="7" height="7"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3"/>`
   let cells = ''
@@ -79,12 +106,48 @@ export const adminDevices: AdminDeviceItem[] = [
     lastSeenAt: at(-5 * 60_000),
     hardware: {
       ...gamingPc,
-      userProvided: { cpuModel: 'AMD Ryzen 7 5800X', ramGb: 32, gpuModel: 'NVIDIA RTX 3070', vramGb: 8, connection: 'ethernet', downloadMbps: 500, uploadMbps: 50 },
+      userProvided: {
+        cpuModel: 'AMD Ryzen 7 5800X',
+        ramGb: 32,
+        gpuModel: 'NVIDIA RTX 3070',
+        vramGb: 8,
+        connection: 'ethernet',
+        downloadMbps: 500,
+        uploadMbps: 50,
+      },
     },
   },
-  { id: 'd2', user: people.shinigame, label: 'macOS 15.4 · Chrome 141', lastSeenAt: at(-3 * 24 * hour), hardware: macbook },
-  { id: 'd3', user: people.jacutinga, label: 'Windows 10 · Edge 140', lastSeenAt: at(-2 * hour), hardware: oldNotebook },
-  { id: 'd4', user: people.kisnaider, label: 'Windows 11 · Chrome 141', lastSeenAt: at(-20 * 60_000), hardware: { ...gamingPc, cpu: { logicalCores: 12 }, gpu: { ...gamingPc.gpu, renderer: 'AMD Radeon RX 6700 XT (D3D11)' } } },
+  {
+    id: 'd2',
+    user: people.shinigame,
+    label: 'macOS 15.4 · Chrome 141',
+    lastSeenAt: at(-3 * 24 * hour),
+    hardware: macbook,
+  },
+  {
+    id: 'd3',
+    user: people.jacutinga,
+    label: 'Windows 10 · Edge 140',
+    lastSeenAt: at(-2 * hour),
+    hardware: oldNotebook,
+  },
+  {
+    id: 'd4',
+    user: people.kisnaider,
+    label: 'Windows 11 · Chrome 141',
+    lastSeenAt: at(-20 * 60_000),
+    hardware: {
+      ...gamingPc,
+      cpu: { logicalCores: 12 },
+      gpu: { ...gamingPc.gpu, renderer: 'AMD Radeon RX 6700 XT (D3D11)' },
+    },
+  },
 ]
 
-export const hardwareSummary: HardwareSummary = { devices: 4, minCores: 4, minMemoryGb: 4, accelerationPercent: 75, h264HardwarePercent: 75 }
+export const hardwareSummary: HardwareSummary = {
+  devices: 4,
+  minCores: 4,
+  minMemoryGb: 4,
+  accelerationPercent: 75,
+  h264HardwarePercent: 75,
+}

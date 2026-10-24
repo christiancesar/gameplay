@@ -16,7 +16,11 @@ type ServerInviteItem = {
   createdBy: { name: string }
   createdAt: string
   expiresAt: string
-  status: { type: 'active' } | { type: 'used'; user: { name: string }; usedAt: string } | { type: 'expired' } | { type: 'revoked' }
+  status:
+    | { type: 'active' }
+    | { type: 'used'; user: { name: string }; usedAt: string }
+    | { type: 'expired' }
+    | { type: 'revoked' }
 }
 
 type InvitesSectionViewProps = {
@@ -53,9 +57,13 @@ function InvitesSectionView({
 
   const statusText = (invite: ServerInviteItem) => {
     const { status } = invite
-    if (status.type === 'active') return t('serverSettings.invites.statuses.active', { date: formatRelativeTime(invite.expiresAt, i18n.language) })
+    if (status.type === 'active')
+      return t('serverSettings.invites.statuses.active', { date: formatRelativeTime(invite.expiresAt, i18n.language) })
     if (status.type === 'used')
-      return t('serverSettings.invites.statuses.used', { name: status.user.name, date: formatRelativeTime(status.usedAt, i18n.language) })
+      return t('serverSettings.invites.statuses.used', {
+        name: status.user.name,
+        date: formatRelativeTime(status.usedAt, i18n.language),
+      })
     return t(`serverSettings.invites.statuses.${status.type}`)
   }
 
@@ -63,7 +71,14 @@ function InvitesSectionView({
     <li key={invite.code} className="flex flex-wrap items-center gap-3 px-4 py-3">
       <LinkIcon className="text-muted-foreground size-4" aria-hidden />
       <div className="min-w-0 flex-1">
-        <p className={cn('font-mono font-semibold tracking-wider', invite.status.type !== 'active' && 'text-muted-foreground')}>{invite.code}</p>
+        <p
+          className={cn(
+            'font-mono font-semibold tracking-wider',
+            invite.status.type !== 'active' && 'text-muted-foreground',
+          )}
+        >
+          {invite.code}
+        </p>
         <p className="text-muted-foreground text-xs">
           <span className={cn(invite.status.type === 'used' && 'text-foreground')}>{statusText(invite)}</span>
           {' · '}
@@ -73,7 +88,11 @@ function InvitesSectionView({
       {invite.status.type === 'active' && (
         <>
           <Button variant="outline" size="sm" onClick={() => onCopy(invite.code)}>
-            {copiedCode === invite.code ? <CheckIcon data-icon="inline-start" /> : <CopyIcon data-icon="inline-start" />}
+            {copiedCode === invite.code ? (
+              <CheckIcon data-icon="inline-start" />
+            ) : (
+              <CopyIcon data-icon="inline-start" />
+            )}
             {copiedCode === invite.code ? t('common.copied') : t('serverSettings.invites.copyLink')}
           </Button>
           <ConfirmDialog
@@ -106,7 +125,9 @@ function InvitesSectionView({
 
       {isFull && (
         <Alert>
-          <AlertDescription>{t('serverSettings.invites.blockedFull', { count: memberCount, max: memberLimit })}</AlertDescription>
+          <AlertDescription>
+            {t('serverSettings.invites.blockedFull', { count: memberCount, max: memberLimit })}
+          </AlertDescription>
         </Alert>
       )}
 

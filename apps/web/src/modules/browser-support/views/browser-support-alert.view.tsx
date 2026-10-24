@@ -56,7 +56,9 @@ function BrowserSupportAlertView({ status, onDismiss }: BrowserSupportAlertViewP
           </>
         ) : (
           <>
-            <span className="block">{t('browserSupport.outdatedDescription', { version: browser.version, min: status.minVersion })}</span>
+            <span className="block">
+              {t('browserSupport.outdatedDescription', { version: browser.version, min: status.minVersion })}
+            </span>
             <span className="block">{t('browserSupport.howToUpdate')}</span>
           </>
         )}

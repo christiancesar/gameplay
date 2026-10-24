@@ -1,5 +1,15 @@
 import { cn } from 'cn'
-import { CpuIcon, EllipsisVerticalIcon, KeyRoundIcon, LogOutIcon, MonitorSmartphoneIcon, SearchIcon, ServerIcon, ShieldBanIcon, ShieldCheckIcon } from 'lucide-react'
+import {
+  CpuIcon,
+  EllipsisVerticalIcon,
+  KeyRoundIcon,
+  LogOutIcon,
+  MonitorSmartphoneIcon,
+  SearchIcon,
+  ServerIcon,
+  ShieldBanIcon,
+  ShieldCheckIcon,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -15,7 +25,13 @@ import {
 } from '@/shared/ui/alert-dialog'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 import { Input } from '@/shared/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import { UserAvatar } from '@/shared/ui/user-avatar'
@@ -68,7 +84,13 @@ function UsersTabView({
     <div className="flex flex-col gap-4">
       <div className="relative max-w-xs">
         <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" aria-hidden />
-        <Input aria-label={t('admin.search')} placeholder={t('admin.search')} value={search} className="pl-8" onChange={(event) => onSearchChange(event.target.value)} />
+        <Input
+          aria-label={t('admin.search')}
+          placeholder={t('admin.search')}
+          value={search}
+          className="pl-8"
+          onChange={(event) => onSearchChange(event.target.value)}
+        />
       </div>
 
       <div className="rounded-md border">
@@ -111,14 +133,22 @@ function UsersTabView({
                     <Badge variant="destructive">{t('admin.users.suspended')}</Badge>
                   ) : (
                     <span className="flex items-center gap-2 text-sm">
-                      <span className={cn('size-2 rounded-full', user.isOnline ? 'bg-emerald-500' : 'bg-muted-foreground/50')} aria-hidden />
+                      <span
+                        className={cn(
+                          'size-2 rounded-full',
+                          user.isOnline ? 'bg-emerald-500' : 'bg-muted-foreground/50',
+                        )}
+                        aria-hidden
+                      />
                       {user.isOnline ? t('admin.users.online') : t('admin.users.offline')}
                     </span>
                   )}
                 </TableCell>
                 <TableCell className="tabular-nums">
                   {user.serversOwned}/{user.serverLimit.value}
-                  {!user.serverLimit.isOverride && <span className="text-muted-foreground"> ({t('admin.default')})</span>}
+                  {!user.serverLimit.isOverride && (
+                    <span className="text-muted-foreground"> ({t('admin.default')})</span>
+                  )}
                 </TableCell>
                 <TableCell className="tabular-nums">{user.sessionCount}</TableCell>
                 <TableCell>
@@ -146,7 +176,10 @@ function UsersTabView({
                           <KeyRoundIcon />
                           {t('admin.users.resetPassword')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem disabled={user.sessionCount === 0} onSelect={() => setConfirm({ type: 'endSessions', user })}>
+                        <DropdownMenuItem
+                          disabled={user.sessionCount === 0}
+                          onSelect={() => setConfirm({ type: 'endSessions', user })}
+                        >
                           <LogOutIcon />
                           {t('admin.users.endSessions')}
                         </DropdownMenuItem>
@@ -157,7 +190,10 @@ function UsersTabView({
                             {t('admin.users.reactivate')}
                           </DropdownMenuItem>
                         ) : (
-                          <DropdownMenuItem variant="destructive" onSelect={() => setConfirm({ type: 'suspend', user })}>
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onSelect={() => setConfirm({ type: 'suspend', user })}
+                          >
                             <ShieldBanIcon />
                             {t('admin.users.suspend')}
                           </DropdownMenuItem>
@@ -181,7 +217,9 @@ function UsersTabView({
                 : t('admin.users.endSessionsTitle', { name: confirm?.user.name })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {confirm?.type === 'suspend' ? t('admin.users.suspendDescription') : t('admin.users.endSessionsDescription')}
+              {confirm?.type === 'suspend'
+                ? t('admin.users.suspendDescription')
+                : t('admin.users.endSessionsDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

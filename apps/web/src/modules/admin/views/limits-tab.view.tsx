@@ -2,7 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { globalLimitsSchema, type GlobalLimitField, type GlobalLimits, type LimitError } from '@/modules/admin/model/limits.schema'
+import {
+  globalLimitsSchema,
+  type GlobalLimitField,
+  type GlobalLimits,
+  type LimitError,
+} from '@/modules/admin/model/limits.schema'
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field'
 import { Input } from '@/shared/ui/input'
 import { SubmitButton } from '@/shared/ui/submit-button'

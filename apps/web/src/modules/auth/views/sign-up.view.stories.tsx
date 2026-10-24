@@ -51,7 +51,13 @@ export const Submitting: Story = {
 /** Validação do schema ao enviar: nada chega ao ViewModel. */
 export const FieldErrors: Story = {
   args: {
-    defaultValues: { username: 'x', email: 'shinigame@', password: 'short', confirmPassword: 'shorter', inviteKey: 'K7M' },
+    defaultValues: {
+      username: 'x',
+      email: 'shinigame@',
+      password: 'short',
+      confirmPassword: 'shorter',
+      inviteKey: 'K7M',
+    },
   },
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('button', { name: /create account/i }))
@@ -126,7 +132,13 @@ export const SubmitForm: Story = {
     await userEvent.click(canvas.getByRole('button', { name: /create account/i }))
     // A chave sai em maiúsculas (transform do schema).
     await expect(args.onSubmit).toHaveBeenCalledWith(
-      { username: 'shinigame', email: 'shinigame@gameplay.com', password: 'hunter2222', confirmPassword: 'hunter2222', inviteKey: 'K7MX4P' },
+      {
+        username: 'shinigame',
+        email: 'shinigame@gameplay.com',
+        password: 'hunter2222',
+        confirmPassword: 'hunter2222',
+        inviteKey: 'K7MX4P',
+      },
       expect.anything(),
     )
   },

@@ -35,13 +35,7 @@ const meta = {
   render: function Render(args) {
     const language = useStoryLanguage()
     const theme = useStoryTheme()
-    return (
-      <HubView
-        {...args}
-        {...language}
-        {...theme}
-      />
-    )
+    return <HubView {...args} {...language} {...theme} />
   },
 } satisfies Meta<typeof HubView>
 

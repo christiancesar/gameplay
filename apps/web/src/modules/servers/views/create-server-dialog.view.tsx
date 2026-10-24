@@ -2,7 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { createServerSchema, type CreateServerValues, type ServerNameError } from '@/modules/servers/model/server.schema'
+import {
+  createServerSchema,
+  type CreateServerValues,
+  type ServerNameError,
+} from '@/modules/servers/model/server.schema'
 import { SubmitButton } from '@/shared/ui/submit-button'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
@@ -82,7 +86,14 @@ function CreateServerForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="create-server-name">{t('createServer.name')}</FieldLabel>
-              <Input {...field} id="create-server-name" autoFocus autoComplete="off" maxLength={60} aria-invalid={fieldState.invalid} />
+              <Input
+                {...field}
+                id="create-server-name"
+                autoFocus
+                autoComplete="off"
+                maxLength={60}
+                aria-invalid={fieldState.invalid}
+              />
               {fieldState.error?.message && (
                 <FieldError>{t(`createServer.errors.${fieldState.error.message as ServerNameError}`)}</FieldError>
               )}

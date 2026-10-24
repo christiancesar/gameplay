@@ -53,10 +53,19 @@ const TONE_CLASS: Record<Tone, string> = {
   danger: 'text-red-500',
 }
 
-function NotificationsPanelView({ notifications, onDismiss, onClearAll, onAllowMonitors, onOpenServer, className }: NotificationsPanelViewProps) {
+function NotificationsPanelView({
+  notifications,
+  onDismiss,
+  onClearAll,
+  onAllowMonitors,
+  onOpenServer,
+  className,
+}: NotificationsPanelViewProps) {
   const { t, i18n } = useTranslation()
 
-  const render = (notification: HubNotification): { icon: ComponentType<{ className?: string }>; tone: Tone; title: string; body?: ReactNode } => {
+  const render = (
+    notification: HubNotification,
+  ): { icon: ComponentType<{ className?: string }>; tone: Tone; title: string; body?: ReactNode } => {
     switch (notification.type) {
       case 'browserUnsupported':
         return {
@@ -87,9 +96,19 @@ function NotificationsPanelView({ notifications, onDismiss, onClearAll, onAllowM
           body: `${t('browserSupport.outdatedDescription', { version: notification.browser.version, min: notification.minVersion })} ${t('browserSupport.howToUpdate')}`,
         }
       case 'vpn':
-        return { icon: ShieldAlertIcon, tone: 'warning', title: t('notifications.vpn.title'), body: t('notifications.vpn.description') }
+        return {
+          icon: ShieldAlertIcon,
+          tone: 'warning',
+          title: t('notifications.vpn.title'),
+          body: t('notifications.vpn.description'),
+        }
       case 'accelerationOff':
-        return { icon: GaugeIcon, tone: 'warning', title: t('notifications.accelerationOff.title'), body: t('notifications.accelerationOff.description') }
+        return {
+          icon: GaugeIcon,
+          tone: 'warning',
+          title: t('notifications.accelerationOff.title'),
+          body: t('notifications.accelerationOff.description'),
+        }
       case 'monitorsPermission':
         return {
           icon: MonitorIcon,
@@ -127,10 +146,18 @@ function NotificationsPanelView({ notifications, onDismiss, onClearAll, onAllowM
         }
       case 'kicked':
       case 'serverDeleted':
-        return { icon: TriangleAlertIcon, tone: 'danger', title: t(`notifications.${notification.type}.title`, { server: notification.server.name }) }
+        return {
+          icon: TriangleAlertIcon,
+          tone: 'danger',
+          title: t(`notifications.${notification.type}.title`, { server: notification.server.name }),
+        }
       case 'promoted':
       case 'demoted':
-        return { icon: InfoIcon, tone: 'info', title: t(`notifications.${notification.type}.title`, { server: notification.server.name }) }
+        return {
+          icon: InfoIcon,
+          tone: 'info',
+          title: t(`notifications.${notification.type}.title`, { server: notification.server.name }),
+        }
     }
   }
 
@@ -151,7 +178,9 @@ function NotificationsPanelView({ notifications, onDismiss, onClearAll, onAllowM
       </SectionLabel>
 
       {notifications.length === 0 ? (
-        <p className="text-muted-foreground rounded-md border border-dashed px-3 py-4 text-center text-xs">{t('notifications.empty')}</p>
+        <p className="text-muted-foreground rounded-md border border-dashed px-3 py-4 text-center text-xs">
+          {t('notifications.empty')}
+        </p>
       ) : (
         <ul className="flex flex-col gap-2">
           {notifications.map((notification) => {
@@ -163,7 +192,9 @@ function NotificationsPanelView({ notifications, onDismiss, onClearAll, onAllowM
                   <p className="text-sm leading-snug font-medium">{title}</p>
                   {body && <div className="text-muted-foreground mt-1 text-xs leading-snug">{body}</div>}
                   {notification.createdAt && (
-                    <p className="text-muted-foreground/70 mt-1.5 text-[11px]">{formatRelativeTime(notification.createdAt, i18n.language)}</p>
+                    <p className="text-muted-foreground/70 mt-1.5 text-[11px]">
+                      {formatRelativeTime(notification.createdAt, i18n.language)}
+                    </p>
                   )}
                 </div>
                 <IconButton

@@ -13,7 +13,13 @@ type AppearanceSectionViewProps = {
   onLanguageChange: (language: string) => void
 }
 
-function AppearanceSectionView({ theme, language, languageOptions, onThemeChange, onLanguageChange }: AppearanceSectionViewProps) {
+function AppearanceSectionView({
+  theme,
+  language,
+  languageOptions,
+  onThemeChange,
+  onLanguageChange,
+}: AppearanceSectionViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -41,7 +47,13 @@ function AppearanceSectionView({ theme, language, languageOptions, onThemeChange
       </Field>
       <Field>
         <FieldLabel>{t('settings.appearance.language')}</FieldLabel>
-        <LanguageSwitcher className="w-fit" value={language} options={languageOptions} onChange={onLanguageChange} ariaLabel={t('settings.appearance.language')} />
+        <LanguageSwitcher
+          className="w-fit"
+          value={language}
+          options={languageOptions}
+          onChange={onLanguageChange}
+          ariaLabel={t('settings.appearance.language')}
+        />
       </Field>
     </FieldGroup>
   )

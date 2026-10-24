@@ -10,7 +10,10 @@ const optionalPositiveNumber = z
   .string()
   .trim()
   .transform((value) => (value === '' ? undefined : Number(value.replace(',', '.'))))
-  .refine((value) => value === undefined || (Number.isFinite(value) && value > 0), 'positiveNumber' satisfies ManualHardwareError)
+  .refine(
+    (value) => value === undefined || (Number.isFinite(value) && value > 0),
+    'positiveNumber' satisfies ManualHardwareError,
+  )
 
 const optionalText = z
   .string()
@@ -23,7 +26,10 @@ const manualHardwareSchema = z.object({
   ramGb: optionalPositiveNumber,
   gpuModel: optionalText,
   vramGb: optionalPositiveNumber,
-  connection: z.enum(CONNECTIONS).or(z.literal('')).transform((value) => value || undefined),
+  connection: z
+    .enum(CONNECTIONS)
+    .or(z.literal(''))
+    .transform((value) => value || undefined),
   downloadMbps: optionalPositiveNumber,
   uploadMbps: optionalPositiveNumber,
 })

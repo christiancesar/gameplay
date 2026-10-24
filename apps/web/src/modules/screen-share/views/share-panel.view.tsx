@@ -1,5 +1,12 @@
 import { cn } from 'cn'
-import { ChartNoAxesColumnIcon, Loader2Icon, MonitorUpIcon, SquareIcon, TriangleAlertIcon, UsersIcon } from 'lucide-react'
+import {
+  ChartNoAxesColumnIcon,
+  Loader2Icon,
+  MonitorUpIcon,
+  SquareIcon,
+  TriangleAlertIcon,
+  UsersIcon,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/shared/ui/button'
@@ -61,7 +68,12 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails }: SharePanelVie
   const targetHeight = TARGET_HEIGHT[target.resolution]
 
   return (
-    <div className={cn('flex flex-col gap-3 rounded-md border p-3', below ? 'border-amber-500/60' : 'border-emerald-600/60')}>
+    <div
+      className={cn(
+        'flex flex-col gap-3 rounded-md border p-3',
+        below ? 'border-amber-500/60' : 'border-emerald-600/60',
+      )}
+    >
       <div className="flex items-center justify-between text-xs">
         <span className="flex items-center gap-1.5 font-semibold text-red-500">
           <span className="size-2 animate-pulse rounded-full bg-red-500" aria-hidden />
@@ -80,7 +92,12 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails }: SharePanelVie
           {target.resolution} · {target.fps} fps
         </dd>
         <dt className="text-muted-foreground">{t('share.monitor.delivering')}</dt>
-        <dd className={cn('text-right font-mono tabular-nums', below ? 'text-amber-500' : delivering && 'text-emerald-500')}>
+        <dd
+          className={cn(
+            'text-right font-mono tabular-nums',
+            below ? 'text-amber-500' : delivering && 'text-emerald-500',
+          )}
+        >
           {delivering ? `${delivering.height}p · ${Math.round(delivering.fps)} fps` : '–'}
         </dd>
       </dl>
@@ -132,7 +149,10 @@ function Meter({ label, value }: { label: string; value: number }) {
       <Progress
         aria-label={label}
         value={percent}
-        className={cn('h-1', below ? '*:data-[slot=progress-indicator]:bg-amber-500' : '*:data-[slot=progress-indicator]:bg-emerald-500')}
+        className={cn(
+          'h-1',
+          below ? '*:data-[slot=progress-indicator]:bg-amber-500' : '*:data-[slot=progress-indicator]:bg-emerald-500',
+        )}
       />
       <span className="text-right font-mono tabular-nums">{percent}%</span>
     </div>

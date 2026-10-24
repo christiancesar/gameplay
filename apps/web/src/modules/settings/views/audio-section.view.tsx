@@ -55,12 +55,31 @@ function AudioSectionView({
           </AlertDescription>
         </Alert>
       )}
-      <DeviceSelect id="audio-microphone" label={t('settings.audio.microphone')} devices={microphones} value={microphoneId} disabled={locked} onChange={onMicrophoneChange} />
-      <DeviceSelect id="audio-output" label={t('settings.audio.output')} devices={outputs} value={outputId} disabled={locked} onChange={onOutputChange} />
+      <DeviceSelect
+        id="audio-microphone"
+        label={t('settings.audio.microphone')}
+        devices={microphones}
+        value={microphoneId}
+        disabled={locked}
+        onChange={onMicrophoneChange}
+      />
+      <DeviceSelect
+        id="audio-output"
+        label={t('settings.audio.output')}
+        devices={outputs}
+        value={outputId}
+        disabled={locked}
+        onChange={onOutputChange}
+      />
       <Field>
         <FieldLabel htmlFor="audio-level">{t('settings.audio.level')}</FieldLabel>
         <div className="flex items-center gap-3">
-          <Progress id="audio-level" value={isTesting ? Math.round(inputLevel * 100) : 0} className="h-2 flex-1" aria-label={t('settings.audio.level')} />
+          <Progress
+            id="audio-level"
+            value={isTesting ? Math.round(inputLevel * 100) : 0}
+            className="h-2 flex-1"
+            aria-label={t('settings.audio.level')}
+          />
           <Button variant="outline" size="sm" disabled={locked} onClick={onToggleTest}>
             {isTesting ? <SquareIcon data-icon="inline-start" /> : <MicIcon data-icon="inline-start" />}
             {isTesting ? t('settings.audio.stopTest') : t('settings.audio.testMic')}

@@ -27,7 +27,17 @@ const SHAPE_CLASS = {
 } as const
 
 /** Prévia + botões de escolher e remover. A validação de tamanho e formato fica no ViewModel. */
-function ImagePicker({ name, previewUrl, shape, isUploading, error, hint, labels, onSelectFile, onRemove }: ImagePickerProps) {
+function ImagePicker({
+  name,
+  previewUrl,
+  shape,
+  isUploading,
+  error,
+  hint,
+  labels,
+  onSelectFile,
+  onRemove,
+}: ImagePickerProps) {
   const inputId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -55,7 +65,13 @@ function ImagePicker({ name, previewUrl, shape, isUploading, error, hint, labels
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
-          <Button type="button" variant="outline" size="sm" disabled={isUploading} onClick={() => inputRef.current?.click()}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isUploading}
+            onClick={() => inputRef.current?.click()}
+          >
             <UploadIcon data-icon="inline-start" aria-hidden />
             {previewUrl ? labels.change : labels.choose}
           </Button>
@@ -66,7 +82,10 @@ function ImagePicker({ name, previewUrl, shape, isUploading, error, hint, labels
             </Button>
           )}
         </div>
-        <p className={cn('text-xs', error ? 'text-destructive' : 'text-muted-foreground')} role={error ? 'alert' : undefined}>
+        <p
+          className={cn('text-xs', error ? 'text-destructive' : 'text-muted-foreground')}
+          role={error ? 'alert' : undefined}
+        >
           {error ?? hint}
         </p>
         <input

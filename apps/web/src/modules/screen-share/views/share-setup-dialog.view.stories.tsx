@@ -43,16 +43,25 @@ type Story = StoryObj<typeof meta>
 /** Padrão salvo do usuário: janela/jogo em 1080p60. */
 export const WindowOrGame: Story = {}
 
-export const EntireScreen: Story = { args: { settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true } } }
+export const EntireScreen: Story = {
+  args: { settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true } },
+}
 
-export const BrowserTab: Story = { args: { settings: { source: 'tab', resolution: '720p', fps: 30, includeAudio: true } } }
+export const BrowserTab: Story = {
+  args: { settings: { source: 'tab', resolution: '720p', fps: 30, includeAudio: true } },
+}
 
 export const ChooseAndStart: Story = {
   play: async ({ args, userEvent }) => {
     await userEvent.click(screen.getByRole('radio', { name: /browser tab/i }))
     await userEvent.click(screen.getByRole('radio', { name: '720p' }))
     await userEvent.click(screen.getByRole('radio', { name: '30 fps' }))
-    await expect(args.onChange).toHaveBeenLastCalledWith({ source: 'tab', resolution: '720p', fps: 30, includeAudio: true })
+    await expect(args.onChange).toHaveBeenLastCalledWith({
+      source: 'tab',
+      resolution: '720p',
+      fps: 30,
+      includeAudio: true,
+    })
     await expect(screen.getByRole('switch', { name: /share audio/i })).toBeEnabled()
     await userEvent.click(screen.getByRole('button', { name: /choose and share/i }))
     await expect(args.onStart).toHaveBeenCalledOnce()

@@ -92,7 +92,9 @@ function ShareSetupDialogView({
                       )}
                     </span>
                     <span className="text-sm font-medium">{t(`share.setup.sources.${source}.label`)}</span>
-                    <span className="text-muted-foreground text-[11px] leading-snug">{t(`share.setup.sources.${source}.hint`)}</span>
+                    <span className="text-muted-foreground text-[11px] leading-snug">
+                      {t(`share.setup.sources.${source}.hint`)}
+                    </span>
                   </button>
                 )
               })}
@@ -160,7 +162,11 @@ function ShareSetupDialogView({
           </div>
 
           <div className="flex items-center gap-2">
-            <Checkbox id="share-default" checked={saveAsDefault} onCheckedChange={(value) => onSaveAsDefaultChange(value === true)} />
+            <Checkbox
+              id="share-default"
+              checked={saveAsDefault}
+              onCheckedChange={(value) => onSaveAsDefaultChange(value === true)}
+            />
             <Label htmlFor="share-default" className="font-normal">
               {t('share.setup.saveAsDefault')}
             </Label>

@@ -43,7 +43,10 @@ function SectionDialog<Id extends string>({
         className="flex h-[min(40rem,calc(100dvh-2rem))] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl md:flex-row"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
-        <nav aria-label={subtitle} className="bg-muted/40 flex shrink-0 gap-1 overflow-x-auto border-b p-2 md:w-52 md:flex-col md:border-r md:border-b-0 md:p-3">
+        <nav
+          aria-label={subtitle}
+          className="bg-muted/40 flex shrink-0 gap-1 overflow-x-auto border-b p-2 md:w-52 md:flex-col md:border-r md:border-b-0 md:p-3"
+        >
           <DialogHeader className="hidden px-2 pt-1 pb-3 md:flex">
             <DialogTitle className="truncate">{title}</DialogTitle>
             <DialogDescription>{subtitle}</DialogDescription>

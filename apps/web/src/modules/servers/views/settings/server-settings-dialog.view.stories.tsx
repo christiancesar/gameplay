@@ -43,7 +43,15 @@ const actions = {
 }
 
 /** Modal completo com navegação entre seções; os dados vêm das fixtures. */
-function Scenario({ initialSection, role, full, roomLimitReached, empty, generalErrors, autoApprove: initialAutoApprove }: ScenarioProps) {
+function Scenario({
+  initialSection,
+  role,
+  full,
+  roomLimitReached,
+  empty,
+  generalErrors,
+  autoApprove: initialAutoApprove,
+}: ScenarioProps) {
   const [autoApprove, setAutoApprove] = useState(initialAutoApprove)
   const [section, setSection] = useState(initialSection)
   const [editingRoomId, setEditingRoomId] = useState<string>()
@@ -119,7 +127,15 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
         onDelete={actions.onDeleteRoom}
       />
     ),
-    danger: <DangerSectionView role={role} serverName="Turbex" isBusy={false} onLeave={actions.onLeave} onDelete={actions.onDeleteServer} />,
+    danger: (
+      <DangerSectionView
+        role={role}
+        serverName="Turbex"
+        isBusy={false}
+        onLeave={actions.onLeave}
+        onDelete={actions.onDeleteServer}
+      />
+    ),
   }[section]
 
   return (
@@ -142,7 +158,15 @@ function Scenario({ initialSection, role, full, roomLimitReached, empty, general
 const meta = {
   title: 'Servers/ServerSettings',
   component: Scenario,
-  args: { initialSection: 'general', role: 'owner', full: false, roomLimitReached: false, empty: false, generalErrors: false, autoApprove: false },
+  args: {
+    initialSection: 'general',
+    role: 'owner',
+    full: false,
+    roomLimitReached: false,
+    empty: false,
+    generalErrors: false,
+    autoApprove: false,
+  },
   argTypes: {
     initialSection: { control: 'select', options: ['general', 'invites', 'requests', 'members', 'rooms', 'danger'] },
     role: { control: 'inline-radio', options: ['owner', 'admin'] },
