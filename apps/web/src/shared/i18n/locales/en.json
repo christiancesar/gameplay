@@ -82,6 +82,8 @@
     }
   },
   "hub": {
+    "signOut": "Sign out",
+    "signOutTitle": "Sign out of your account?",
     "servers": "Your servers",
     "createServer": "Create your server",
     "createServerDescription": "Grouping your clan and sharing your gameplay",

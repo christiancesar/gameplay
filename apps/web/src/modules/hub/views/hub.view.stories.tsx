@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
-import { expect, fn } from 'storybook/test'
+import { expect, fn, screen, within } from 'storybook/test'
 
 import { me, servers } from '@/fixtures'
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
@@ -29,6 +29,8 @@ const meta = {
     onJoin: fn(),
     onOpenAdmin: fn(),
     onOpenSettings: fn(),
+    isSigningOut: false,
+    onSignOut: fn(),
     onToggleTheme: fn(),
     onLanguageChange: fn(),
   },
@@ -164,5 +166,21 @@ export const ClearNotifications: Story = {
 }
 
 export const NotificationsEmpty: Story = { args: { notifications: <StoryNotifications initial={[]} /> } }
+
+/** Sair pede confirmação: cancelar não chama o ViewModel, confirmar chama. */
+export const SignOut: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /sign out/i }))
+    await userEvent.click(await screen.findByRole('button', { name: /cancel/i }))
+    await expect(args.onSignOut).not.toHaveBeenCalled()
+
+    await userEvent.click(await canvas.findByRole('button', { name: /sign out/i }))
+    const dialog = await screen.findByRole('alertdialog')
+    await userEvent.click(within(dialog).getByRole('button', { name: /sign out/i }))
+    await expect(args.onSignOut).toHaveBeenCalledOnce()
+  },
+}
+
+export const SigningOut: Story = { args: { isSigningOut: true } }
 
 export const Portuguese: Story = { globals: { locale: 'pt' }, args: { isPlatformAdmin: true } }

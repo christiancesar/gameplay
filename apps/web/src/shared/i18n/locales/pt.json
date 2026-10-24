@@ -82,6 +82,8 @@
     }
   },
   "hub": {
+    "signOut": "Sair da conta",
+    "signOutTitle": "Sair da sua conta?",
     "servers": "Seus servidores",
     "createServer": "Crie seu servidor",
     "createServerDescription": "Reúna seu clã e compartilhe sua gameplay",

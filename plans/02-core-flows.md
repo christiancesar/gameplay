@@ -100,7 +100,7 @@ Página própria em `/sign-up`, separada do SignIn. Os links "Sign up" e "Sign i
      └─────────────────────────────────────┘
 ```
 
-1. No topo: logo, card do perfil e os ícones de painel admin (só para o admin da plataforma), configurações, tema e idioma.
+1. No topo: logo, card do perfil e os ícones de painel admin (só para o admin da plataforma), configurações, tema e idioma. O card do perfil tem um atalho para **sair da conta** (ícone à direita), que sempre pede confirmação. Na tela do servidor não há atalho: sair fica no Hub e nas Configurações (F11) *(decidido em 2026-10-24)*.
 2. Os servidores dos quais o usuário é membro aparecem como **blocos** (ícone e nome) à esquerda do card "Create your server". Clicar abre a tela do servidor (F6).
 3. "Create your server" abre o F5. Com o limite de servidores atingido, o card fica desabilitado com "Limite atingido".
 4. "Or join a server": campo para o código de 8 caracteres (colar o link inteiro também funciona) e botão Join. Segue o F3.

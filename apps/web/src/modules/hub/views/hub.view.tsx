@@ -1,8 +1,17 @@
-import { ChevronRightIcon, LayoutGridIcon, SettingsIcon, ShieldUserIcon, TicketIcon, UserIcon } from 'lucide-react'
+import {
+  ChevronRightIcon,
+  LayoutGridIcon,
+  LogOutIcon,
+  SettingsIcon,
+  ShieldUserIcon,
+  TicketIcon,
+  UserIcon,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BrandLogo } from '@/shared/ui/brand-logo'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import { IconButton } from '@/shared/ui/icon-button'
 import { LanguageSwitcher, type LanguageOption } from '@/shared/ui/language-switcher'
 import { SectionLabel } from '@/shared/ui/section-label'
@@ -56,6 +65,9 @@ type HubViewProps = {
   onJoin: (code: string) => void
   onOpenAdmin: () => void
   onOpenSettings: () => void
+  isSigningOut: boolean
+  /** Chamado depois da confirmação. */
+  onSignOut: () => void
   onToggleTheme: () => void
   onLanguageChange: (language: string) => void
 }
@@ -78,6 +90,8 @@ function HubView({
   onJoin,
   onOpenAdmin,
   onOpenSettings,
+  isSigningOut,
+  onSignOut,
   onToggleTheme,
   onLanguageChange,
 }: HubViewProps) {
@@ -100,6 +114,22 @@ function HubView({
                 <p className="truncate font-medium">{user.name}</p>
                 <p className="text-muted-foreground truncate text-xs">{user.email}</p>
               </div>
+              <ConfirmDialog
+                trigger={
+                  <IconButton
+                    label={t('hub.signOut')}
+                    icon={<LogOutIcon />}
+                    disabled={isSigningOut}
+                    aria-busy={isSigningOut}
+                  />
+                }
+                title={t('hub.signOutTitle')}
+                description={t('settings.account.signOutDescription')}
+                confirmLabel={t('hub.signOut')}
+                cancelLabel={t('common.cancel')}
+                destructive
+                onConfirm={onSignOut}
+              />
             </div>
             <div className="flex items-center justify-center gap-1">
               {isPlatformAdmin && (
