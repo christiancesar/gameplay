@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-23 (setup do monorepo).
+> Última atualização: 2026-10-24 (scaffold do backend).
 
 ## Status das fases (workflow ágil)
 
@@ -25,6 +25,14 @@ Escopo mínimo para começar:
 5. **Todas as Views dos fluxos F1 a F13 estão no Storybook**, com stories de todos os estados e interaction tests (157 testes). A página "Introdução" do Storybook liga cada fluxo às stories.
 
 Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
+
+## Backend (`apps/api`)
+
+Scaffold feito em `feature/api-setup` (2026-10-24), sem rotas nem módulos de feature:
+- NestJS 12 (ESM, `"type": "module"`), TypeScript 6, Vitest 4 (unit em `src/**/*.spec.ts`, e2e em `test/e2e`), oxlint com `--type-aware` e oxfmt com a mesma config do web.
+- `AppModule` vazio. Pastas da seção 3.3 criadas vazias: `src/@types`, `src/env`, `src/lib`, `src/common`, `src/modules`, `prisma/schema`, `test/factories`.
+- Ainda não instalados: Prisma, Better Auth, Socket.IO, pino, OpenTelemetry, Swagger, zod do env.
+- Suposição: porta padrão 3333 (`PORT` sobrescreve).
 
 ## Assets fornecidos pelo usuário
 
