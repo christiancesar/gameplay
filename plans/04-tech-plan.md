@@ -7,7 +7,7 @@
 
 ## 1. Abordagem arquitetural
 
-**Processo único.** Um processo NestJS 11 serve REST (`/api`) e Socket.IO (`/socket.io`) atrás do nginx, no mesmo domínio do web. Instância única no MVP: presença e estado das salas ficam na memória do processo, sem Redis **(suposição)**. Se o processo reiniciar, os clientes reconectam e reenviam o estado (sala atual, mute, transmissão).
+**Processo único.** Um processo NestJS 11 com **Express 5** *(decidido em 2026-10-24: o adaptador do Better Auth só tem suporte beta a Fastify, e a carga da API é baixa)* serve REST (`/api`) e Socket.IO (`/socket.io`) atrás do nginx, no mesmo domínio do web. Instância única no MVP: presença e estado das salas ficam na memória do processo, sem Redis *(decidido em 2026-10-24: Redis fica para depois, quando houver mais de uma instância ou deploy sem queda; `PresenceStore` e `RoomStateStore` são abstract class para a troca)*. Se o processo reiniciar, os clientes reconectam e reenviam o estado (sala atual, mute, transmissão).
 
 **Camadas por módulo.** Cada módulo de `src/modules/<nome>` segue a mesma forma:
 - `controllers/` e `gateways/`: só traduzem HTTP ou evento para use-case. Sem regra de negócio.
@@ -30,7 +30,7 @@
   - `before` valida e consome a key de cadastro.
   - `after` cria o pedido de entrada quando o cadastro veio de um link de servidor (código no corpo do sign-up).
 
-**Segredos e hash.** A key de cadastro (6 caracteres, ~10⁹ combinações) é guardada como **HMAC-SHA256 com segredo do servidor** (`REGISTRATION_KEY_SECRET`), não como hash puro **(suposição)**. Junto fica só o sufixo de 3 caracteres para a listagem. Rate limit nas tentativas de cadastro e login com `@nestjs/throttler`.
+**Segredos e hash.** A key de cadastro (6 caracteres, ~10⁹ combinações) é guardada como **HMAC-SHA256 com segredo do servidor** (`REGISTRATION_KEY_SECRET`), não como hash puro *(decidido em 2026-10-24)*. Junto fica só o sufixo de 3 caracteres para a listagem. Rate limit nas tentativas de cadastro e login com `@nestjs/throttler`.
 
 **Storage.** `StorageProvider` com drivers `local` (volume servido pelo nginx em `/uploads`), `s3` e `in-memory` (testes), escolhido por `STORAGE_DRIVER`. O `sharp` faz validação por magic bytes, recorte, WebP e remoção de EXIF. O banco guarda só a chave do arquivo.
 
