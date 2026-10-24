@@ -27,7 +27,10 @@
       "1d": "1 dia",
       "7d": "7 dias",
       "30d": "30 dias"
-    }
+    },
+    "signOut": "Sair da conta",
+    "signOutTitle": "Sair da sua conta?",
+    "signOutDescription": "Você será desconectado de qualquer sala."
   },
   "auth": {
     "signIn": {
@@ -82,8 +85,6 @@
     }
   },
   "hub": {
-    "signOut": "Sair da conta",
-    "signOutTitle": "Sair da sua conta?",
     "servers": "Seus servidores",
     "createServer": "Crie seu servidor",
     "createServerDescription": "Reúna seu clã e compartilhe sua gameplay",
@@ -366,10 +367,6 @@
       "dark": "Escuro",
       "light": "Claro",
       "language": "Idioma"
-    },
-    "account": {
-      "signOut": "Sair da conta",
-      "signOutDescription": "Você será desconectado de qualquer sala."
     }
   },
   "invite": {

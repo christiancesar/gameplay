@@ -117,15 +117,15 @@ function HubView({
               <ConfirmDialog
                 trigger={
                   <IconButton
-                    label={t('hub.signOut')}
+                    label={t('common.signOut')}
                     icon={<LogOutIcon />}
                     disabled={isSigningOut}
                     aria-busy={isSigningOut}
                   />
                 }
-                title={t('hub.signOutTitle')}
-                description={t('settings.account.signOutDescription')}
-                confirmLabel={t('hub.signOut')}
+                title={t('common.signOutTitle')}
+                description={t('common.signOutDescription')}
+                confirmLabel={t('common.signOut')}
                 cancelLabel={t('common.cancel')}
                 destructive
                 onConfirm={onSignOut}

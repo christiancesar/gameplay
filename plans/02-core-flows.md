@@ -216,7 +216,7 @@ Página própria em `/sign-up`, separada do SignIn. Os links "Sign up" e "Sign i
 2. **Áudio:** escolher microfone e saída, com teste de microfone (barra de nível).
 3. **Aparência:** tema e idioma.
 4. **Hardware:** o que este dispositivo informou, um formulário para complementar manualmente (processador, RAM, placa de vídeo, VRAM, conexão, plano de internet) (sistema, CPU, memória, GPU e aceleração, codificação de vídeo, monitores, rede), quando foi enviado, botão para coletar de novo e o pedido de permissão dos monitores.
-5. **Sair** da conta.
+5. **Sair** da conta, com a mesma confirmação do atalho no Hub *(decidido em 2026-10-24)*.
 
 ## F12 · Painel admin da plataforma
 

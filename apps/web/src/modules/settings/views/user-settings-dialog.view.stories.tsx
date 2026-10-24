@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
-import { expect, fn, screen, waitFor } from 'storybook/test'
+import { expect, fn, screen, waitFor, within } from 'storybook/test'
 
 import { me } from '@/fixtures'
 import { gamingPc, oldNotebook } from '@/fixtures/hardware'
@@ -201,6 +201,9 @@ export const Account: Story = {
   args: { initialSection: 'account' },
   play: async ({ userEvent }) => {
     await userEvent.click(await screen.findByRole('button', { name: /sign out/i }))
+    const confirm = await screen.findByRole('alertdialog')
+    await expect(onSignOut).not.toHaveBeenCalled()
+    await userEvent.click(within(confirm).getByRole('button', { name: /sign out/i }))
     await waitFor(() => expect(onSignOut).toHaveBeenCalledOnce())
   },
 }

@@ -27,7 +27,10 @@
       "1d": "1 day",
       "7d": "7 days",
       "30d": "30 days"
-    }
+    },
+    "signOut": "Sign out",
+    "signOutTitle": "Sign out of your account?",
+    "signOutDescription": "You will be disconnected from any room."
   },
   "auth": {
     "signIn": {
@@ -82,8 +85,6 @@
     }
   },
   "hub": {
-    "signOut": "Sign out",
-    "signOutTitle": "Sign out of your account?",
     "servers": "Your servers",
     "createServer": "Create your server",
     "createServerDescription": "Grouping your clan and sharing your gameplay",
@@ -366,10 +367,6 @@
       "dark": "Dark",
       "light": "Light",
       "language": "Language"
-    },
-    "account": {
-      "signOut": "Sign out",
-      "signOutDescription": "You will be disconnected from any room."
     }
   },
   "invite": {
