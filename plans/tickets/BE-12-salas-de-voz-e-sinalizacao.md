@@ -9,7 +9,7 @@ A mídia é P2P em mesh, e o servidor só repassa mensagens. Cada pessoa está e
 - `RoomStateStore` em memória: participantes por sala com `muted`, `deafened` e `streaming` (preset ou null).
 - Eventos (contrato em `04-tech-plan.md` seção 3):
   - `room:join`: checa se a pessoa é membro do servidor da sala. Sai da sala anterior, inclusive se estava em outra aba *(suposição)*. Responde com os participantes no ack e emite `room:participants`.
-  - `room:leave`, e saída automática no disconnect com tolerância de 10 s para reconexão *(suposição)*.
+  - `room:leave`, e saída automática no disconnect com tolerância de 30 s para reconexão *(decidido em 2026-10-24)*.
   - `voice:state`, que atualiza e repassa para a sala.
   - `stream:start` e `stream:stop`, que atualizam o estado e repassam.
   - `stream:watch`, `stream:unwatch` e `stream:quality`, repassados só para o streamer.

@@ -260,6 +260,6 @@ Fluxos ponta a ponta:
 - **Suspensão:** o admin suspende (plugin `admin`). Isso publica `user.suspended`, e o gateway emite `session:revoked` e desconecta todos os sockets da pessoa.
 
 Modos de falha:
-- **Queda do socket:** o cliente reconecta sozinho e reenvia `server:subscribe` e `room:join`. O gateway espera alguns segundos antes de anunciar a saída da sala, para evitar a piscada **(suposição: 10 s)**.
+- **Queda do socket:** o cliente reconecta sozinho e reenvia `server:subscribe` e `room:join`. O gateway espera alguns segundos antes de anunciar a saída da sala, para evitar a piscada **(decidido: 30 s)**.
 - **Queda do processo:** o estado efêmero se perde, e os clientes reconstroem na reconexão.
 - **Banco fora:** o healthcheck falha e o REST responde 503. O socket recusa as ações que precisam do banco.
