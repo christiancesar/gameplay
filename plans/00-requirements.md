@@ -54,6 +54,7 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 ### 2.4 Convite de servidor
 - Código de **8 caracteres** (o link carrega o mesmo código), de **uso único** e com **validade fixa de 1 hora**, sem configuração. Para convidar várias pessoas, gera-se um convite para cada uma. *(Revisado em 2026-10-23: antes era multiuso com máximo de usos e validade configuráveis.)*
 - Owner e admin geram e revogam convites.
+- O convite é **consumido quando o pedido de entrada é criado**. Quem abre o link sem conta e demora mais de 1 hora no cadastro tem a conta criada normalmente, e o Hub avisa que o convite expirou e que é preciso pedir outro *(decidido em 2026-10-24)*.
 - O convite registra **quem criou**, **quem usou** e **quando**. Owner/admin veem isso no servidor (convites e membros) e o admin da plataforma vê na lista de membros de cada servidor.
 - Com o servidor no limite de membros, a **geração de convite fica bloqueada**.
 
@@ -129,7 +130,7 @@ O limite efetivo é o override, quando existe, senão o padrão global.
   - **Não Chromium:** recomenda Chrome, Edge, Brave, Opera ou Vivaldi, com links de download.
   - **Chromium abaixo da versão mínima:** mostra a versão atual e a mínima e como atualizar.
   - Dispensável com "Continuar mesmo assim" (não bloqueia o uso).
-- **VPN/proxy:** detecção por heurística (sem garantia), só para avisar: IP público visto pelo STUN diferente do IP da requisição HTTP (proxy/VPN de navegador), IP em faixa de datacenter/VPN conhecida no backend, e fuso horário do browser incompatível com a região do IP.
+- **VPN/proxy:** detecção por heurística (sem garantia), só para avisar: IP público visto pelo STUN diferente do IP da requisição HTTP (proxy/VPN de navegador). *(Revisado em 2026-10-24: a checagem de faixa de datacenter/VPN e de fuso contra a região do IP saiu do MVP, porque exige bases externas de IP e geolocalização.)*
 
 ## 3. Arquitetura
 
@@ -185,7 +186,7 @@ gameplay/
 │   └── shared/                   # schemas zod, DTOs, eventos Socket.IO tipados
 ├── infra/
 │   ├── nginx/default.conf
-│   ├── docker-compose.dev.yml    # nginx, web, api, mongo (replica set), cloudflared
+│   ├── docker-compose.dev.yml    # nginx, web, api, postgres, cloudflared
 │   └── docker-compose.prod.yml   # nginx, web, api, coturn
 ├── plans/
 ├── turbo.json
@@ -193,10 +194,11 @@ gameplay/
 ```
 
 ### 3.3 Backend (`apps/api`)
-- **NestJS**. REST e **Socket.IO Gateway** (`@nestjs/websockets`) no mesmo processo, para sinalização WebRTC e presença.
-- **Prisma 6.x** com MongoDB. O Prisma 7 não tem conector MongoDB estável. Schema dividido em vários arquivos (`prisma/schema/*.prisma`).
-- **Better Auth** com `prismaAdapter` (provider `mongodb`) e integração `@thallesp/nestjs-better-auth`. Plugins: `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para `platform_admin`). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
-- MongoDB local em **replica set de nó único** (`--replSet`), exigido pelas transações do Prisma.
+- **NestJS 11** *(revisado em 2026-10-24: o Nest 12 ainda não é aceito pelo `nestjs-asyncapi` nem pelo `nestjs-zod`; migrar quando o ecossistema alcançar)*. REST e **Socket.IO Gateway** (`@nestjs/websockets`) no mesmo processo, para sinalização WebRTC e presença.
+- **PostgreSQL + Prisma 7** *(revisado em 2026-10-24: antes MongoDB + Prisma 6. O Prisma 6 só recebe patches de segurança até 19/11/2026, o Prisma 7 não tem conector Mongo e o Prisma 8 com Mongo ainda é RC. Os dados são relacionais)*. Driver adapter `@prisma/adapter-pg`, `prisma.config.ts`, schema dividido em vários arquivos (`prisma/schema/*.prisma`), migrations versionadas.
+- **Better Auth** com `prismaAdapter` (provider `postgresql`) e integração `@thallesp/nestjs-better-auth`. Plugins: `username` (login por email ou username), `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para `platform_admin`). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
+- Postgres local em container no `docker-compose.dev.yml`; na Fase 2, **Neon free** *(suposição: Neon em vez de Supabase)*.
+- DTOs e validação com **`nestjs-zod`** (`createZodDto` a partir dos schemas do `packages/shared`), que alimenta o OpenAPI e o AsyncAPI.
 - SOLID leve: cada use-case é um `@Injectable` com um único `execute()` (SRP). Repositório como `abstract class` usada como token de DI, com implementações `prisma` e `in-memory` (DIP). Testes unitários usam `in-memory`.
 - **Storage de imagens:** upload multipart para o Nest. `StorageProvider` (abstract class) com `LocalStorageProvider` e `S3StorageProvider`, ambos implementados desde o início e escolhidos por `STORAGE_DRIVER=local | s3`. Driver local grava em volume Docker servido pelo nginx (`/uploads`). Driver S3 serve por URL pública do bucket (ou CloudFront). O banco guarda só a chave/URL da imagem.
 
@@ -205,11 +207,14 @@ apps/api/
 ├── prisma/
 │   └── schema/
 │       ├── schema.prisma               # generator + datasource
-│       ├── auth.prisma                 # User, Session, Account, Verification (Better Auth)
+│       ├── auth.prisma                 # User, Session, Account, Verification, TwoFactor (Better Auth)
 │       ├── registration-invite.prisma
+│       ├── platform-settings.prisma    # limites globais, versão mínima do Chromium
 │       ├── server.prisma               # Server, ServerMember, JoinRequest
 │       ├── server-invite.prisma
-│       └── room.prisma
+│       ├── room.prisma
+│       ├── notification.prisma
+│       └── device-report.prisma        # hardware por dispositivo
 ├── src/
 │   ├── @types/                         # augmentations (Request.user etc.)
 │   ├── env/                            # schema zod + EnvService
@@ -238,7 +243,7 @@ apps/api/
 │   │   ├── platform-admin/             # painel: usuários, IP, sessões, suspender, excluir servidor
 │   │   ├── limits/                     # padrões globais + overrides, resolução do limite efetivo
 │   │   ├── servers/                    # criar (limite), ícone, auto aprovação, papéis
-│   │   ├── server-invites/             # multi-uso, expiração, bloqueio em 10
+│   │   ├── server-invites/             # uso único, 1 hora, bloqueio no limite de membros
 │   │   ├── memberships/                # pedidos de entrada, aprovar, kick, promover/rebaixar
 │   │   ├── rooms/
 │   │   ├── realtime/                   # gateway Socket.IO: presença + sinalização
@@ -257,7 +262,7 @@ apps/api/
 │   ├── app.module.ts
 │   └── main.ts
 └── test/
-    ├── e2e/                            # supertest + mongo docker
+    ├── e2e/                            # supertest + postgres docker
     └── factories/
 ```
 
@@ -269,7 +274,7 @@ apps/api/
 - Nome dos eventos no formato `dominio:acao` (`room:join`, `signal:send`, `presence:update`). A direção fica no tipo, não no nome. Pedido e resposta pelo socket usam ack (callback como último argumento).
 - **Documentação** (decisão do usuário: os eventos também são documentados):
   - REST: OpenAPI gerado pelo Nest, exibido no **Scalar**.
-  - Socket.IO: **AsyncAPI**, gerado a partir dos mesmos schemas do `packages/shared`. Ferramenta pendente: `nestjs-asyncapi` (decorators nos gateways, aceita Nest 12, exige `@nestjs/swagger`) ou script próprio que monta o documento a partir dos schemas. Exibição no Scalar se a integração JS já aceitar AsyncAPI (o suporte do Scalar é experimental); senão, no visualizador do AsyncAPI.
+  - Socket.IO: **AsyncAPI**, gerado a partir dos mesmos schemas do `packages/shared`. Ferramenta: **`nestjs-asyncapi`** *(decidido em 2026-10-24)*, com decorators nos gateways e payloads vindos dos DTOs do `nestjs-zod`; exige `@nestjs/swagger` 11. Exibição no Scalar se a integração JS já aceitar AsyncAPI (o suporte do Scalar é experimental); senão, no visualizador do AsyncAPI.
 
 ### 3.4 Frontend (`apps/web`): MVVM
 - **React + Vite + TanStack Router** (rotas por arquivo, `beforeLoad` para auth, `loader` integrado ao TanStack Query).
@@ -335,8 +340,8 @@ apps/web/
 
 - **nginx** na frente de tudo, mesmo domínio: `/` para web, `/api` para Nest, `/socket.io` para Nest com upgrade. Cookies do Better Auth sem CORS.
 - **Storage:** fase local usa `STORAGE_DRIVER=local` (volume Docker). Fase EC2 usa `STORAGE_DRIVER=s3`. Os testes do driver S3 rodam contra **MinIO** em container.
-- **Fase 1, local (máquina do desenvolvedor):** `docker-compose.dev.yml` com nginx, web, api, mongo (replica set) e **cloudflared** (Cloudflare Tunnel) para os testers acessarem. O tunnel só carrega HTTP/WebSocket; a mídia vai direto entre os browsers. TURN via Cloudflare Realtime.
-- **Fase 2, EC2 t3.medium:** `docker-compose.prod.yml` com nginx, web, api e coturn. Banco no **MongoDB Atlas free**.
+- **Fase 1, local (máquina do desenvolvedor):** `docker-compose.dev.yml` com nginx, web, api, postgres e **cloudflared** (Cloudflare Tunnel) para os testers acessarem. O tunnel só carrega HTTP/WebSocket; a mídia vai direto entre os browsers. TURN via Cloudflare Realtime.
+- **Fase 2, EC2 t3.medium:** `docker-compose.prod.yml` com nginx, web, api e coturn. Banco no **Neon free** (Postgres).
   - Pendente: a estimativa abaixo usa us-east-1, mas o coturn deve ficar em sa-east-1 (ver 3.1.1). Rever região e preços (sa-east-1 é mais cara, e a transferência de saída também).
 - **Estimativa de custo da Fase 2 (ideação, us-east-1, sob demanda).** Valores a revisar com medição real depois que o app estiver rodando.
 
@@ -349,7 +354,7 @@ apps/web/
 
   - Variáveis: transferência de saída (100 GB/mês grátis, depois US$ 0,09/GB, pesa principalmente no relay do coturn), S3 (centavos), créditos de CPU da t3 em modo unlimited (configurar como standard).
   - t3.medium não entra no free tier. EBS e IPv4 podem ser cobertos se a conta for elegível; contas novas usam o modelo de créditos.
-  - **Recomendação inicial: t4g.small** (ARM, 2 GB, ~US$ 12 de instância). Na EC2 rodam só nginx, Nest e coturn (frontend estático, Mongo no Atlas, mídia P2P). Subir para t4g.medium se a medição pedir.
+  - **Recomendação inicial: t4g.small** (ARM, 2 GB, ~US$ 12 de instância). Na EC2 rodam só nginx, Nest e coturn (frontend estático, Postgres no Neon, mídia P2P). Subir para t4g.medium se a medição pedir.
   - Segurança da instância: SSH restrito ao IP do admin (ou SSM Session Manager), EBS criptografado, portas do coturn abertas (3478 UDP/TCP, 5349 TCP e faixa UDP de relay).
 - Deploy na Vercel **descartado**: a Vercel não mantém um processo Node persistente para o Socket.IO (WebSocket lá é experimental e preso a instância).
 
@@ -368,7 +373,7 @@ apps/web/
 ## 6. Testes
 
 - **Unitários (Vitest):** use-cases do Nest com repositórios e storage in-memory; rules, ViewModels (`renderHook`) e stores do frontend; Testing Library onde fizer sentido.
-- **E2E da API:** supertest + Mongo em Docker.
+- **E2E da API:** supertest + Postgres em Docker.
 - **E2E do app (Cypress):** usuário A dirigido pelo Cypress; usuário B é um **peer bot** headless (Chromium com mídia fake) controlado por `cy.task`, validando P2P real.
 - **Storybook interaction tests** no CI.
 - **Lint de fronteiras MVVM** no CI.

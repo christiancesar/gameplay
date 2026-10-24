@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (opções de transporte de mídia).
+> Última atualização: 2026-10-24 (tech plan e tickets do backend).
 
 ## Status das fases (workflow ágil)
 
@@ -10,8 +10,8 @@
 | 01 · Epic Brief | `01-epic-brief.md` | Rascunho entregue, sem objeções |
 | 02 · Core Flows | `02-core-flows.md` | Concluída para as telas com mock; F7 a F13 terão o visual desenhado no Storybook |
 | 03 · PRD Validate | | Não iniciada |
-| 04 · Tech Plan | | Não iniciada |
-| Tickets e delegação | | Não iniciada |
+| 04 · Tech Plan | `04-tech-plan.md` | Rascunho do backend entregue, aguardando revisão do usuário |
+| Tickets e delegação | `tickets/` | 16 tickets do backend (BE-01 a BE-16), um por arquivo, aguardando revisão |
 
 ## Próxima sessão
 
@@ -28,11 +28,10 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 
 ## Backend (`apps/api`)
 
-Scaffold feito em `feature/api-setup` (2026-10-24), sem rotas nem módulos de feature:
-- NestJS 12 (ESM, `"type": "module"`), TypeScript 6, Vitest 4 (unit em `src/**/*.spec.ts`, e2e em `test/e2e`), oxlint com `--type-aware` e oxfmt com a mesma config do web.
-- `AppModule` vazio. Pastas da seção 3.3 criadas vazias: `src/@types`, `src/env`, `src/lib`, `src/common`, `src/modules`, `prisma/schema`, `test/factories`.
-- Ainda não instalados: Prisma, Better Auth, Socket.IO, pino, OpenTelemetry, Swagger, zod do env.
-- Suposição: porta padrão 3333 (`PORT` sobrescreve).
+- 2026-10-24: scaffold inicial em NestJS 12 (commit 25ff3fb). Na validação do plano, o usuário decidiu **NestJS 11** (o `nestjs-asyncapi` e o `nestjs-zod` não aceitam o 12) e **Postgres + Prisma 7** (o Prisma 6 sai do suporte em 19/11/2026 e o Prisma 8 com Mongo ainda é RC). O scaffold será refeito no BE-01.
+- Outras decisões do mesmo dia: `nestjs-asyncapi` para documentar os eventos, contrato tipado em `packages/shared`, VPN só pelo check do STUN, convite de servidor consumido na criação do pedido.
+- Tech plan em `04-tech-plan.md`; tickets em `tickets/` (índice e grafo em `tickets/README.md`).
+- Próximo passo: o usuário revisa o tech plan e os tickets (as suposições estão marcadas lá) e depois começa pelo BE-01.
 
 ## Assets fornecidos pelo usuário
 
