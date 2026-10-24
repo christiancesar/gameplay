@@ -43,6 +43,10 @@ Os dois usam o mesmo banco de dev. As migrations ainda não rodam dentro do cont
 | `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                           |
 | `db:studio`                                   | abre o Prisma Studio                                                                                                 |
 
+## Documentação
+
+Com a API em dev: http://localhost:3333/api/docs (Scalar). O seletor no topo troca entre REST (OpenAPI) e os eventos do Socket.IO (AsyncAPI). Desligada em produção; `DOCS_ENABLED=true|false` força.
+
 ## Variáveis de ambiente
 
 Validadas com zod na inicialização (`src/env/env.schema.ts`); a API não sobe com variável faltando ou inválida. Ver `.env.example`.

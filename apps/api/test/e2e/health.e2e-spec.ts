@@ -23,16 +23,17 @@ describe('GET /api/health (e2e)', () => {
   })
 
   it('answers 503 when the database is down', async () => {
-    app = await createTestApp((builder) =>
-      builder.overrideProvider(PrismaService).useValue({
-        $queryRaw: () => Promise.reject(new Error('connection refused')),
-        $disconnect: () => Promise.resolve(),
-      }),
-    )
+    app = await createTestApp({
+      override: (builder) =>
+        builder.overrideProvider(PrismaService).useValue({
+          $queryRaw: () => Promise.reject(new Error('connection refused')),
+          $disconnect: () => Promise.resolve(),
+        }),
+    })
 
     const response = await request(app.getHttpServer()).get('/api/health')
 
     expect(response.status).toBe(503)
-    expect(response.body).toMatchObject({ status: 'error', database: 'down' })
+    expect(response.body).toEqual({ status: 'error', database: 'down' })
   })
 })

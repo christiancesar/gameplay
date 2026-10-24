@@ -34,7 +34,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-01 concluído (branch `feature/be-01-nest11-shared`): API em NestJS 11 (CommonJS) e `packages/shared` (`@gameplay/shared`, ESM) consumido pela API e pelo web.
 - Grafana Cloud configurado pelo usuário (stack `technologies`, sa-east-1); variáveis OTLP em `apps/api/.env` (gitignored), usadas no BE-16.
 - BE-02 concluído: Postgres 18 no compose, env validado, Prisma 7, logs pino, `/api/health`, base dos e2e e imagem Docker da API (`npm run docker:api`).
-- Próximo: BE-03.
+- BE-03 concluído: contrato de erro, validação com zod, docs REST e Socket.IO no Scalar (só fora de produção), throttler e barramento de eventos.
+- Próximo: BE-04 (ou BE-07/BE-16, da mesma onda do BE-03).
 
 ## Assets fornecidos pelo usuário
 

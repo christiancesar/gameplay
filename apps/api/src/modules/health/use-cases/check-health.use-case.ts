@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../../lib/prisma'
-
-export type HealthReport = {
-  status: 'ok' | 'error'
-  database: 'up' | 'down'
-}
+import type { HealthReport } from '../dtos/health-report.dto'
 
 @Injectable()
 export class CheckHealthUseCase {
