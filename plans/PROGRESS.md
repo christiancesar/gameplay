@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (qualidade e latência da mídia).
+> Última atualização: 2026-10-24 (opções de transporte de mídia).
 
 ## Status das fases (workflow ágil)
 
@@ -45,6 +45,7 @@ Scaffold feito em `feature/api-setup` (2026-10-24), sem rotas nem módulos de fe
 
 1. Onde o **cover** do servidor aparece na interface (proporção 16:9 assumida até lá).
 2. Confirmar as suposições abaixo.
+3. Transporte de mídia mesh e SFU: ver `media-transport-options.md`, seção 6.
 
 ## Suposições a confirmar
 

@@ -161,6 +161,8 @@ Quem assiste:
 Medição:
 - `getStats()` alimenta o monitor "Ao vivo" (F8): `qualityLimitationReason` (`bandwidth` ou `cpu`), `roundTripTime`, `jitterBufferDelay`, `packetsLost`, `framesDropped`.
 
+Mesh e SFU como opções para o usuário, com custo zero como padrão: em discussão em `media-transport-options.md`.
+
 Próximo passo se o upload virar o limite: trocar `MeshTransport` por SFU com simulcast ou SVC (`scalabilityMode`), para quem transmite enviar um encoding só e cada espectador receber a camada que a rede dele suporta. SFU só repassa pacotes; nunca transcodificar no servidor, porque isso soma delay.
 
 Electron (avaliado, fora do MVP): usa a mesma pilha WebRTC do Chromium, então não melhora a qualidade da imagem nem elimina sinalização e TURN. Ganhos: áudio do sistema uniforme entre SOs, captura sem o seletor do browser, push-to-talk global. Entraria como casca do mesmo app React. Pipeline nativo (estilo Parsec/Sunshine) seria outro escopo.
