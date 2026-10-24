@@ -1,8 +1,16 @@
 # Transporte de mídia: mesh e SFU
 
 > Criado em 2026-10-24. Proposta em discussão, nada aqui foi implementado.
-> Decisão do usuário: custo zero como padrão, com as duas opções disponíveis.
+> Decisões do usuário: custo zero como padrão, com as duas opções disponíveis. **MVP só com mesh; SFU fica para a fase seguinte** (2026-10-24).
 > Itens marcados como **(suposição)** são propostas minhas e precisam de confirmação.
+
+## 0. Escopo do MVP
+
+- Só mesh, para voz e tela.
+- Sem seletor de modo no diálogo de transmissão e sem configuração de SFU no painel do admin.
+- A interface `MediaTransport` continua, para o `SfuTransport` entrar depois sem mudar ViewModels e Views.
+- O monitor do F8 segue como está (tabela por espectador em mesh).
+- As seções 2 a 5 descrevem a fase seguinte.
 
 ## 1. As duas opções
 
@@ -137,7 +145,10 @@ Referência de consumo: 1080p60 a ~6 Mbps de média dá ~2,7 GB por hora por esp
 3. Voz sempre em mesh.
 4. Fornecedor do SFU: Cloudflare Realtime SFU.
 5. Orçamento mensal padrão (exemplo: 800 GB).
-6. SFU entra no MVP ou numa fase seguinte, com o mesh primeiro.
+6. ~~SFU entra no MVP ou numa fase seguinte~~. Decidido: fase seguinte, MVP só mesh.
+7. Seletor de qualidade do espectador (seção 2.3) em mesh: entra no MVP ou junto do SFU? Em mesh ele já funciona e economiza upload do streamer.
+
+Os itens 1 a 5 só precisam ser decididos quando o SFU entrar.
 
 ## Fontes
 

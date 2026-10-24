@@ -161,7 +161,7 @@ Quem assiste:
 Medição:
 - `getStats()` alimenta o monitor "Ao vivo" (F8): `qualityLimitationReason` (`bandwidth` ou `cpu`), `roundTripTime`, `jitterBufferDelay`, `packetsLost`, `framesDropped`.
 
-Mesh e SFU como opções para o usuário, com custo zero como padrão: em discussão em `media-transport-options.md`.
+Mesh e SFU como opções para o usuário, com custo zero como padrão: documentado em `media-transport-options.md`. **MVP só mesh**; SFU na fase seguinte.
 
 Próximo passo se o upload virar o limite: trocar `MeshTransport` por SFU com simulcast ou SVC (`scalabilityMode`), para quem transmite enviar um encoding só e cada espectador receber a camada que a rede dele suporta. SFU só repassa pacotes; nunca transcodificar no servidor, porque isso soma delay.
 
