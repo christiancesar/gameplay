@@ -3,7 +3,7 @@
 Um arquivo por ticket, cada um com contexto, escopo, fora do escopo, referências, checklist e critério de aceite. Base: `plans/04-tech-plan.md`.
 
 Como trabalhar:
-- Cada ticket tem a própria branch (`feature/be-NN-nome`) a partir da `main`, integrada por PR.
+- Todos os tickets do backend são feitos na branch `feature/api-setup`, sem branch por ticket (decisão do usuário em 2026-10-24).
 - Commit a cada passo verde.
 - Ao terminar, marque o checklist e atualize o status abaixo.
 
