@@ -29,6 +29,7 @@ Endpoints de avatar (BE-08) e de ícone e cover (BE-09).
 - `plans/04-tech-plan.md` seções 1 e 3
 
 ## Checklist
+- [ ] O `Dockerfile` da API instala o runtime com `--omit=optional`; garantir que o binário do `sharp` para linux/alpine entre na imagem e testar o upload dentro do container
 - [ ] Consultar docs atuais do `sharp` e do `@aws-sdk/client-s3`
 - [ ] Contrato `StorageProvider` e os três drivers
 - [ ] `ImageProcessor` com testes: JPG, PNG e WebP válidos; arquivo com extensão falsa; acima de 2 MB; EXIF removido; dimensões finais

@@ -10,7 +10,7 @@ Como trabalhar:
 | Ticket | Pontos | Onda | Status |
 |---|---|---|---|
 | [BE-01 Nest 11 e `packages/shared`](BE-01-fundacao-nest11-shared.md) | 5 | 1 | concluído |
-| [BE-02 Postgres, env, Prisma 7, logs, e2e](BE-02-infra-env-prisma.md) | 5 | 2 | pendente |
+| [BE-02 Postgres, env, Prisma 7, logs, e2e](BE-02-infra-env-prisma.md) | 5 | 2 | concluído |
 | [BE-03 Erros, zod, OpenAPI, AsyncAPI, eventos](BE-03-plataforma-http-contrato.md) | 5 | 3 | pendente |
 | [BE-07 Storage e imagens](BE-07-storage-e-imagens.md) | 5 | 3 | pendente |
 | [BE-16 OpenTelemetry](BE-16-observabilidade.md) | 3 | 3 | pendente |

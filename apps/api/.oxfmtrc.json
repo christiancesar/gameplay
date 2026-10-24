@@ -3,5 +3,5 @@
   "printWidth": 120,
   "semi": false,
   "singleQuote": true,
-  "ignorePatterns": ["dist/**"]
+  "ignorePatterns": ["dist/**", "src/generated/**"]
 }
