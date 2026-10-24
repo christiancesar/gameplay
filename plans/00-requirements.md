@@ -140,6 +140,31 @@ O limite efetivo é o override, quando existe, senão o padrão global.
   - Fase local: STUN + TURN do **Cloudflare Realtime** (1.000 GB/mês grátis; STUN grátis e ilimitado), com credenciais efêmeras emitidas pela API.
   - Fase EC2: **coturn** em container no IP público.
 
+### 3.1.1 Qualidade e latência da mídia
+Discutido em 2026-10-24. O servidor (Socket.IO) só faz a sinalização (SDP, candidatos ICE, presença) e não fica no caminho da mídia. O TURN só repassa pacotes. A qualidade se decide nas pontas, e o gargalo real é o upload de quem transmite (em mesh, um stream codificado por espectador). Quando a rede não aguenta, o WebRTC baixa resolução ou fps, nunca soma delay.
+
+Quem transmite:
+- **Codec** escolhido pelo hardware coletado (Media Capabilities, `powerEfficient`): AV1 por hardware se houver, senão H.264 por hardware, senão VP9. Aplicado com `setCodecPreferences`.
+- `track.contentHint = 'motion'` e `degradationPreference: 'maintain-framerate'` como padrão para jogo: a resolução cai antes do fps.
+- `maxBitrate` e `maxFramerate` por preset via `RTCRtpSender.setParameters`, com teto coerente com o upload medido.
+- Voz com `priority: 'high'`: quando a banda aperta, cai a imagem, não a voz.
+
+Rede:
+- Caminho direto em UDP é o caso ideal. TURN sobre TCP/TLS só como último recurso (head-of-line blocking).
+- Perda de pacote recuperada sem esperar: FEC (Opus inband FEC e RED na voz) e NACK (custa um RTT só no pacote perdido).
+- **Região do TURN**: o relay tem que ficar perto dos usuários. Cloudflare Realtime é anycast e atende pelo PoP mais próximo (São Paulo). O coturn da Fase 2 deve ficar em **sa-east-1**, mesmo que o resto da infraestrutura fique em outra região (relay em us-east-1 soma cerca de 120 ms de ida e volta para usuários no Brasil).
+- Conexão mais rápida: trickle ICE e credenciais TURN emitidas antes de entrar na sala.
+
+Quem assiste:
+- `RTCRtpReceiver.jitterBufferTarget` baixo por padrão: menos delay, com algum risco de engasgo em rede instável.
+
+Medição:
+- `getStats()` alimenta o monitor "Ao vivo" (F8): `qualityLimitationReason` (`bandwidth` ou `cpu`), `roundTripTime`, `jitterBufferDelay`, `packetsLost`, `framesDropped`.
+
+Próximo passo se o upload virar o limite: trocar `MeshTransport` por SFU com simulcast ou SVC (`scalabilityMode`), para quem transmite enviar um encoding só e cada espectador receber a camada que a rede dele suporta. SFU só repassa pacotes; nunca transcodificar no servidor, porque isso soma delay.
+
+Electron (avaliado, fora do MVP): usa a mesma pilha WebRTC do Chromium, então não melhora a qualidade da imagem nem elimina sinalização e TURN. Ganhos: áudio do sistema uniforme entre SOs, captura sem o seletor do browser, push-to-talk global. Entraria como casca do mesmo app React. Pipeline nativo (estilo Parsec/Sunshine) seria outro escopo.
+
 ### 3.2 Monorepo
 - **npm workspaces + Turborepo**.
 
@@ -294,6 +319,7 @@ apps/web/
 - **Storage:** fase local usa `STORAGE_DRIVER=local` (volume Docker). Fase EC2 usa `STORAGE_DRIVER=s3`. Os testes do driver S3 rodam contra **MinIO** em container.
 - **Fase 1, local (máquina do desenvolvedor):** `docker-compose.dev.yml` com nginx, web, api, mongo (replica set) e **cloudflared** (Cloudflare Tunnel) para os testers acessarem. O tunnel só carrega HTTP/WebSocket; a mídia vai direto entre os browsers. TURN via Cloudflare Realtime.
 - **Fase 2, EC2 t3.medium:** `docker-compose.prod.yml` com nginx, web, api e coturn. Banco no **MongoDB Atlas free**.
+  - Pendente: a estimativa abaixo usa us-east-1, mas o coturn deve ficar em sa-east-1 (ver 3.1.1). Rever região e preços (sa-east-1 é mais cara, e a transferência de saída também).
 - **Estimativa de custo da Fase 2 (ideação, us-east-1, sob demanda).** Valores a revisar com medição real depois que o app estiver rodando.
 
   | Item | Cálculo | US$/mês |

@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (scaffold do backend).
+> Última atualização: 2026-10-24 (qualidade e latência da mídia).
 
 ## Status das fases (workflow ágil)
 
@@ -47,6 +47,12 @@ Scaffold feito em `feature/api-setup` (2026-10-24), sem rotas nem módulos de fe
 2. Confirmar as suposições abaixo.
 
 ## Suposições a confirmar
+
+Configuração da transmissão pelo usuário (proposta de 2026-10-24, ver `00-requirements.md` 3.1.1):
+- Quem transmite escolhe o **preset** (720p30, 720p60, 1080p30, 1080p60, já decidido) e uma **prioridade**: "Fluidez" (padrão, mantém fps) ou "Nitidez" (mantém resolução, `contentHint 'detail'`, para texto e menus).
+- Codec, bitrate, FEC e prioridade da voz são automáticos e não aparecem na interface do MVP.
+- Trocar preset ou prioridade durante a transmissão aplica na hora, sem reiniciar (`applyConstraints` + `setParameters`). Trocar codec exigiria renegociação, por isso fica fora da interface.
+- Quem assiste não configura nada no MVP; o jitter buffer fica baixo por padrão.
 
 Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Card do servidor (decisão do usuário): ícone, nome e engrenagem; clicar abre o modal do servidor. Member vê o ícone de sair do servidor no lugar da engrenagem.
