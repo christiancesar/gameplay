@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (tech plan e tickets do backend).
+> Última atualização: 2026-10-24 (BE-01 a BE-04 concluídos; pausa).
 
 ## Status das fases (workflow ágil)
 
@@ -37,6 +37,16 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-03 concluído: contrato de erro, validação com zod, docs REST e Socket.IO no Scalar (só fora de produção), throttler e barramento de eventos.
 - BE-04 concluído: Better Auth (email ou username, admin, 2FA), guard global, `@PlatformAdmin()`, seed do admin e primeira migration.
 - Próximo: BE-05, BE-06, BE-08 ou BE-14 (onda 5), ou BE-07/BE-16 (onda 3).
+
+### Pausa em 2026-10-24 (retomar daqui)
+- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo.
+- **Pendente do BE-04 (decisão do usuário):** o Better Auth expõe 56 rotas em `/api/auth/*` (lista na fonte "Auth (Better Auth)" do Scalar). Proposta: desligar com `disabledPaths` as que conflitam com o plano: `admin/impersonate-user`, `admin/stop-impersonating`, `admin/remove-user`, `delete-user` (e callback), `admin/create-user` (o seed usa a API interna, não a rota), `request-password-reset`, `reset-password` (e `/{token}`), `send-verification-email`, `verify-email`, `change-email`, `sign-in/social`, `link-social`, `unlink-account`, `callback/{id}`, `get-access-token`, `refresh-token`, `two-factor/send-otp`, `two-factor/verify-otp`; e um e2e garantindo 404. Perguntas em aberto:
+  1. Desligar também `admin/set-role` (o plano diz que admin só vem por seed)?
+  2. Manter `change-password` e `update-user` (trocar a própria senha e o username), que o plano não cita?
+  3. Aplicar a lista acima?
+- Opcional sugerido: juntar as rotas do Better Auth no documento REST do Scalar (hoje é uma fonte separada no seletor).
+- Banco de dev local tem um admin de teste criado pelo seed: `admin@gameplay.local` / `admin-pass-123`.
+- Docker: `npm run docker:api` sobe a imagem de produção na porta 3334 ao lado do `npm run dev` (3333). Docs só na 3333.
 
 ## Assets fornecidos pelo usuário
 
