@@ -4,6 +4,7 @@ import { InMemoryRegistrationInvitesRepository } from '../../registration-invite
 import { FakeTokenHasher } from '../../registration-invites/test/fakes'
 import { ConsumeRegistrationInviteUseCase } from '../../registration-invites/use-cases/consume-registration-invite.use-case'
 import { SettleRegistrationInviteUseCase } from '../../registration-invites/use-cases/settle-registration-invite.use-case'
+import { makeMembershipsContext } from '../../memberships/test/fakes'
 import { SignUpHook } from './sign-up.hook'
 
 function contextWith(body: Record<string, unknown>, newUserId?: string) {
@@ -21,11 +22,15 @@ describe('SignUpHook', () => {
       createdById: 'admin',
     })
     const hasher = new FakeTokenHasher()
+    const servers = await makeMembershipsContext()
     const hook = new SignUpHook(
       new ConsumeRegistrationInviteUseCase(invites, hasher),
       new SettleRegistrationInviteUseCase(invites, hasher),
+      servers.join,
+      servers.resolve,
+      servers.events,
     )
-    return { hook, invites }
+    return { hook, invites, servers }
   }
 
   it('uses the username as the display name and takes the key', async () => {
@@ -67,5 +72,62 @@ describe('SignUpHook', () => {
     await hook.after(contextWith(body))
 
     expect(invites.items[0]?.usedAt).toBeNull()
+  })
+
+  describe('with a server invite', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    async function signUpWithInvite() {
+      const sut = await makeSut()
+      const { code } = await sut.servers.createInvite.execute({ serverId: sut.servers.serverId, userId: 'owner' })
+      const body = { username: 'ana_01', registrationKey: 'ABC234', serverInviteCode: code.toLowerCase() }
+      await sut.hook.before(contextWith(body))
+      return { ...sut, body }
+    }
+
+    it('creates the join request for the new account', async () => {
+      const { hook, body, servers } = await signUpWithInvite()
+
+      await hook.after(contextWith(body, 'user-1'))
+
+      expect(servers.memberships.requests).toEqual([
+        expect.objectContaining({ userId: 'user-1', serverId: servers.serverId, status: 'pending' }),
+      ])
+    })
+
+    it('turns an invite that expired meanwhile into a notice, keeping the account', async () => {
+      vi.useFakeTimers({ now: new Date('2026-10-24T12:00:00Z') })
+      const { hook, body, servers } = await signUpWithInvite()
+      vi.setSystemTime(new Date('2026-10-24T13:30:00Z'))
+
+      await hook.after(contextWith(body, 'user-1'))
+
+      expect(servers.memberships.requests).toEqual([])
+      expect(servers.events.published).toEqual([
+        {
+          name: 'server-invite.expired-on-sign-up',
+          payload: { userId: 'user-1', serverId: servers.serverId, serverName: 'Squad' },
+        },
+      ])
+    })
+
+    it('ignores the invite when the account was not created', async () => {
+      const { hook, body, servers } = await signUpWithInvite()
+
+      await hook.after(contextWith(body))
+
+      expect(servers.memberships.requests).toEqual([])
+    })
+
+    it('ignores a code in the wrong format', async () => {
+      const { hook, servers } = await makeSut()
+      const body = { username: 'ana_01', registrationKey: 'ABC234', serverInviteCode: 'nope' }
+      await hook.before(contextWith(body))
+
+      await expect(hook.after(contextWith(body, 'user-1'))).resolves.toBeUndefined()
+      expect(servers.memberships.requests).toEqual([])
+    })
   })
 })

@@ -3,6 +3,7 @@ import { AuthModule } from '@thallesp/nestjs-better-auth'
 import { EnvService } from '../../env/env.service'
 import { createAuth } from '../../lib/auth'
 import { PrismaService } from '../../lib/prisma'
+import { MembershipsModule } from '../memberships/memberships.module'
 import { RegistrationInvitesModule } from '../registration-invites/registration-invites.module'
 import { SignUpHook } from './hooks/sign-up.hook'
 import { UpdateUserHook } from './hooks/update-user.hook'
@@ -16,6 +17,7 @@ import { UpdateUserHook } from './hooks/update-user.hook'
       useFactory: (prisma: PrismaService, env: EnvService) => ({ auth: createAuth(prisma, env) }),
     }),
     RegistrationInvitesModule,
+    MembershipsModule,
   ],
   providers: [SignUpHook, UpdateUserHook],
 })
