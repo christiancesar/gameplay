@@ -1,5 +1,8 @@
 import type { CollectedHardware, ManualHardware } from '@gameplay/shared'
 
+// Hardware reports as the web would send them, for the accounts and platform
+// admin tests. Pass overrides for the figures under test.
+
 export function makeCollected(overrides: Partial<CollectedHardware> = {}): CollectedHardware {
   return {
     os: { platform: 'Windows', version: '15.0.0', architecture: 'x86', bitness: '64' },

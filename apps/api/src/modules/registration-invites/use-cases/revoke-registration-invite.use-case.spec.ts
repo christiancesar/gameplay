@@ -3,17 +3,13 @@ import {
   RegistrationInviteNotFoundError,
 } from '../errors/registration-invite.errors'
 import { InMemoryRegistrationInvitesRepository } from '../repositories/in-memory/in-memory-registration-invites.repository'
+import { seedInvite } from '../test/registration-invites-seed'
 import { RevokeRegistrationInviteUseCase } from './revoke-registration-invite.use-case'
 
 describe('RevokeRegistrationInviteUseCase', () => {
   async function makeSut() {
     const invites = new InMemoryRegistrationInvitesRepository()
-    const invite = await invites.create({
-      keyHmac: 'hmac:ABC234',
-      keySuffix: '234',
-      expiresAt: new Date(Date.now() + 60_000),
-      createdById: 'admin',
-    })
+    const invite = await invites.create(seedInvite())
     return { sut: new RevokeRegistrationInviteUseCase(invites), invites, invite }
   }
 
@@ -34,7 +30,7 @@ describe('RevokeRegistrationInviteUseCase', () => {
 
   it('refuses a used key', async () => {
     const { sut, invites, invite } = await makeSut()
-    await invites.take('hmac:ABC234', new Date())
+    await invites.take(seedInvite().keyHmac, new Date())
 
     await expect(sut.execute(invite.id)).rejects.toThrow(RegistrationInviteAlreadyUsedError)
   })

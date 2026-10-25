@@ -8,7 +8,7 @@ import {
   ServerInviteRevokedError,
   ServerInviteUsedError,
 } from '../errors/memberships.errors'
-import { makeMembershipsContext } from '../test/fakes'
+import { makeMembershipsContext } from '../test/memberships-context'
 
 describe('Joining a server', () => {
   async function withInvite() {

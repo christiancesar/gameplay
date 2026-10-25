@@ -1,21 +1,7 @@
 import { Logger } from '@nestjs/common'
-import { IceProvider, type IssuedIce } from '../ice.provider'
 import { StunOnlyIceProvider } from '../providers/stun-only.ice-provider'
+import { CountingIceProvider } from '../test/counting-ice-provider'
 import { GetIceConfigUseCase } from './get-ice-config.use-case'
-
-class CountingIceProvider extends IceProvider {
-  calls = 0
-  failing = false
-
-  async issue(userId: string): Promise<IssuedIce> {
-    if (this.failing) throw new Error('down')
-    this.calls += 1
-    return {
-      iceServers: [{ urls: ['turn:t:3478'], username: `${userId}-${this.calls}`, credential: 'x' }],
-      ttlSeconds: 3600,
-    }
-  }
-}
 
 describe('GetIceConfigUseCase', () => {
   function makeSut() {

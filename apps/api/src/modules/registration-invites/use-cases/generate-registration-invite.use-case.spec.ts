@@ -1,5 +1,6 @@
 import { InMemoryRegistrationInvitesRepository } from '../repositories/in-memory/in-memory-registration-invites.repository'
-import { FakeTokenGenerator, FakeTokenHasher } from '../test/fakes'
+import { FakeTokenGenerator } from '../test/fake-token-generator'
+import { FakeTokenHasher } from '../test/fake-token-hasher'
 import { GenerateRegistrationInviteUseCase } from './generate-registration-invite.use-case'
 
 describe('GenerateRegistrationInviteUseCase', () => {

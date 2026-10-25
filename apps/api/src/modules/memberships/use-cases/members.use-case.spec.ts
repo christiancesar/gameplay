@@ -1,6 +1,6 @@
 import { ServerPermissionDeniedError } from '../../servers/errors/servers.errors'
 import { CannotTargetSelfError, MemberNotFoundError, OwnerCannotLeaveError } from '../errors/memberships.errors'
-import { makeMembershipsContext } from '../test/fakes'
+import { makeMembershipsContext } from '../test/memberships-context'
 
 describe('Members', () => {
   it('lists the owner first', async () => {

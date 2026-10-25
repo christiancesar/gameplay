@@ -5,7 +5,7 @@ import {
   RoomNotFoundError,
   ServerPermissionDeniedError,
 } from '../errors/servers.errors'
-import { makeServersContext } from '../test/fakes'
+import { makeServersContext } from '../test/servers-context'
 import { CreateRoomUseCase } from './create-room.use-case'
 import { CreateServerUseCase } from './create-server.use-case'
 import { DeleteRoomUseCase } from './delete-room.use-case'

@@ -1,5 +1,5 @@
 import { ServerLimitReachedError } from '../errors/servers.errors'
-import { makeServersContext } from '../test/fakes'
+import { makeServersContext } from '../test/servers-context'
 import { CreateServerUseCase } from './create-server.use-case'
 
 describe('CreateServerUseCase', () => {

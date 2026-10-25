@@ -1,6 +1,7 @@
 import { InvalidRegistrationKeyError } from '../errors/registration-invite.errors'
 import { InMemoryRegistrationInvitesRepository } from '../repositories/in-memory/in-memory-registration-invites.repository'
-import { FakeTokenHasher } from '../test/fakes'
+import { FakeTokenHasher } from '../test/fake-token-hasher'
+import { SEED_KEY, seedInvite } from '../test/registration-invites-seed'
 import { ConsumeRegistrationInviteUseCase } from './consume-registration-invite.use-case'
 import { SettleRegistrationInviteUseCase } from './settle-registration-invite.use-case'
 
@@ -12,12 +13,7 @@ describe('ConsumeRegistrationInviteUseCase and SettleRegistrationInviteUseCase',
 
   async function makeSut(overrides: { expiresAt?: Date } = {}) {
     const invites = new InMemoryRegistrationInvitesRepository()
-    const invite = await invites.create({
-      keyHmac: 'hmac:ABC234',
-      keySuffix: '234',
-      expiresAt: overrides.expiresAt ?? new Date(now.getTime() + 60_000),
-      createdById: 'admin',
-    })
+    const invite = await invites.create({ ...seedInvite(now), ...overrides })
     const hasher = new FakeTokenHasher()
     return {
       consume: new ConsumeRegistrationInviteUseCase(invites, hasher),
@@ -39,8 +35,8 @@ describe('ConsumeRegistrationInviteUseCase and SettleRegistrationInviteUseCase',
     const { consume, settle, invites } = await makeSut()
     invites.usernames.set('user-1', 'ana_01')
 
-    await consume.execute('ABC234')
-    await settle.execute({ key: 'ABC234', userId: 'user-1' })
+    await consume.execute(SEED_KEY)
+    await settle.execute({ key: SEED_KEY, userId: 'user-1' })
 
     expect((await invites.list())[0]?.usedBy).toEqual({ id: 'user-1', username: 'ana_01' })
   })
@@ -48,24 +44,24 @@ describe('ConsumeRegistrationInviteUseCase and SettleRegistrationInviteUseCase',
   it('gives the key back when the sign-up failed', async () => {
     const { consume, settle } = await makeSut()
 
-    await consume.execute('ABC234')
-    await settle.execute({ key: 'ABC234', userId: null })
+    await consume.execute(SEED_KEY)
+    await settle.execute({ key: SEED_KEY, userId: null })
 
-    await expect(consume.execute('ABC234')).resolves.toBeUndefined()
+    await expect(consume.execute(SEED_KEY)).resolves.toBeUndefined()
   })
 
   it('refuses a key that was used', async () => {
     const { consume, settle } = await makeSut()
-    await consume.execute('ABC234')
-    await settle.execute({ key: 'ABC234', userId: 'user-1' })
+    await consume.execute(SEED_KEY)
+    await settle.execute({ key: SEED_KEY, userId: 'user-1' })
 
-    await expect(consume.execute('ABC234')).rejects.toThrow(InvalidRegistrationKeyError)
+    await expect(consume.execute(SEED_KEY)).rejects.toThrow(InvalidRegistrationKeyError)
   })
 
   it('lets only one of two concurrent sign-ups take the key', async () => {
     const { consume } = await makeSut()
 
-    const results = await Promise.allSettled([consume.execute('ABC234'), consume.execute('ABC234')])
+    const results = await Promise.allSettled([consume.execute(SEED_KEY), consume.execute(SEED_KEY)])
 
     expect(results.map((result) => result.status).sort()).toEqual(['fulfilled', 'rejected'])
   })
@@ -73,14 +69,14 @@ describe('ConsumeRegistrationInviteUseCase and SettleRegistrationInviteUseCase',
   it('refuses an expired key', async () => {
     const { consume } = await makeSut({ expiresAt: now })
 
-    await expect(consume.execute('ABC234')).rejects.toThrow(InvalidRegistrationKeyError)
+    await expect(consume.execute(SEED_KEY)).rejects.toThrow(InvalidRegistrationKeyError)
   })
 
   it('refuses a revoked key', async () => {
     const { consume, invites, invite } = await makeSut()
     await invites.revoke(invite.id, now)
 
-    await expect(consume.execute('ABC234')).rejects.toThrow(InvalidRegistrationKeyError)
+    await expect(consume.execute(SEED_KEY)).rejects.toThrow(InvalidRegistrationKeyError)
   })
 
   it('refuses an unknown key', async () => {

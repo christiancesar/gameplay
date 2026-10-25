@@ -1,5 +1,5 @@
 import { InMemoryPresenceStore } from '../../realtime/stores/in-memory/in-memory-presence.store'
-import { FakeEventBus } from '../../servers/test/fakes'
+import { FakeEventBus } from '../../../common/test/fake-event-bus'
 import { InMemoryAdminUsersRepository } from '../repositories/in-memory/in-memory-admin-users.repository'
 import { AdminUsersService } from '../services/admin-users.service'
 import { ListUserSessionsUseCase } from '../use-cases/list-user-sessions.use-case'

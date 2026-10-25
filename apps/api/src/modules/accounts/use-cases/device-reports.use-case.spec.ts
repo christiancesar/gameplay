@@ -1,6 +1,6 @@
 import { DeviceNotFoundError } from '../errors/accounts.errors'
 import { InMemoryDeviceReportsRepository } from '../repositories/in-memory/in-memory-device-reports.repository'
-import { makeCollected, makeManual } from '../test/hardware'
+import { makeCollected, makeManual } from '../test/hardware-seed'
 import { ListMyDevicesUseCase } from './list-my-devices.use-case'
 import { ReportDeviceUseCase } from './report-device.use-case'
 import { UpdateDeviceManualInfoUseCase } from './update-device-manual-info.use-case'

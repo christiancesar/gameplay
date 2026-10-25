@@ -1,6 +1,6 @@
 import sharp from 'sharp'
 import { ServerNotFoundError, ServerPermissionDeniedError } from '../errors/servers.errors'
-import { makeServersContext } from '../test/fakes'
+import { makeServersContext } from '../test/servers-context'
 import { CreateServerUseCase } from './create-server.use-case'
 import { DeleteServerUseCase } from './delete-server.use-case'
 import { GetServerUseCase } from './get-server.use-case'

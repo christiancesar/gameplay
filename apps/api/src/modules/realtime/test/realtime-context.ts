@@ -1,4 +1,4 @@
-import { makeServersContext } from '../../servers/test/fakes'
+import { makeServersContext } from '../../servers/test/servers-context'
 import { DomainEventsListener } from '../listeners/domain-events.listener'
 import { VoiceRoomsConfig, VoiceRoomsService } from '../services/voice-rooms.service'
 import { InMemoryPresenceStore } from '../stores/in-memory/in-memory-presence.store'

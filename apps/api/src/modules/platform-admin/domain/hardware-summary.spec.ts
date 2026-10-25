@@ -1,5 +1,5 @@
 import type { CollectedHardware } from '@gameplay/shared'
-import { makeCollected } from '../../accounts/test/hardware'
+import { makeCollected } from '../../accounts/test/hardware-seed'
 import { summarizeHardware } from './hardware-summary'
 
 // makeCollected's device with only the figures under test set (by default

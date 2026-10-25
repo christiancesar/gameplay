@@ -1,4 +1,4 @@
-import { makeServersContext } from '../../servers/test/fakes'
+import { makeServersContext } from '../../servers/test/servers-context'
 import { NotificationsListener } from '../listeners/domain-events.listener'
 import { InMemoryNotificationsRepository } from '../repositories/in-memory/in-memory-notifications.repository'
 import { DismissAllNotificationsUseCase } from '../use-cases/dismiss-all-notifications.use-case'
