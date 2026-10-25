@@ -48,9 +48,11 @@ function ParticipantTileView({
           compact && 'phone-landscape:gap-1 phone-landscape:text-xs',
         )}
       >
-        <span className="truncate">
-          {name}
-          {isMe && <span className="text-muted-foreground font-normal"> ({t('voice.you')})</span>}
+        <span className="flex min-w-0 items-baseline gap-1">
+          <span className="truncate" title={name}>
+            {name}
+          </span>
+          {isMe && <span className="text-muted-foreground shrink-0 font-normal">({t('voice.you')})</span>}
         </span>
         <ParticipantStatusView isMuted={isMuted} isDeafened={isDeafened} />
       </span>
@@ -84,7 +86,7 @@ function ParticipantTileView({
       {isMe ? (
         <div
           className={cn(
-            'flex min-w-0 flex-col items-center gap-3',
+            'flex max-w-full min-w-0 flex-col items-center gap-3',
             compact && 'phone-landscape:flex-row phone-landscape:gap-2',
           )}
         >
@@ -97,7 +99,7 @@ function ParticipantTileView({
               type="button"
               aria-label={t('voice.volumeFor', { name })}
               className={cn(
-                'focus-visible:ring-ring/50 flex min-w-0 flex-col items-center gap-3 rounded-lg outline-none focus-visible:ring-3',
+                'focus-visible:ring-ring/50 flex max-w-full min-w-0 flex-col items-center gap-3 rounded-lg outline-none focus-visible:ring-3',
                 compact && 'phone-landscape:flex-row phone-landscape:gap-2',
               )}
             >

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn } from 'storybook/test'
 
 import { images } from '@/fixtures'
-import { stageWithLive } from '@/fixtures/server'
+import { stageLongNames, stageWithLive } from '@/fixtures/server'
 
 import { StreamViewerView } from './stream-viewer.view'
 
@@ -31,6 +31,8 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Watching: Story = {}
+
+export const LongNames: Story = { args: { participants: stageLongNames } }
 
 export const MultipleStreams: Story = {
   args: {

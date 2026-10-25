@@ -59,6 +59,11 @@ export const stageConnecting: StageParticipant[] = [
   { ...people.lua, ...stageBase, isDeafened: true, isMuted: true, volume: 60 },
 ]
 
+export const stageLongNames: StageParticipant[] = [
+  { ...people.shinigame, ...stageBase, isMe: true, name: 'christiancesarrodriguessantos', isLive: true },
+  { ...people.jacutinga, ...stageBase, name: 'Jacutinga da Silva Sauro Junior', isMuted: true, isLive: true },
+]
+
 // Estados ao vivo do painel de transmissão.
 
 const target = { resolution: '1080p', fps: 60 } as const
