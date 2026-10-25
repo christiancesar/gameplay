@@ -46,7 +46,7 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - 2026-10-25: Cypress é o e2e principal (Playwright só para conferência rápida do orquestrador, fora do repo). FE-14 dividido: **FE-14a concluído** (26 cenários, `npm run e2e` com API e Vite de pé, dados com prefixo apagados no fim); FE-14b (peer bot, voz e transmissão) fica para depois do FE-09 e FE-10.
 - Estado: web 694 testes, api 282 unitários e 148 e2e, Cypress 26. Liberados agora: FE-07 (modal do servidor), FE-09 (voz), FE-12 (avisos do ambiente) e FE-13 (lint MVVM e Sentry).
 - 2026-10-25: **FE-07 (modal do servidor), FE-09 (voz) e FE-12 (avisos do ambiente) concluídos** em paralelo. Voz testada com dois Chromium headless: conectam e trocam áudio. Estado: web 975 testes, api 282, Cypress 26. Faltam FE-10 (transmissão), FE-13 (lint MVVM e Sentry) e FE-14b (e2e de voz com peer bot).
-- 2026-10-25: **FE-10 (transmissão) e FE-13 (lint MVVM e Sentry) concluídos.** Transmissão testada com dois Chromium headless: quem assiste recebe vídeo. As camadas do MVVM agora são checadas pelo lint. Sentry desligado até haver DSN. Estado: web 1105 testes, api 282. Falta só o FE-14b (e2e de voz e transmissão com peer bot), além da escolha de prioridade na transmissão, em andamento.
+- 2026-10-25: **FE-10 (transmissão) e FE-13 (lint MVVM e Sentry) concluídos.** Transmissão testada com dois Chromium headless: quem assiste recebe vídeo. As camadas do MVVM agora são checadas pelo lint. Sentry desligado até haver DSN. Estado: web 1105 testes, api 282. Falta só o FE-14b (e2e de voz e transmissão com peer bot). A escolha de prioridade na transmissão foi adicionada logo depois (web 1110 testes, Cypress 26).
 
 ## Backend (`apps/api`)
 

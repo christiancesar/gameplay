@@ -45,5 +45,5 @@ Suposições *(confirmar)*:
 - "Entregue" é o pior espectador; o envio é a soma de todos. *(suposição)*
 - Volume da tela de 0 a 100, só na memória; deafen também cala o áudio da tela. *(suposição)*
 - Sem preferência de codec, sem ajuste de Opus para áudio de jogo e sem `jitterBufferTarget`: o browser escolhe. *(suposição)*
-- A escolha de prioridade ("Fluidez" ou "Nitidez") não tinha controle na View; ficou para um ajuste logo em seguida.
+- Prioridade: a View não tinha controle; o ajuste seguinte (commit `8d204bf`) pôs a escolha "Fluido" ou "Nítido" no diálogo, no início e ao vivo, salva com o "usar da próxima vez". Os nomes dos rótulos são do agente. *(suposição)*
 - Não testado: botão "parar" do próprio browser (só spec), tela e áudio reais, 1080p60 sustentado e codec por hardware.
