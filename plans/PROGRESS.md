@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (BE-01 a BE-16 concluídos: backend completo).
+> Última atualização: 2026-10-25 (BE-01 a BE-16 concluídos: backend completo; PRs #2 e #3 abertos para a `main`).
 
 ## Status das fases (workflow ágil)
 
@@ -47,11 +47,11 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-12 concluído: salas de voz no gateway (um lugar por pessoa, 30 s para reconectar), sinalização só entre quem está na mesma sala, mute, deafen e transmissão, pedidos de assistir e de qualidade só para o streamer, e limpeza por exclusão, kick e suspensão.
 - BE-13 concluído: notificações do Hub gravadas a partir dos eventos de domínio, rotas de listar e dispensar, e `notification:new` pelo gateway.
 - BE-15 concluído: painel do admin da plataforma (usuários com presença e sessões, suspender e reativar, encerrar sessões, redefinir senha, qualquer servidor, hardware por usuário e resumo da base).
-- BE-16 concluído: OpenTelemetry (traces, métricas e logs por OTLP) com `trace_id` nos logs, desligado sem endpoint. Validado com coletor local; falta conferir no Grafana Cloud.
+- BE-16 concluído: OpenTelemetry (traces, métricas e logs por OTLP) com `trace_id` nos logs, desligado sem endpoint. Validado com coletor local e contra o Grafana Cloud (host e container, 2026-10-25); falta só ver os traces no Explore.
 - **Todos os tickets do backend estão feitos.** Próximos passos possíveis: review do usuário (BE-05 a BE-16), confirmar as suposições das notas dos tickets e voltar ao frontend (ViewModels, Screens e rotas sobre a API).
 
 ### Estado em 2026-10-24 (retomar daqui)
-- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-16 aguardando review.**
+- Branch `feature/api-setup`, no PR #2 para a `main`. O alinhamento do Storybook com a API e a renomeação de `packages/shared` para `packages/contracts` estão no PR #3 (`feature/storybook-contract-alignment`), que depende do #2. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-16 aguardando review.**
 - **Backend completo** (BE-01 a BE-16). Suposições do BE-11 ao BE-16 a confirmar estão nas notas dos tickets.
 - **Testes (pedido do usuário em 2026-10-24):** separar dados e factories. Um fake por arquivo, dados iniciais num arquivo de seed e a montagem do contexto em outro; nos e2e, factories em `test/factories/`. Aplicado em todos os módulos (2026-10-25): não há mais `test/fakes.ts`; o `FakeEventBus` fica em `src/common/test/`. Em 2026-10-25 os specs também deixaram de montar cenário próprio (sem `makeSut`): cada módulo tem `test/<módulo>-context.ts` sobre `test/<módulo>-seed.ts` (commit `c33be14`, feito em `feature/storybook-contract-alignment`, em cima do rename para `@gameplay/contracts`).
 - **Camadas por módulo (decidido em 2026-10-24, ver `04-tech-plan.md` seção 1):** `use-cases/` são as ações chamadas pelos controllers; `services/` (`*.service.ts`, `XxxService`) é lógica compartilhada entre use-cases, e service nunca depende de use-case; `providers/` são detalhes técnicos trocáveis (aleatório, hash, API externa); `domain/` são regras puras. Exemplos: `EffectiveLimitsService.resolve()` (limites), `ServerAccessService.member()`/`require()` (acesso e permissão), `ServerViewsService` (resposta do servidor).
@@ -61,7 +61,7 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - Infra local para os testes: `docker compose -f infra/docker-compose.dev.yml up -d --wait postgres s3mock`. Se o `prisma migrate dev` travar sem saída, rodar com `< /dev/null`.
 - `apps/api/.env` precisa de `REGISTRATION_KEY_SECRET` (já adicionado no ambiente local; ver `.env.example`).
 - **Pendência do BE-04 resolvida:** todas as rotas `/api/auth/admin/*` desligadas (o painel do BE-15 usa rotas próprias com 2FA), além de fluxos de email, login social, exclusão de conta e OTP do 2FA. `change-password` e `update-user` ficam ligadas. Avatar só por upload: `update-user` recusa `image`, e o upload do BE-08 grava a URL em `user.image`. Detalhes em `tickets/BE-04-auth-better-auth.md`.
-- **Ajuste pendente no Storybook:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
+- **Ajuste do Storybook feito no PR #3:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
 - Nos documentos, `platform_admin` virou "admin da plataforma" (`user.role = 'admin'`). Papéis dentro do servidor ficam em `Membership.role`.
 - Opcional sugerido: juntar as rotas do Better Auth no documento REST do Scalar (hoje é uma fonte separada no seletor).
 - Banco de dev local tem um admin de teste criado pelo seed: `admin@gameplay.local` / `admin-pass-123`.
