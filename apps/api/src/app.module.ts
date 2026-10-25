@@ -8,6 +8,7 @@ import { AuthenticationModule } from './modules/auth/authentication.module'
 import { IceModule } from './modules/ice/ice.module'
 import { HealthModule } from './modules/health/health.module'
 import { LimitsModule } from './modules/limits/limits.module'
+import { ServersModule } from './modules/servers/servers.module'
 import { StorageModule } from './modules/storage/storage.module'
 import { RegistrationInvitesModule } from './modules/registration-invites/registration-invites.module'
 
@@ -24,6 +25,7 @@ import { RegistrationInvitesModule } from './modules/registration-invites/regist
     RegistrationInvitesModule,
     AccountsModule,
     IceModule,
+    ServersModule,
   ],
 })
 export class AppModule {}
