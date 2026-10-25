@@ -20,6 +20,8 @@ export default defineConfig({
       // S3-compatible mock from infra/docker-compose.dev.yml.
       S3_TEST_ENDPOINT: process.env.S3_TEST_ENDPOINT ?? 'http://localhost:9090',
       REGISTRATION_KEY_SECRET: 'e2e-key-secret-e2e-key-secret-e2e-key',
+      // As behind nginx: X-Forwarded-For decides request.ip.
+      TRUST_PROXY_HOPS: '1',
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test',
     },
   },

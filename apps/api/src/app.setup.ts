@@ -10,6 +10,8 @@ export async function setupApp(app: INestApplication) {
 
   app.useLogger(app.get(Logger))
   app.setGlobalPrefix('api')
+  // request.ip comes from X-Forwarded-For only through these proxy hops.
+  ;(app as NestExpressApplication).set('trust proxy', env.get('TRUST_PROXY_HOPS'))
   app.enableShutdownHooks()
 
   // In production nginx serves the upload directory.

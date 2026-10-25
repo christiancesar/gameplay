@@ -21,7 +21,27 @@ describe('validateEnv', () => {
       PUBLIC_UPLOADS_URL: '/uploads',
       S3_REGION: 'auto',
       S3_FORCE_PATH_STYLE: false,
+      TRUST_PROXY_HOPS: 0,
+      ICE_PROVIDER: 'stun-only',
+      STUN_URLS: ['stun:stun.cloudflare.com:3478'],
+      ICE_TTL_SECONDS: 86_400,
     })
+  })
+
+  it('requires the credentials of the chosen ICE provider', () => {
+    expect(() => validateEnv({ ...required, ICE_PROVIDER: 'cloudflare' })).toThrow(/CLOUDFLARE_TURN_KEY_ID/)
+    expect(() => validateEnv({ ...required, ICE_PROVIDER: 'coturn' })).toThrow(/COTURN_URLS[\s\S]*COTURN_SECRET/)
+  })
+
+  it('splits the coturn URL list', () => {
+    const env = validateEnv({
+      ...required,
+      ICE_PROVIDER: 'coturn',
+      COTURN_URLS: 'turn:a:3478?transport=udp, turn:a:3478?transport=tcp',
+      COTURN_SECRET: 's'.repeat(16),
+    })
+
+    expect(env.COTURN_URLS).toEqual(['turn:a:3478?transport=udp', 'turn:a:3478?transport=tcp'])
   })
 
   it('requires the bucket and credentials for the s3 driver', () => {

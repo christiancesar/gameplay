@@ -5,6 +5,7 @@ import { LoggerModule } from './lib/logger'
 import { PrismaModule } from './lib/prisma'
 import { AccountsModule } from './modules/accounts/accounts.module'
 import { AuthenticationModule } from './modules/auth/authentication.module'
+import { IceModule } from './modules/ice/ice.module'
 import { HealthModule } from './modules/health/health.module'
 import { LimitsModule } from './modules/limits/limits.module'
 import { StorageModule } from './modules/storage/storage.module'
@@ -22,6 +23,7 @@ import { RegistrationInvitesModule } from './modules/registration-invites/regist
     LimitsModule,
     RegistrationInvitesModule,
     AccountsModule,
+    IceModule,
   ],
 })
 export class AppModule {}

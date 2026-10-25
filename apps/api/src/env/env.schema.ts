@@ -1,5 +1,13 @@
 import { z } from 'zod'
 
+// Comma-separated list, e.g. "turn:a:3478?transport=udp,turn:a:3478?transport=tcp".
+const urlList = z.string().transform((value) =>
+  value
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean),
+)
+
 export const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -30,12 +38,35 @@ export const envSchema = z
     S3_FORCE_PATH_STYLE: z.stringbool().default(false),
     S3_ACCESS_KEY_ID: z.string().optional(),
     S3_SECRET_ACCESS_KEY: z.string().optional(),
+    // Proxies in front of the API whose X-Forwarded-For is trusted (Express
+    // "trust proxy" hops): 1 behind nginx or cloudflared, 0 when exposed directly.
+    TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
+    // ICE servers for WebRTC: Cloudflare Realtime TURN (local phase), coturn
+    // (EC2 phase) or STUN only.
+    ICE_PROVIDER: z.enum(['cloudflare', 'coturn', 'stun-only']).default('stun-only'),
+    // Used by stun-only and by coturn (next to its TURN URLs).
+    STUN_URLS: urlList.default(['stun:stun.cloudflare.com:3478']),
+    // How long issued TURN credentials last. Longer than a voice session.
+    ICE_TTL_SECONDS: z.coerce.number().int().min(60).max(172_800).default(86_400),
+    CLOUDFLARE_TURN_KEY_ID: z.string().optional(),
+    CLOUDFLARE_TURN_API_TOKEN: z.string().optional(),
+    COTURN_URLS: urlList.optional(),
+    // static-auth-secret of coturn's REST API (use-auth-secret).
+    COTURN_SECRET: z.string().min(16).optional(),
   })
   .superRefine((env, ctx) => {
-    if (env.STORAGE_DRIVER !== 's3') return
-    for (const key of ['S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'] as const) {
-      if (!env[key]) ctx.addIssue({ code: 'custom', path: [key], message: 'Required when STORAGE_DRIVER is s3' })
+    const required = (keys: readonly (keyof typeof env)[], when: string) => {
+      for (const key of keys) {
+        if (!env[key]) ctx.addIssue({ code: 'custom', path: [key], message: `Required when ${when}` })
+      }
     }
+    if (env.STORAGE_DRIVER === 's3') {
+      required(['S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'], 'STORAGE_DRIVER is s3')
+    }
+    if (env.ICE_PROVIDER === 'cloudflare') {
+      required(['CLOUDFLARE_TURN_KEY_ID', 'CLOUDFLARE_TURN_API_TOKEN'], 'ICE_PROVIDER is cloudflare')
+    }
+    if (env.ICE_PROVIDER === 'coturn') required(['COTURN_URLS', 'COTURN_SECRET'], 'ICE_PROVIDER is coturn')
   })
 
 export type Env = z.infer<typeof envSchema>
