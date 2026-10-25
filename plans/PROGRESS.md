@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (BE-01 a BE-07 concluídos).
+> Última atualização: 2026-10-24 (BE-01 a BE-08 concluídos).
 
 ## Status das fases (workflow ágil)
 
@@ -39,10 +39,11 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-05 concluído: keys de cadastro (HMAC, rotas de admin, consumo no hook do sign-up com reserva e devolução se o cadastro falhar).
 - BE-06 concluído: configurações da plataforma, override de servidores por usuário, resolvedor e rota pública da versão mínima do Chromium. Override por servidor vai para o BE-09.
 - BE-07 concluído: storage local/S3, processamento de imagens com `sharp`, upload multipart. MinIO trocado pelo `adobe/s3mock` nos testes.
-- Próximo: BE-08 ou BE-14 (onda 5), ou BE-16 (onda 3).
+- BE-08 concluído: perfil, tema e idioma, avatar por upload e hardware por dispositivo (`/api/me/*`). Username continua pelo `/update-user` do Better Auth.
+- Próximo: BE-14 (onda 5), BE-16 (onda 3) ou BE-09 (onda 6, já desbloqueado).
 
 ### Estado em 2026-10-24 (retomar daqui)
-- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo. **BE-05, BE-06 e BE-07 aguardando review.**
+- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-08 aguardando review.**
 - `apps/api/.env` precisa de `REGISTRATION_KEY_SECRET` (já adicionado no ambiente local; ver `.env.example`).
 - **Pendência do BE-04 resolvida:** todas as rotas `/api/auth/admin/*` desligadas (o painel do BE-15 usa rotas próprias com 2FA), além de fluxos de email, login social, exclusão de conta e OTP do 2FA. `change-password` e `update-user` ficam ligadas. Avatar só por upload: `update-user` recusa `image`, e o upload do BE-08 grava a URL em `user.image`. Detalhes em `tickets/BE-04-auth-better-auth.md`.
 - **Ajuste pendente no Storybook:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
