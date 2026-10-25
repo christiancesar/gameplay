@@ -5,8 +5,8 @@ Backend do Gameplay: NestJS 11 com Express, Prisma 7 e Postgres.
 ## Rodando local
 
 ```bash
-# na raiz do repo: Postgres (cria também o banco gameplay_test)
-docker compose -f infra/docker-compose.dev.yml up -d --wait
+# na raiz do repo: Postgres (cria também o banco gameplay_test) e o mock de S3 dos testes
+docker compose -f infra/docker-compose.dev.yml up -d --wait postgres s3mock
 
 # em apps/api
 cp .env.example .env      # só na primeira vez
@@ -37,7 +37,7 @@ Os dois usam o mesmo banco de dev. As migrations ainda não rodam dentro do cont
 | `build` / `start`                             | compila para `dist/` e roda o build                                                                                  |
 | `typecheck`, `lint`, `format`, `format:check` | checagens                                                                                                            |
 | `test`                                        | testes unitários (`src/**/*.spec.ts`)                                                                                |
-| `test:e2e`                                    | testes e2e (`test/e2e`) contra o banco `gameplay_test`; aplica as migrations antes. Outro banco: `TEST_DATABASE_URL` |
+| `test:e2e`                                    | testes e2e (`test/e2e`) contra o banco `gameplay_test` e o `s3mock` (porta 9090); aplica as migrations antes. Outros endereços: `TEST_DATABASE_URL`, `S3_TEST_ENDPOINT` |
 | `db:generate`                                 | gera o Prisma Client em `src/generated/prisma` (roda também no `postinstall`)                                        |
 | `db:migrate`                                  | cria e aplica migrations em dev                                                                                      |
 | `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                           |
@@ -60,3 +60,10 @@ Com a API em dev: http://localhost:3333/api/docs (Scalar). O seletor no topo tro
 ## Variáveis de ambiente
 
 Validadas com zod na inicialização (`src/env/env.schema.ts`); a API não sobe com variável faltando ou inválida. Ver `.env.example`.
+
+## Uploads
+
+`STORAGE_DRIVER=local` (padrão) grava em `STORAGE_LOCAL_DIR` (`./uploads`). Fora de produção a própria API serve esses arquivos em `PUBLIC_UPLOADS_URL` (`/uploads`); em produção quem serve é o nginx. Com `STORAGE_DRIVER=s3`, os arquivos vão para um bucket compatível com S3 (AWS, R2) e `PUBLIC_UPLOADS_URL` é a URL pública do bucket ou do CDN. Variáveis em `.env.example`.
+
+O banco guarda só a chave (exemplo: `avatars/<userId>/<hash>.webp`); a URL pública é montada na hora.
+
