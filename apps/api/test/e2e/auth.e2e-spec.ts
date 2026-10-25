@@ -6,6 +6,7 @@ import { PlatformAdmin } from '../../src/common/auth/platform-admin.decorator'
 import type { AuthUser } from '../../src/lib/auth'
 import { DISABLED_AUTH_PATHS } from '../../src/lib/auth-disabled-paths'
 import { PrismaService } from '../../src/lib/prisma'
+import { issueRegistrationKey } from '../factories/registration-invite.factory'
 import { makeSignUp } from '../factories/user.factory'
 import { resetDatabase } from '../support/database'
 import { createTestApp } from '../support/create-test-app'
@@ -45,7 +46,8 @@ describe('Authentication (e2e)', () => {
   })
 
   async function signUp(overrides = {}) {
-    const body = makeSignUp(overrides)
+    const { key } = await issueRegistrationKey(app)
+    const body = makeSignUp({ registrationKey: key, ...overrides })
     const agent = request.agent(app.getHttpServer())
     const response = await agent.post('/api/auth/sign-up/email').send(body)
     return { agent, response, body }
@@ -63,10 +65,10 @@ describe('Authentication (e2e)', () => {
   })
 
   it('refuses a sign-up without a registration key', async () => {
-    const { response } = await signUp({ registrationKey: '' })
+    const { response, body } = await signUp({ registrationKey: '' })
 
     expect(response.status).toBe(400)
-    expect(await prisma.user.count()).toBe(0)
+    expect(await prisma.user.count({ where: { email: body.email } })).toBe(0)
   })
 
   it('refuses a username outside the rules', async () => {

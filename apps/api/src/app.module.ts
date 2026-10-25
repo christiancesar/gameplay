@@ -5,8 +5,17 @@ import { LoggerModule } from './lib/logger'
 import { PrismaModule } from './lib/prisma'
 import { AuthenticationModule } from './modules/auth/authentication.module'
 import { HealthModule } from './modules/health/health.module'
+import { RegistrationInvitesModule } from './modules/registration-invites/registration-invites.module'
 
 @Module({
-  imports: [EnvModule, LoggerModule, PrismaModule, CommonModule, AuthenticationModule, HealthModule],
+  imports: [
+    EnvModule,
+    LoggerModule,
+    PrismaModule,
+    CommonModule,
+    AuthenticationModule,
+    HealthModule,
+    RegistrationInvitesModule,
+  ],
 })
 export class AppModule {}
