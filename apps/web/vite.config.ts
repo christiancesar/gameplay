@@ -32,6 +32,8 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:3333',
       '/socket.io': { target: 'http://localhost:3333', ws: true },
+      // Avatars, icons and covers of the local storage driver (nginx serves this path in production).
+      '/uploads': 'http://localhost:3333',
     },
   },
   test: {
