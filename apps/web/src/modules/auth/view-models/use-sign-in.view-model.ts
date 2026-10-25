@@ -1,93 +1,52 @@
-import { useCallback, useMemo } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
 
+import { mapSignInError, type AuthClientError } from '@/modules/auth/model/mappers/auth-error.mapper'
+import { safeRedirect } from '@/modules/auth/model/rules/safe-redirect'
+import { refreshSession } from '@/modules/auth/model/services/session.query'
+import type { SignInCredentials } from '@/modules/auth/model/sign-in.schema'
+import { usePendingTwoFactorStore } from '@/modules/auth/view-models/stores/pending-two-factor.store'
 import { authClient } from '@/shared/lib/auth-client'
-import { ApiError } from '@/shared/lib/api-error'
-import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 
-type SignInError = { code?: string; message?: string; status?: number }
-
-function mapSignInError(error: unknown): SignInError {
-  if (error instanceof ApiError) {
-    return { code: error.code, message: error.message, status: error.status }
-  }
-  if (typeof error === 'object' && error !== null) {
-    const err = error as { code?: string; message?: string; status?: number }
-    return { code: err.code, message: err.message, status: err.status }
-  }
-  return {}
+/** Better Auth answers a successful password check with this flag when the account has 2FA. */
+function needsTwoFactor(data: object | null | undefined): boolean {
+  return Boolean(data && 'twoFactorRedirect' in data && data.twoFactorRedirect)
 }
 
-export function useSignInViewModel() {
+async function requestSignIn({ identifier, password }: SignInCredentials) {
+  const { data, error } = identifier.includes('@')
+    ? await authClient.signIn.email({ email: identifier, password })
+    : await authClient.signIn.username({ username: identifier, password })
+  if (error) throw error
+  return { twoFactor: needsTwoFactor(data) }
+}
+
+/** First step of `/sign-in`: email or username and password. */
+function useSignInViewModel() {
   const navigate = useNavigate()
-  const search = useSearch({ from: '/_guest/sign-in' })
   const queryClient = useQueryClient()
+  const { redirect } = useSearch({ from: '/_guest/sign-in' })
+  const markPending = usePendingTwoFactorStore((state) => state.markPending)
 
-  const redirectTo = useMemo(() => {
-    const redirect = (search as { redirect?: string }).redirect
-    if (redirect && redirect.startsWith('/')) return redirect
-    return '/'
-  }, [search])
-
-  const signIn = useCallback(
-    async (values: { identifier: string; password: string }) => {
-      const { identifier, password } = values
-      const isEmail = identifier.includes('@')
-      try {
-        if (isEmail) {
-          const res = await authClient.signIn.email({ email: identifier, password })
-          if (res.error) {
-            const err = mapSignInError(res.error)
-            if (err.code === 'TWO_FACTOR_REQUIRED' || err.code === 'TWO_FACTOR_NOT_ENABLED') {
-              await navigate({
-                to: '/sign-in',
-                search: { step: 'two-factor', redirect: (search as any).redirect } as any,
-                replace: true,
-              })
-              return { ok: false, requiresTwoFactor: true }
-            }
-            if (err.code === 'USER_SUSPENDED' || err.status === 403) {
-              return { ok: false, formErrorKey: 'auth.errors.suspended' }
-            }
-            return { ok: false, formErrorKey: 'auth.errors.invalidCredentials' }
-          }
-        } else {
-          const res = await authClient.signIn.username({ username: identifier, password })
-          if (res.error) {
-            const err = mapSignInError(res.error)
-            if (err.code === 'TWO_FACTOR_REQUIRED') {
-              await navigate({
-                to: '/sign-in',
-                search: { step: 'two-factor', redirect: (search as any).redirect } as any,
-                replace: true,
-              })
-              return { ok: false, requiresTwoFactor: true }
-            }
-            if (err.code === 'USER_SUSPENDED' || err.status === 403) {
-              return { ok: false, formErrorKey: 'auth.errors.suspended' }
-            }
-            return { ok: false, formErrorKey: 'auth.errors.invalidCredentials' }
-          }
-        }
-        await queryClient.invalidateQueries({ queryKey: sessionQueryOptions.queryKey })
-        await navigate({ to: redirectTo })
-        return { ok: true }
-      } catch (error) {
-        const err = mapSignInError(error)
-        if (err.code === 'USER_SUSPENDED' || err.status === 403) {
-          return { ok: false, formErrorKey: 'auth.errors.suspended' }
-        }
-        return { ok: false, formErrorKey: 'auth.errors.invalidCredentials' }
+  const mutation = useMutation({
+    mutationFn: requestSignIn,
+    onSuccess: async ({ twoFactor }) => {
+      if (twoFactor) {
+        markPending()
+        await navigate({ to: '/sign-in', search: { step: 'two-factor', redirect } })
+        return
       }
+      await refreshSession(queryClient)
+      await navigate({ to: safeRedirect(redirect) })
     },
-    [navigate, queryClient, redirectTo, search],
-  )
+  })
 
-  const goToSignUp = useCallback(() => {
-    const invite = (search as { invite?: string }).invite
-    navigate({ to: '/sign-up', search: invite ? ({ invite } as any) : ({} as any) })
-  }, [navigate, search])
-
-  return { signIn, goToSignUp, redirectTo }
+  return {
+    isSubmitting: mutation.isPending,
+    formError: mutation.error ? mapSignInError(mutation.error as AuthClientError) : undefined,
+    onSubmit: (values: SignInCredentials) => mutation.mutate(values),
+    onSignUpClick: () => void navigate({ to: '/sign-up' }),
+  }
 }
+
+export { useSignInViewModel }

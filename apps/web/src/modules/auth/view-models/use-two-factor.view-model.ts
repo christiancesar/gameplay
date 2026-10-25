@@ -1,55 +1,60 @@
-import { useCallback } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 
+import {
+  isTwoFactorSessionLost,
+  mapTwoFactorError,
+  type AuthClientError,
+} from '@/modules/auth/model/mappers/auth-error.mapper'
+import { safeRedirect } from '@/modules/auth/model/rules/safe-redirect'
+import { refreshSession } from '@/modules/auth/model/services/session.query'
+import type { TwoFactorCodeValues } from '@/modules/auth/model/two-factor.schema'
+import { usePendingTwoFactorStore } from '@/modules/auth/view-models/stores/pending-two-factor.store'
 import { authClient } from '@/shared/lib/auth-client'
-import { ApiError } from '@/shared/lib/api-error'
-import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 
-function mapError(error: unknown) {
-  if (error instanceof ApiError) return error
-  if (typeof error === 'object' && error !== null) {
-    const err = error as { code?: string; message?: string; status?: number }
-    throw new ApiError({ code: err.code ?? 'UNKNOWN_ERROR', message: err.message ?? '' }, err.status)
-  }
-  throw new ApiError({ code: 'UNKNOWN_ERROR', message: '' })
+async function verifyTotp({ code }: TwoFactorCodeValues) {
+  const { error } = await authClient.twoFactor.verifyTotp({ code })
+  if (error) throw error
 }
 
-export function useTwoFactorViewModel() {
+/** Second step of `/sign-in?step=two-factor`: code from the authenticator app. */
+function useTwoFactorViewModel() {
   const navigate = useNavigate()
-  const search = useSearch({ from: '/_guest/sign-in' })
   const queryClient = useQueryClient()
+  const { redirect } = useSearch({ from: '/_guest/sign-in' })
+  const pending = usePendingTwoFactorStore((state) => state.pending)
+  const clear = usePendingTwoFactorStore((state) => state.clear)
 
-  const verifyTotp = useCallback(
-    async (code: string) => {
-      try {
-        const res = await (authClient.twoFactor as any).verifyTotp({ code })
-        if (res?.error) throw res.error
-        await queryClient.invalidateQueries({ queryKey: sessionQueryOptions.queryKey })
-        const redirect = (search as { redirect?: string }).redirect
-        await navigate({ to: redirect && redirect.startsWith('/') ? redirect : '/' })
-        return { ok: true }
-      } catch (error) {
-        try {
-          mapError(error)
-        } catch {}
-        return { ok: false, formErrorKey: 'auth.errors.invalidCode' }
-      }
+  const backToCredentials = () => {
+    clear()
+    return navigate({ to: '/sign-in', search: { redirect }, replace: true })
+  }
+
+  // Opened without a login in progress (typed URL, reload): nothing to verify.
+  useEffect(() => {
+    if (!pending) void navigate({ to: '/sign-in', search: { redirect }, replace: true })
+  }, [pending, redirect, navigate])
+
+  const mutation = useMutation({
+    mutationFn: verifyTotp,
+    onSuccess: async () => {
+      await refreshSession(queryClient)
+      await navigate({ to: safeRedirect(redirect) })
+      clear()
     },
-    [navigate, queryClient, search],
-  )
+    onError: (error: AuthClientError) => {
+      if (isTwoFactorSessionLost(error)) void backToCredentials()
+    },
+  })
 
-  const goBack = useCallback(() => {
-    navigate({
-      to: '/sign-in',
-      search: (search as any).redirect ? { redirect: (search as any).redirect } : {},
-      replace: true,
-    })
-  }, [navigate, search])
-
-  const goToRecovery = useCallback(() => {
-    navigate({ to: '/sign-in', search: { ...(search as any), step: 'recovery-code' } as any })
-  }, [navigate, search])
-
-  return { verifyTotp, goBack, goToRecovery }
+  return {
+    isSubmitting: mutation.isPending,
+    formError: mutation.error ? mapTwoFactorError(mutation.error as AuthClientError) : undefined,
+    onSubmit: (values: TwoFactorCodeValues) => mutation.mutate(values),
+    onBack: () => void backToCredentials(),
+    onUseRecoveryCodeClick: () => void navigate({ to: '/sign-in', search: { step: 'recovery-code', redirect } }),
+  }
 }
+
+export { useTwoFactorViewModel }

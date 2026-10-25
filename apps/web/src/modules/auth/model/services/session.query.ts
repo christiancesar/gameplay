@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, type QueryClient } from '@tanstack/react-query'
 
 import { ApiError } from '@/shared/lib/api-error'
 import { authClient } from '@/shared/lib/auth-client'
@@ -14,4 +14,12 @@ const sessionQueryOptions = queryOptions({
   staleTime: Infinity,
 })
 
-export { sessionQueryOptions }
+/**
+ * Refetches the session even though no component observes it: the route guards read it
+ * with `ensureQueryData`, which would serve the stale value otherwise.
+ */
+function refreshSession(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({ queryKey: sessionQueryOptions.queryKey, refetchType: 'all' })
+}
+
+export { refreshSession, sessionQueryOptions }

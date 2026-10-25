@@ -1,69 +1,46 @@
-import { useCallback, useMemo } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
 
+import { mapSignUpError, type AuthClientError } from '@/modules/auth/model/mappers/auth-error.mapper'
+import { refreshSession } from '@/modules/auth/model/services/session.query'
+import type { SignUpValues } from '@/modules/auth/model/sign-up.schema'
 import { authClient } from '@/shared/lib/auth-client'
-import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 
-function normalizeKey(key: string) {
-  return key.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
-}
-
-export function useSignUpViewModel() {
+/** Sign-up is gated by a registration key; an invite link also creates the join request in the API. */
+function useSignUpViewModel() {
   const navigate = useNavigate()
-  const search = useSearch({ from: '/_guest/sign-up' })
   const queryClient = useQueryClient()
+  const { invite } = useSearch({ from: '/_guest/sign-up' })
 
-  const invite = useMemo(() => (search as { invite?: string }).invite, [search])
-
-  const signUp = useCallback(
-    async (values: any) => {
-      const registrationKey = normalizeKey(values.registrationKey || values.inviteKey || '')
-      try {
-        const res = await (authClient.signUp as any).email({
-          email: values.email,
-          password: values.password,
-          username: values.username,
-          name: values.username,
-          registrationKey,
-          inviteCode: invite,
-        })
-        if (res?.error) {
-          const code = (res.error as any).code
-          if (code?.includes('KEY') || code?.includes('REGISTRATION')) {
-            return { ok: false, serverErrors: { registrationKey: 'auth.errors.invalidRegistrationKey' } }
-          }
-          if (code?.includes('USERNAME')) {
-            return { ok: false, serverErrors: { username: 'auth.errors.usernameTaken' } }
-          }
-          if (code?.includes('EMAIL')) {
-            return { ok: false, serverErrors: { email: 'auth.errors.emailTaken' } }
-          }
-          return { ok: false, formErrorKey: 'auth.errors.signUpFailed' }
-        }
-        await queryClient.invalidateQueries({ queryKey: sessionQueryOptions.queryKey })
-        await navigate({ to: '/' })
-        return { ok: true }
-      } catch (error: any) {
-        const code = error?.code
-        if (code?.includes('KEY') || code?.includes('REGISTRATION')) {
-          return { ok: false, serverErrors: { registrationKey: 'auth.errors.invalidRegistrationKey' } }
-        }
-        if (code?.includes('USERNAME')) {
-          return { ok: false, serverErrors: { username: 'auth.errors.usernameTaken' } }
-        }
-        if (code?.includes('EMAIL')) {
-          return { ok: false, serverErrors: { email: 'auth.errors.emailTaken' } }
-        }
-        return { ok: false, formErrorKey: 'auth.errors.signUpFailed' }
+  const mutation = useMutation({
+    mutationFn: async (values: SignUpValues) => {
+      // Built outside the call: registrationKey and serverInviteCode are read by the API hook, not typed by the client.
+      const body = {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        name: values.username,
+        registrationKey: values.inviteKey,
+        ...(invite ? { serverInviteCode: invite } : {}),
       }
+      const { error } = await authClient.signUp.email(body)
+      if (error) throw error
     },
-    [invite, navigate, queryClient],
-  )
+    onSuccess: async () => {
+      await refreshSession(queryClient)
+      await navigate({ to: '/' })
+    },
+  })
 
-  const goToSignIn = useCallback(() => {
-    navigate({ to: '/sign-in', search: invite ? ({ invite } as any) : ({} as any) })
-  }, [invite, navigate])
+  const errors = mutation.error ? mapSignUpError(mutation.error as AuthClientError) : undefined
 
-  return { signUp, goToSignIn, invite }
+  return {
+    isSubmitting: mutation.isPending,
+    fieldErrors: errors?.fieldErrors,
+    formError: errors?.formError,
+    onSubmit: (values: SignUpValues) => mutation.mutate(values),
+    onSignInClick: () => void navigate({ to: '/sign-in' }),
+  }
 }
+
+export { useSignUpViewModel }

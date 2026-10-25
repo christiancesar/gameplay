@@ -1,77 +1,14 @@
-import { useState } from 'react'
 import { useSearch } from '@tanstack/react-router'
 
-import { SignInView } from '@/modules/auth/views/sign-in.view'
-import { TwoFactorView } from '@/modules/auth/views/two-factor.view'
-import { RecoveryCodeView } from '@/modules/auth/views/recovery-code.view'
-import { useSignInViewModel } from '@/modules/auth/view-models/use-sign-in.view-model'
-import { useTwoFactorViewModel } from '@/modules/auth/view-models/use-two-factor.view-model'
-import { useRecoveryCodeViewModel } from '@/modules/auth/view-models/use-recovery-code.view-model'
-import { useLanguageViewModel } from '@/modules/settings/view-models/use-language.view-model'
+import { CredentialsScreen } from '@/modules/auth/screens/credentials.screen'
+import { RecoveryCodeScreen } from '@/modules/auth/screens/recovery-code.screen'
+import { TwoFactorScreen } from '@/modules/auth/screens/two-factor.screen'
 
-type Step = 'credentials' | 'two-factor' | 'recovery-code'
-
+/** `/sign-in`: picks the step from the search params. */
 export function SignInScreen() {
-  const search = useSearch({ from: '/_guest/sign-in' })
-  const step = ((search as { step?: Step }).step || 'credentials') as Step
-  const { signIn, goToSignUp } = useSignInViewModel()
-  const { verifyTotp, goBack: goBackTwoFactor, goToRecovery } = useTwoFactorViewModel()
-  const { verifyRecovery, goBack: goBackRecovery } = useRecoveryCodeViewModel()
-  const { language, languageOptions, setLanguage } = useLanguageViewModel()
+  const { step } = useSearch({ from: '/_guest/sign-in' })
 
-  const [formError, setFormError] = useState<string | undefined>()
-
-  const layout = {
-    language,
-    languageOptions,
-    onLanguageChange: (next: string) => setLanguage(next),
-  }
-
-  if (step === 'two-factor') {
-    return (
-      <TwoFactorView
-        {...layout}
-        isSubmitting={false}
-        formError={formError as any}
-        onSubmit={async (values) => {
-          setFormError(undefined)
-          const res = await verifyTotp(values.code)
-          if (!res.ok && res.formErrorKey) setFormError(res.formErrorKey)
-        }}
-        onBack={goBackTwoFactor}
-        onUseRecoveryCodeClick={goToRecovery}
-      />
-    )
-  }
-
-  if (step === 'recovery-code') {
-    return (
-      <RecoveryCodeView
-        {...layout}
-        isSubmitting={false}
-        formError={formError as any}
-        onSubmit={async (values) => {
-          setFormError(undefined)
-          const res = await verifyRecovery(values.code)
-          if (!res.ok && res.formErrorKey) setFormError(res.formErrorKey)
-        }}
-        onBack={goBackRecovery}
-        onUseAuthenticatorClick={goBackTwoFactor}
-      />
-    )
-  }
-
-  return (
-    <SignInView
-      {...layout}
-      isSubmitting={false}
-      formError={formError as any}
-      onSubmit={async (values) => {
-        setFormError(undefined)
-        const res = await signIn(values)
-        if (!res.ok && res.formErrorKey) setFormError(res.formErrorKey)
-      }}
-      onSignUpClick={goToSignUp}
-    />
-  )
+  if (step === 'two-factor') return <TwoFactorScreen />
+  if (step === 'recovery-code') return <RecoveryCodeScreen />
+  return <CredentialsScreen />
 }

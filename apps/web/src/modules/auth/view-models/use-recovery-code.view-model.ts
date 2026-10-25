@@ -1,34 +1,59 @@
-import { useCallback } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 
+import {
+  isTwoFactorSessionLost,
+  mapTwoFactorError,
+  type AuthClientError,
+} from '@/modules/auth/model/mappers/auth-error.mapper'
+import { safeRedirect } from '@/modules/auth/model/rules/safe-redirect'
+import { refreshSession } from '@/modules/auth/model/services/session.query'
+import type { TwoFactorCodeValues } from '@/modules/auth/model/two-factor.schema'
+import { usePendingTwoFactorStore } from '@/modules/auth/view-models/stores/pending-two-factor.store'
 import { authClient } from '@/shared/lib/auth-client'
-import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 
-export function useRecoveryCodeViewModel() {
-  const navigate = useNavigate()
-  const search = useSearch({ from: '/_guest/sign-in' })
-  const queryClient = useQueryClient()
-
-  const verifyRecovery = useCallback(
-    async (code: string) => {
-      try {
-        const res = await (authClient.twoFactor as any).verifyBackupCode({ code })
-        if (res?.error) return { ok: false, formErrorKey: 'auth.errors.invalidRecoveryCode' }
-        await queryClient.invalidateQueries({ queryKey: sessionQueryOptions.queryKey })
-        const redirect = (search as { redirect?: string }).redirect
-        await navigate({ to: redirect && redirect.startsWith('/') ? redirect : '/' })
-        return { ok: true }
-      } catch {
-        return { ok: false, formErrorKey: 'auth.errors.invalidRecoveryCode' }
-      }
-    },
-    [navigate, queryClient, search],
-  )
-
-  const goBack = useCallback(() => {
-    navigate({ to: '/sign-in', search: { ...(search as any), step: 'two-factor' } as any })
-  }, [navigate, search])
-
-  return { verifyRecovery, goBack }
+async function verifyBackupCode({ code }: TwoFactorCodeValues) {
+  const { error } = await authClient.twoFactor.verifyBackupCode({ code })
+  if (error) throw error
 }
+
+/** Alternative second step (`/sign-in?step=recovery-code`): one of the saved recovery codes. */
+function useRecoveryCodeViewModel() {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { redirect } = useSearch({ from: '/_guest/sign-in' })
+  const pending = usePendingTwoFactorStore((state) => state.pending)
+  const clear = usePendingTwoFactorStore((state) => state.clear)
+
+  const backToCredentials = () => {
+    clear()
+    return navigate({ to: '/sign-in', search: { redirect }, replace: true })
+  }
+
+  useEffect(() => {
+    if (!pending) void navigate({ to: '/sign-in', search: { redirect }, replace: true })
+  }, [pending, redirect, navigate])
+
+  const mutation = useMutation({
+    mutationFn: verifyBackupCode,
+    onSuccess: async () => {
+      await refreshSession(queryClient)
+      await navigate({ to: safeRedirect(redirect) })
+      clear()
+    },
+    onError: (error: AuthClientError) => {
+      if (isTwoFactorSessionLost(error)) void backToCredentials()
+    },
+  })
+
+  return {
+    isSubmitting: mutation.isPending,
+    formError: mutation.error ? mapTwoFactorError(mutation.error as AuthClientError) : undefined,
+    onSubmit: (values: TwoFactorCodeValues) => mutation.mutate(values),
+    onBack: () => void backToCredentials(),
+    onUseAuthenticatorClick: () => void navigate({ to: '/sign-in', search: { step: 'two-factor', redirect } }),
+  }
+}
+
+export { useRecoveryCodeViewModel }
