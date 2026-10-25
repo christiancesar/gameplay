@@ -1,4 +1,4 @@
-import type { ServerLimits } from '@gameplay/shared'
+import type { ServerLimits } from '@gameplay/contracts'
 import { ServerLimitsRepository } from '../server-limits.repository'
 
 export class InMemoryServerLimitsRepository extends ServerLimitsRepository {

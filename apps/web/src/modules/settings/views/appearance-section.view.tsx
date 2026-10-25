@@ -7,11 +7,14 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 type AppearanceSectionViewProps = {
   theme: 'dark' | 'light'
-  language: string
+  /** null: segue o idioma do navegador (o padrão de conta nova). */
+  language: string | null
   languageOptions: readonly LanguageOption[]
   onThemeChange: (theme: 'dark' | 'light') => void
-  onLanguageChange: (language: string) => void
+  onLanguageChange: (language: string | null) => void
 }
+
+const AUTO = 'auto'
 
 function AppearanceSectionView({
   theme,
@@ -49,9 +52,9 @@ function AppearanceSectionView({
         <FieldLabel>{t('settings.appearance.language')}</FieldLabel>
         <LanguageSwitcher
           className="w-fit"
-          value={language}
-          options={languageOptions}
-          onChange={onLanguageChange}
+          value={language ?? AUTO}
+          options={[{ value: AUTO, label: t('settings.appearance.auto') }, ...languageOptions]}
+          onChange={(next) => onLanguageChange(next === AUTO ? null : next)}
           ariaLabel={t('settings.appearance.language')}
         />
       </Field>

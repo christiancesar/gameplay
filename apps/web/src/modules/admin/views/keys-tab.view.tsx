@@ -1,3 +1,4 @@
+import { REGISTRATION_INVITE_VALIDITIES, type RegistrationInviteValidity } from '@gameplay/contracts'
 import { CheckIcon, CopyIcon, PlusIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -10,8 +11,8 @@ import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
-const KEY_DURATIONS = ['1d', '7d', '30d'] as const
-type KeyDuration = (typeof KEY_DURATIONS)[number]
+const KEY_DURATIONS = REGISTRATION_INVITE_VALIDITIES
+type KeyDuration = RegistrationInviteValidity
 
 type RegistrationKeyItem = {
   id: string

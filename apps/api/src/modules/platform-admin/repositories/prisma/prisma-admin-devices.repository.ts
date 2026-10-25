@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { CollectedHardware } from '@gameplay/shared'
+import type { CollectedHardware } from '@gameplay/contracts'
 import { PrismaService } from '../../../../lib/prisma'
 import { AdminDevicesRepository } from '../admin-devices.repository'
 

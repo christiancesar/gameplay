@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { ServerDetail } from '@gameplay/shared'
+import type { ServerDetail } from '@gameplay/contracts'
 import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { ServerLimitReachedError } from '../errors/servers.errors'
 import { ServersRepository } from '../repositories/servers.repository'

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { PresenceSnapshot } from '@gameplay/shared'
+import type { PresenceSnapshot } from '@gameplay/contracts'
 import { ServersRepository } from '../../servers/repositories/servers.repository'
 import { ServerAccessService } from '../../servers/services/server-access.service'
 import { occupancy } from '../domain/seat'

@@ -17,7 +17,7 @@ import {
   streamViewerQualitySchema,
   streamViewerSchema,
   voiceStateSchema,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 

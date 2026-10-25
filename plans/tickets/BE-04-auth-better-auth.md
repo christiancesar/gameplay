@@ -10,7 +10,7 @@ O Better Auth fica integrado ao Nest pelo `@thallesp/nestjs-better-auth`, com `p
   - instância com os três plugins e `bodyParser: false` no `main.ts`;
   - `trustedOrigins`, e IP pelo `X-Forwarded-For` com `trust proxy` restrito;
   - tabelas do Better Auth no `prisma/schema/auth.prisma`, mais os campos do app no `User` (`avatarKey`, `theme`, `locale`, `maxServersOverride`); migration.
-- Regras do username: 3 a 32 caracteres, letras, números, `.`, `-` e `_` (schema no `packages/shared`).
+- Regras do username: 3 a 32 caracteres, letras, números, `.`, `-` e `_` (schema no `packages/contracts`).
 - Pontos de extensão do sign-up, implementados nos tickets seguintes:
   - hook `before` que exige o campo `registrationKey` (consumido no BE-05);
   - hook `after` que dispara a criação do pedido de entrada quando vier `serverInviteCode` (BE-10).
@@ -18,7 +18,7 @@ O Better Auth fica integrado ao Nest pelo `@thallesp/nestjs-better-auth`, com `p
 - Seed do admin da plataforma por script (`npm run seed:admin`), lendo email, username e senha do env. O primeiro login exige configurar o TOTP antes de qualquer rota de admin.
 - Rate limit de login e sign-up mais rígido que o global.
 - Usuário suspenso (`banned`) não loga e perde as sessões (comportamento do plugin; testar).
-- Schemas do sign-up e do login no `packages/shared`, para o web reaproveitar.
+- Schemas do sign-up e do login no `packages/contracts`, para o web reaproveitar.
 
 ## Fora do escopo
 Consumo da key (BE-05), pedido de entrada (BE-10), telas do painel (BE-15), desconexão do socket na suspensão (BE-11).
@@ -47,8 +47,8 @@ Login por email ou username funciona com cookie. Rotas protegidas recusam sem se
 - **O guard global é o do adaptador**: toda rota exige sessão, exceto as marcadas com `@AllowAnonymous()` (do pacote). Não criei `AuthGuard`/`@Public` próprios. `@CurrentUser()` (nosso) devolve o usuário da sessão; `@PlatformAdmin()` combina `@Roles(['admin'])` com o `TwoFactorEnabledGuard`, que responde 403 `TWO_FACTOR_REQUIRED`.
 - O papel de plataforma é `role = "admin"` do plugin `admin`, chamado de "admin da plataforma" nos documentos. Papéis dentro de um servidor ficam em `Membership.role`, fora do Better Auth.
 - Schema gerado com a CLI nova (`npx auth generate --adapter prisma`) e salvo em `prisma/schema/auth.prisma`, com os campos do app no `User` (`avatarKey`, `theme`, `locale`, `maxServersOverride`). O `username` fica opcional no banco (formato do plugin); o hook de sign-up o exige.
-- Hook `before` do sign-up (`SignUpHook`): exige `username` e `registrationKey` no formato do `packages/shared` e usa o username como `name` (o Better Auth exige `name`). **O BE-05 liga aqui o consumo real da key.** O hook `after` do convite de servidor fica para o BE-10.
-- `packages/shared` ganhou `passwordSchema` (mínimo 8) e `registrationKeySchema` (6 caracteres do alfabeto sem ambíguos, sem diferença de maiúsculas).
+- Hook `before` do sign-up (`SignUpHook`): exige `username` e `registrationKey` no formato do `packages/contracts` e usa o username como `name` (o Better Auth exige `name`). **O BE-05 liga aqui o consumo real da key.** O hook `after` do convite de servidor fica para o BE-10.
+- `packages/contracts` ganhou `passwordSchema` (mínimo 8) e `registrationKeySchema` (6 caracteres do alfabeto sem ambíguos, sem diferença de maiúsculas).
 - Rate limit do próprio Better Auth nas rotas de login, cadastro e 2FA (desligado em `NODE_ENV=test`). O throttler global continua valendo para o resto.
 - IP da sessão vem do `X-Forwarded-For` (nginx/cloudflared). Atenção: acessando a API direto (porta exposta), esse cabeçalho pode ser forjado; em produção só o nginx fica exposto.
 - Seed do admin: `npm run seed:admin` (dev) ou `node apps/api/dist/scripts/seed-admin` (container), com `ADMIN_EMAIL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`. Se o email existe, só promove. O TOTP é configurado pelo próprio admin no primeiro login; até lá as rotas de admin recusam.

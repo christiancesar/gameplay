@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { registrationKeySchema, serverInviteCodeSchema, usernameSchema } from '@gameplay/shared'
+import { registrationKeySchema, serverInviteCodeSchema, usernameSchema } from '@gameplay/contracts'
 import { AfterHook, type AuthHookContext, BeforeHook, Hook } from '@thallesp/nestjs-better-auth'
 import { APIError } from 'better-auth/api'
 import { z } from 'zod'

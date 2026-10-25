@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans, useTranslation } from 'react-i18next'
 
 import {
   INVITE_KEY_LENGTH,
+  INVITE_KEY_PATTERN,
   signUpSchema,
   type SignUpField,
   type SignUpFieldError,
@@ -124,7 +124,7 @@ function SignUpView({
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                     maxLength={INVITE_KEY_LENGTH}
-                    pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                    pattern={INVITE_KEY_PATTERN}
                     autoComplete="off"
                     spellCheck={false}
                     aria-invalid={fieldState.invalid}

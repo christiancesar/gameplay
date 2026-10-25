@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Room } from '@gameplay/shared'
+import type { Room } from '@gameplay/contracts'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { assertRoomNameFree } from '../domain/room-rules'

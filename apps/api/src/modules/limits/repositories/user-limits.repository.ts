@@ -1,4 +1,4 @@
-import type { UserLimits } from '@gameplay/shared'
+import type { UserLimits } from '@gameplay/contracts'
 
 export abstract class UserLimitsRepository {
   // null when the user doesn't exist.

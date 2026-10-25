@@ -36,6 +36,10 @@ export const Notices: Story = {
       { label: 'requestSent', show: () => toast.info(t('invite.requestSent')) },
       { label: 'suspended', show: () => toast.error(t('notices.suspended')) },
       { label: 'sessionEnded', show: () => toast.warning(t('notices.sessionEnded')) },
+      // room:left com reason 'other-tab' e 'room-deleted'; server:removed 'left' nas outras abas.
+      { label: 'roomOtherTab', show: () => toast.info(t('notices.roomOtherTab')) },
+      { label: 'roomDeleted', show: () => toast.warning(t('notices.roomDeleted', { room: 'Room 01' })) },
+      { label: 'leftServer', show: () => toast.info(t('notices.leftServer', { server })) },
     ]
     return (
       <div className="flex min-h-dvh flex-wrap content-start gap-2 p-6">
@@ -55,5 +59,7 @@ export const Notices: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'kicked' }))
     await waitFor(() => expect(screen.getByText(/you were removed from turbex/i)).toBeVisible())
+    await userEvent.click(canvas.getByRole('button', { name: 'roomOtherTab' }))
+    await waitFor(() => expect(screen.getByText(/another tab/i)).toBeVisible())
   },
 }

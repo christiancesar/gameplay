@@ -70,15 +70,13 @@
       "invalidTwoFactorCode": "Código inválido. Tente de novo.",
       "usernameInvalid": "Use de 3 a 32 letras, números, pontos, hífens ou underscores.",
       "usernameTaken": "Este username já está em uso.",
+      "invalidPassword": "A senha atual está errada.",
       "emailInvalid": "Digite um email válido.",
       "emailTaken": "Este email já está em uso.",
       "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres.",
       "passwordMismatch": "As senhas não conferem.",
       "inviteKeyIncomplete": "A key de convite tem 6 caracteres.",
-      "inviteKeyInvalid": "Key de convite inválida.",
-      "inviteKeyExpired": "Esta key de convite expirou.",
-      "inviteKeyRevoked": "Esta key de convite foi revogada.",
-      "inviteKeyUsed": "Esta key de convite já foi usada.",
+      "inviteKeyInvalid": "Esta key de convite não é válida. Ela pode ter expirado, sido revogada ou já usada.",
       "tooManyAttempts": "Muitas tentativas. Aguarde um pouco e tente de novo.",
       "unexpected": "Algo deu errado. Tente de novo.",
       "twoFactorCodeIncomplete": "Digite os 6 dígitos do app autenticador."
@@ -96,10 +94,10 @@
       "inviteNotFound": "Convite não encontrado. Confira o código.",
       "inviteExpired": "Este convite expirou.",
       "inviteExhausted": "Este convite já foi usado. Peça um novo.",
-      "serverFull": "Este servidor está cheio.",
-      "alreadyMember": "Você já é membro deste servidor.",
+      "requestPending": "Você já tem um pedido aguardando neste servidor.",
       "unexpected": "Algo deu errado. Tente de novo.",
-      "codeRequired": "Digite um código de convite."
+      "codeRequired": "Digite um código de convite.",
+      "codeInvalid": "O código do convite tem 8 letras ou números."
     },
     "profile": "Perfil",
     "joinTitle": "Entrar em um servidor"
@@ -107,6 +105,11 @@
   "server": {
     "rooms": "Salas",
     "ownedBy": "Owner: {{name}}",
+    "presence": {
+      "online": "Online ({{count}})",
+      "offline": "Offline ({{count}})",
+      "nobodyOnline": "Ninguém online."
+    },
     "roles": {
       "owner": "Owner",
       "admin": "Admin",
@@ -293,7 +296,7 @@
       "empty": "Nenhum pedido pendente.",
       "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Aprovar fica bloqueado até abrir uma vaga.",
       "autoApproveOn": "A auto aprovação está ligada. Pedidos só ficam aqui quando o servidor está cheio.",
-      "viaInvite": "Convite {{code}} de {{name}}"
+      "viaInvite": "Convidado por {{name}}"
     },
     "members": {
       "count": "{{count}} de {{max}} membros",
@@ -303,13 +306,15 @@
       "kickTitle": "Remover {{name}}?",
       "kickDescription": "A pessoa sai do servidor agora e precisa de um novo convite para voltar.",
       "you": "você",
-      "invitedBy": "Convidado por {{name}} · {{code}} · {{date}}",
+      "invitedBy": "Convidado por {{name}} · {{date}}",
       "founder": "Criou o servidor"
     },
     "rooms": {
       "count": "{{count}} de {{max}} salas",
       "newRoom": "Nome da nova sala",
       "create": "Criar sala",
+      "moveUp": "Subir",
+      "moveDown": "Descer",
       "rename": "Renomear",
       "delete": "Excluir",
       "deleteTitle": "Excluir {{name}}?",
@@ -349,7 +354,12 @@
       "avatar": "Avatar",
       "username": "Username",
       "email": "Email",
-      "readOnly": "Peça ao admin da plataforma para trocar seu email ou senha."
+      "readOnly": "Peça ao admin da plataforma para trocar seu e-mail.",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirme a nova senha",
+      "changePassword": "Trocar senha",
+      "passwordChanged": "Senha trocada."
     },
     "audio": {
       "microphone": "Microfone",
@@ -366,7 +376,8 @@
       "theme": "Tema",
       "dark": "Escuro",
       "light": "Claro",
-      "language": "Idioma"
+      "language": "Idioma",
+      "auto": "Automático"
     }
   },
   "invite": {
@@ -379,10 +390,13 @@
     "confirmDescription_other": "{{count}} membros",
     "join": "Entrar no servidor",
     "requestSent": "Pedido enviado, aguarde a aprovação.",
+    "fullHint": "Este servidor está cheio. Seu pedido vai esperar uma vaga.",
+    "alreadyMemberTitle": "Você já está em {{server}}",
+    "openServer": "Abrir servidor",
     "errors": {
       "expired": "Este convite expirou.",
       "exhausted": "Este convite já foi usado. Peça um novo.",
-      "serverFull": "Este servidor está cheio.",
+      "requestPending": "Você já tem um pedido aguardando neste servidor.",
       "notFound": "Este convite não existe ou foi revogado."
     }
   },
@@ -398,7 +412,10 @@
     "demoted": "Você não é mais admin de {{server}}.",
     "suspended": "Sua conta foi suspensa.",
     "sessionEnded": "Sua sessão foi encerrada. Entre de novo.",
-    "joinApproved": "Seu pedido para entrar em {{server}} foi aprovado."
+    "joinApproved": "Seu pedido para entrar em {{server}} foi aprovado.",
+    "roomOtherTab": "Você entrou na sala em outra aba. Esta aba saiu da chamada.",
+    "roomDeleted": "{{room}} foi excluída. Você saiu da chamada.",
+    "leftServer": "Você saiu de {{server}} em outra aba."
   },
   "admin": {
     "title": "Admin da plataforma",
@@ -415,6 +432,9 @@
     "setup": {
       "title": "Configure a verificação em duas etapas",
       "description": "O admin da plataforma precisa usar um app autenticador.",
+      "passwordDescription": "Admins da plataforma precisam usar um app autenticador. Confirme sua senha para começar.",
+      "password": "Senha",
+      "continue": "Continuar",
       "scan": "1. Escaneie o QR code com seu app autenticador.",
       "manual": "Ou digite esta chave:",
       "verify": "2. Digite o código de 6 dígitos que aparece no app.",
@@ -483,6 +503,7 @@
       "serversPerUser": "Servidores por usuário",
       "membersPerServer": "Membros por servidor",
       "roomsPerServer": "Salas por servidor",
+      "minChromiumVersion": "Versão mínima do Chromium",
       "saved": "Limites salvos.",
       "errors": {
         "atLeastOne": "Use um número inteiro, a partir de 1.",
@@ -580,9 +601,10 @@
       "vramGb": "VRAM (GB)",
       "connection": "Conexão",
       "connections": {
-        "ethernet": "Cabo (Ethernet)",
+        "wired": "Cabo (Ethernet)",
         "wifi": "Wi-Fi",
-        "mobile": "Dados móveis"
+        "mobile": "Dados móveis",
+        "other": "Outra"
       },
       "downloadMbps": "Download (Mbps)",
       "uploadMbps": "Upload (Mbps)",
@@ -631,6 +653,10 @@
     "requestSent": {
       "title": "Pedido enviado para {{server}}",
       "description": "Aguarde um owner ou admin aprovar."
+    },
+    "inviteExpired": {
+      "title": "Seu convite para {{server}} expirou",
+      "description": "Ele venceu enquanto você se cadastrava. Peça um novo convite."
     },
     "kicked": {
       "title": "Removido de {{server}}"

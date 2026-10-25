@@ -1,4 +1,4 @@
-import type { AckResponse } from '@gameplay/shared'
+import type { AckResponse } from '@gameplay/contracts'
 import { resolveError } from './resolve-error'
 
 // Turns an error thrown while handling a Socket.IO event into the ack reply.

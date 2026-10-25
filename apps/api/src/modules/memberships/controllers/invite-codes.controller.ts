@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus, Param, Post, Req } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { serverInviteCodeSchema, type JoinServerResponse, type ResolvedInvite } from '@gameplay/shared'
+import { serverInviteCodeSchema, type JoinServerResponse, type ResolvedInvite } from '@gameplay/contracts'
 import { OptionalAuth } from '@thallesp/nestjs-better-auth'
 import type { Request } from 'express'
 import { ZodResponse } from 'nestjs-zod'

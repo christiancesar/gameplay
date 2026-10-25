@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common'
-import type { ErrorBody } from '@gameplay/shared'
+import type { ErrorBody } from '@gameplay/contracts'
 import { ZodError } from 'zod'
 import { ZodValidationException } from 'nestjs-zod'
 import { DomainError } from './domain-error'

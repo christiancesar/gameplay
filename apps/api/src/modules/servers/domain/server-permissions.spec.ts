@@ -1,4 +1,4 @@
-import type { ServerRole } from '@gameplay/shared'
+import type { ServerRole } from '@gameplay/contracts'
 import { type MemberAction, type ServerAction, ServerPermissions } from './server-permissions'
 
 // plans/00-requirements.md 2.3, row by row: [owner, admin, member].

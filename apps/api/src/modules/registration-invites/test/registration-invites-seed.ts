@@ -4,6 +4,9 @@ import type { CreateRegistrationInviteData } from '../repositories/registration-
 // stores it.
 export const SEED_KEY = 'ABC234'
 
+// The next key FakeTokenGenerator hands out in the context.
+export const GENERATED_KEY = 'K7MX4P'
+
 // An active invite for SEED_KEY, created by "admin", valid for one more
 // minute from `now`.
 export function seedInvite(now = new Date()): CreateRegistrationInviteData {

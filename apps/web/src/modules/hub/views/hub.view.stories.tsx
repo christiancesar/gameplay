@@ -76,7 +76,8 @@ export const Joining: Story = { args: { defaultJoinCode: 'JH34SD32', isJoining: 
 
 export const JoinInviteExpired: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'inviteExpired' } }
 
-export const JoinServerFull: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'serverFull' } }
+/** Já existe um pedido esperando aprovação nesse servidor. */
+export const JoinRequestPending: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'requestPending' } }
 
 /** Simula o ViewModel: o servidor recusa o código e o erro some quando o usuário edita o campo. */
 export const JoinErrorClearsOnEdit: Story = {
@@ -99,12 +100,12 @@ export const JoinErrorClearsOnEdit: Story = {
   },
   play: async ({ args, canvas, userEvent }) => {
     const input = canvas.getByLabelText(/invite code/i)
-    await userEvent.type(input, 'wrong1')
+    await userEvent.type(input, 'zzzz2222')
     await userEvent.click(canvas.getByRole('button', { name: /join/i }))
-    await expect(args.onJoin).toHaveBeenCalledWith('WRONG1')
+    await expect(args.onJoin).toHaveBeenCalledWith('ZZZZ2222')
     await expect(await canvas.findByText(/invite not found/i)).toBeVisible()
 
-    await userEvent.type(input, '2')
+    await userEvent.type(input, '{Backspace}3')
     await expect(canvas.queryByText(/invite not found/i)).not.toBeInTheDocument()
   },
 }
@@ -126,6 +127,25 @@ export const JoinByCode: Story = {
   },
 }
 
+/** Colar o link inteiro também funciona: fica só o código. */
+export const JoinByLink: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.type(canvas.getByLabelText(/invite code/i), 'https://gameplay.app/i/jh34sd32')
+    await userEvent.click(canvas.getByRole('button', { name: /join/i }))
+    await expect(args.onJoin).toHaveBeenCalledWith('JH34SD32')
+  },
+}
+
+/** Formato errado nem chega no servidor: 8 caracteres, sem 0/O e 1/I. */
+export const JoinInvalidCode: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.type(canvas.getByLabelText(/invite code/i), 'abc')
+    await userEvent.click(canvas.getByRole('button', { name: /join/i }))
+    await expect(await canvas.findByText(/8 letters or numbers/i)).toBeVisible()
+    await expect(args.onJoin).not.toHaveBeenCalled()
+  },
+}
+
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString()
 
 const sampleNotifications: HubNotification[] = [
@@ -134,6 +154,7 @@ const sampleNotifications: HubNotification[] = [
   { id: 'n3', type: 'monitorsPermission' },
   { id: 'n4', type: 'joinApproved', server: { id: 's2', name: 'Clan Zero' }, createdAt: minutesAgo(12) },
   { id: 'n5', type: 'kicked', server: { name: 'Sexta Feira' }, createdAt: minutesAgo(60 * 26) },
+  { id: 'n6', type: 'inviteExpired', server: { name: 'Turbex' }, createdAt: minutesAgo(3) },
 ]
 
 /** Painel com estado próprio, para dispensar e limpar de verdade na story. */

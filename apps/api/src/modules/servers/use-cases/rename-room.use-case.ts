@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Room } from '@gameplay/shared'
+import type { Room } from '@gameplay/contracts'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { assertRoomExists, assertRoomNameFree } from '../domain/room-rules'
 import { RoomsRepository } from '../repositories/rooms.repository'

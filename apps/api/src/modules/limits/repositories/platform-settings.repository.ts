@@ -1,4 +1,4 @@
-import type { PlatformSettings } from '@gameplay/shared'
+import type { PlatformSettings } from '@gameplay/contracts'
 
 export abstract class PlatformSettingsRepository {
   abstract get(): Promise<PlatformSettings>

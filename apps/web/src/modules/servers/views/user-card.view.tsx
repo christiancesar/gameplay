@@ -9,6 +9,7 @@ type UserCardViewProps = {
   user: { name: string; email: string; avatarUrl?: string }
   inRoom: boolean
   isMuted: boolean
+  /** Sem áudio também muta: o ViewModel liga `isMuted` junto e devolve o mute anterior ao sair. */
   isDeafened: boolean
   /** Painel de transmissão (F9), mostrado só dentro de uma sala e com a sidebar aberta. */
   sharePanel?: ReactNode

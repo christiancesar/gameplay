@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { ServerLimits } from '@gameplay/shared'
+import type { ServerLimits } from '@gameplay/contracts'
 import { ServerNotFoundError } from '../errors/limits.errors'
 import { ServerLimitsRepository } from '../repositories/server-limits.repository'
 

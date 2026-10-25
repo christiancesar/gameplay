@@ -1,5 +1,4 @@
-import { makeServersContext } from '../../servers/test/servers-context'
-import { CreateServerUseCase } from '../../servers/use-cases/create-server.use-case'
+import { makeSeededServersContext } from '../../servers/test/servers-context'
 import { InMemoryMembershipsRepository } from '../repositories/in-memory/in-memory-memberships.repository'
 import { ApproveJoinRequestUseCase } from '../use-cases/approve-join-request.use-case'
 import { CreateServerInviteUseCase } from '../use-cases/create-server-invite.use-case'
@@ -12,24 +11,18 @@ import { PromoteToAdminUseCase } from '../use-cases/promote-to-admin.use-case'
 import { RequestToJoinUseCase } from '../use-cases/request-to-join.use-case'
 import { ResolveInviteCodeUseCase } from '../use-cases/resolve-invite-code.use-case'
 import { RevokeServerInviteUseCase } from '../use-cases/revoke-server-invite.use-case'
-import { SEED_MEMBERS, SEED_SERVER } from './memberships-seed'
 import { SequentialInviteCodes } from './sequential-invite-codes'
 
-// Every membership use-case wired to in-memory fakes, over the seed server.
+// Every membership use-case wired to in-memory fakes, over the seed server of
+// the servers module (owner, admin and member).
 export async function makeMembershipsContext() {
-  const ctx = makeServersContext()
+  const ctx = await makeSeededServersContext()
   const memberships = new InMemoryMembershipsRepository(ctx.servers)
-  const server = await new CreateServerUseCase(ctx.servers, ctx.limits, ctx.views).execute({
-    userId: SEED_SERVER.ownerId,
-    name: SEED_SERVER.name,
-  })
-  for (const { userId, role } of SEED_MEMBERS) ctx.servers.addMember(server.id, userId, role)
 
   const { access, limits, events, servers, views } = ctx
   return {
     ...ctx,
     memberships,
-    serverId: server.id,
     createInvite: new CreateServerInviteUseCase(memberships, access, limits, new SequentialInviteCodes()),
     revokeInvite: new RevokeServerInviteUseCase(memberships, access),
     resolve: new ResolveInviteCodeUseCase(memberships, servers, views, limits),

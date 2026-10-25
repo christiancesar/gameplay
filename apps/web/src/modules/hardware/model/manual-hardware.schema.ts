@@ -1,6 +1,7 @@
+import { CONNECTION_TYPES } from '@gameplay/contracts'
 import { z } from 'zod'
 
-const CONNECTIONS = ['ethernet', 'wifi', 'mobile'] as const
+const CONNECTIONS = CONNECTION_TYPES
 
 /** Mensagens dos schemas: chaves de `hardware.manual.errors`, a View traduz. */
 type ManualHardwareError = 'positiveNumber'

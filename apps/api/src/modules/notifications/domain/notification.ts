@@ -1,4 +1,4 @@
-import type { NotificationType } from '@gameplay/shared'
+import type { NotificationType } from '@gameplay/contracts'
 
 export type NotificationRecord = {
   id: string

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post, Put } from '@nestjs/common'
 import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
-import type { ListRoomsResponse, Room } from '@gameplay/shared'
+import type { ListRoomsResponse, Room } from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { CurrentUser } from '../../../common/auth/current-user.decorator'
 import type { AuthUser } from '../../../lib/auth'

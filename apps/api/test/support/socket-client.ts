@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'node:net'
 import type { INestApplication } from '@nestjs/common'
-import type { ClientToServerEvents, RoomParticipants, ServerToClientEvents } from '@gameplay/shared'
+import type { ClientToServerEvents, RoomParticipants, ServerToClientEvents } from '@gameplay/contracts'
 import { io, type Socket } from 'socket.io-client'
 
 export type TestSocket = Socket<ServerToClientEvents, ClientToServerEvents>

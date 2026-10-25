@@ -1,4 +1,4 @@
-import type { NotificationType } from '@gameplay/shared'
+import type { NotificationType } from '@gameplay/contracts'
 import type { DomainEvents } from '../../../common/events/domain-events'
 
 // Who gets which Hub notice for an event. serverName is missing when the

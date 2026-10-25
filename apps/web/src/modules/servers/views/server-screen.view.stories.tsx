@@ -7,6 +7,7 @@ import {
   liveLimitedByNetwork,
   liveOnTarget,
   myServers,
+  presenceMembers,
   roomsWithMe,
   roomsWithoutMe,
   stage,
@@ -21,6 +22,7 @@ import { ShareSetupDialogView } from '@/modules/screen-share/views/share-setup-d
 import { StreamViewerView } from '@/modules/screen-share/views/stream-viewer.view'
 
 import { ServerScreenView } from './server-screen.view'
+import { MembersPresenceView } from './members-presence.view'
 import { ServerSidebarView, type ServerRole, type SidebarRoom } from './server-sidebar.view'
 import { UserCardView } from './user-card.view'
 
@@ -117,6 +119,7 @@ function Scenario({
             onBackToHub={fn()}
             onOpenServerSettings={fn()}
             onLeaveServer={fn()}
+            members={<MembersPresenceView members={presenceMembers} />}
             userCard={
               <UserCardView
                 user={me}

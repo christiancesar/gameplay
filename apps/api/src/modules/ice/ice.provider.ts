@@ -1,4 +1,4 @@
-import type { IceServer } from '@gameplay/shared'
+import type { IceServer } from '@gameplay/contracts'
 
 export type IssuedIce = {
   iceServers: IceServer[]

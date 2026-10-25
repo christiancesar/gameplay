@@ -1,4 +1,4 @@
-import type { RegistrationInviteStatus } from '@gameplay/shared'
+import type { RegistrationInviteStatus } from '@gameplay/contracts'
 
 export type RegistrationInviteRecord = {
   id: string

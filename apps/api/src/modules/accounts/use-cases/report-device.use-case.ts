@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { CollectedHardware } from '@gameplay/shared'
+import type { CollectedHardware } from '@gameplay/contracts'
 import type { DeviceReportRecord } from '../domain/account'
 import { DeviceReportsRepository } from '../repositories/device-reports.repository'
 

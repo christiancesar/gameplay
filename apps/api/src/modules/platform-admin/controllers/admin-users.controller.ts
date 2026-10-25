@@ -5,7 +5,7 @@ import type {
   ListAdminUsersResponse,
   ListDevicesResponse,
   ResetPasswordResponse,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { CurrentUser } from '../../../common/auth/current-user.decorator'
 import { PlatformAdmin } from '../../../common/auth/platform-admin.decorator'

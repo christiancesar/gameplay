@@ -8,7 +8,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-import { type AckResponse, REALTIME_EVENTS, type RoomJoinResult } from '@gameplay/shared'
+import { type AckResponse, REALTIME_EVENTS, type RoomJoinResult } from '@gameplay/contracts'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { WsAckExceptionFilter } from '../../../common/errors/ws-ack-exception.filter'
 import { AsyncApiReceive, AsyncApiSend } from '../../../docs/asyncapi-decorators'

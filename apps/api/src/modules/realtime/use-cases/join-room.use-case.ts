@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { RoomJoinResult } from '@gameplay/shared'
+import type { RoomJoinResult } from '@gameplay/contracts'
 import { RoomNotFoundError, ServerNotFoundError } from '../../servers/errors/servers.errors'
 import { RoomsRepository } from '../../servers/repositories/rooms.repository'
 import { ServerAccessService } from '../../servers/services/server-access.service'

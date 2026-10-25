@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import type { INestApplication } from '@nestjs/common'
-import type { RegistrationInviteValidity } from '@gameplay/shared'
+import type { RegistrationInviteValidity } from '@gameplay/contracts'
 import { PrismaService } from '../../src/lib/prisma'
 import { GenerateRegistrationInviteUseCase } from '../../src/modules/registration-invites/use-cases/generate-registration-invite.use-case'
 

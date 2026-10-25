@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { UserLimits } from '@gameplay/shared'
+import type { UserLimits } from '@gameplay/contracts'
 import { PrismaService } from '../../../../lib/prisma'
 import { UserLimitsRepository } from '../user-limits.repository'
 

@@ -1,4 +1,4 @@
-import { platformSettingsSchema, publicSettingsSchema, serverLimitsSchema, userLimitsSchema } from '@gameplay/shared'
+import { platformSettingsSchema, publicSettingsSchema, serverLimitsSchema, userLimitsSchema } from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 
 export class PlatformSettingsDto extends createZodDto(platformSettingsSchema) {}

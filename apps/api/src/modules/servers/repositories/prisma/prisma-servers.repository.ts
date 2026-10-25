@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { ServerRole } from '@gameplay/shared'
+import type { ServerRole } from '@gameplay/contracts'
 import type { ServerRole as DbServerRole } from '../../../../generated/prisma/client'
 import { PrismaService } from '../../../../lib/prisma'
 import type { RoomRecord, ServerRecord, ServerWithRole } from '../../domain/server'

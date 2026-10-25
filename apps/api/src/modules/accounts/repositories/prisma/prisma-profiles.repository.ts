@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { localeSchema, themeSchema } from '@gameplay/shared'
+import { localeSchema, themeSchema } from '@gameplay/contracts'
 import type { Prisma } from '../../../../generated/prisma/client'
 import { PrismaService } from '../../../../lib/prisma'
 import type { Preferences, ProfileRecord } from '../../domain/account'

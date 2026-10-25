@@ -32,7 +32,7 @@ RUN npm ci --omit=dev --omit=optional --ignore-scripts \
   && cp -r /tmp/sharp/node_modules/@img/. node_modules/@img/ \
   && rm -rf /tmp/sharp \
   && npm cache clean --force
-COPY --from=builder /repo/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /repo/packages/contracts/dist ./packages/contracts/dist
 COPY --from=builder /repo/apps/api/dist ./apps/api/dist
 USER node
 EXPOSE 3333

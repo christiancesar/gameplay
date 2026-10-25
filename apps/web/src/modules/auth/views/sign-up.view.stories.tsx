@@ -87,21 +87,14 @@ export const ServerFieldErrors: Story = {
   },
 }
 
-export const InviteKeyExpired: Story = {
-  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyExpired' } },
+/** Key inexistente, expirada, revogada ou usada: o servidor responde com o mesmo erro. */
+export const InviteKeyRejected: Story = {
+  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyInvalid' } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/invite key has expired/i)).toBeVisible()
+    await expect(canvas.getByText(/invite key is not valid/i)).toBeVisible()
     // Os outros campos continuam preenchidos.
     await expect(canvas.getByLabelText(/^username$/i)).toHaveValue('shinigame')
   },
-}
-
-export const InviteKeyUsed: Story = {
-  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyUsed' } },
-}
-
-export const InviteKeyRevoked: Story = {
-  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyRevoked' } },
 }
 
 export const TooManyAttempts: Story = {
@@ -118,6 +111,14 @@ export const PasteInviteKey: Story = {
     await userEvent.paste('k7mx4p')
     await expect(canvas.getByLabelText(/invite key/i)).toHaveValue('k7mx4p')
     await expect(args.onSubmit).not.toHaveBeenCalled()
+  },
+}
+
+/** A key não usa 0/O nem 1/I: esses caracteres não entram no campo. */
+export const InviteKeyRejectsAmbiguousCharacters: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByLabelText(/invite key/i), 'k0o7mx1i4p')
+    await expect(canvas.getByLabelText(/invite key/i)).toHaveValue('k7mx4p')
   },
 }
 

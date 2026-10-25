@@ -70,15 +70,13 @@
       "invalidTwoFactorCode": "Invalid code. Try again.",
       "usernameInvalid": "Use 3 to 32 letters, numbers, dots, dashes or underscores.",
       "usernameTaken": "This username is already taken.",
+      "invalidPassword": "Current password is wrong.",
       "emailInvalid": "Enter a valid email.",
       "emailTaken": "This email is already in use.",
       "passwordTooShort": "Password must have at least 8 characters.",
       "passwordMismatch": "Passwords don't match.",
       "inviteKeyIncomplete": "The invite key has 6 characters.",
-      "inviteKeyInvalid": "Invalid invite key.",
-      "inviteKeyExpired": "This invite key has expired.",
-      "inviteKeyRevoked": "This invite key was revoked.",
-      "inviteKeyUsed": "This invite key was already used.",
+      "inviteKeyInvalid": "This invite key is not valid. It may have expired, been revoked or already used.",
       "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
       "unexpected": "Something went wrong. Try again.",
       "twoFactorCodeIncomplete": "Enter the 6 digits from your authenticator app."
@@ -96,10 +94,10 @@
       "inviteNotFound": "Invite not found. Check the code.",
       "inviteExpired": "This invite has expired.",
       "inviteExhausted": "This invite was already used. Ask for a new one.",
-      "serverFull": "This server is full.",
-      "alreadyMember": "You are already a member of this server.",
+      "requestPending": "You already have a request waiting in this server.",
       "unexpected": "Something went wrong. Try again.",
-      "codeRequired": "Enter an invite code."
+      "codeRequired": "Enter an invite code.",
+      "codeInvalid": "Invite codes have 8 letters or numbers."
     },
     "profile": "Profile",
     "joinTitle": "Join a server"
@@ -107,6 +105,11 @@
   "server": {
     "rooms": "Rooms",
     "ownedBy": "Owner: {{name}}",
+    "presence": {
+      "online": "Online ({{count}})",
+      "offline": "Offline ({{count}})",
+      "nobodyOnline": "Nobody online."
+    },
     "roles": {
       "owner": "Owner",
       "admin": "Admin",
@@ -293,7 +296,7 @@
       "empty": "No pending requests.",
       "blockedFull": "The server is full ({{count}}/{{max}} members). Approving is blocked until a spot opens.",
       "autoApproveOn": "Auto approval is on. Requests only wait here when the server is full.",
-      "viaInvite": "Invite {{code}} from {{name}}"
+      "viaInvite": "Invited by {{name}}"
     },
     "members": {
       "count": "{{count}} of {{max}} members",
@@ -303,13 +306,15 @@
       "kickTitle": "Kick {{name}}?",
       "kickDescription": "They leave the server now and need a new invite to come back.",
       "you": "you",
-      "invitedBy": "Invited by {{name}} · {{code}} · {{date}}",
+      "invitedBy": "Invited by {{name}} · {{date}}",
       "founder": "Created the server"
     },
     "rooms": {
       "count": "{{count}} of {{max}} rooms",
       "newRoom": "New room name",
       "create": "Create room",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
       "rename": "Rename",
       "delete": "Delete",
       "deleteTitle": "Delete {{name}}?",
@@ -349,7 +354,12 @@
       "avatar": "Avatar",
       "username": "Username",
       "email": "Email",
-      "readOnly": "Ask the platform admin to change your email or password."
+      "readOnly": "Ask the platform admin to change your email.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "changePassword": "Change password",
+      "passwordChanged": "Password changed."
     },
     "audio": {
       "microphone": "Microphone",
@@ -366,7 +376,8 @@
       "theme": "Theme",
       "dark": "Dark",
       "light": "Light",
-      "language": "Language"
+      "language": "Language",
+      "auto": "Auto"
     }
   },
   "invite": {
@@ -379,10 +390,13 @@
     "confirmDescription_other": "{{count}} members",
     "join": "Join server",
     "requestSent": "Request sent. Wait for approval.",
+    "fullHint": "This server is full. Your request will wait for a free spot.",
+    "alreadyMemberTitle": "You are already in {{server}}",
+    "openServer": "Open server",
     "errors": {
       "expired": "This invite has expired.",
       "exhausted": "This invite was already used. Ask for a new one.",
-      "serverFull": "This server is full.",
+      "requestPending": "You already have a request waiting in this server.",
       "notFound": "This invite doesn't exist or was revoked."
     }
   },
@@ -398,7 +412,10 @@
     "demoted": "You are no longer an admin of {{server}}.",
     "suspended": "Your account was suspended.",
     "sessionEnded": "Your session was ended. Sign in again.",
-    "joinApproved": "Your request to join {{server}} was approved."
+    "joinApproved": "Your request to join {{server}} was approved.",
+    "roomOtherTab": "You joined the room in another tab. This tab left the call.",
+    "roomDeleted": "{{room}} was deleted. You left the call.",
+    "leftServer": "You left {{server}} in another tab."
   },
   "admin": {
     "title": "Platform admin",
@@ -415,6 +432,9 @@
     "setup": {
       "title": "Set up two-factor authentication",
       "description": "Platform admins must use an authenticator app.",
+      "passwordDescription": "Platform admins must use an authenticator app. Confirm your password to start.",
+      "password": "Password",
+      "continue": "Continue",
       "scan": "1. Scan the QR code with your authenticator app.",
       "manual": "Or type this key:",
       "verify": "2. Enter the 6-digit code it shows.",
@@ -483,6 +503,7 @@
       "serversPerUser": "Servers per user",
       "membersPerServer": "Members per server",
       "roomsPerServer": "Rooms per server",
+      "minChromiumVersion": "Minimum Chromium version",
       "saved": "Limits saved.",
       "errors": {
         "atLeastOne": "Use a whole number, 1 or more.",
@@ -580,9 +601,10 @@
       "vramGb": "VRAM (GB)",
       "connection": "Connection",
       "connections": {
-        "ethernet": "Cable (Ethernet)",
+        "wired": "Cable (Ethernet)",
         "wifi": "Wi-Fi",
-        "mobile": "Mobile data"
+        "mobile": "Mobile data",
+        "other": "Other"
       },
       "downloadMbps": "Download (Mbps)",
       "uploadMbps": "Upload (Mbps)",
@@ -631,6 +653,10 @@
     "requestSent": {
       "title": "Request sent to {{server}}",
       "description": "Wait for an owner or admin to approve it."
+    },
+    "inviteExpired": {
+      "title": "Your invite to {{server}} expired",
+      "description": "It ran out while you signed up. Ask for a new invite."
     },
     "kicked": {
       "title": "Removed from {{server}}"

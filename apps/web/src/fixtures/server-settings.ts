@@ -59,13 +59,13 @@ export const requests: JoinRequestItem[] = [
     id: 'j1',
     user: people.marreta,
     requestedAt: at(-20 * minute),
-    invite: { code: 'B2RT8WQE', createdBy: people.shinigame.name },
+    invitedBy: people.shinigame.name,
   },
   {
     id: 'j2',
     user: people.lua,
     requestedAt: at(-26 * hour),
-    invite: { code: 'Q7WE2RTY', createdBy: people.kisnaider.name },
+    invitedBy: people.kisnaider.name,
   },
 ]
 
@@ -76,21 +76,21 @@ export const members: MemberItem[] = [
     user: people.kisnaider,
     role: 'admin',
     isMe: false,
-    joinedVia: { inviteCode: 'A1B2C3D4', invitedBy: people.shinigame.name, joinedAt: at(-40 * 24 * hour) },
+    joinedVia: { invitedBy: people.shinigame.name, joinedAt: at(-40 * 24 * hour) },
   },
   {
     id: 'm3',
     user: people.jacutinga,
     role: 'member',
     isMe: false,
-    joinedVia: { inviteCode: 'E5F6G7H8', invitedBy: people.kisnaider.name, joinedAt: at(-12 * 24 * hour) },
+    joinedVia: { invitedBy: people.kisnaider.name, joinedAt: at(-12 * 24 * hour) },
   },
   {
     id: 'm4',
     user: people.marreta,
     role: 'member',
     isMe: false,
-    joinedVia: { inviteCode: 'B2RT8WQE', invitedBy: people.shinigame.name, joinedAt: at(-150 * minute) },
+    joinedVia: { invitedBy: people.shinigame.name, joinedAt: at(-150 * minute) },
   },
 ]
 
@@ -98,11 +98,10 @@ export const fullMembers: MemberItem[] = [
   ...members,
   ...Array.from({ length: 6 }, (_, index) => ({
     id: `mx${index}`,
-    user: { name: `Player ${index + 5}`, email: `player${index + 5}@gameplay.com`, avatarUrl: undefined },
+    user: { name: `Player${index + 5}`, username: `player${index + 5}`, avatarUrl: undefined },
     role: 'member' as const,
     isMe: false,
     joinedVia: {
-      inviteCode: `X${index}Y${index}Z${index}W${index}`,
       invitedBy: people.kisnaider.name,
       joinedAt: at(-(index + 1) * 24 * hour),
     },

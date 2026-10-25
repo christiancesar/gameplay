@@ -11,7 +11,7 @@ import {
   listAdminUsersResponseSchema,
   resetPasswordRequestSchema,
   resetPasswordResponseSchema,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 import { toServerMemberDto } from '../../memberships/dtos/membership.dto'
 import type { AccountSession } from '../providers/auth-accounts'

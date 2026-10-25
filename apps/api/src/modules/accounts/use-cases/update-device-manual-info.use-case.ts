@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { ManualHardware } from '@gameplay/shared'
+import type { ManualHardware } from '@gameplay/contracts'
 import type { DeviceReportRecord } from '../domain/account'
 import { DeviceNotFoundError } from '../errors/accounts.errors'
 import { DeviceReportsRepository } from '../repositories/device-reports.repository'

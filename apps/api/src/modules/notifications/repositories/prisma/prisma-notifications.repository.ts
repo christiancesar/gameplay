@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { NotificationType } from '@gameplay/shared'
+import type { NotificationType } from '@gameplay/contracts'
 import type { NotificationType as DbType, Notification as Row } from '../../../../generated/prisma/client'
 import { PrismaService } from '../../../../lib/prisma'
 import type { NewNotification, NotificationRecord } from '../../domain/notification'

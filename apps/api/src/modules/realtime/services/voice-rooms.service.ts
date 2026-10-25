@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { RoomLeft } from '@gameplay/shared'
+import type { RoomLeft } from '@gameplay/contracts'
 import { type Seat, toParticipant } from '../domain/seat'
 import { NotInRoomError } from '../errors/realtime.errors'
 import { RealtimeEmitter } from '../providers/realtime-emitter'

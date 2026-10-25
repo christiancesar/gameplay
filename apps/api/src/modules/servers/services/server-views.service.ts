@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Room, ServerDetail, ServerRole, ServerSummary } from '@gameplay/shared'
+import type { Room, ServerDetail, ServerRole, ServerSummary } from '@gameplay/contracts'
 import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { StorageProvider } from '../../storage/storage.provider'
 import type { RoomRecord, ServerRecord } from '../domain/server'

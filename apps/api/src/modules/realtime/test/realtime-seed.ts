@@ -1,4 +1,4 @@
-import type { ServerRole } from '@gameplay/shared'
+import type { ServerRole } from '@gameplay/contracts'
 import type { RoomRecord, ServerRecord } from '../../servers/domain/server'
 
 // The world the realtime unit tests start from: two servers; "ana" belongs to

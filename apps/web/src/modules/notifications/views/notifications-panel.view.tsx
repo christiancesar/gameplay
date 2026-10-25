@@ -1,6 +1,7 @@
 import { cn } from 'cn'
 import {
   BellIcon,
+  CalendarClockIcon,
   CircleCheckIcon,
   ExternalLinkIcon,
   GaugeIcon,
@@ -33,6 +34,8 @@ type HubNotification = { id: string; createdAt?: string } & (
   | { type: 'serverDeleted'; server: { name: string } }
   | { type: 'promoted'; server: { name: string } }
   | { type: 'demoted'; server: { name: string } }
+  /** O convite expirou enquanto a pessoa se cadastrava: precisa de um novo. */
+  | { type: 'inviteExpired'; server: { name: string } }
 )
 
 type NotificationsPanelViewProps = {
@@ -150,6 +153,13 @@ function NotificationsPanelView({
           icon: TriangleAlertIcon,
           tone: 'danger',
           title: t(`notifications.${notification.type}.title`, { server: notification.server.name }),
+        }
+      case 'inviteExpired':
+        return {
+          icon: CalendarClockIcon,
+          tone: 'warning',
+          title: t('notifications.inviteExpired.title', { server: notification.server.name }),
+          body: t('notifications.inviteExpired.description'),
         }
       case 'promoted':
       case 'demoted':

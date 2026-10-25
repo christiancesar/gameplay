@@ -1,4 +1,4 @@
-import { REGISTRATION_KEY_ALPHABET } from '@gameplay/shared'
+import { REGISTRATION_KEY_ALPHABET } from '@gameplay/contracts'
 import { InviteCodeGenerator } from '../providers/invite-code-generator'
 
 // GAMEPL32, GAMEPL42...: valid codes, a new one each call.

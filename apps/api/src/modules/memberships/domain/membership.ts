@@ -1,4 +1,4 @@
-import type { ServerInviteStatus, ServerRole, UserRef } from '@gameplay/shared'
+import type { ServerInviteStatus, ServerRole, UserRef } from '@gameplay/contracts'
 
 export type InviteRecord = {
   id: string

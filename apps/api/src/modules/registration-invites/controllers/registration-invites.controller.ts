@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
 import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
-import type { GenerateRegistrationInviteResponse, ListRegistrationInvitesResponse } from '@gameplay/shared'
+import type { GenerateRegistrationInviteResponse, ListRegistrationInvitesResponse } from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { CurrentUser } from '../../../common/auth/current-user.decorator'
 import { PlatformAdmin } from '../../../common/auth/platform-admin.decorator'

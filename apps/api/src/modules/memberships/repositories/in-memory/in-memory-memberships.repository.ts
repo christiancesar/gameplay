@@ -1,4 +1,4 @@
-import type { ServerRole } from '@gameplay/shared'
+import type { ServerRole } from '@gameplay/contracts'
 import type { InMemoryServersRepository } from '../../../servers/repositories/in-memory/in-memory-servers.repository'
 import type {
   InviteListItem,

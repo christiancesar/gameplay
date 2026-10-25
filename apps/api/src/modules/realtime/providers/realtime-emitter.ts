@@ -6,7 +6,7 @@ import {
   type ServerRemoved,
   type SignalReceive,
   type StreamQualityLevel,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { AsyncApi, AsyncApiSend } from '../../../docs/asyncapi-decorators'
 import { serverRoom, userRoom, voiceRoom } from '../domain/socket-rooms'
 import type { RealtimeServer } from '../domain/socket-data'

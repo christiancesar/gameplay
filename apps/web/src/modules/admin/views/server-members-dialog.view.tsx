@@ -8,9 +8,9 @@ import { UserAvatar } from '@/shared/ui/user-avatar'
 
 type AdminServerMember = {
   id: string
-  user: { name: string; email: string; avatarUrl?: string }
+  user: { name: string; username: string; avatarUrl?: string }
   role: 'owner' | 'admin' | 'member'
-  joinedVia?: { inviteCode: string; invitedBy: string; joinedAt: string }
+  joinedVia?: { invitedBy: string; joinedAt: string }
 }
 
 type ServerMembersDialogViewProps = {
@@ -20,7 +20,7 @@ type ServerMembersDialogViewProps = {
   onOpenChange: (open: boolean) => void
 }
 
-/** Membros de um servidor e por qual convite cada um entrou. */
+/** Membros de um servidor e quem convidou cada um. */
 function ServerMembersDialogView({ open, serverName, members, onOpenChange }: ServerMembersDialogViewProps) {
   const { t, i18n } = useTranslation()
 
@@ -47,7 +47,7 @@ function ServerMembersDialogView({ open, serverName, members, onOpenChange }: Se
                       <UserAvatar name={member.user.name} imageUrl={member.user.avatarUrl} size="sm" />
                       <span>
                         <span className="block">{member.user.name}</span>
-                        <span className="text-muted-foreground block text-xs">{member.user.email}</span>
+                        <span className="text-muted-foreground block text-xs">@{member.user.username}</span>
                       </span>
                     </span>
                   </TableCell>
@@ -60,7 +60,6 @@ function ServerMembersDialogView({ open, serverName, members, onOpenChange }: Se
                     {member.joinedVia
                       ? t('serverSettings.members.invitedBy', {
                           name: member.joinedVia.invitedBy,
-                          code: member.joinedVia.inviteCode,
                           date: formatRelativeTime(member.joinedVia.joinedAt, i18n.language),
                         })
                       : t('serverSettings.members.founder')}

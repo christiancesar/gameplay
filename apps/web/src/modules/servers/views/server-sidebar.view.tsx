@@ -1,3 +1,4 @@
+import type { ServerRole } from '@gameplay/contracts'
 import { cn } from 'cn'
 import { AudioLinesIcon, ChevronsUpDownIcon, LogOutIcon, RadioIcon, SettingsIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -52,8 +53,6 @@ type SidebarRoom = {
   participants: readonly SidebarParticipant[]
 }
 
-type ServerRole = 'owner' | 'admin' | 'member'
-
 type ServerSidebarViewProps = {
   server: { name: string; iconUrl?: string }
   /** Servidores do usuário, para o seletor com busca. */
@@ -65,6 +64,8 @@ type ServerSidebarViewProps = {
   currentRoomId?: string
   /** Card do usuário, renderizado no rodapé da sidebar. */
   userCard: ReactNode
+  /** Membros online e offline, abaixo das salas (MembersPresenceView). */
+  members?: ReactNode
   onSelectRoom: (roomId: string) => void
   /** Volta ao Hub sem desconectar da sala. */
   onBackToHub: () => void
@@ -89,6 +90,7 @@ function ServerSidebarView({
   rooms,
   currentRoomId,
   userCard,
+  members,
   onSelectRoom,
   onBackToHub,
   onSelectServer,
@@ -311,6 +313,7 @@ function ServerSidebarView({
             </SidebarMenu>
           )}
         </SidebarGroup>
+        {members}
       </SidebarContent>
 
       <SidebarFooter>{userCard}</SidebarFooter>

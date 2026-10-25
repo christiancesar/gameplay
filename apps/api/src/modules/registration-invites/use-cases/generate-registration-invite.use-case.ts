@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { REGISTRATION_INVITE_SUFFIX_LENGTH, type RegistrationInviteValidity } from '@gameplay/shared'
+import { REGISTRATION_INVITE_SUFFIX_LENGTH, type RegistrationInviteValidity } from '@gameplay/contracts'
 import type { RegistrationInviteRecord } from '../domain/registration-invite'
 import { TokenGenerator } from '../providers/token-generator'
 import { TokenHasher } from '../providers/token-hasher'

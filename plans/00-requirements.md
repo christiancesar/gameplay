@@ -199,7 +199,7 @@ gameplay/
 - **PostgreSQL + Prisma 7** *(revisado em 2026-10-24: antes MongoDB + Prisma 6. O Prisma 6 só recebe patches de segurança até 19/11/2026, o Prisma 7 não tem conector Mongo e o Prisma 8 com Mongo ainda é RC. Os dados são relacionais)*. Driver adapter `@prisma/adapter-pg`, `prisma.config.ts`, schema dividido em vários arquivos (`prisma/schema/*.prisma`), migrations versionadas.
 - **Better Auth** com `prismaAdapter` (provider `postgresql`) e integração `@thallesp/nestjs-better-auth`. Plugins: `username` (login por email ou username), `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para o admin da plataforma). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
 - Postgres local em container no `docker-compose.dev.yml`; na Fase 2, **Neon free** *(suposição: Neon em vez de Supabase)*.
-- DTOs e validação com **`nestjs-zod`** (`createZodDto` a partir dos schemas do `packages/shared`), que alimenta o OpenAPI e o AsyncAPI.
+- DTOs e validação com **`nestjs-zod`** (`createZodDto` a partir dos schemas do `packages/contracts`), que alimenta o OpenAPI e o AsyncAPI.
 - SOLID leve: cada use-case é um `@Injectable` com um único `execute()` (SRP). Repositório como `abstract class` usada como token de DI, com implementações `prisma` e `in-memory` (DIP). Testes unitários usam `in-memory`.
 - **Storage de imagens:** upload multipart para o Nest. `StorageProvider` (abstract class) com `LocalStorageProvider` e `S3StorageProvider`, ambos implementados desde o início e escolhidos por `STORAGE_DRIVER=local | s3`. Driver local grava em volume Docker servido pelo nginx (`/uploads`). Driver S3 serve por URL pública do bucket (ou CloudFront). O banco guarda só a chave/URL da imagem.
 
@@ -270,12 +270,12 @@ apps/api/
 ### 3.3.1 Contrato REST e Socket.IO (decidido em 2026-10-24)
 - **REST** para o que o cliente pede e espera resposta, principalmente o que grava no banco (auth, conta, servidores, convites, membros, salas, admin, hardware, notificações, credenciais TURN). **Socket.IO** para o que o servidor precisa avisar sem ser perguntado e para o estado efêmero da conexão (presença, entrar/sair da sala de voz, sinalização WebRTC, mute/deafen, início/fim de transmissão, "assistir").
 - Padrão combinado: a ação que muda o banco vai por REST; depois de gravar, o servidor emite o evento para os interessados (kick, aprovação de entrada, suspensão). No frontend, o evento só invalida a query do TanStack Query ou atualiza a store; o REST continua a fonte dos dados.
-- **Tipagem compartilhada em `packages/shared`** (decisão do usuário): schemas zod de DTOs e payloads, interfaces `ClientToServerEvents` e `ServerToClientEvents` usadas como genéricos do Socket.IO nos dois lados (`Server<...>` na API, `Socket<...>` no web), e constantes com os nomes dos eventos para o `@SubscribeMessage`. Erro de nome ou de payload vira erro de compilação na API e no web.
+- **Tipagem compartilhada em `packages/contracts`** (decisão do usuário): schemas zod de DTOs e payloads, interfaces `ClientToServerEvents` e `ServerToClientEvents` usadas como genéricos do Socket.IO nos dois lados (`Server<...>` na API, `Socket<...>` no web), e constantes com os nomes dos eventos para o `@SubscribeMessage`. Erro de nome ou de payload vira erro de compilação na API e no web.
 - O gateway valida todo payload recebido com o schema zod (`ZodPipe`), porque os tipos não existem em runtime.
 - Nome dos eventos no formato `dominio:acao` (`room:join`, `signal:send`, `presence:update`). A direção fica no tipo, não no nome. Pedido e resposta pelo socket usam ack (callback como último argumento).
 - **Documentação** (decisão do usuário: os eventos também são documentados):
   - REST: OpenAPI gerado pelo Nest, exibido no **Scalar**.
-  - Socket.IO: **AsyncAPI**, gerado a partir dos mesmos schemas do `packages/shared`. Ferramenta: **`nestjs-asyncapi`** *(decidido em 2026-10-24)*, com decorators nos gateways e payloads vindos dos DTOs do `nestjs-zod`; exige `@nestjs/swagger` 11. Exibição no Scalar se a integração JS já aceitar AsyncAPI (o suporte do Scalar é experimental); senão, no visualizador do AsyncAPI.
+  - Socket.IO: **AsyncAPI**, gerado a partir dos mesmos schemas do `packages/contracts`. Ferramenta: **`nestjs-asyncapi`** *(decidido em 2026-10-24)*, com decorators nos gateways e payloads vindos dos DTOs do `nestjs-zod`; exige `@nestjs/swagger` 11. Exibição no Scalar se a integração JS já aceitar AsyncAPI (o suporte do Scalar é experimental); senão, no visualizador do AsyncAPI.
 
 ### 3.4 Frontend (`apps/web`): MVVM
 - **React + Vite + TanStack Router** (rotas por arquivo, `beforeLoad` para auth, `loader` integrado ao TanStack Query).
@@ -290,13 +290,13 @@ apps/api/
 
 | Camada | Responsabilidade | Pode usar |
 |---|---|---|
-| **Model** | `entities/` (tipos de domínio), `rules/` (regras de negócio como funções puras), `*.schema.ts` (schemas Zod dos formulários; mensagens são chaves de i18n), `services/` (Axios, Socket.IO, `MediaTransport`), `mappers/` (DTO para entidade) | `packages/shared` |
+| **Model** | `entities/` (tipos de domínio), `rules/` (regras de negócio como funções puras), `*.schema.ts` (schemas Zod dos formulários; mensagens são chaves de i18n), `services/` (Axios, Socket.IO, `MediaTransport`), `mappers/` (DTO para entidade) | `packages/contracts` |
 | **ViewModel** | Hook por tela/caso de uso. Orquestra TanStack Query (estado de servidor), Zustand (estado de cliente) e services/rules. Expõe estado pronto para exibir + comandos. Sem JSX. | Model |
 | **View** | Componentes de apresentação. Só props e callbacks. Sem query, store, axios ou regra. Formulário: a View é dona do `useForm` (estado de digitação, campos tocados, erros na tela) com o schema do Model, e só chama o ViewModel com dados já validados (`onSubmit(values)`). Erros que só o servidor conhece chegam por prop e entram no form via `useServerErrors`. | `shared/ui`, schemas do Model |
 | **Screen** | Cola fina usada pela rota: chama o ViewModel e passa o resultado para a View. | ViewModel, View |
 
 - Dependência em uma direção só, **garantida por lint** (`eslint-plugin-boundaries`) no CI. Única exceção: a View importa os schemas Zod (`model/*.schema.ts`).
-- Schemas que o backend também valida (cadastro, nome de servidor, código de convite) migram para `packages/shared` quando a API existir, e o NestJS usa os mesmos via `ZodPipe`.
+- Schemas que o backend também valida (cadastro, nome de servidor, código de convite) migram para `packages/contracts` quando a API existir, e o NestJS usa os mesmos via `ZodPipe`.
 
 ```
 apps/web/
