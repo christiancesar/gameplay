@@ -23,8 +23,10 @@ export function ServerScreen() {
         main={
           watch ? (
             <StreamWatchScreen {...watch} />
+          ) : stage && sharing ? (
+            <SharePreviewScreen {...stage} />
           ) : stage ? (
-            <RoomStageView {...stage} preview={sharing ? <SharePreviewScreen /> : undefined} />
+            <RoomStageView {...stage} />
           ) : undefined
         }
         sidebar={

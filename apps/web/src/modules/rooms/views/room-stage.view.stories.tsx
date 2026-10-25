@@ -3,8 +3,6 @@ import { expect, fn, screen, waitFor } from 'storybook/test'
 
 import { stage, stageConnecting, stageWithLive } from '@/fixtures/server'
 
-import { SharePreviewView } from '@/modules/screen-share/views/share-preview.view'
-
 import { RoomStageView } from './room-stage.view'
 
 const meta = {
@@ -47,21 +45,5 @@ export const AdjustVolume: Story = {
     slider.focus()
     await userEvent.keyboard('{ArrowRight}')
     await expect(args.onVolumeChange).toHaveBeenCalledWith('u2', 105)
-  },
-}
-
-export const SharingMyScreen: Story = {
-  args: {
-    preview: (
-      <SharePreviewView
-        video={<div className="size-full bg-gradient-to-br from-slate-700 to-slate-900" />}
-        hidden={false}
-        onToggleHidden={fn()}
-        onStop={fn()}
-      />
-    ),
-  },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText('You are presenting to everyone')).toBeVisible()
   },
 }

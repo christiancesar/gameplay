@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
-import { ParticipantTileView } from '@/modules/rooms/views/participant-tile.view'
+import { ParticipantStripView } from '@/modules/rooms/views/participant-strip.view'
 import { IconButton } from '@/shared/ui/icon-button'
 import { Slider } from '@/shared/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
@@ -84,19 +84,12 @@ function StreamViewerView({
 
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black">{video}</div>
 
-      <ul className="flex gap-3 overflow-x-auto pb-1">
-        {participants.map((participant) => (
-          <li key={participant.id}>
-            <ParticipantTileView
-              participant={participant}
-              compact
-              isWatched={participant.id === currentStreamId}
-              onWatch={onWatch}
-              onVolumeChange={onVolumeChange}
-            />
-          </li>
-        ))}
-      </ul>
+      <ParticipantStripView
+        participants={participants}
+        watchedId={currentStreamId}
+        onWatch={onWatch}
+        onVolumeChange={onVolumeChange}
+      />
     </div>
   )
 }
