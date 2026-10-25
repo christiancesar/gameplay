@@ -1,6 +1,6 @@
 import { RoomNotFoundError } from '../../servers/errors/servers.errors'
 import { NotInRoomError, NotStreamingError, PeerNotInRoomError } from '../errors/realtime.errors'
-import { makeRealtimeContext } from '../test/fakes'
+import { makeRealtimeContext } from '../test/realtime-context'
 
 const idle = (userId: string) => ({ userId, muted: false, deafened: false, streaming: null })
 

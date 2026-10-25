@@ -1,4 +1,4 @@
-import { makeRealtimeContext } from '../test/fakes'
+import { makeRealtimeContext } from '../test/realtime-context'
 
 describe('DomainEventsListener', () => {
   it('turns server, room and membership changes into server:changed', async () => {

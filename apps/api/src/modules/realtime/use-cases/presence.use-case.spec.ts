@@ -1,5 +1,5 @@
 import { ServerNotFoundError } from '../../servers/errors/servers.errors'
-import { makeRealtimeContext } from '../test/fakes'
+import { makeRealtimeContext } from '../test/realtime-context'
 
 describe('presence use-cases', () => {
   it('announces the first tab to every server of the user', async () => {

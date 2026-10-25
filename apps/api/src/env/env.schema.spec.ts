@@ -25,6 +25,7 @@ describe('validateEnv', () => {
       ICE_PROVIDER: 'stun-only',
       STUN_URLS: ['stun:stun.cloudflare.com:3478'],
       ICE_TTL_SECONDS: 86_400,
+      ROOM_RECONNECT_GRACE_MS: 30_000,
     })
   })
 
