@@ -14,6 +14,7 @@ export default defineConfig({
       LOG_LEVEL: process.env.E2E_LOG_LEVEL ?? 'silent',
       BETTER_AUTH_SECRET: 'e2e-secret-e2e-secret-e2e-secret-e2e',
       BETTER_AUTH_URL: 'http://localhost:3333',
+      REGISTRATION_KEY_SECRET: 'e2e-key-secret-e2e-key-secret-e2e-key',
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test',
     },
   },

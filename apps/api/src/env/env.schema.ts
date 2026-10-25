@@ -9,6 +9,9 @@ export const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32),
   // Public URL of the API (cookies and auth links are built from it).
   BETTER_AUTH_URL: z.url(),
+  // Signs the registration keys (HMAC); at least 32 characters. Changing it
+  // invalidates every unused key.
+  REGISTRATION_KEY_SECRET: z.string().min(32),
   // Web app origin, trusted by the auth routes.
   WEB_ORIGIN: z.url().default('http://localhost:5173'),
   // API docs (/api/docs). Unset: on outside production.

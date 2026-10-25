@@ -2,28 +2,31 @@
 // admin, twoFactor) plus the app fields on User. Regenerate when plugins change.
 
 model User {
-  id                 String      @id
-  name               String
-  email              String
-  emailVerified      Boolean     @default(false)
-  image              String?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
-  username           String?
-  displayUsername    String?
-  role               String?
-  banned             Boolean?    @default(false)
-  banReason          String?
-  banExpires         DateTime?
-  twoFactorEnabled   Boolean?    @default(false)
+  id                         String               @id
+  name                       String
+  email                      String
+  emailVerified              Boolean              @default(false)
+  image                      String?
+  createdAt                  DateTime             @default(now())
+  updatedAt                  DateTime             @updatedAt
+  username                   String?
+  displayUsername            String?
+  role                       String?
+  banned                     Boolean?             @default(false)
+  banReason                  String?
+  banExpires                 DateTime?
+  twoFactorEnabled           Boolean?             @default(false)
   // App fields (not managed by Better Auth)
-  avatarKey          String?
-  theme              String      @default("dark")
-  locale             String?
-  maxServersOverride Int?
-  sessions           Session[]
-  accounts           Account[]
-  twofactors         TwoFactor[]
+  avatarKey                  String?
+  theme                      String               @default("dark")
+  locale                     String?
+  maxServersOverride         Int?
+  sessions                   Session[]
+  accounts                   Account[]
+  twofactors                 TwoFactor[]
+  // App relations
+  registrationInvitesCreated RegistrationInvite[] @relation("RegistrationInviteCreatedBy")
+  registrationInviteUsed     RegistrationInvite?  @relation("RegistrationInviteUsedBy")
 
   @@unique([email])
   @@unique([username])

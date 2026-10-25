@@ -4,6 +4,7 @@ const DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
 const required = {
   DATABASE_URL,
   BETTER_AUTH_SECRET: 'a'.repeat(32),
+  REGISTRATION_KEY_SECRET: 'b'.repeat(32),
   BETTER_AUTH_URL: 'http://localhost:3333',
 }
 
