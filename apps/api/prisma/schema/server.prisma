@@ -17,6 +17,8 @@ model Server {
   createdAt          DateTime       @default(now())
   members            ServerMember[]
   rooms              Room[]
+  invites            ServerInvite[]
+  joinRequests       JoinRequest[]
 
   @@index([ownerId])
   @@map("server")
@@ -30,13 +32,14 @@ enum ServerRole {
 
 model ServerMember {
   serverId String
-  server   Server     @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  server   Server        @relation(fields: [serverId], references: [id], onDelete: Cascade)
   userId   String
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   role     ServerRole
-  // Invite used to join (BE-10); null for the owner.
+  // Invite used to join; null for the owner.
   inviteId String?
-  joinedAt DateTime   @default(now())
+  invite   ServerInvite? @relation(fields: [inviteId], references: [id], onDelete: SetNull)
+  joinedAt DateTime      @default(now())
 
   @@id([serverId, userId])
   @@index([userId])

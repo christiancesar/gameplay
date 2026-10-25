@@ -1,6 +1,6 @@
-import { randomInt } from 'node:crypto'
 import { Injectable } from '@nestjs/common'
 import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH } from '@gameplay/shared'
+import { randomCode } from '../../../common/crypto/random-code'
 
 export abstract class TokenGenerator {
   abstract generate(): string
@@ -10,10 +10,6 @@ export abstract class TokenGenerator {
 @Injectable()
 export class CryptoTokenGenerator extends TokenGenerator {
   generate(): string {
-    let key = ''
-    for (let i = 0; i < REGISTRATION_KEY_LENGTH; i++) {
-      key += REGISTRATION_KEY_ALPHABET[randomInt(REGISTRATION_KEY_ALPHABET.length)]
-    }
-    return key
+    return randomCode(REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH)
   }
 }

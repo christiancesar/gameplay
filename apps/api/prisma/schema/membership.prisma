@@ -1,0 +1,49 @@
+// Single-use server invite, valid for 1 hour. Kept as a record after use,
+// expiry or revocation (no cleanup).
+model ServerInvite {
+  id          String         @id @default(cuid())
+  serverId    String
+  server      Server         @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  // 8 characters, the same code goes in the link.
+  code        String         @unique
+  createdById String
+  createdBy   User           @relation("ServerInviteCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  // Set when a join request is created with it (even if declined later).
+  usedById    String?
+  usedBy      User?          @relation("ServerInviteUsedBy", fields: [usedById], references: [id], onDelete: SetNull)
+  usedAt      DateTime?
+  joinRequest JoinRequest?
+  members     ServerMember[]
+
+  @@index([serverId, createdAt])
+  @@map("server_invite")
+}
+
+enum JoinStatus {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
+model JoinRequest {
+  id          String       @id @default(cuid())
+  serverId    String
+  server      Server       @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation("JoinRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  // Consumed when the request is created.
+  inviteId    String       @unique
+  invite      ServerInvite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  status      JoinStatus
+  decidedById String?
+  decidedBy   User?        @relation("JoinRequestDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([serverId, status])
+  @@index([userId, serverId])
+  @@map("join_request")
+}

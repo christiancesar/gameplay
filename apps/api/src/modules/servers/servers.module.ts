@@ -43,6 +43,6 @@ import { UploadServerImageUseCase } from './use-cases/upload-server-image.use-ca
     DeleteRoomUseCase,
     ReorderRoomsUseCase,
   ],
-  exports: [ServerAccess, ServersRepository, RoomsRepository, DeleteServerUseCase],
+  exports: [ServerAccess, ServerViews, ServersRepository, RoomsRepository, DeleteServerUseCase],
 })
 export class ServersModule {}

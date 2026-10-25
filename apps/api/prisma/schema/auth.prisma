@@ -30,6 +30,10 @@ model User {
   devices                    DeviceReport[]
   serversOwned               Server[]             @relation("ServerOwner")
   serverMemberships          ServerMember[]
+  serverInvitesCreated       ServerInvite[]       @relation("ServerInviteCreatedBy")
+  serverInvitesUsed          ServerInvite[]       @relation("ServerInviteUsedBy")
+  joinRequests               JoinRequest[]        @relation("JoinRequestUser")
+  joinRequestsDecided        JoinRequest[]        @relation("JoinRequestDecidedBy")
 
   @@unique([email])
   @@unique([username])
