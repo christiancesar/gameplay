@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-25 (BE-01 a BE-16 concluídos: backend completo; PRs #2 e #3 abertos para a `main`).
+> Última atualização: 2026-10-25 (backend completo e mergeado na `main`; plano do frontend e tickets FE-01 a FE-14 escritos).
 
 ## Status das fases (workflow ágil)
 
@@ -11,7 +11,8 @@
 | 02 · Core Flows | `02-core-flows.md` | Concluída para as telas com mock; F7 a F13 terão o visual desenhado no Storybook |
 | 03 · PRD Validate | | Não iniciada |
 | 04 · Tech Plan | `04-tech-plan.md` | Rascunho do backend entregue, aguardando revisão do usuário |
-| Tickets e delegação | `tickets/` | 16 tickets do backend (BE-01 a BE-16), um por arquivo, aguardando revisão |
+| Tickets e delegação | `tickets/` | Backend BE-01 a BE-16 concluídos; frontend FE-01 a FE-14 pendentes |
+| 05 · Plano do frontend | `05-web-plan.md` | Escrito em 2026-10-25, ferramentas e árvore de rotas em `src/app/` |
 
 ## Próxima sessão
 
@@ -25,6 +26,13 @@ Escopo mínimo para começar:
 5. **Todas as Views dos fluxos F1 a F13 estão no Storybook**, com stories de todos os estados e interaction tests (157 testes). A página "Introdução" do Storybook liga cada fluxo às stories.
 
 Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
+
+## Frontend (`apps/web`), retomar daqui
+
+- 2026-10-25: PRs #2 e #3 mergeados na `main`; branches locais apagadas.
+- Plano em `05-web-plan.md` e tickets `tickets/FE-01` a `FE-14` (índice e grafo em `tickets/README.md`). Nada foi instalado ainda.
+- Decisões do usuário: rotas em `src/app/routes` (TanStack Router por arquivo); sala de voz fora da URL (store de voz, `?watch=` para assistir); modais por search param (`?settings=`, `?serverSettings=`); abas do admin como rotas filhas.
+- O usuário não tem tokens para construir o frontend inteiro numa sessão: executar um ticket por vez, começando pelo FE-01, e combinar a branch antes.
 
 ## Backend (`apps/api`)
 
