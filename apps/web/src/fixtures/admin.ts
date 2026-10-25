@@ -114,7 +114,7 @@ export const adminDevices: AdminDeviceItem[] = [
         ramGb: 32,
         gpuModel: 'NVIDIA RTX 3070',
         vramGb: 8,
-        connection: 'ethernet',
+        connection: 'wired',
         downloadMbps: 500,
         uploadMbps: 50,
       },

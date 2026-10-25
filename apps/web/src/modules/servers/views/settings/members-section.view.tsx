@@ -27,11 +27,12 @@ import { UserAvatar } from '@/shared/ui/user-avatar'
 
 type MemberItem = {
   id: string
-  user: { name: string; email: string; avatarUrl?: string }
+  /** `name` é o displayUsername (ou o username); e-mail de outra pessoa não chega aqui. */
+  user: { name: string; username: string; avatarUrl?: string }
   role: ServerRole
   isMe: boolean
-  /** Como entrou: convite usado e quem o criou. Ausente para o owner, que criou o servidor. */
-  joinedVia?: { inviteCode: string; invitedBy: string; joinedAt: string }
+  /** Como entrou: quem criou o convite usado. Ausente para o owner, que criou o servidor. */
+  joinedVia?: { invitedBy: string; joinedAt: string }
 }
 
 type MembersSectionViewProps = {
@@ -63,12 +64,11 @@ function MembersSectionView({ members, memberLimit, onPromote, onDemote, onKick 
                   <span className="text-muted-foreground font-normal"> ({t('serverSettings.members.you')})</span>
                 )}
               </p>
-              <p className="text-muted-foreground truncate text-xs">{member.user.email}</p>
+              <p className="text-muted-foreground truncate text-xs">@{member.user.username}</p>
               <p className="text-muted-foreground truncate text-xs">
                 {member.joinedVia
                   ? t('serverSettings.members.invitedBy', {
                       name: member.joinedVia.invitedBy,
-                      code: member.joinedVia.inviteCode,
                       date: formatRelativeTime(member.joinedVia.joinedAt, i18n.language),
                     })
                   : t('serverSettings.members.founder')}

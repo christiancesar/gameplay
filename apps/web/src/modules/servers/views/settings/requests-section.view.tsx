@@ -8,9 +8,11 @@ import { UserAvatar } from '@/shared/ui/user-avatar'
 
 type JoinRequestItem = {
   id: string
-  user: { name: string; email: string; avatarUrl?: string }
+  /** `name` é o displayUsername (ou o username); e-mail de outra pessoa não chega aqui. */
+  user: { name: string; username: string; avatarUrl?: string }
   requestedAt: string
-  invite: { code: string; createdBy: string }
+  /** Quem criou o convite usado. */
+  invitedBy: string
 }
 
 type RequestsSectionViewProps = {
@@ -62,16 +64,13 @@ function RequestsSectionView({
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{request.user.name}</p>
                   <p className="text-muted-foreground truncate text-xs">
-                    {request.user.email} ·{' '}
+                    @{request.user.username} ·{' '}
                     {t('serverSettings.requests.requestedAt', {
                       date: formatRelativeTime(request.requestedAt, i18n.language),
                     })}
                   </p>
                   <p className="text-muted-foreground truncate text-xs">
-                    {t('serverSettings.requests.viaInvite', {
-                      code: request.invite.code,
-                      name: request.invite.createdBy,
-                    })}
+                    {t('serverSettings.requests.viaInvite', { name: request.invitedBy })}
                   </p>
                 </div>
                 <Button variant="ghost" size="sm" disabled={busy} onClick={() => onDecline(request.id)}>

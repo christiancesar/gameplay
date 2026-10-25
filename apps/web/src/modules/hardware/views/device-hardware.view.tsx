@@ -1,3 +1,4 @@
+import type { CONNECTION_TYPES } from '@gameplay/contracts'
 import {
   CpuIcon,
   GaugeIcon,
@@ -15,6 +16,10 @@ import { Button } from '@/shared/ui/button'
 import { HardwareGroup } from './hardware-group.view'
 import { HardwareRow } from './hardware-row.view'
 
+/**
+ * Vem do `videoEncoding` do relatório: `powerEfficient` conta como hardware,
+ * `supported` sem `powerEfficient` como software, e null ou não suportado como unsupported.
+ */
 type EncoderStatus = 'hardware' | 'software' | 'unsupported'
 
 type DisplaysPermission = 'granted' | 'prompt' | 'denied' | 'unsupported'
@@ -40,7 +45,7 @@ type DeviceHardware = {
   userProvided?: UserProvidedHardware
 }
 
-type ConnectionType = 'ethernet' | 'wifi' | 'mobile'
+type ConnectionType = (typeof CONNECTION_TYPES)[number]
 
 type UserProvidedHardware = {
   cpuModel?: string

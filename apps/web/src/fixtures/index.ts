@@ -9,16 +9,29 @@ export const images = { avatarKisnaider, avatarShinigame, serverTurbex, streamFr
 export const me = {
   id: 'u1',
   name: 'Shinigame',
+  username: 'shinigame',
   email: 'christian.cesar@gameplay.com',
   avatarUrl: avatarShinigame,
 }
 
 export const people = {
   shinigame: me,
-  jacutinga: { id: 'u2', name: 'Jacutinga', email: 'jacutinga@gameplay.com', avatarUrl: undefined },
-  kisnaider: { id: 'u3', name: 'Kisnaider', email: 'kisnaider@gameplay.com', avatarUrl: avatarKisnaider },
-  marreta: { id: 'u4', name: 'Marreta', email: 'marreta@gameplay.com', avatarUrl: undefined },
-  lua: { id: 'u5', name: 'Lua Nova', email: 'lua@gameplay.com', avatarUrl: undefined },
+  jacutinga: {
+    id: 'u2',
+    name: 'Jacutinga',
+    username: 'jacutinga',
+    email: 'jacutinga@gameplay.com',
+    avatarUrl: undefined,
+  },
+  kisnaider: {
+    id: 'u3',
+    name: 'Kisnaider',
+    username: 'kisnaider',
+    email: 'kisnaider@gameplay.com',
+    avatarUrl: avatarKisnaider,
+  },
+  marreta: { id: 'u4', name: 'Marreta', username: 'marreta', email: 'marreta@gameplay.com', avatarUrl: undefined },
+  lua: { id: 'u5', name: 'LuaNova', username: 'luanova', email: 'lua@gameplay.com', avatarUrl: undefined },
 }
 
 export const servers = {

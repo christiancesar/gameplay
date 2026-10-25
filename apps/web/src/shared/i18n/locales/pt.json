@@ -290,7 +290,7 @@
       "empty": "Nenhum pedido pendente.",
       "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Aprovar fica bloqueado até abrir uma vaga.",
       "autoApproveOn": "A auto aprovação está ligada. Pedidos só ficam aqui quando o servidor está cheio.",
-      "viaInvite": "Convite {{code}} de {{name}}"
+      "viaInvite": "Convidado por {{name}}"
     },
     "members": {
       "count": "{{count}} de {{max}} membros",
@@ -300,7 +300,7 @@
       "kickTitle": "Remover {{name}}?",
       "kickDescription": "A pessoa sai do servidor agora e precisa de um novo convite para voltar.",
       "you": "você",
-      "invitedBy": "Convidado por {{name}} · {{code}} · {{date}}",
+      "invitedBy": "Convidado por {{name}} · {{date}}",
       "founder": "Criou o servidor"
     },
     "rooms": {
@@ -580,9 +580,10 @@
       "vramGb": "VRAM (GB)",
       "connection": "Conexão",
       "connections": {
-        "ethernet": "Cabo (Ethernet)",
+        "wired": "Cabo (Ethernet)",
         "wifi": "Wi-Fi",
-        "mobile": "Dados móveis"
+        "mobile": "Dados móveis",
+        "other": "Outra"
       },
       "downloadMbps": "Download (Mbps)",
       "uploadMbps": "Upload (Mbps)",

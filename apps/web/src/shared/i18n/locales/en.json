@@ -290,7 +290,7 @@
       "empty": "No pending requests.",
       "blockedFull": "The server is full ({{count}}/{{max}} members). Approving is blocked until a spot opens.",
       "autoApproveOn": "Auto approval is on. Requests only wait here when the server is full.",
-      "viaInvite": "Invite {{code}} from {{name}}"
+      "viaInvite": "Invited by {{name}}"
     },
     "members": {
       "count": "{{count}} of {{max}} members",
@@ -300,7 +300,7 @@
       "kickTitle": "Kick {{name}}?",
       "kickDescription": "They leave the server now and need a new invite to come back.",
       "you": "you",
-      "invitedBy": "Invited by {{name}} · {{code}} · {{date}}",
+      "invitedBy": "Invited by {{name}} · {{date}}",
       "founder": "Created the server"
     },
     "rooms": {
@@ -580,9 +580,10 @@
       "vramGb": "VRAM (GB)",
       "connection": "Connection",
       "connections": {
-        "ethernet": "Cable (Ethernet)",
+        "wired": "Cable (Ethernet)",
         "wifi": "Wi-Fi",
-        "mobile": "Mobile data"
+        "mobile": "Mobile data",
+        "other": "Other"
       },
       "downloadMbps": "Download (Mbps)",
       "uploadMbps": "Upload (Mbps)",

@@ -142,7 +142,7 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
       />
       <SessionsDialogView
         open={overlay === 'sessions'}
-        userName="Lua Nova"
+        userName="LuaNova"
         sessions={adminSessions}
         onOpenChange={fn()}
         onEndSession={fn()}
