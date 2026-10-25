@@ -1,0 +1,123 @@
+# Self-hosting stack: Gameplay on your own PC, shared through a Cloudflare Tunnel.
+# Use ./start.sh (it creates .env and, in quick mode, discovers the public URL).
+#
+#   browser -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
+#
+# Own project name and volumes: never touches infra/docker-compose.dev.yml.
+name: gameplay-host
+
+x-api-env: &api-env
+  NODE_ENV: production
+  PORT: 3333
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  DATABASE_URL: postgresql://gameplay:${POSTGRES_PASSWORD:?set in .env}@postgres:5432/gameplay
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set in .env}
+  REGISTRATION_KEY_SECRET: ${REGISTRATION_KEY_SECRET:?set in .env}
+  BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:8080}
+  WEB_ORIGIN: ${PUBLIC_URL:-http://localhost:8080}
+  DOCS_ENABLED: 'false'
+  STORAGE_DRIVER: local
+  STORAGE_LOCAL_DIR: /data/uploads
+  PUBLIC_UPLOADS_URL: /uploads
+  # Chain is cloudflared -> nginx -> api. nginx overwrites X-Forwarded-For with
+  # CF-Connecting-IP (the real client), so the api trusts exactly one hop.
+  TRUST_PROXY_HOPS: 1
+  ICE_PROVIDER: ${ICE_PROVIDER:-stun-only}
+  CLOUDFLARE_TURN_KEY_ID: ${CLOUDFLARE_TURN_KEY_ID:-}
+  CLOUDFLARE_TURN_API_TOKEN: ${CLOUDFLARE_TURN_API_TOKEN:-}
+  OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+  OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+  OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-gameplay-api}
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gameplay
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      POSTGRES_DB: gameplay
+    # No host port. Uncomment to reach it from the host (bound to loopback only):
+    # ports:
+    #   - '127.0.0.1:5433:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U gameplay -d gameplay']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Applies the migrations and creates (or promotes) the platform admin. Safe to rerun.
+  migrate:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+      target: migrator
+    image: gameplay-host-migrate
+    environment:
+      <<: *api-env
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?set in .env}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?set in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: gameplay-host-api
+    restart: unless-stopped
+    environment: *api-env
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+    image: gameplay-host-web
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${WEB_PORT:-8080}:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - uploads:/data/uploads:ro
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Quick tunnel: no account, random https://*.trycloudflare.com URL on every start.
+  # The metrics endpoint (loopback only) tells start.sh which URL was assigned.
+  cloudflared-quick:
+    profiles: [quick]
+    image: cloudflare/cloudflared:2026.10.3
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --metrics 0.0.0.0:2000 --url http://web:80
+    ports:
+      - '127.0.0.1:${CLOUDFLARED_METRICS_PORT:-20241}:2000'
+
+  # Named tunnel: fixed hostname, configured in the Cloudflare dashboard to
+  # point at http://web:80.
+  cloudflared-named:
+    profiles: [named]
+    image: cloudflare/cloudflared:2026.10.3
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+
+volumes:
+  postgres-data:
+  uploads:

@@ -17,7 +17,10 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "docker:api": "docker compose -f infra/docker-compose.dev.yml up -d --build --wait",
-    "e2e": "turbo run e2e"
+    "e2e": "turbo run e2e",
+    "host:start": "bash infra/host/start.sh",
+    "host:stop": "bash infra/host/stop.sh",
+    "host:logs": "docker compose --project-directory infra/host -f infra/host/docker-compose.yml --env-file infra/host/.env --profile quick --profile named logs -f --tail 100"
   },
   "devDependencies": {
     "turbo": "^2.11.10"

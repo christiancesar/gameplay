@@ -18,6 +18,14 @@ COPY --from=pruner /repo/out/full/ .
 RUN npm run db:generate --workspace api \
   && npx turbo run build --filter=api
 
+# One-shot job for self-hosting (infra/host): the builder stage already has the
+# Prisma CLI and the compiled seed script, the runner image has neither.
+# Built only on request: docker build --target migrator.
+FROM builder AS migrator
+WORKDIR /repo/apps/api
+ENV NODE_ENV=production
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/scripts/seed-admin"]
+
 FROM base AS runner
 ENV NODE_ENV=production
 COPY --from=pruner /repo/out/json/ .
@@ -34,6 +42,9 @@ RUN npm ci --omit=dev --omit=optional --ignore-scripts \
   && npm cache clean --force
 COPY --from=builder /repo/packages/contracts/dist ./packages/contracts/dist
 COPY --from=builder /repo/apps/api/dist ./apps/api/dist
+# Mount point for uploads when a named volume is used (STORAGE_LOCAL_DIR=/data/uploads):
+# a new volume copies this owner, so the node user can write to it.
+RUN mkdir -p /data/uploads && chown -R node:node /data
 USER node
 EXPOSE 3333
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
