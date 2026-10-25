@@ -67,10 +67,10 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 | [FE-05 Socket, presença e remoções](FE-05-socket-e-presenca.md) | 5 | 2 | concluído |
 | [FE-13 Lint MVVM e Sentry](FE-13-boundaries-e-sentry.md) | 3 | 2 | pendente |
 | [FE-03 Hub, criar servidor, notificações](FE-03-hub.md) | 5 | 3 | concluído |
-| [FE-04 Convite de servidor](FE-04-convite-de-servidor.md) | 3 | 3 | pendente |
-| [FE-08 Configurações e hardware](FE-08-configuracoes.md) | 5 | 3 | pendente |
-| [FE-11 Painel admin](FE-11-admin.md) | 8 | 3 | pendente |
-| [FE-06 Tela do servidor](FE-06-tela-do-servidor.md) | 5 | 4 | pendente |
+| [FE-04 Convite de servidor](FE-04-convite-de-servidor.md) | 3 | 3 | concluído |
+| [FE-08 Configurações e hardware](FE-08-configuracoes.md) | 5 | 3 | concluído |
+| [FE-11 Painel admin](FE-11-admin.md) | 8 | 3 | concluído |
+| [FE-06 Tela do servidor](FE-06-tela-do-servidor.md) | 5 | 4 | concluído |
 | [FE-12 Avisos do ambiente e favicon](FE-12-avisos-do-ambiente.md) | 3 | 4 | pendente |
 | [FE-07 Modal do servidor](FE-07-modal-do-servidor.md) | 8 | 5 | pendente |
 | [FE-09 Salas de voz](FE-09-voz.md) | 8 | 5 | pendente |

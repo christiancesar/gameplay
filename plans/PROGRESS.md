@@ -36,6 +36,13 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - A implementação segue no **OpenCode** (decisão do usuário em 2026-10-25), guiada pelo `AGENTS.md`. O **FE-01 está pela metade** na branch `docs/web-plan`: o que foi feito e o que falta estão nas notas do ticket.
 - 2026-10-25 (tarde): de volta ao Claude Code, com Opus orquestrando e Sonnet/Haiku implementando. Review do que o OpenCode fez, correções e **FE-01 e FE-02 concluídos** na branch `feature/web-routing` (sem push, sem PR ainda). Correções do review e suposições nas notas dos dois tickets. **Aguardando review do usuário.** Próximos liberados: FE-05 (socket), FE-13 (lint MVVM e Sentry), FE-03, FE-04, FE-08 e FE-11.
 - 2026-10-25: **FE-03 (Hub) e FE-05 (socket) concluídos** em paralelo, mesma branch. Suíte web com 412 testes. Ponto aberto para o usuário: a API não expõe o limite efetivo de servidores para o usuário comum (ver notas do FE-03). Liberados agora: FE-04, FE-06, FE-08, FE-11, FE-12 e FE-13.
+- 2026-10-25: **FE-04, FE-06, FE-08 e FE-11 concluídos** em paralelo (quatro agentes Sonnet). Suíte web com 694 testes, api 271. Teste headless (Playwright) contra a API local: login, Hub, configurações, setup do 2FA, convite inválido e tela do servidor sem erros no console. O Vite do usuário que roda desde as 09:42 ficou com cache velho (página branca, `RootLayout` não encontrado); reiniciar o `npm run dev` resolve.
+- Pontos abertos na API, para o usuário decidir (detalhes nas notas do FE-03, FE-04 e FE-11):
+  1. Limite efetivo de servidores para o usuário comum (o card de criar não sabe quando bloquear).
+  2. GET dos limites próprios de usuário e servidor no admin: hoje salvar o diálogo depois de recarregar zera o limite existente. **O mais urgente.**
+  3. `POST /invites/:code/join` com auto aprovação não barra servidor cheio.
+  4. Encerrar uma sessão só, última atividade da sessão, contagem de pedidos pendentes e listagem global de dispositivos (melhorias, não bloqueiam).
+- Liberados agora: FE-07 (modal do servidor), FE-09 (voz), FE-12 (avisos do ambiente) e FE-13 (lint MVVM e Sentry).
 
 ## Backend (`apps/api`)
 
