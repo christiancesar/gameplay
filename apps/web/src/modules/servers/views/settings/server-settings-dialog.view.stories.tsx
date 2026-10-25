@@ -36,6 +36,7 @@ const actions = {
   onRevoke: fn(),
   onCreateRoom: fn(),
   onRenameRoom: fn(),
+  onMoveRoom: fn(),
   onDeleteRoom: fn(),
   onLeave: fn(),
   onDeleteServer: fn(),
@@ -124,6 +125,7 @@ function Scenario({
           setEditingRoomId(undefined)
         }}
         onRenameCancel={() => setEditingRoomId(undefined)}
+        onMove={actions.onMoveRoom}
         onDelete={actions.onDeleteRoom}
       />
     ),
@@ -287,6 +289,17 @@ export const RenameRoom: Story = {
 }
 
 export const RoomsLimitReached: Story = { args: { initialSection: 'rooms', roomLimitReached: true } }
+
+/** Subir e descer muda a ordem das salas; a primeira não sobe e a última não desce. */
+export const ReorderRooms: Story = {
+  args: { initialSection: 'rooms', roomLimitReached: true },
+  play: async ({ userEvent }) => {
+    await expect(screen.getByRole('button', { name: /move up room 01/i })).toBeDisabled()
+    await expect(screen.getByRole('button', { name: /move down room 02/i })).toBeDisabled()
+    await userEvent.click(screen.getByRole('button', { name: /move up room 02/i }))
+    await expect(actions.onMoveRoom).toHaveBeenCalledWith('r2', 'up')
+  },
+}
 
 export const DangerOwner: Story = {
   args: { initialSection: 'danger' },

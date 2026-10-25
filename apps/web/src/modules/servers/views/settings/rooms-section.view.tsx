@@ -1,4 +1,4 @@
-import { AudioLinesIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, AudioLinesIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Alert, AlertDescription } from '@/shared/ui/alert'
@@ -25,6 +25,8 @@ type RoomsSectionViewProps = {
   onStartRename: (roomId: string) => void
   onRename: (roomId: string, name: string) => void
   onRenameCancel: () => void
+  /** Troca a sala de lugar com a vizinha. A ordem vale para a sidebar de todos. */
+  onMove: (roomId: string, direction: 'up' | 'down') => void
   onDelete: (roomId: string) => void
 }
 
@@ -37,6 +39,7 @@ function RoomsSectionView({
   onStartRename,
   onRename,
   onRenameCancel,
+  onMove,
   onDelete,
 }: RoomsSectionViewProps) {
   const { t } = useTranslation()
@@ -65,7 +68,7 @@ function RoomsSectionView({
       )}
 
       <ul className="divide-y rounded-md border">
-        {rooms.map((room) => {
+        {rooms.map((room, index) => {
           const isEditing = editingRoomId === room.id
           return (
             <li key={room.id} className="flex items-center gap-3 px-4 py-2.5">
@@ -87,6 +90,18 @@ function RoomsSectionView({
                       </p>
                     )}
                   </div>
+                  <IconButton
+                    label={`${t('serverSettings.rooms.moveUp')} ${room.name}`}
+                    icon={<ArrowUpIcon />}
+                    disabled={index === 0}
+                    onClick={() => onMove(room.id, 'up')}
+                  />
+                  <IconButton
+                    label={`${t('serverSettings.rooms.moveDown')} ${room.name}`}
+                    icon={<ArrowDownIcon />}
+                    disabled={index === rooms.length - 1}
+                    onClick={() => onMove(room.id, 'down')}
+                  />
                   <IconButton
                     label={`${t('serverSettings.rooms.rename')} ${room.name}`}
                     icon={<PencilIcon />}

@@ -307,6 +307,8 @@
       "count": "{{count}} de {{max}} salas",
       "newRoom": "Nome da nova sala",
       "create": "Criar sala",
+      "moveUp": "Subir",
+      "moveDown": "Descer",
       "rename": "Renomear",
       "delete": "Excluir",
       "deleteTitle": "Excluir {{name}}?",

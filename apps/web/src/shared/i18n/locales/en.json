@@ -307,6 +307,8 @@
       "count": "{{count}} of {{max}} rooms",
       "newRoom": "New room name",
       "create": "Create room",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
       "rename": "Rename",
       "delete": "Delete",
       "deleteTitle": "Delete {{name}}?",
