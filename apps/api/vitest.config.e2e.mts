@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -14,6 +16,9 @@ export default defineConfig({
       LOG_LEVEL: process.env.E2E_LOG_LEVEL ?? 'silent',
       BETTER_AUTH_SECRET: 'e2e-secret-e2e-secret-e2e-secret-e2e',
       BETTER_AUTH_URL: 'http://localhost:3333',
+      STORAGE_LOCAL_DIR: join(tmpdir(), 'gameplay-e2e-uploads'),
+      // S3-compatible mock from infra/docker-compose.dev.yml.
+      S3_TEST_ENDPOINT: process.env.S3_TEST_ENDPOINT ?? 'http://localhost:9090',
       REGISTRATION_KEY_SECRET: 'e2e-key-secret-e2e-key-secret-e2e-key',
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test',
     },

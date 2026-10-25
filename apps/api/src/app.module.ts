@@ -6,6 +6,7 @@ import { PrismaModule } from './lib/prisma'
 import { AuthenticationModule } from './modules/auth/authentication.module'
 import { HealthModule } from './modules/health/health.module'
 import { LimitsModule } from './modules/limits/limits.module'
+import { StorageModule } from './modules/storage/storage.module'
 import { RegistrationInvitesModule } from './modules/registration-invites/registration-invites.module'
 
 @Module({
@@ -14,6 +15,7 @@ import { RegistrationInvitesModule } from './modules/registration-invites/regist
     LoggerModule,
     PrismaModule,
     CommonModule,
+    StorageModule,
     AuthenticationModule,
     HealthModule,
     LimitsModule,

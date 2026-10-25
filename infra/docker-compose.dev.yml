@@ -18,6 +18,13 @@ services:
       timeout: 3s
       retries: 10
 
+  # S3-compatible server for the tests of the S3 storage driver. Accepts any
+  # credentials.
+  s3mock:
+    image: adobe/s3mock:5.2.3
+    ports:
+      - '9090:9090'
+
   # Production build of the API, next to `npm run dev` on the host (port 3333).
   api:
     build:

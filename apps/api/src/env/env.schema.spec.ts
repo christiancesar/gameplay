@@ -16,7 +16,25 @@ describe('validateEnv', () => {
       PORT: 3333,
       LOG_LEVEL: 'info',
       WEB_ORIGIN: 'http://localhost:5173',
+      STORAGE_DRIVER: 'local',
+      STORAGE_LOCAL_DIR: './uploads',
+      PUBLIC_UPLOADS_URL: '/uploads',
+      S3_REGION: 'auto',
+      S3_FORCE_PATH_STYLE: false,
     })
+  })
+
+  it('requires the bucket and credentials for the s3 driver', () => {
+    expect(() => validateEnv({ ...required, STORAGE_DRIVER: 's3' })).toThrow(/S3_BUCKET[\s\S]*S3_ACCESS_KEY_ID/)
+    expect(
+      validateEnv({
+        ...required,
+        STORAGE_DRIVER: 's3',
+        S3_BUCKET: 'uploads',
+        S3_ACCESS_KEY_ID: 'id',
+        S3_SECRET_ACCESS_KEY: 'secret',
+      }).STORAGE_DRIVER,
+    ).toBe('s3')
   })
 
   it('coerces the port from the string the environment provides', () => {
