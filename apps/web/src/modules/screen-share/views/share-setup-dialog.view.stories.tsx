@@ -2,7 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor } from 'storybook/test'
 
-import { ShareSetupDialogView, type AudioSupport, type ShareSettings } from './share-setup-dialog.view'
+import {
+  ShareSetupDialogView,
+  type AudioSupport,
+  type SharePriority,
+  type ShareSettings,
+} from './share-setup-dialog.view'
 
 // Regra de exemplo só para a story; a real fica no Model e considera o sistema operacional.
 const audioSupportFor = (settings: ShareSettings): AudioSupport =>
@@ -14,19 +19,27 @@ const meta = {
   args: {
     open: true,
     settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true },
+    priority: 'smooth',
     audioSupport: 'unsupported',
     saveAsDefault: true,
     onOpenChange: fn(),
     onChange: fn(),
+    onPriorityChange: fn(),
     onSaveAsDefaultChange: fn(),
     onStart: fn(),
   },
   render: function Render(args) {
     const [settings, setSettings] = useState(args.settings)
+    const [priority, setPriority] = useState<SharePriority>(args.priority)
     return (
       <ShareSetupDialogView
         {...args}
         settings={settings}
+        priority={priority}
+        onPriorityChange={(next) => {
+          args.onPriorityChange(next)
+          setPriority(next)
+        }}
         audioSupport={audioSupportFor(settings)}
         onChange={(next) => {
           args.onChange(next)
@@ -68,19 +81,31 @@ export const ChooseAndStart: Story = {
   },
 }
 
+export const SharpPriority: Story = {
+  args: { priority: 'sharp' },
+  play: async ({ args, userEvent }) => {
+    await expect(screen.getByRole('radio', { name: /sharp/i })).toBeChecked()
+    await userEvent.click(screen.getByRole('radio', { name: /smooth/i }))
+    await expect(args.onPriorityChange).toHaveBeenLastCalledWith('smooth')
+    await expect(screen.getByRole('radio', { name: /smooth/i })).toBeChecked()
+  },
+}
+
 export const WindowAudioUnavailable: Story = {
   play: async () => {
     await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
   },
 }
 
-/** Durante a transmissão: só resolução e FPS mudam, na hora. */
+/** Durante a transmissão: resolução, FPS e prioridade mudam, na hora. */
 export const ChangeQualityLive: Story = {
   args: { mode: 'update' },
   play: async ({ args, userEvent }) => {
     await waitFor(() => expect(screen.getByRole('dialog', { name: /change quality/i })).toBeVisible())
     await expect(screen.queryByRole('radio', { name: /browser tab/i })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('radio', { name: '720p' }))
+    await userEvent.click(screen.getByRole('radio', { name: /sharp/i }))
+    await expect(args.onPriorityChange).toHaveBeenLastCalledWith('sharp')
     await userEvent.click(screen.getByRole('button', { name: /apply/i }))
     await expect(args.onStart).toHaveBeenCalledOnce()
   },

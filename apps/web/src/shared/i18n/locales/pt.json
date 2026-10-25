@@ -202,6 +202,17 @@
       "gameTip": "Jogos em tela cheia exclusiva podem aparecer pretos. Use o modo janela sem bordas.",
       "resolution": "Resolução",
       "fps": "Taxa de quadros",
+      "priority": "Prioridade",
+      "priorities": {
+        "smooth": {
+          "label": "Fluido",
+          "hint": "Mantém a taxa de quadros. A resolução cai primeiro. Melhor para jogos e vídeo."
+        },
+        "sharp": {
+          "label": "Nítido",
+          "hint": "Mantém a resolução. A taxa de quadros cai primeiro. Melhor para texto e menus."
+        }
+      },
       "audio": "Compartilhar áudio",
       "audioSupport": {
         "supported": "Áudio de aba funciona em qualquer sistema.",

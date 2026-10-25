@@ -31,7 +31,7 @@ describe('useSharePanelViewModel', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     useShareStore.setState({ ...idleShare })
-    useSharePreferencesStore.setState({ saved: null })
+    useSharePreferencesStore.setState({ saved: null, savedPriority: 'smooth' })
   })
 
   it('starts idle, with the setup dialog closed', () => {
@@ -149,6 +149,45 @@ describe('useSharePanelViewModel', () => {
     )
     expect(fakeShareController.start).not.toHaveBeenCalled()
     expect(result.current.setup.open).toBe(false)
+  })
+
+  it('starts sharing with the chosen priority', () => {
+    const { result } = setup()
+    act(() => result.current.onStart())
+    expect(result.current.setup.priority).toBe('smooth')
+    act(() => result.current.setup.onPriorityChange('sharp'))
+    act(() => result.current.setup.onStart())
+    expect(fakeShareController.start).toHaveBeenCalledWith(defaultShareSettings, 'sharp')
+  })
+
+  it('saves the priority with the settings for next time, and offers it again', () => {
+    const { result } = setup()
+    act(() => result.current.onStart())
+    act(() => result.current.setup.onPriorityChange('sharp'))
+    act(() => result.current.setup.onSaveAsDefaultChange(true))
+    act(() => result.current.setup.onStart())
+    expect(useSharePreferencesStore.getState()).toMatchObject({ saved: defaultShareSettings, savedPriority: 'sharp' })
+    act(() => result.current.onStart())
+    expect(result.current.setup.priority).toBe('sharp')
+  })
+
+  it('does not keep the priority when "use next time" is off', () => {
+    useSharePreferencesStore.setState({ saved: defaultShareSettings, savedPriority: 'sharp' })
+    const { result } = setup()
+    act(() => result.current.onStart())
+    act(() => result.current.setup.onSaveAsDefaultChange(false))
+    act(() => result.current.setup.onStart())
+    expect(useSharePreferencesStore.getState()).toMatchObject({ saved: null, savedPriority: 'smooth' })
+  })
+
+  it('changes the priority live, starting from the one running', () => {
+    useShareStore.setState({ ...live, priority: 'sharp' })
+    const { result } = setup()
+    act(() => result.current.onChangeQuality())
+    expect(result.current.setup.priority).toBe('sharp')
+    act(() => result.current.setup.onPriorityChange('smooth'))
+    act(() => result.current.setup.onStart())
+    expect(fakeShareController.updateQuality).toHaveBeenCalledWith(live.settings, 'smooth')
   })
 
   it('tells why a share did not start, once', () => {

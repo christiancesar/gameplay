@@ -90,10 +90,12 @@ function Scenario({
       <ShareSetupDialogView
         open={overlay === 'shareSetup'}
         settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false }}
+        priority="smooth"
         audioSupport="unsupported"
         saveAsDefault
         onOpenChange={fn()}
         onChange={fn()}
+        onPriorityChange={fn()}
         onSaveAsDefaultChange={fn()}
         onStart={fn()}
       />

@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import { defaultShareSettings, type ShareSettings } from '@/modules/screen-share/model/entities/share'
+import {
+  defaultShareSettings,
+  type SharePriority,
+  type ShareSettings,
+} from '@/modules/screen-share/model/entities/share'
 import {
   toSharePanelState,
   toViewerQualities,
@@ -21,8 +25,10 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   const { t } = useTranslation()
   const snapshot = useShareStore()
   const saved = useSharePreferencesStore((state) => state.saved)
+  const savedPriority = useSharePreferencesStore((state) => state.savedPriority)
   const [dialog, setDialog] = useState<Dialog>('closed')
   const [draft, setDraft] = useState<ShareSettings>(saved ?? defaultShareSettings)
+  const [draftPriority, setDraftPriority] = useState<SharePriority>(saved ? savedPriority : 'smooth')
   const [saveAsDefault, setSaveAsDefault] = useState(saved !== null)
   const [detailsOpen, setDetailsOpen] = useState(false)
 
@@ -38,6 +44,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
 
   function openSetup() {
     setDraft(saved ?? defaultShareSettings)
+    setDraftPriority(saved ? savedPriority : 'smooth')
     setSaveAsDefault(saved !== null)
     setDetailsOpen(false)
     setDialog('start')
@@ -47,14 +54,15 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
     const includeAudio = draft.includeAudio && audioSupportFor(draft.source) !== 'unsupported'
     const settings = { ...draft, includeAudio }
     const { save, clear } = useSharePreferencesStore.getState()
-    if (saveAsDefault) save(settings)
+    if (saveAsDefault) save(settings, draftPriority)
     else clear()
     setDialog('closed')
-    void shareController.start(settings, snapshot.priority)
+    void shareController.start(settings, draftPriority)
   }
 
   function openUpdate() {
     setDraft(snapshot.settings)
+    setDraftPriority(snapshot.priority)
     setDialog('update')
   }
 
@@ -62,7 +70,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
     setDialog('closed')
     void shareController.updateQuality(
       { ...snapshot.settings, resolution: draft.resolution, fps: draft.fps },
-      snapshot.priority,
+      draftPriority,
     )
   }
 
@@ -72,12 +80,14 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
       open: dialog !== 'closed',
       mode: dialog === 'update' ? ('update' as const) : ('start' as const),
       settings: draft,
+      priority: draftPriority,
       audioSupport: audioSupportFor(draft.source),
       saveAsDefault,
       onOpenChange: (open: boolean) => {
         if (!open) setDialog('closed')
       },
       onChange: setDraft,
+      onPriorityChange: setDraftPriority,
       onSaveAsDefaultChange: setSaveAsDefault,
       onStart: dialog === 'update' ? applyQuality : start,
     },

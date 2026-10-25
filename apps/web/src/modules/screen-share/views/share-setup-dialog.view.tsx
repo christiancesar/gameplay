@@ -19,6 +19,10 @@ type ShareResolution = (typeof SHARE_RESOLUTIONS)[number]
 const SHARE_FPS = [30, 60] as const
 type ShareFps = (typeof SHARE_FPS)[number]
 
+const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
+/** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
+type SharePriority = (typeof SHARE_PRIORITIES)[number]
+
 type AudioSupport = 'supported' | 'windowsOnly' | 'unsupported'
 
 type ShareSettings = {
@@ -31,6 +35,7 @@ type ShareSettings = {
 type ShareSetupDialogViewProps = {
   open: boolean
   settings: ShareSettings
+  priority: SharePriority
   /** Calculado pelo ViewModel a partir da fonte e do sistema operacional. */
   audioSupport: AudioSupport
   saveAsDefault: boolean
@@ -38,6 +43,7 @@ type ShareSetupDialogViewProps = {
   mode?: 'start' | 'update'
   onOpenChange: (open: boolean) => void
   onChange: (settings: ShareSettings) => void
+  onPriorityChange: (priority: SharePriority) => void
   onSaveAsDefaultChange: (value: boolean) => void
   onStart: () => void
 }
@@ -47,11 +53,13 @@ const SOURCE_ICONS = { screen: MonitorIcon, window: AppWindowIcon, tab: PanelTop
 function ShareSetupDialogView({
   open,
   settings,
+  priority,
   audioSupport,
   saveAsDefault,
   mode = 'start',
   onOpenChange,
   onChange,
+  onPriorityChange,
   onSaveAsDefaultChange,
   onStart,
 }: ShareSetupDialogViewProps) {
@@ -154,6 +162,26 @@ function ShareSetupDialogView({
             </div>
           </div>
 
+          <div className="flex flex-col gap-2">
+            <Label id="share-priority-label">{t('share.setup.priority')}</Label>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              spacing={0}
+              value={priority}
+              onValueChange={(value) => value && onPriorityChange(value as SharePriority)}
+              aria-labelledby="share-priority-label"
+              className="w-full"
+            >
+              {SHARE_PRIORITIES.map((value) => (
+                <ToggleGroupItem key={value} value={value} className="flex-1">
+                  {t(`share.setup.priorities.${value}.label`)}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            <p className="text-muted-foreground text-xs">{t(`share.setup.priorities.${priority}.hint`)}</p>
+          </div>
+
           {!isUpdate && (
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
@@ -201,5 +229,13 @@ function ShareSetupDialogView({
   )
 }
 
-export { SHARE_FPS, SHARE_RESOLUTIONS, SHARE_SOURCES, ShareSetupDialogView }
-export type { AudioSupport, ShareFps, ShareResolution, ShareSettings, ShareSetupDialogViewProps, ShareSource }
+export { SHARE_FPS, SHARE_PRIORITIES, SHARE_RESOLUTIONS, SHARE_SOURCES, ShareSetupDialogView }
+export type {
+  AudioSupport,
+  ShareFps,
+  SharePriority,
+  ShareResolution,
+  ShareSettings,
+  ShareSetupDialogViewProps,
+  ShareSource,
+}

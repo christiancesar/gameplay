@@ -202,6 +202,17 @@
       "gameTip": "Games in exclusive fullscreen can show up black. Use borderless window mode.",
       "resolution": "Resolution",
       "fps": "Frame rate",
+      "priority": "Priority",
+      "priorities": {
+        "smooth": {
+          "label": "Smooth",
+          "hint": "Keeps the frame rate. Resolution drops first. Best for games and video."
+        },
+        "sharp": {
+          "label": "Sharp",
+          "hint": "Keeps the resolution. Frame rate drops first. Best for text and menus."
+        }
+      },
       "audio": "Share audio",
       "audioSupport": {
         "supported": "Tab audio works on any system.",
