@@ -53,6 +53,8 @@
     "@tanstack/react-query-devtools": "^5.104.5",
     "@tanstack/react-router-devtools": "^1.167.2",
     "@tanstack/router-plugin": "^1.168.48",
+    "@testing-library/cypress": "^10.1.3",
+    "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^24.19.2",
     "@types/pg": "^8.23.1",
