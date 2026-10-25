@@ -28,5 +28,7 @@ import { UploadAvatarUseCase } from './use-cases/upload-avatar.use-case'
     UpdateDeviceManualInfoUseCase,
     ListMyDevicesUseCase,
   ],
+  // For the platform admin panel (devices per user).
+  exports: [DeviceReportsRepository],
 })
 export class AccountsModule {}

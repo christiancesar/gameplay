@@ -45,6 +45,6 @@ import { RevokeServerInviteUseCase } from './use-cases/revoke-server-invite.use-
     DemoteToMemberUseCase,
     LeaveServerUseCase,
   ],
-  exports: [RequestToJoinUseCase, ResolveInviteCodeUseCase],
+  exports: [RequestToJoinUseCase, ResolveInviteCodeUseCase, MembershipsRepository],
 })
 export class MembershipsModule {}
