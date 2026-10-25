@@ -1,4 +1,12 @@
 export {
+  platformSettingsSchema,
+  publicSettingsSchema,
+  userLimitsSchema,
+  type PlatformSettings,
+  type PublicSettings,
+  type UserLimits,
+} from './admin/platform-settings.js'
+export {
   REGISTRATION_INVITE_SUFFIX_LENGTH,
   REGISTRATION_INVITE_VALIDITIES,
   generateRegistrationInviteRequestSchema,

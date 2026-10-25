@@ -4,6 +4,7 @@ import { PrismaService } from '../../src/lib/prisma'
 import { issueRegistrationKey } from '../factories/registration-invite.factory'
 import { makeSignUp } from '../factories/user.factory'
 import { resetDatabase } from '../support/database'
+import { signedIn } from '../support/signed-in'
 import { createTestApp } from '../support/create-test-app'
 
 describe('Registration invites (e2e)', () => {
@@ -29,23 +30,13 @@ describe('Registration invites (e2e)', () => {
     return { agent, body, response: agent.post('/api/auth/sign-up/email').send(body) }
   }
 
-  // Signed-in agent; role and two-factor are set straight in the database.
-  async function signedIn({ admin = false, twoFactor = true } = {}) {
-    const { key } = await issueRegistrationKey(app)
-    const { agent, body, response } = signUp({ registrationKey: key })
-    expect((await response).status).toBe(200)
-    if (admin) {
-      await prisma.user.updateMany({
-        where: { email: body.email },
-        data: { role: 'admin', twoFactorEnabled: twoFactor },
-      })
-    }
-    return agent
+  async function signedInAgent(options?: Parameters<typeof signedIn>[1]) {
+    return (await signedIn(app, options)).agent
   }
 
   describe('admin routes', () => {
     it('generate a key shown once, then list only its suffix', async () => {
-      const admin = await signedIn({ admin: true })
+      const admin = await signedInAgent({ admin: true })
 
       const generated = await admin.post('/api/admin/registration-invites').send({ validity: '7d' })
 
@@ -61,7 +52,7 @@ describe('Registration invites (e2e)', () => {
     })
 
     it('show who used a key', async () => {
-      const admin = await signedIn({ admin: true })
+      const admin = await signedInAgent({ admin: true })
       const { body: generated } = await admin.post('/api/admin/registration-invites').send({ validity: '1d' })
       const { body, response } = signUp({ registrationKey: generated.key })
       expect((await response).status).toBe(200)
@@ -73,7 +64,7 @@ describe('Registration invites (e2e)', () => {
     })
 
     it('revoke a key', async () => {
-      const admin = await signedIn({ admin: true })
+      const admin = await signedInAgent({ admin: true })
       const { body: generated } = await admin.post('/api/admin/registration-invites').send({ validity: '1d' })
 
       const revoked = await admin.post(`/api/admin/registration-invites/${generated.invite.id}/revoke`)
@@ -84,7 +75,7 @@ describe('Registration invites (e2e)', () => {
     })
 
     it('answer 404 when revoking an unknown key', async () => {
-      const admin = await signedIn({ admin: true })
+      const admin = await signedInAgent({ admin: true })
 
       const response = await admin.post('/api/admin/registration-invites/missing/revoke')
 
@@ -93,7 +84,7 @@ describe('Registration invites (e2e)', () => {
     })
 
     it('refuse an invalid validity', async () => {
-      const admin = await signedIn({ admin: true })
+      const admin = await signedInAgent({ admin: true })
 
       const response = await admin.post('/api/admin/registration-invites').send({ validity: '2d' })
 
@@ -101,8 +92,8 @@ describe('Registration invites (e2e)', () => {
     })
 
     it('refuse a regular user and an admin without two-factor', async () => {
-      const user = await signedIn()
-      const adminWithout2fa = await signedIn({ admin: true, twoFactor: false })
+      const user = await signedInAgent()
+      const adminWithout2fa = await signedInAgent({ admin: true, twoFactor: false })
 
       expect((await user.get('/api/admin/registration-invites')).status).toBe(403)
       expect((await adminWithout2fa.get('/api/admin/registration-invites')).status).toBe(403)
