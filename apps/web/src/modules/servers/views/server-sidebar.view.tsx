@@ -280,8 +280,8 @@ function ServerSidebarView({
                               <UserAvatar
                                 name={participant.name}
                                 imageUrl={participant.avatarUrl}
-                                size="sm"
-                                className={cn('size-5', participant.isSpeaking && 'ring-2 ring-emerald-500')}
+                                size="xs"
+                                className={cn(participant.isSpeaking && 'ring-2 ring-emerald-500')}
                               />
                               <span className="min-w-0 flex-1 truncate">{participant.name}</span>
                               {participant.isLive && (

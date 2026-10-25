@@ -34,10 +34,9 @@ function ParticipantTileView({
       <UserAvatar
         name={name}
         imageUrl={avatarUrl}
-        size={compact ? 'lg' : 'xl'}
+        size={compact ? 'lg' : '2xl'}
         className={cn(
           'transition-shadow',
-          !compact && 'size-20 text-xl',
           isSpeaking && 'ring-4 ring-emerald-500',
           connection !== 'connected' && 'opacity-50',
         )}
