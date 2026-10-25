@@ -116,7 +116,7 @@ describe('Servers and rooms (e2e)', () => {
     expect(listener.deleted).toEqual([
       {
         serverId: server.id,
-        serverName: 'Squad',
+        serverName: 'Squad 2',
         memberIds: expect.arrayContaining([owner.user.id, admin.user.id]),
         deletedById: owner.user.id,
       },
