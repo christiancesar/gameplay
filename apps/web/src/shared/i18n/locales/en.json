@@ -105,6 +105,11 @@
   "server": {
     "rooms": "Rooms",
     "ownedBy": "Owner: {{name}}",
+    "presence": {
+      "online": "Online ({{count}})",
+      "offline": "Offline ({{count}})",
+      "nobodyOnline": "Nobody online."
+    },
     "roles": {
       "owner": "Owner",
       "admin": "Admin",

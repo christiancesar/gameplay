@@ -3,9 +3,10 @@ import { useState } from 'react'
 import { expect, fn, screen, waitFor, within } from 'storybook/test'
 
 import { me } from '@/fixtures'
-import { myServers, roomsWithMe, roomsWithoutMe, turbex } from '@/fixtures/server'
+import { myServers, presenceMembers, roomsWithMe, roomsWithoutMe, turbex } from '@/fixtures/server'
 import { withSidebar } from '@/fixtures/sidebar'
 
+import { MembersPresenceView } from './members-presence.view'
 import { ServerSidebarView } from './server-sidebar.view'
 import { UserCardView } from './user-card.view'
 
@@ -35,6 +36,7 @@ const meta = {
     pendingRequests: 0,
     rooms: roomsWithoutMe,
     userCard,
+    members: <MembersPresenceView members={presenceMembers} />,
     onSelectRoom: fn(),
     onBackToHub: fn(),
     onSelectServer: fn(),

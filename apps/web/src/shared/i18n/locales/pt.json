@@ -105,6 +105,11 @@
   "server": {
     "rooms": "Salas",
     "ownedBy": "Owner: {{name}}",
+    "presence": {
+      "online": "Online ({{count}})",
+      "offline": "Offline ({{count}})",
+      "nobodyOnline": "Ninguém online."
+    },
     "roles": {
       "owner": "Owner",
       "admin": "Admin",

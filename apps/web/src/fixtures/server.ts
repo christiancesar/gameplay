@@ -2,6 +2,7 @@
 import type { SharePanelState } from '@/modules/screen-share/views/share-panel.view'
 import type { ViewerQuality } from '@/modules/screen-share/views/share-details-dialog.view'
 import type { StageParticipant } from '@/modules/rooms/views/participant-tile.view'
+import type { PresenceMember } from '@/modules/servers/views/members-presence.view'
 import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
 
 import { people, servers } from './index'
@@ -116,4 +117,13 @@ export const viewerQualities: ViewerQuality[] = [
     isOnTarget: false,
     limitation: 'bandwidth',
   },
+]
+
+/** Membros do Turbex na ordem do ViewModel: papel, depois nome. */
+export const presenceMembers: PresenceMember[] = [
+  { ...people.shinigame, role: 'owner', isOnline: true },
+  { ...people.kisnaider, role: 'admin', isOnline: true },
+  { ...people.jacutinga, role: 'member', isOnline: true },
+  { ...people.lua, role: 'member', isOnline: false },
+  { ...people.marreta, role: 'member', isOnline: false },
 ]

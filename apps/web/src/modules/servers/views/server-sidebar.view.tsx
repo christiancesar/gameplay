@@ -64,6 +64,8 @@ type ServerSidebarViewProps = {
   currentRoomId?: string
   /** Card do usuário, renderizado no rodapé da sidebar. */
   userCard: ReactNode
+  /** Membros online e offline, abaixo das salas (MembersPresenceView). */
+  members?: ReactNode
   onSelectRoom: (roomId: string) => void
   /** Volta ao Hub sem desconectar da sala. */
   onBackToHub: () => void
@@ -88,6 +90,7 @@ function ServerSidebarView({
   rooms,
   currentRoomId,
   userCard,
+  members,
   onSelectRoom,
   onBackToHub,
   onSelectServer,
@@ -310,6 +313,7 @@ function ServerSidebarView({
             </SidebarMenu>
           )}
         </SidebarGroup>
+        {members}
       </SidebarContent>
 
       <SidebarFooter>{userCard}</SidebarFooter>
