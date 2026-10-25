@@ -5,6 +5,8 @@
 @import '@fontsource-variable/space-grotesk';
 
 @custom-variant dark (&:is(.dark *));
+/* Phone held sideways: little height, so screens put people beside the video instead of under it. */
+@custom-variant phone-landscape (@media (orientation: landscape) and (max-height: 32rem));
 
 @theme inline {
   --font-heading: 'Space Grotesk Variable', sans-serif;

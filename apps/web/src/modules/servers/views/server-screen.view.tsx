@@ -28,7 +28,7 @@ function ServerScreenView({ sidebar, main, isSidebarOpen, onSidebarOpenChange }:
         {/* Below md the sidebar is a closed sheet; this bar is the only way to open it. */}
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-2 md:hidden">
           <SidebarTrigger aria-label={t('server.openSidebar')} title={t('server.openSidebar')} />
-          <BrandLogo className="w-20" />
+          <BrandLogo className="w-12" />
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto">
           {main ?? (

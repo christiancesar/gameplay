@@ -10,10 +10,10 @@ type ParticipantStripViewProps = {
   onVolumeChange: (participantId: string, volume: number) => void
 }
 
-/** The row of compact participant tiles under a large screen. */
+/** The row of compact participant tiles under a large screen; a narrow column beside it on a sideways phone. */
 function ParticipantStripView({ participants, watchedId, onWatch, onVolumeChange }: ParticipantStripViewProps) {
   return (
-    <ul className="flex gap-3 overflow-x-auto pb-1">
+    <ul className="phone-landscape:w-52 phone-landscape:shrink-0 phone-landscape:flex-col phone-landscape:gap-1.5 phone-landscape:overflow-x-hidden phone-landscape:overflow-y-auto phone-landscape:pb-0 flex gap-3 overflow-x-auto pb-1">
       {participants.map((participant) => (
         <li key={participant.id}>
           <ParticipantTileView

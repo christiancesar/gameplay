@@ -41,7 +41,7 @@ function StreamViewerView({
   const { t } = useTranslation()
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className="phone-landscape:gap-2 phone-landscape:p-2 flex h-full flex-col gap-4 p-4">
       <header className="flex flex-wrap items-center gap-3">
         <span className="rounded-sm bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white">
           LIVE
@@ -82,14 +82,18 @@ function StreamViewerView({
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black">{video}</div>
+      <div className="phone-landscape:flex-row phone-landscape:gap-2 flex min-h-0 flex-1 flex-col gap-4">
+        <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black">
+          {video}
+        </div>
 
-      <ParticipantStripView
-        participants={participants}
-        watchedId={currentStreamId}
-        onWatch={onWatch}
-        onVolumeChange={onVolumeChange}
-      />
+        <ParticipantStripView
+          participants={participants}
+          watchedId={currentStreamId}
+          onWatch={onWatch}
+          onVolumeChange={onVolumeChange}
+        />
+      </div>
     </div>
   )
 }
