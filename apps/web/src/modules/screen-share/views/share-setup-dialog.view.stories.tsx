@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
-import { expect, fn, screen } from 'storybook/test'
+import { expect, fn, screen, waitFor } from 'storybook/test'
 
 import { ShareSetupDialogView, type AudioSupport, type ShareSettings } from './share-setup-dialog.view'
 
@@ -71,5 +71,17 @@ export const ChooseAndStart: Story = {
 export const WindowAudioUnavailable: Story = {
   play: async () => {
     await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
+  },
+}
+
+/** Durante a transmissão: só resolução e FPS mudam, na hora. */
+export const ChangeQualityLive: Story = {
+  args: { mode: 'update' },
+  play: async ({ args, userEvent }) => {
+    await waitFor(() => expect(screen.getByRole('dialog', { name: /change quality/i })).toBeVisible())
+    await expect(screen.queryByRole('radio', { name: /browser tab/i })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('radio', { name: '720p' }))
+    await userEvent.click(screen.getByRole('button', { name: /apply/i }))
+    await expect(args.onStart).toHaveBeenCalledOnce()
   },
 }

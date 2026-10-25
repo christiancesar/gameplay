@@ -1,6 +1,12 @@
 import { vi } from 'vitest'
 
-import type { IceCandidateLike, PeerConnectionLike, RtpSenderLike, RtpTransceiverLike } from '../browser-media'
+import type {
+  IceCandidateLike,
+  PeerConnectionLike,
+  RtpSenderLike,
+  RtpTransceiverLike,
+  TrackEventLike,
+} from '../browser-media'
 
 class FakeSender implements RtpSenderLike {
   track: MediaStreamTrack | null = null
@@ -27,7 +33,7 @@ class FakePeerConnection implements PeerConnectionLike {
   localDescription: { type: RTCSdpType; sdp: string } | null = null
   onnegotiationneeded: (() => void) | null = null
   onicecandidate: ((event: { candidate: IceCandidateLike | null }) => void) | null = null
-  ontrack: ((event: { track: MediaStreamTrack; streams: readonly MediaStream[] }) => void) | null = null
+  ontrack: ((event: TrackEventLike) => void) | null = null
   onconnectionstatechange: (() => void) | null = null
 
   readonly configuration: RTCConfiguration

@@ -7,6 +7,7 @@ import { voiceController } from './voice.controller'
  */
 function useVoiceRoomViewModel() {
   const connection = useVoiceStore((state) => state.connection)
+  const status = useVoiceStore((state) => state.status)
   const muted = useVoiceStore((state) => state.muted)
   const deafened = useVoiceStore((state) => state.deafened)
   const micDenied = useVoiceStore((state) => state.micDenied)
@@ -17,6 +18,7 @@ function useVoiceRoomViewModel() {
 
   return {
     connection,
+    status,
     isMuted: muted || deafened,
     isDeafened: deafened,
     micDenied,

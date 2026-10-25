@@ -1,14 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useParams } from '@tanstack/react-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 import { useServerSubscriptionViewModel } from '@/modules/realtime/view-models/use-server-subscription.view-model'
+import { useWatchSelectionViewModel } from '@/modules/screen-share/view-models/use-watch-selection.view-model'
 import { toStageParticipants } from '@/modules/rooms/model/mappers/stage-participants.mapper'
 import { useVoiceRoomViewModel } from '@/modules/rooms/view-models/use-voice-room.view-model'
-import { toPresenceMembers } from '@/modules/servers/model/mappers/presence-members.mapper'
+import { memberName, toPresenceMembers } from '@/modules/servers/model/mappers/presence-members.mapper'
 import { toSidebarRooms } from '@/modules/servers/model/mappers/sidebar-rooms.mapper'
 import { toSwitcherServers } from '@/modules/servers/model/mappers/switcher-server.mapper'
 import { connectedRoomName } from '@/modules/servers/model/rules/connected-room-name'
@@ -22,6 +23,7 @@ import {
 } from '@/modules/servers/model/services/servers.query'
 import { leaveServer } from '@/modules/servers/model/services/servers.service'
 
+const SERVER_ROUTE = '/_authed/servers/$serverId'
 const UNAVAILABLE_TOAST_ID = 'server-unavailable'
 
 // `roomId` is set when the switch comes from clicking a room of this server while connected to another one.
@@ -30,7 +32,8 @@ type PendingSwitch = { targetId: string; roomId?: string; serverName: string; ro
 /** Server screen (F6): detail, role, rooms, live presence, members, server switcher and leaving. */
 function useServerScreenViewModel() {
   const { t } = useTranslation()
-  const { serverId } = useParams({ from: '/_authed/servers/$serverId' })
+  const { serverId } = useParams({ from: SERVER_ROUTE })
+  const { watch: watchId } = useSearch({ from: SERVER_ROUTE })
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const voice = useVoiceRoomViewModel()
@@ -113,7 +116,53 @@ function useServerScreenViewModel() {
 
   const user = session?.user
 
+  const onThisServer = connection?.serverId === serverId
+  const stageParticipants = useMemo(
+    () =>
+      toStageParticipants({
+        participants: voice.participants,
+        members: memberList,
+        selfId: user?.id,
+        peers: voice.peers,
+        speaking: voice.speaking,
+        volumes: voice.volumes,
+      }),
+    [voice.participants, memberList, user?.id, voice.peers, voice.speaking, voice.volumes],
+  )
+  const liveStreams = useMemo(
+    () => stageParticipants.filter((participant) => participant.isLive && !participant.isMe),
+    [stageParticipants],
+  )
+  const viewerProfiles = useMemo(
+    () =>
+      Object.fromEntries(
+        memberList.map((member) => [
+          member.user.id,
+          { name: memberName(member), avatarUrl: member.user.image ?? undefined },
+        ]),
+      ),
+    [memberList],
+  )
+
+  // `?watch=` is the source of truth of what is watched; the session follows it.
+  const setWatch = useCallback(
+    (next: string | undefined) =>
+      void navigate({ to: '.', search: (prev) => ({ ...prev, watch: next }), replace: next === undefined }),
+    [navigate],
+  )
+  const closeWatch = useCallback(() => setWatch(undefined), [setWatch])
+  useWatchSelectionViewModel({
+    watchId,
+    // Members give the names; judging who is live before they arrive would close the view for nothing.
+    ready: onThisServer && voice.status === 'connected' && members !== undefined,
+    inCall: onThisServer,
+    liveIds: liveStreams.map((participant) => participant.id),
+    onClose: closeWatch,
+  })
+  const watched = watchId ? liveStreams.find((participant) => participant.id === watchId) : undefined
+
   return {
+    viewerProfiles,
     isLoading: detail === undefined,
     sidebar: {
       server: { name: detail?.name ?? '', iconUrl: detail?.iconUrl ?? undefined },
@@ -156,21 +205,26 @@ function useServerScreenViewModel() {
       onLeaveRoom: voice.leaveRoom,
     },
     // The stage shows the call only on the server it belongs to.
-    stage:
-      connection?.serverId === serverId
+    stage: onThisServer
+      ? {
+          roomName: connectedRoomName(connection, detail?.rooms),
+          micDenied: voice.micDenied,
+          participants: stageParticipants,
+          onWatch: setWatch,
+          onVolumeChange: voice.setVolume,
+        }
+      : null,
+    // The screen being watched replaces the stage while it lasts.
+    watch:
+      onThisServer && watched
         ? {
-            roomName: connectedRoomName(connection, detail?.rooms),
-            micDenied: voice.micDenied,
-            participants: toStageParticipants({
-              participants: voice.participants,
-              members: memberList,
-              selfId: user?.id,
-              peers: voice.peers,
-              speaking: voice.speaking,
-              volumes: voice.volumes,
-            }),
-            // Watching a screen is FE-10.
-            onWatch: () => undefined,
+            streamerName: watched.name,
+            liveStreams: liveStreams.map(({ id, name }) => ({ id, name })),
+            currentStreamId: watched.id,
+            participants: stageParticipants,
+            onSwitchStream: setWatch,
+            onStopWatching: closeWatch,
+            onWatch: setWatch,
             onVolumeChange: voice.setVolume,
           }
         : null,

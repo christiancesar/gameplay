@@ -1,6 +1,6 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { toast } from 'sonner'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/shared/lib/http', async () => ({
   http: (await import('@/shared/test/fake-http')).fakeHttp,
@@ -11,8 +11,12 @@ vi.mock('@/shared/lib/socket', async () => {
 })
 vi.mock('@tanstack/react-router', async () => (await import('./test/fake-server-router')).fakeServerRouterModule)
 vi.mock('react-i18next', async () => (await import('@/shared/test/fake-i18n')).fakeI18nModule)
+vi.mock('@/modules/screen-share/view-models/share.controller', async () => ({
+  shareController: (await import('@/modules/screen-share/view-models/test/fake-share-controller')).fakeShareController,
+}))
 vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn() }) }))
 
+import { fakeShareController } from '@/modules/screen-share/view-models/test/fake-share-controller'
 import { fakeSocket } from '@/modules/realtime/view-models/test/fake-socket.instance'
 import { usePresenceStore } from '@/modules/realtime/view-models/stores/presence.store'
 import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
@@ -23,6 +27,7 @@ import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
 import { navigate } from '@/shared/test/fake-router'
 
+import { search } from './test/fake-server-router'
 import { adminSession, memberSession } from '@/modules/hub/view-models/test/hub-seed'
 import { memberDetail, serverDetail } from './test/server-screen-seed'
 import { createServerScreenViewModelContext } from './test/server-screen-view-model-context'
@@ -49,6 +54,7 @@ const ready = async (result: { current: ReturnType<typeof useServerScreenViewMod
   })
 
 describe('useServerScreenViewModel', () => {
+  afterEach(cleanup)
   beforeEach(() => {
     vi.restoreAllMocks()
     vi.clearAllMocks()
@@ -56,6 +62,7 @@ describe('useServerScreenViewModel', () => {
     fakeSocket.connected = true
     usePresenceStore.getState().reset()
     useVoiceStore.setState({ ...idleVoice })
+    delete search.watch
   })
 
   it('is loading until the server detail arrives', async () => {
@@ -320,6 +327,95 @@ describe('useServerScreenViewModel', () => {
         useVoiceStore.setState({ speaking: { u2: true } })
       })
       expect(result.current.sidebar.rooms[0].participants[0].isSpeaking).toBe(true)
+    })
+  })
+
+  describe('watching a screen', () => {
+    const inCall = (streaming: 'u2' | null) =>
+      useVoiceStore.setState({
+        connection: { serverId: 's1', roomId: 'r2' },
+        status: 'connected',
+        participants: [
+          { userId: 'u1', muted: false, deafened: false, streaming: null },
+          { userId: 'u2', muted: false, deafened: false, streaming: streaming ? '1080p60' : null },
+          { userId: 'u4', muted: false, deafened: false, streaming: streaming ? '720p30' : null },
+        ],
+      })
+    const session = { user: { id: 'u1', name: 'Turbex', email: 't@x.io', image: null } }
+
+    it('has no watch view without ?watch=', async () => {
+      inCall('u2')
+      const { result } = setup({ session })
+      await ready(result)
+      expect(result.current.watch).toBeNull()
+      expect(fakeShareController.watch).not.toHaveBeenCalled()
+      expect(fakeShareController.stopWatching).toHaveBeenCalled()
+    })
+
+    it('asks to watch from the stage by putting the person in the URL', async () => {
+      inCall('u2')
+      const { result } = setup({ session })
+      await ready(result)
+      act(() => result.current.stage?.onWatch('u2'))
+      const { search: change, replace } = navigate.mock.calls[0][0]
+      expect(change({ serverSettings: 'rooms' })).toEqual({ serverSettings: 'rooms', watch: 'u2' })
+      expect(replace).toBe(false)
+    })
+
+    it('shows the screen of the person in ?watch= with the others who are live to switch to', async () => {
+      inCall('u2')
+      search.watch = 'u2'
+      const { result } = setup({ session })
+      await ready(result)
+      expect(fakeShareController.watch).toHaveBeenCalledWith('u2')
+      expect(result.current.watch).toMatchObject({
+        streamerName: 'ana',
+        currentStreamId: 'u2',
+        liveStreams: [
+          { id: 'u2', name: 'ana' },
+          { id: 'u4', name: 'carlos' },
+        ],
+      })
+      expect(result.current.watch?.participants).toHaveLength(3)
+    })
+
+    it('switches and stops watching through the URL', async () => {
+      inCall('u2')
+      search.watch = 'u2'
+      const { result } = setup({ session })
+      await ready(result)
+      act(() => result.current.watch?.onSwitchStream('u4'))
+      expect(navigate.mock.calls[0][0].search({ watch: 'u2' })).toEqual({ watch: 'u4' })
+      act(() => result.current.watch?.onStopWatching())
+      const close = navigate.mock.calls[1][0]
+      expect(close.search({ watch: 'u4' })).toEqual({ watch: undefined })
+      expect(close.replace).toBe(true)
+    })
+
+    it('closes the view when the person stops sharing', async () => {
+      inCall('u2')
+      search.watch = 'u2'
+      const { result } = setup({ session })
+      await ready(result)
+      navigate.mockClear()
+      act(() => inCall(null))
+      expect(navigate).toHaveBeenCalledWith(expect.objectContaining({ replace: true }))
+      expect(result.current.watch).toBeNull()
+    })
+
+    it('does not show a screen while the call is on another server', async () => {
+      useVoiceStore.setState({ connection: { serverId: 's2', roomId: 'x' }, status: 'connected' })
+      search.watch = 'u2'
+      const { result } = setup({ session })
+      await ready(result)
+      expect(result.current.watch).toBeNull()
+      expect(navigate).toHaveBeenCalledWith(expect.objectContaining({ replace: true }))
+    })
+
+    it('gives the names of the members for the viewers list of the share panel', async () => {
+      const { result } = setup({ session })
+      await ready(result)
+      expect(result.current.viewerProfiles.u2).toEqual({ name: 'ana', avatarUrl: undefined })
     })
   })
 })

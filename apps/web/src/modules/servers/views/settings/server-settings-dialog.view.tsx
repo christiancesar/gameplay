@@ -2,7 +2,10 @@ import { AudioLinesIcon, DoorOpenIcon, InboxIcon, LinkIcon, SlidersHorizontalIco
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { SERVER_SETTINGS_SECTIONS, type ServerSettingsSection } from '@/modules/servers/model/server-settings-sections.constants'
+import {
+  SERVER_SETTINGS_SECTIONS,
+  type ServerSettingsSection,
+} from '@/modules/servers/model/server-settings-sections.constants'
 import { SectionDialog } from '@/shared/ui/section-dialog'
 
 const ICONS = {
