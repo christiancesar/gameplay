@@ -34,6 +34,7 @@ type ScenarioProps = {
   usernameTaken: boolean
   wrongPassword: boolean
   passwordChanged: boolean
+  autoLanguage: boolean
 }
 
 const onSignOut = fn()
@@ -55,9 +56,11 @@ function Scenario({
   usernameTaken,
   wrongPassword,
   passwordChanged,
+  autoLanguage,
 }: ScenarioProps) {
   const [section, setSection] = useState(initialSection)
   const language = useStoryLanguage()
+  const [languagePreference, setLanguagePreference] = useState(autoLanguage ? null : language.language)
   const theme = useStoryTheme()
 
   const content = {
@@ -95,10 +98,13 @@ function Scenario({
     appearance: (
       <AppearanceSectionView
         theme={theme.theme}
-        language={language.language}
+        language={languagePreference}
         languageOptions={languageOptions}
         onThemeChange={(next) => next !== theme.theme && theme.onToggleTheme()}
-        onLanguageChange={language.onLanguageChange}
+        onLanguageChange={(next) => {
+          setLanguagePreference(next)
+          if (next) language.onLanguageChange(next)
+        }}
       />
     ),
     hardware: (
@@ -144,6 +150,7 @@ const meta = {
     usernameTaken: false,
     wrongPassword: false,
     passwordChanged: false,
+    autoLanguage: false,
   },
   argTypes: {
     initialSection: { control: 'select', options: ['profile', 'audio', 'appearance', 'hardware', 'account'] },
@@ -214,6 +221,17 @@ export const AudioPermissionNeeded: Story = { args: { initialSection: 'audio', p
 export const AudioPermissionDenied: Story = { args: { initialSection: 'audio', permission: 'denied' } }
 
 export const Appearance: Story = { args: { initialSection: 'appearance' } }
+
+/** "Auto" guarda null: o app segue o idioma do navegador. */
+export const AppearanceAutoLanguage: Story = {
+  args: { initialSection: 'appearance', autoLanguage: true },
+  play: async ({ userEvent }) => {
+    const auto = await screen.findByRole('radio', { name: /auto/i })
+    await expect(auto).toHaveAttribute('aria-checked', 'true')
+    await userEvent.click(screen.getByRole('radio', { name: 'EN' }))
+    await expect(auto).toHaveAttribute('aria-checked', 'false')
+  },
+}
 
 export const Hardware: Story = { args: { initialSection: 'hardware' } }
 
