@@ -5,7 +5,7 @@ import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
 import { createQueryClientContext } from '@/shared/test/query-client-context'
 
-import { members, pendingRequests } from './server-screen-seed'
+import { members } from './server-screen-seed'
 
 type ServerScreenResponses = {
   detail: ServerDetail | ApiError
@@ -22,7 +22,6 @@ function createServerScreenViewModelContext({ detail, servers = [], session }: S
       return { data: detail }
     }
     if (url === '/servers/s1/members') return { data: { members } }
-    if (url === '/servers/s1/join-requests') return { data: { requests: pendingRequests } }
     throw new Error(`unexpected GET ${url}`)
   })
   fakeHttp.post.mockResolvedValue({ data: undefined })

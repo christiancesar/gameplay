@@ -9,7 +9,6 @@ import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
 import { navigate } from '@/shared/test/fake-router'
 
-import { useServerLimitStore } from './stores/server-limit.store'
 import { createdServer, ownedServer } from './test/servers-seed'
 import { createServersViewModelContext } from './test/servers-view-model-context'
 import { useCreateServerViewModel } from './use-create-server.view-model'
@@ -28,7 +27,6 @@ const setup = (servers = [ownedServer]) => {
 describe('useCreateServerViewModel', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useServerLimitStore.setState({ refusedAtOwnedCount: null })
     URL.createObjectURL = vi.fn(() => 'blob:preview')
     URL.revokeObjectURL = vi.fn()
   })
@@ -56,6 +54,7 @@ describe('useCreateServerViewModel', () => {
       defaultRoomName: 'hub.defaultRoomName',
     })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['servers', 'list'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['servers', 'my-limits'] })
     expect(fakeHttp.put).not.toHaveBeenCalled()
     expect(result.current.open).toBe(false)
   })
@@ -113,16 +112,13 @@ describe('useCreateServerViewModel', () => {
     expect(result.current.iconPreviewUrl).toBeUndefined()
   })
 
-  it('exposes limitReached, remembers the refusal and does not navigate', async () => {
+  it('exposes limitReached, refreshes the limits and does not navigate', async () => {
     fakeHttp.post.mockRejectedValue(new ApiError({ code: 'SERVER_LIMIT_REACHED', message: 'x' }, 409))
-    const { result } = setup([ownedServer])
-    await waitFor(() => expect(fakeHttp.get).toHaveBeenCalled())
-    await act(async () => {
-      await Promise.resolve()
-    })
+    const { result, queryClient } = setup([ownedServer])
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
     act(() => result.current.onSubmit({ name: 'My server' }))
     await waitFor(() => expect(result.current.formError).toBe('limitReached'))
-    expect(useServerLimitStore.getState().refusedAtOwnedCount).toBe(1)
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['servers', 'my-limits'] })
     expect(navigate).not.toHaveBeenCalled()
   })
 

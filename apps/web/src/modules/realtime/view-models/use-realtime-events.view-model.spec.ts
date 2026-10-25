@@ -74,6 +74,7 @@ describe('useRealtimeEventsViewModel', () => {
     fakeSocket.receive('server:removed', { serverId: 's1', reason: 'left' })
     expect(toast).toHaveBeenCalledWith('notices.leftServer:realtime.unknownServer')
     await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: serversKeys.list() }))
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: serversKeys.myLimits() })
     expect(navigate).not.toHaveBeenCalled()
   })
 

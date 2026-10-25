@@ -5,7 +5,6 @@ const adminSession = {
     email: 'admin@gameplay.local',
     image: null,
     role: 'admin',
-    maxServersOverride: null,
   },
 }
 
@@ -16,7 +15,6 @@ const memberSession = {
     email: 'player@gameplay.local',
     image: '/avatars/u2.webp',
     role: 'user',
-    maxServersOverride: 1,
   },
 }
 

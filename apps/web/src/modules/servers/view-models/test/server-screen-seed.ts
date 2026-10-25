@@ -1,4 +1,4 @@
-import type { JoinRequest, ServerDetail, ServerMember } from '@gameplay/contracts'
+import type { ServerDetail, ServerMember } from '@gameplay/contracts'
 
 const member = (
   id: string,
@@ -39,13 +39,4 @@ const serverDetail: ServerDetail = {
 
 const memberDetail: ServerDetail = { ...serverDetail, role: 'member', pendingJoinRequests: null }
 
-const joinRequest = (id: string): JoinRequest => ({
-  id,
-  user: { id: `x${id}`, username: `user${id}`, displayUsername: null, image: null },
-  invitedBy: { id: 'u1', username: 'turbex' },
-  createdAt: '2026-01-02T00:00:00.000Z',
-})
-
-const pendingRequests: JoinRequest[] = [joinRequest('j1'), joinRequest('j2')]
-
-export { adminMember, anaMember, carlosMember, memberDetail, members, ownerMember, pendingRequests, serverDetail }
+export { adminMember, anaMember, carlosMember, memberDetail, members, ownerMember, serverDetail }

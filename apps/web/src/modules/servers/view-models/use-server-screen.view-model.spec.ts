@@ -79,17 +79,17 @@ describe('useServerScreenViewModel', () => {
     ])
   })
 
-  it('counts the pending join requests for owner and admin', async () => {
+  it('takes the pending join requests from the server detail', async () => {
     const { result } = setup()
     await ready(result)
-    await waitFor(() => expect(result.current.sidebar.pendingRequests).toBe(2))
+    expect(result.current.sidebar.pendingRequests).toBe(2)
+    expect(fakeHttp.get).not.toHaveBeenCalledWith('/servers/s1/join-requests')
   })
 
-  it('does not ask a plain member for join requests', async () => {
+  it('shows no pending requests to a plain member', async () => {
     const { result } = setup({ detail: memberDetail, session: memberSession })
     await ready(result)
     expect(result.current.sidebar.pendingRequests).toBe(0)
-    expect(fakeHttp.get).not.toHaveBeenCalledWith('/servers/s1/join-requests')
   })
 
   it('opens the server settings keeping the other search params', async () => {
@@ -168,6 +168,7 @@ describe('useServerScreenViewModel', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
     expect(fakeHttp.post).toHaveBeenCalledWith('/servers/s1/leave')
     await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: serversKeys.list() }))
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: serversKeys.myLimits() })
     expect(remove).toHaveBeenCalledWith({ queryKey: serversKeys.detail('s1') })
   })
 

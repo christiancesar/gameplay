@@ -16,7 +16,6 @@ import { needsSwitchConfirmation } from '@/modules/servers/model/rules/needs-swi
 import { serversKeys } from '@/modules/servers/model/services/servers.keys'
 import {
   serverDetailQueryOptions,
-  serverJoinRequestsQueryOptions,
   serverMembersQueryOptions,
   serversListQueryOptions,
 } from '@/modules/servers/model/services/servers.query'
@@ -39,9 +38,7 @@ function useServerScreenViewModel() {
   const { data: servers } = useQuery(serversListQueryOptions)
   const detailQuery = useQuery(serverDetailQueryOptions(serverId))
   const detail = detailQuery.data
-  const canManage = detail !== undefined && detail.role !== 'member'
   const { data: members } = useQuery({ ...serverMembersQueryOptions(serverId), enabled: detail !== undefined })
-  const { data: joinRequests } = useQuery({ ...serverJoinRequestsQueryOptions(serverId), enabled: canManage })
   const { onlineUserIds, rooms: occupancy } = useServerSubscriptionViewModel(serverId)
 
   const [pendingSwitch, setPendingSwitch] = useState<PendingSwitch>()
@@ -59,7 +56,10 @@ function useServerScreenViewModel() {
       if (connection?.serverId === serverId) setConnection(null)
       await navigate({ to: '/', replace: true })
       queryClient.removeQueries({ queryKey: serversKeys.detail(serverId) })
-      await queryClient.invalidateQueries({ queryKey: serversKeys.list() })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: serversKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: serversKeys.myLimits() }),
+      ])
     },
     onError: () => {
       toast.error(t('server.leaveFailed'))
@@ -104,7 +104,7 @@ function useServerScreenViewModel() {
       servers: switcherServers,
       currentServerId: serverId,
       role: detail?.role ?? 'member',
-      pendingRequests: canManage ? (joinRequests?.length ?? 0) : 0,
+      pendingRequests: detail?.pendingJoinRequests ?? 0,
       rooms: sidebarRooms,
       // Voice (FE-09) fills the connection; until then no room is ever current.
       currentRoomId: connection?.serverId === serverId ? connection.roomId : undefined,

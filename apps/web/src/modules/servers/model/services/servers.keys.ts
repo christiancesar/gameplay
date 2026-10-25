@@ -1,6 +1,7 @@
 /** Query keys of the servers module. Socket handlers invalidate these without knowing the screens. */
 const serversKeys = {
   all: ['servers'] as const,
+  myLimits: () => [...serversKeys.all, 'my-limits'] as const,
   list: () => [...serversKeys.all, 'list'] as const,
   detail: (serverId: string) => [...serversKeys.all, 'detail', serverId] as const,
   members: (serverId: string) => [...serversKeys.detail(serverId), 'members'] as const,

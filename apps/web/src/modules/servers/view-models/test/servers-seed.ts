@@ -1,4 +1,4 @@
-import type { ServerDetail, ServerSummary } from '@gameplay/contracts'
+import type { MyLimits, ServerDetail, ServerSummary } from '@gameplay/contracts'
 
 const ownedServer: ServerSummary = { id: 's1', name: 'Turbex', iconUrl: null, role: 'owner' }
 const joinedServer: ServerSummary = { id: 's2', name: 'Clan Zero', iconUrl: '/icons/s2.webp', role: 'member' }
@@ -18,4 +18,7 @@ const createdServer: ServerDetail = {
   pendingJoinRequests: 0,
 }
 
-export { createdServer, joinedServer, ownedServer }
+const limitsWithRoom: MyLimits = { maxServers: 2, ownedServers: 1 }
+const limitsReached: MyLimits = { maxServers: 1, ownedServers: 1 }
+
+export { createdServer, joinedServer, limitsReached, limitsWithRoom, ownedServer }

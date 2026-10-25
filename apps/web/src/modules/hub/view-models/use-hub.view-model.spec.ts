@@ -1,3 +1,4 @@
+import type { MyLimits } from '@gameplay/contracts'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -5,16 +6,16 @@ vi.mock('@/shared/lib/http', async () => ({ http: (await import('@/shared/test/f
 vi.mock('@tanstack/react-router', async () => (await import('@/shared/test/fake-router')).fakeRouterModule)
 
 import { useThemeStore } from '@/modules/settings/view-models/stores/theme.store'
-import { useServerLimitStore } from '@/modules/servers/view-models/stores/server-limit.store'
-import { joinedServer, ownedServer } from '@/modules/servers/view-models/test/servers-seed'
+import { joinedServer, limitsReached, ownedServer } from '@/modules/servers/view-models/test/servers-seed'
+import { fakeHttp } from '@/shared/test/fake-http'
 import { navigate } from '@/shared/test/fake-router'
 
 import { adminSession, memberSession } from './test/hub-seed'
 import { createHubViewModelContext } from './test/hub-view-model-context'
 import { useHubViewModel } from './use-hub.view-model'
 
-const setup = (session: object, servers = [ownedServer, joinedServer]) => {
-  const context = createHubViewModelContext(session, servers)
+const setup = (session: object, servers = [ownedServer, joinedServer], limits?: MyLimits) => {
+  const context = createHubViewModelContext(session, servers, limits)
   return renderHook(() => useHubViewModel(), { wrapper: context.wrapper })
 }
 
@@ -22,7 +23,6 @@ describe('useHubViewModel', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     useThemeStore.setState({ theme: 'dark' })
-    useServerLimitStore.setState({ refusedAtOwnedCount: null })
   })
 
   it('exposes the profile from the session', () => {
@@ -49,24 +49,17 @@ describe('useHubViewModel', () => {
     expect(setup(memberSession).result.current.isPlatformAdmin).toBe(false)
   })
 
-  it('blocks creating when the owned servers reach the user override', async () => {
+  it('allows creating while the limits load and while there is room', async () => {
     const { result } = setup(memberSession)
     expect(result.current.canCreateServer).toBe(true)
-    await waitFor(() => expect(result.current.isLoadingServers).toBe(false))
-    expect(result.current.canCreateServer).toBe(false)
-  })
-
-  it('does not count servers where the user is only a member', async () => {
-    const { result } = setup(memberSession, [joinedServer])
+    await waitFor(() => expect(fakeHttp.get).toHaveBeenCalledWith('/me/limits'))
     await waitFor(() => expect(result.current.isLoadingServers).toBe(false))
     expect(result.current.canCreateServer).toBe(true)
   })
 
-  it('blocks creating after the API refused at the current owned count', async () => {
-    useServerLimitStore.setState({ refusedAtOwnedCount: 1 })
-    const { result } = setup(adminSession)
-    await waitFor(() => expect(result.current.isLoadingServers).toBe(false))
-    expect(result.current.canCreateServer).toBe(false)
+  it('blocks creating when GET /me/limits says the limit is reached', async () => {
+    const { result } = setup(memberSession, [ownedServer], limitsReached)
+    await waitFor(() => expect(result.current.canCreateServer).toBe(false))
   })
 
   it('toggles the theme through the store', () => {

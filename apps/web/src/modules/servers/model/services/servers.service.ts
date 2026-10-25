@@ -1,10 +1,10 @@
 import {
-  listJoinRequestsResponseSchema,
   listMembersResponseSchema,
   listMyServersResponseSchema,
+  myLimitsSchema,
   serverDetailSchema,
   type CreateServerRequest,
-  type JoinRequest,
+  type MyLimits,
   type ServerDetail,
   type ServerMember,
   type ServerSummary,
@@ -39,22 +39,13 @@ async function listServerMembers(serverId: string): Promise<ServerMember[]> {
   return listMembersResponseSchema.parse(data).members
 }
 
-/** Pending requests only; owner and admin. The API has no count endpoint, so the length is the count. */
-async function listPendingJoinRequests(serverId: string): Promise<JoinRequest[]> {
-  const { data } = await http.get(`/servers/${serverId}/join-requests`)
-  return listJoinRequestsResponseSchema.parse(data).requests
+async function getMyLimits(): Promise<MyLimits> {
+  const { data } = await http.get('/me/limits')
+  return myLimitsSchema.parse(data)
 }
 
 async function leaveServer(serverId: string): Promise<void> {
   await http.post(`/servers/${serverId}/leave`)
 }
 
-export {
-  createServer,
-  getServer,
-  leaveServer,
-  listMyServers,
-  listPendingJoinRequests,
-  listServerMembers,
-  uploadServerIcon,
-}
+export { createServer, getMyLimits, getServer, leaveServer, listMyServers, listServerMembers, uploadServerIcon }

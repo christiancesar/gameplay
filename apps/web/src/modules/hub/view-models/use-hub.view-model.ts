@@ -5,8 +5,7 @@ import { useMemo } from 'react'
 import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 import { toHubServer, toHubUser } from '@/modules/hub/model/mappers/hub-view.mapper'
 import { canCreateServer } from '@/modules/servers/model/rules/can-create-server'
-import { serversListQueryOptions } from '@/modules/servers/model/services/servers.query'
-import { useServerLimitStore } from '@/modules/servers/view-models/stores/server-limit.store'
+import { myLimitsQueryOptions, serversListQueryOptions } from '@/modules/servers/model/services/servers.query'
 import { useThemeStore } from '@/modules/settings/view-models/stores/theme.store'
 
 const DARK_QUERY = '(prefers-color-scheme: dark)'
@@ -22,13 +21,12 @@ function useHubViewModel() {
   const navigate = useNavigate()
   const { data: session } = useQuery(sessionQueryOptions)
   const { data: servers, isPending: isLoadingServers } = useQuery(serversListQueryOptions)
-  const refusedAtOwnedCount = useServerLimitStore((state) => state.refusedAtOwnedCount)
+  const { data: limits } = useQuery(myLimitsQueryOptions)
   const storedTheme = useThemeStore((state) => state.theme)
   const setTheme = useThemeStore((state) => state.setTheme)
 
   const theme = resolveTheme(storedTheme)
   const user = session?.user
-  const ownedCount = (servers ?? []).filter((server) => server.role === 'owner').length
   const hubServers = useMemo(() => (servers ?? []).map(toHubServer), [servers])
 
   return {
@@ -37,11 +35,7 @@ function useHubViewModel() {
     isPlatformAdmin: user?.role === 'admin',
     servers: hubServers,
     isLoadingServers,
-    canCreateServer: canCreateServer({
-      ownedCount,
-      limitOverride: user?.maxServersOverride ?? null,
-      refusedAtOwnedCount,
-    }),
+    canCreateServer: canCreateServer(limits),
     theme,
     onToggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
     onOpenServer: (serverId: string) => void navigate({ to: '/servers/$serverId', params: { serverId } }),

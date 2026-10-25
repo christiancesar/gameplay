@@ -43,6 +43,7 @@ function useRealtimeEventsViewModel() {
         // The server is gone for this user: refetching its detail would only answer 403 or 404.
         queryClient.removeQueries({ queryKey: serversKeys.detail(serverId) })
         void queryClient.invalidateQueries({ queryKey: serversKeys.list() })
+        void queryClient.invalidateQueries({ queryKey: serversKeys.myLimits() })
       }),
 
       realtime.on('session:revoked', async () => {
