@@ -317,12 +317,6 @@
       }
     },
     {
-      "files": ["src/modules/rooms/model/mappers/stage-participants.mapper.ts"],
-      "rules": {
-        "boundaries/dependencies": "off"
-      }
-    },
-    {
       "files": ["src/modules/*/views/**"],
       "rules": {
         "no-restricted-imports": [

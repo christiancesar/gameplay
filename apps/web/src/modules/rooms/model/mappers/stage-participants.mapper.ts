@@ -1,6 +1,6 @@
 import type { Participant, ServerMember } from '@gameplay/contracts'
 
-import type { StageParticipant } from '@/modules/rooms/views/participant-tile.view'
+import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
 import { memberName } from '@/modules/servers/model/mappers/presence-members.mapper'
 
 import type { PeerConnectionStatus } from '../entities/voice-state'

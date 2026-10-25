@@ -7,23 +7,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { Slider } from '@/shared/ui/slider'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
+import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
+
 import { ParticipantStatusView } from './participant-status.view'
-
-type ParticipantConnection = 'connecting' | 'connected' | 'failed'
-
-type StageParticipant = {
-  id: string
-  name: string
-  avatarUrl?: string
-  isMe: boolean
-  isMuted: boolean
-  isDeafened: boolean
-  isSpeaking: boolean
-  isLive: boolean
-  connection: ParticipantConnection
-  /** Volume local deste participante, de 0 a 200 (%). */
-  volume: number
-}
 
 type ParticipantTileViewProps = {
   participant: StageParticipant
@@ -144,4 +130,4 @@ function ParticipantTileView({
 }
 
 export { ParticipantTileView }
-export type { ParticipantConnection, ParticipantTileViewProps, StageParticipant }
+export type { ParticipantTileViewProps }

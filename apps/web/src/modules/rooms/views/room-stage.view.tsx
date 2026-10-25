@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 
-import { ParticipantTileView, type StageParticipant } from './participant-tile.view'
+import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
+
+import { ParticipantTileView } from './participant-tile.view'
 
 type RoomStageViewProps = {
   roomName: string

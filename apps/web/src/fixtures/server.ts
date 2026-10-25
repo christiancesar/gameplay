@@ -1,7 +1,7 @@
 // Estado fictício da tela do servidor, usado só nas stories.
 import type { SharePanelState } from '@/modules/screen-share/views/share-panel.view'
 import type { ViewerQuality } from '@/modules/screen-share/views/share-details-dialog.view'
-import type { StageParticipant } from '@/modules/rooms/views/participant-tile.view'
+import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
 import type { PresenceMember } from '@/modules/servers/model/entities/presence-member'
 import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 
