@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
 import { leaveVoiceRoom } from '@/modules/rooms/view-models/voice.controller'
 import { authClient } from '@/shared/lib/auth-client'
+import { monitoring } from '@/shared/lib/monitoring'
 
 /** Ends the session. The confirmation dialog belongs to the Screen that opens it. */
 function useSignOutViewModel() {
@@ -17,6 +18,7 @@ function useSignOutViewModel() {
       // Before the socket closes, so the API frees the seat at once.
       void leaveVoiceRoom()
       realtime.disconnect()
+      monitoring.clearUser()
       queryClient.clear()
       await navigate({ to: '/sign-in', replace: true })
     },

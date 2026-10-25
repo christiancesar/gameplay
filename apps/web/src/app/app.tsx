@@ -6,10 +6,12 @@ import { Toaster } from 'sonner'
 import { TooltipProvider } from '@/shared/ui/tooltip'
 import { queryClient } from '@/shared/lib/query-client'
 import { ThemeSync } from './theme-sync'
+import { initSentry } from '@/shared/lib/sentry'
 import { createRouter } from './router'
 import { createRouterContext } from './router-context'
 
 const router = createRouter(createRouterContext(queryClient))
+initSentry(router)
 
 export function App() {
   return (
