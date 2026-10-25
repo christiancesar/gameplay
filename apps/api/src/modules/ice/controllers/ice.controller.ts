@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus, Req } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import type { IceConfigResponse } from '@gameplay/shared'
+import type { IceConfigResponse } from '@gameplay/contracts'
 import type { Request } from 'express'
 import { ZodResponse } from 'nestjs-zod'
 import { CurrentUser } from '../../../common/auth/current-user.decorator'

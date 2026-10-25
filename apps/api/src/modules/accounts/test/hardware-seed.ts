@@ -1,4 +1,4 @@
-import type { CollectedHardware, ManualHardware } from '@gameplay/shared'
+import type { CollectedHardware, ManualHardware } from '@gameplay/contracts'
 
 // Hardware reports as the web would send them, for the accounts and platform
 // admin tests. Pass overrides for the figures under test.

@@ -1,4 +1,4 @@
-import type { Participant, RoomOccupancy, StreamPreset } from '@gameplay/shared'
+import type { Participant, RoomOccupancy, StreamPreset } from '@gameplay/contracts'
 
 // A person's place in a voice room. socketId is the tab that joined; null
 // while that socket is gone and the seat waits for a reconnection.

@@ -13,7 +13,7 @@ O usuário troca ou remove o próprio avatar. O tema (escuro padrão, ou claro) 
   - `ReportDevice` (upsert por `userId + deviceId`, recebendo o que o browser coletou);
   - `UpdateDeviceManualInfo` (campos informados pelo usuário);
   - `ListMyDevices`.
-- Schemas no `packages/shared`: perfil, preferências e o formato do relatório de hardware (2.12), que o web usa para enviar.
+- Schemas no `packages/contracts`: perfil, preferências e o formato do relatório de hardware (2.12), que o web usa para enviar.
 - Teto e arredondamento do `deviceMemory`, conforme 2.12, validados no schema.
 
 ## Fora do escopo
@@ -28,7 +28,7 @@ Resumo de hardware para o admin (BE-15), troca de senha (sem "esqueci minha senh
 - [x] Rotas de perfil e preferências, com testes
 - [x] Upload e remoção de avatar (e2e com `InMemoryStorageProvider`)
 - [x] `DeviceReport`: modelo, migration, use-cases e testes (novo dispositivo, mesmo dispositivo atualiza, manual preservado na nova coleta)
-- [x] Schemas no `packages/shared` e OpenAPI
+- [x] Schemas no `packages/contracts` e OpenAPI
 - [x] Commit a cada passo verde
 
 ## Critério de aceite
@@ -44,7 +44,7 @@ O usuário altera tema, idioma e avatar, e cada dispositivo tem um único relat�
 - **Username fica fora do `UpdateMyProfile`:** a troca de username (e de `displayUsername`) continua pelo `/api/auth/update-user`, como decidido no BE-04, para manter a validação e a unicidade do plugin `username`. A rota própria cuida só de tema e idioma, por isso se chama `preferences`. *(Suposição minha, confirmar.)*
 - Avatar: processa no perfil `square256`, grava em `avatars/<userId>/<hash>.webp`, salva a URL em `user.image` e a chave em `avatarKey`, e só então apaga o arquivo antigo. Se a mesma imagem for enviada de novo, a chave é a mesma e nada é apagado. Falha ao apagar o arquivo antigo vira log de aviso, sem derrubar a requisição. O e2e confere que o `get-session` já devolve a nova `image`.
 - `DeviceReport`: tabela `device_report`, único por `(userId, deviceId)`, apagado em cascata com o usuário. O upsert troca `collected` e `collectedAt` e não mexe em `manual`.
-- Schemas em `packages/shared` (`account/profile.ts` e `account/device-report.ts`). Todos os campos coletados são obrigatórios e anuláveis, porque cada browser expõe um subconjunto; o web manda `null` no que não conseguiu ler. Textos até 200 caracteres e até 16 monitores.
+- Schemas em `packages/contracts` (`account/profile.ts` e `account/device-report.ts`). Todos os campos coletados são obrigatórios e anuláveis, porque cada browser expõe um subconjunto; o web manda `null` no que não conseguiu ler. Textos até 200 caracteres e até 16 monitores.
 - `deviceMemory`: a entrada é arredondada para baixo até uma potência de 2, entre 0,25 e 8 GB (o teto do Chrome). Um valor acima, como 32, vira 8 em vez de recusar o relatório inteiro. *(Suposição minha: arredondar em vez de recusar.)*
 - Campos manuais: modelo do processador, RAM, placa de vídeo, VRAM, tipo de conexão (`wired`, `wifi`, `mobile`, `other`) e plano de internet (download e upload em Mbps). O `PUT` substitui o objeto inteiro.
 - Monitores (Window Management API): `label`, `width`, `height`, `scaleFactor`, `refreshRate`, `isPrimary`, `isInternal`. A API do Chrome não expõe a taxa de atualização em todas as versões, por isso `refreshRate` é anulável.

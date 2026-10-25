@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { ResolvedInvite } from '@gameplay/shared'
+import type { ResolvedInvite } from '@gameplay/contracts'
 import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { ServersRepository } from '../../servers/repositories/servers.repository'
 import { ServerViewsService } from '../../servers/services/server-views.service'

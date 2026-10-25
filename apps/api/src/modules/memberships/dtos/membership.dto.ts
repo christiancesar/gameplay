@@ -8,7 +8,7 @@ import {
   type JoinRequest,
   type ServerInvite,
   type ServerMember,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 import {
   type InviteListItem,

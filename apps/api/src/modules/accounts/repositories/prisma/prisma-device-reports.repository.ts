@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { type CollectedHardware, type ManualHardware } from '@gameplay/shared'
+import { type CollectedHardware, type ManualHardware } from '@gameplay/contracts'
 import type { DeviceReport as Row } from '../../../../generated/prisma/client'
 import { PrismaService } from '../../../../lib/prisma'
 import type { DeviceReportRecord } from '../../domain/account'

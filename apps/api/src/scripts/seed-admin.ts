@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { AuthService } from '@thallesp/nestjs-better-auth'
-import { passwordSchema, usernameSchema } from '@gameplay/shared'
+import { passwordSchema, usernameSchema } from '@gameplay/contracts'
 import { z } from 'zod'
 import { AppModule } from '../app.module'
 import type { Auth } from '../lib/auth'

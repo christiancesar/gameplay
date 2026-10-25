@@ -1,4 +1,4 @@
-import { listNotificationsResponseSchema, type Notification } from '@gameplay/shared'
+import { listNotificationsResponseSchema, type Notification } from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 import type { NotificationRecord } from '../domain/notification'
 

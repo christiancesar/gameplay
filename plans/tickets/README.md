@@ -9,7 +9,7 @@ Como trabalhar:
 
 | Ticket | Pontos | Onda | Status |
 |---|---|---|---|
-| [BE-01 Nest 11 e `packages/shared`](BE-01-fundacao-nest11-shared.md) | 5 | 1 | concluído |
+| [BE-01 Nest 11 e `packages/contracts`](BE-01-fundacao-nest11-shared.md) | 5 | 1 | concluído |
 | [BE-02 Postgres, env, Prisma 7, logs, e2e](BE-02-infra-env-prisma.md) | 5 | 2 | concluído |
 | [BE-03 Erros, zod, OpenAPI, AsyncAPI, eventos](BE-03-plataforma-http-contrato.md) | 5 | 3 | concluído |
 | [BE-07 Storage e imagens](BE-07-storage-e-imagens.md) | 5 | 3 | concluído |
@@ -30,7 +30,7 @@ Total: 90 pontos. Tickets da mesma onda podem rodar em paralelo.
 
 ```mermaid
 graph LR
-  BE01[BE-01 Nest 11 + shared] --> BE02[BE-02 Infra + Prisma]
+  BE01[BE-01 Nest 11 + contracts] --> BE02[BE-02 Infra + Prisma]
   BE02 --> BE03[BE-03 Contrato HTTP]
   BE02 --> BE07[BE-07 Storage]
   BE02 --> BE16[BE-16 OTel]

@@ -3,7 +3,7 @@ import {
   generateRegistrationInviteResponseSchema,
   listRegistrationInvitesResponseSchema,
   type RegistrationInvite,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 import { type RegistrationInviteRecord, registrationInviteStatus } from '../domain/registration-invite'
 

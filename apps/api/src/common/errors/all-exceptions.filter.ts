@@ -1,5 +1,5 @@
 import { type ArgumentsHost, Catch, type ExceptionFilter, HttpStatus, Logger } from '@nestjs/common'
-import type { ErrorResponse } from '@gameplay/shared'
+import type { ErrorResponse } from '@gameplay/contracts'
 import type { Response } from 'express'
 import { resolveError } from './resolve-error'
 

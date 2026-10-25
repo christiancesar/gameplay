@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { UserLimits } from '@gameplay/shared'
+import type { UserLimits } from '@gameplay/contracts'
 import { UserNotFoundError } from '../errors/limits.errors'
 import { UserLimitsRepository } from '../repositories/user-limits.repository'
 

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Module, Post } from '@nestjs/common'
 import type { INestApplication } from '@nestjs/common'
-import { usernameSchema } from '@gameplay/shared'
+import { usernameSchema } from '@gameplay/contracts'
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth'
 import { createZodDto } from 'nestjs-zod'
 import request from 'supertest'

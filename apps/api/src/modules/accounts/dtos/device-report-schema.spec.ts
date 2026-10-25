@@ -1,4 +1,4 @@
-import { reportDeviceRequestSchema } from '@gameplay/shared'
+import { reportDeviceRequestSchema } from '@gameplay/contracts'
 import { makeCollected } from '../test/hardware-seed'
 
 const deviceId = '6f1c2a52-8a3b-4d0e-9a39-0d8e6c1f2b10'

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import type { PlatformSettings } from '@gameplay/shared'
+import type { PlatformSettings } from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { PlatformAdmin } from '../../../common/auth/platform-admin.decorator'
 import { PlatformSettingsDto } from '../dtos/platform-settings.dto'

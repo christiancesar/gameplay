@@ -1,4 +1,4 @@
-import type { ClientToServerEvents, ServerToClientEvents } from '@gameplay/shared'
+import type { ClientToServerEvents, ServerToClientEvents } from '@gameplay/contracts'
 import type { Server, Socket } from 'socket.io'
 
 // Set by the handshake middleware; every connected socket has a user.

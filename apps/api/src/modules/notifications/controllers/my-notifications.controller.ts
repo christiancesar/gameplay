@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import type { ListNotificationsResponse } from '@gameplay/shared'
+import type { ListNotificationsResponse } from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { CurrentUser } from '../../../common/auth/current-user.decorator'
 import type { AuthUser } from '../../../lib/auth'

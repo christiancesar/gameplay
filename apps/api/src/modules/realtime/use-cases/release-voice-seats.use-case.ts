@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { RoomLeft } from '@gameplay/shared'
+import type { RoomLeft } from '@gameplay/contracts'
 import type { Seat } from '../domain/seat'
 import { VoiceRoomsService } from '../services/voice-rooms.service'
 import { RoomStateStore } from '../stores/room-state.store'

@@ -1,5 +1,5 @@
 import type { INestApplication } from '@nestjs/common'
-import type { CreateServerRequest } from '@gameplay/shared'
+import type { CreateServerRequest } from '@gameplay/contracts'
 import { signedIn } from '../support/signed-in'
 
 let sequence = 0

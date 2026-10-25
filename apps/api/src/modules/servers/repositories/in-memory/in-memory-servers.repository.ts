@@ -1,4 +1,4 @@
-import type { ServerRole } from '@gameplay/shared'
+import type { ServerRole } from '@gameplay/contracts'
 import type { RoomRecord, ServerRecord, ServerWithRole } from '../../domain/server'
 import { type CreateServerData, type ServerChanges, ServersRepository } from '../servers.repository'
 import type { InMemoryRoomsRepository } from './in-memory-rooms.repository'

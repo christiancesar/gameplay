@@ -1,4 +1,4 @@
-import type { UserLimits } from '@gameplay/shared'
+import type { UserLimits } from '@gameplay/contracts'
 import { UserLimitsRepository } from '../user-limits.repository'
 
 export class InMemoryUserLimitsRepository extends UserLimitsRepository {

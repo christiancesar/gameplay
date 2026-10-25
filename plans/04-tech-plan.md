@@ -1,7 +1,7 @@
 # 04 · Tech Plan do backend (`apps/api`)
 
 > Criado em 2026-10-24. Base: `00-requirements.md` (seções 2, 3.1.1, 3.3 e 3.3.1), `02-core-flows.md` e `media-transport-options.md` (MVP só mesh).
-> Decisões do usuário de 2026-10-24: NestJS 11, Postgres + Prisma 7, `nestjs-asyncapi`, tipagem em `packages/shared`, VPN só pelo check do STUN, convite consumido na criação do pedido.
+> Decisões do usuário de 2026-10-24: NestJS 11, Postgres + Prisma 7, `nestjs-asyncapi`, tipagem em `packages/contracts`, VPN só pelo check do STUN, convite consumido na criação do pedido.
 > Itens marcados **(suposição)** são propostas minhas, a confirmar na revisão.
 > Os tickets de implementação ficam em `plans/tickets/`, um por arquivo.
 
@@ -18,7 +18,7 @@
 - `providers/` (`*.provider.ts` ou o nome da peça): detalhe técnico trocável atrás de uma `abstract class`, para o teste usar um fake: aleatoriedade, hash, API de terceiros (`TokenGenerator`, `InviteCodeGenerator`, `IceProvider`).
 - `domain/`: tipos, constantes e regras puras, sem I/O (`ServerPermissions`, `serverInviteStatus`).
 
-**Contrato compartilhado.** `packages/shared` é a fonte da verdade dos formatos: schemas zod de DTOs, payloads de eventos e os tipos `ClientToServerEvents` e `ServerToClientEvents`. Compilado com `tsc` para `dist/` em ESM com `.d.ts` **(suposição)**. A API, em CommonJS no Nest 11, consome via `require(esm)` do Node 24. O web consome direto.
+**Contrato compartilhado.** `packages/contracts` é a fonte da verdade dos formatos: schemas zod de DTOs, payloads de eventos e os tipos `ClientToServerEvents` e `ServerToClientEvents`. Compilado com `tsc` para `dist/` em ESM com `.d.ts` **(suposição)**. A API, em CommonJS no Nest 11, consome via `require(esm)` do Node 24. O web consome direto.
 - A API valida tudo com `nestjs-zod` (`createZodDto` + `ZodValidationPipe` global).
 - OpenAPI sai do `@nestjs/swagger` 11 e é exibido no Scalar em `/api/docs`.
 - AsyncAPI sai do `nestjs-asyncapi` e é exibido em `/api/docs/events` (visualizador do AsyncAPI, ou o Scalar se a integração JS já aceitar).
@@ -217,7 +217,7 @@ export type DomainEvents = {
 }
 ```
 
-Contrato do socket (`packages/shared/src/realtime`, nomes no formato `dominio:acao`):
+Contrato do socket (`packages/contracts/src/realtime`, nomes no formato `dominio:acao`):
 
 ```ts
 export interface ClientToServerEvents {

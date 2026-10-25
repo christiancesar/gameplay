@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { PlatformSettings } from '@gameplay/shared'
+import type { PlatformSettings } from '@gameplay/contracts'
 import { PrismaService } from '../../../../lib/prisma'
 import { PlatformSettingsRepository } from '../platform-settings.repository'
 

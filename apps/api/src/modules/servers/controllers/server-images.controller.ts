@@ -1,6 +1,6 @@
 import { Controller, Delete, HttpCode, HttpStatus, Param, Put, UploadedFile } from '@nestjs/common'
 import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
-import type { ServerImageResponse } from '@gameplay/shared'
+import type { ServerImageResponse } from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { CurrentUser } from '../../../common/auth/current-user.decorator'
 import type { AuthUser } from '../../../lib/auth'

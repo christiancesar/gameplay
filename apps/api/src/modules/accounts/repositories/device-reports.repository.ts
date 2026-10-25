@@ -1,4 +1,4 @@
-import type { CollectedHardware, ManualHardware } from '@gameplay/shared'
+import type { CollectedHardware, ManualHardware } from '@gameplay/contracts'
 import type { DeviceReportRecord } from '../domain/account'
 
 export type CollectionData = {

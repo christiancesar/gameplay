@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { StreamPreset } from '@gameplay/shared'
+import type { StreamPreset } from '@gameplay/contracts'
 import { NotInRoomError } from '../errors/realtime.errors'
 import { VoiceRoomsService } from '../services/voice-rooms.service'
 import { RoomStateStore, type SeatChanges } from '../stores/room-state.store'

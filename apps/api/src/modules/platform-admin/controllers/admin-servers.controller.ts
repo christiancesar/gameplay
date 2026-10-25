@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import type { AdminServerDetail, ListAdminServersResponse } from '@gameplay/shared'
+import type { AdminServerDetail, ListAdminServersResponse } from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { PlatformAdmin } from '../../../common/auth/platform-admin.decorator'
 import {

@@ -15,7 +15,7 @@ Quem cria o servidor vira owner. Os papéis são `owner`, `admin` e `member` (ta
   - `DeleteServer` (só o owner, cascata, publica `server.deleted` com os ids dos membros);
   - `ListMyServers` e `GetServer` (com o papel do usuário);
   - `CreateRoom` (limite efetivo de salas), `RenameRoom`, `DeleteRoom` e `ReorderRooms`, publicando `room.changed`.
-- Rotas REST com DTOs do `packages/shared` e OpenAPI.
+- Rotas REST com DTOs do `packages/contracts` e OpenAPI.
 - Erros de domínio: limite atingido, sem permissão, servidor inexistente.
 
 ## Fora do escopo
@@ -44,7 +44,7 @@ Os limites são respeitados, cada ação obedece à tabela de permissões, e exc
 
 
 ## Notas da execução
-- Módulo `src/modules/servers`. Modelos em `prisma/schema/server.prisma`: `Server`, `ServerMember` (enum `ServerRole`: `OWNER`, `ADMIN`, `MEMBER`) e `Room`. Membros e salas são apagados em cascata com o servidor; `ServerMember` também com o usuário. Na API e no `packages/shared` os papéis são minúsculos (`owner`, `admin`, `member`).
+- Módulo `src/modules/servers`. Modelos em `prisma/schema/server.prisma`: `Server`, `ServerMember` (enum `ServerRole`: `OWNER`, `ADMIN`, `MEMBER`) e `Room`. Membros e salas são apagados em cascata com o servidor; `ServerMember` também com o usuário. Na API e no `packages/contracts` os papéis são minúsculos (`owner`, `admin`, `member`).
 - **Permissões:** `ServerPermissions` (`domain/server-permissions.ts`) é a tabela de 2.3 em código, com `can(papel, ação)` e `canActOn(ator, alvo, 'kick' | 'promote' | 'demote')`, que nunca deixa agir sobre o owner. O teste percorre a tabela inteira. `ServerAccessService` (exportado, em `services/server-access.service.ts`) carrega o servidor com o papel do usuário e aplica a tabela; quem não é membro recebe 404 `SERVER_NOT_FOUND`, igual a um servidor inexistente, para não vazar ids. Sem permissão: 403 `SERVER_PERMISSION_DENIED`.
 - **Rotas:**
   - `POST /api/servers` (`name`, `description` opcional, `defaultRoomName` opcional), `GET /api/servers` (lista do Hub com papel e ícone), `GET /api/servers/:serverId` (detalhe com papel, contagem de membros, limites efetivos e salas), `PATCH /api/servers/:serverId` (nome e descrição), `PUT /api/servers/:serverId/auto-approve`, `DELETE /api/servers/:serverId` (só owner).

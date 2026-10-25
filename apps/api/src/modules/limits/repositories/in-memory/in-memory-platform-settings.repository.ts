@@ -1,4 +1,4 @@
-import type { PlatformSettings } from '@gameplay/shared'
+import type { PlatformSettings } from '@gameplay/contracts'
 import { PlatformSettingsRepository } from '../platform-settings.repository'
 
 export class InMemoryPlatformSettingsRepository extends PlatformSettingsRepository {

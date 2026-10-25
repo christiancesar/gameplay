@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { SignalSend, StreamQualityLevel } from '@gameplay/shared'
+import type { SignalSend, StreamQualityLevel } from '@gameplay/contracts'
 import type { Seat } from '../domain/seat'
 import { NotStreamingError, PeerNotInRoomError } from '../errors/realtime.errors'
 import { RealtimeEmitter } from '../providers/realtime-emitter'

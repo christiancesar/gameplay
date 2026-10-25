@@ -8,7 +8,7 @@ import {
   profileSchema,
   reportDeviceRequestSchema,
   updatePreferencesRequestSchema,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 import type { DeviceReportRecord, ProfileRecord } from '../domain/account'
 

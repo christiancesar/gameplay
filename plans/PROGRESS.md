@@ -29,9 +29,9 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 ## Backend (`apps/api`)
 
 - 2026-10-24: scaffold inicial em NestJS 12 (commit 25ff3fb). Na validação do plano, o usuário decidiu **NestJS 11** (o `nestjs-asyncapi` e o `nestjs-zod` não aceitam o 12) e **Postgres + Prisma 7** (o Prisma 6 sai do suporte em 19/11/2026 e o Prisma 8 com Mongo ainda é RC). O scaffold será refeito no BE-01.
-- Outras decisões do mesmo dia: `nestjs-asyncapi` para documentar os eventos, contrato tipado em `packages/shared`, VPN só pelo check do STUN, convite de servidor consumido na criação do pedido.
+- Outras decisões do mesmo dia: `nestjs-asyncapi` para documentar os eventos, contrato tipado em `packages/contracts`, VPN só pelo check do STUN, convite de servidor consumido na criação do pedido.
 - Tech plan em `04-tech-plan.md`; tickets em `tickets/` (índice e grafo em `tickets/README.md`).
-- BE-01 concluído (branch `feature/be-01-nest11-shared`): API em NestJS 11 (CommonJS) e `packages/shared` (`@gameplay/shared`, ESM) consumido pela API e pelo web.
+- BE-01 concluído (branch `feature/be-01-nest11-shared`): API em NestJS 11 (CommonJS) e `packages/contracts` (`@gameplay/contracts`, ESM) consumido pela API e pelo web.
 - Grafana Cloud configurado pelo usuário (stack `technologies`, sa-east-1); variáveis OTLP em `apps/api/.env` (gitignored), usadas no BE-16.
 - BE-02 concluído: Postgres 18 no compose, env validado, Prisma 7, logs pino, `/api/health`, base dos e2e e imagem Docker da API (`npm run docker:api`).
 - BE-03 concluído: contrato de erro, validação com zod, docs REST e Socket.IO no Scalar (só fora de produção), throttler e barramento de eventos.
@@ -43,7 +43,7 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-14 concluído: `GET /api/ice` com Cloudflare, coturn ou STUN só, cache por usuário e IP pelo proxy confiável (`TRUST_PROXY_HOPS`).
 - BE-09 concluído: servidores e salas, tabela de permissões (`ServerPermissions` e `ServerAccessService`), limites por servidor e eventos `server.updated`, `server.deleted` e `room.changed`.
 - BE-10 concluído: convites de servidor, pedidos de entrada, moderação e entrada pelo link no sign-up (módulo `memberships`).
-- BE-11 concluído: gateway Socket.IO autenticado pelo cookie, `PresenceStore` em memória, `server:subscribe` e ponte dos eventos de domínio (`server:changed`, `server:removed`, `session:revoked`), com contrato em `packages/shared` e AsyncAPI.
+- BE-11 concluído: gateway Socket.IO autenticado pelo cookie, `PresenceStore` em memória, `server:subscribe` e ponte dos eventos de domínio (`server:changed`, `server:removed`, `session:revoked`), com contrato em `packages/contracts` e AsyncAPI.
 - BE-12 concluído: salas de voz no gateway (um lugar por pessoa, 30 s para reconectar), sinalização só entre quem está na mesma sala, mute, deafen e transmissão, pedidos de assistir e de qualidade só para o streamer, e limpeza por exclusão, kick e suspensão.
 - BE-13 concluído: notificações do Hub gravadas a partir dos eventos de domínio, rotas de listar e dispensar, e `notification:new` pelo gateway.
 - BE-15 concluído: painel do admin da plataforma (usuários com presença e sessões, suspender e reativar, encerrar sessões, redefinir senha, qualquer servidor, hardware por usuário e resumo da base).

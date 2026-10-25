@@ -1,4 +1,4 @@
-import type { CollectedHardware } from '@gameplay/shared'
+import type { CollectedHardware } from '@gameplay/contracts'
 import { makeCollected } from '../../accounts/test/hardware-seed'
 import { summarizeHardware } from './hardware-summary'
 

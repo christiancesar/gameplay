@@ -1,4 +1,4 @@
-import { PASSWORD_MIN_LENGTH, USERNAME_PATTERN } from '@gameplay/shared'
+import { PASSWORD_MIN_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { admin, openAPI, twoFactor, username } from 'better-auth/plugins'

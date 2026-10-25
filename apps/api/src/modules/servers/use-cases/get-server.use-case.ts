@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { ServerDetail } from '@gameplay/shared'
+import type { ServerDetail } from '@gameplay/contracts'
 import { ServerAccessService } from '../services/server-access.service'
 import { ServerViewsService } from '../services/server-views.service'
 

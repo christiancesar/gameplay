@@ -30,7 +30,7 @@ Telas do admin (o web já tem as Views), pedido de entrada no servidor (BE-10).
 - [x] Modelo e migration
 - [x] Generator e hasher, com testes (alfabeto, tamanho, HMAC estável)
 - [x] Use-cases com testes unitários in-memory (expirada, revogada, já usada, inexistente, uso concorrente)
-- [x] Rotas de admin com DTOs do `packages/shared` e OpenAPI
+- [x] Rotas de admin com DTOs do `packages/contracts` e OpenAPI
 - [x] Hook `before` integrado. E2E: cadastro com key válida, inválida, expirada, revogada e repetida
 - [x] Decidir e documentar o comportamento quando o sign-up falha depois do consumo
 - [x] Commit a cada passo verde
@@ -39,8 +39,8 @@ Telas do admin (o web já tem as Views), pedido de entrada no servidor (BE-10).
 O admin gera uma key, ela aparece uma vez, a lista mostra só o sufixo, e o cadastro só passa com uma key válida, que não pode ser reutilizada.
 
 ## Notas da execução
-- Módulo `src/modules/registration-invites`: `TokenGenerator`/`CryptoTokenGenerator` (`crypto.randomInt` sobre o alfabeto do `packages/shared`), `TokenHasher`/`HmacTokenHasher` (HMAC-SHA256 com `REGISTRATION_KEY_SECRET`, mínimo 32 caracteres; trocar o segredo invalida as keys não usadas), repositório `prisma` e `in-memory`.
-- Contrato em `packages/shared/src/admin/registration-invite.ts`. A listagem devolve `suffix`, `status` (`active`, `used`, `revoked`, `expired`), datas em ISO e `usedBy` (`id`, `username`). A View do Storybook usa `hint` e status com união discriminada; o ViewModel faz o mapeamento.
+- Módulo `src/modules/registration-invites`: `TokenGenerator`/`CryptoTokenGenerator` (`crypto.randomInt` sobre o alfabeto do `packages/contracts`), `TokenHasher`/`HmacTokenHasher` (HMAC-SHA256 com `REGISTRATION_KEY_SECRET`, mínimo 32 caracteres; trocar o segredo invalida as keys não usadas), repositório `prisma` e `in-memory`.
+- Contrato em `packages/contracts/src/admin/registration-invite.ts`. A listagem devolve `suffix`, `status` (`active`, `used`, `revoked`, `expired`), datas em ISO e `usedBy` (`id`, `username`). A View do Storybook usa `hint` e status com união discriminada; o ViewModel faz o mapeamento.
 - Rotas (`@PlatformAdmin()`): `POST /api/admin/registration-invites` (201, devolve a key inteira uma única vez), `GET /api/admin/registration-invites` (mais nova primeiro, sem limpeza) e `POST /api/admin/registration-invites/:id/revoke` (204; revogar de novo não dá erro; key usada responde 409 `REGISTRATION_INVITE_USED`; inexistente, 404).
 - **Comportamento quando o sign-up falha depois do consumo (decidido):** reserva e acerto.
   - O hook `before` do sign-up (`ConsumeRegistrationInvite`) marca a key como usada (`usedAt`) num único `UPDATE` condicional (não usada, não revogada, não vencida). De dois cadastros simultâneos com a mesma key, só um passa.

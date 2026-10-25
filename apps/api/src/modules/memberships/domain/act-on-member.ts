@@ -1,4 +1,4 @@
-import type { ServerRole } from '@gameplay/shared'
+import type { ServerRole } from '@gameplay/contracts'
 import { type MemberAction, ServerPermissions } from '../../servers/domain/server-permissions'
 import { ServerPermissionDeniedError } from '../../servers/errors/servers.errors'
 import { CannotTargetSelfError, MemberNotFoundError } from '../errors/memberships.errors'

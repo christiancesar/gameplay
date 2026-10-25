@@ -1,4 +1,4 @@
-import type { CollectedHardware, Locale, ManualHardware, Theme } from '@gameplay/shared'
+import type { CollectedHardware, Locale, ManualHardware, Theme } from '@gameplay/contracts'
 
 export type ProfileRecord = {
   id: string

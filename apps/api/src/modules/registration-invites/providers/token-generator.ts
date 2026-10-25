@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH } from '@gameplay/shared'
+import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH } from '@gameplay/contracts'
 import { randomCode } from '../../../common/crypto/random-code'
 
 export abstract class TokenGenerator {

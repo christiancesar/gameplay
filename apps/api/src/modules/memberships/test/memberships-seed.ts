@@ -1,4 +1,4 @@
-import type { ServerRole } from '@gameplay/shared'
+import type { ServerRole } from '@gameplay/contracts'
 
 // The memberships unit tests start with the server "Squad", created by
 // "owner", plus an admin and a member.

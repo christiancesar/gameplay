@@ -1,4 +1,4 @@
-import type { CollectedHardware, HardwareSummary } from '@gameplay/shared'
+import type { CollectedHardware, HardwareSummary } from '@gameplay/contracts'
 
 // Weakest device of the base and how common acceleration and H.264 encoding
 // by hardware are. Each figure looks only at the devices that reported it.

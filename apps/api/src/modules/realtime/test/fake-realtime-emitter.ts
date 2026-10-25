@@ -1,4 +1,4 @@
-import type { Participant, RoomLeft, ServerRemoved, SignalReceive, StreamQualityLevel } from '@gameplay/shared'
+import type { Participant, RoomLeft, ServerRemoved, SignalReceive, StreamQualityLevel } from '@gameplay/contracts'
 import { RealtimeEmitter } from '../providers/realtime-emitter'
 
 type Emitted =

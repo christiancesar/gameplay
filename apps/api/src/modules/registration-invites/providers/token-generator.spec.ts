@@ -1,4 +1,4 @@
-import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH } from '@gameplay/shared'
+import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH } from '@gameplay/contracts'
 import { CryptoTokenGenerator } from './token-generator'
 
 describe('CryptoTokenGenerator', () => {

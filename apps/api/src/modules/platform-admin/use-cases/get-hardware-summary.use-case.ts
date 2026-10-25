@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { HardwareSummary } from '@gameplay/shared'
+import type { HardwareSummary } from '@gameplay/contracts'
 import { summarizeHardware } from '../domain/hardware-summary'
 import { AdminDevicesRepository } from '../repositories/admin-devices.repository'
 

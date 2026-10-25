@@ -9,7 +9,7 @@ import {
   serverImageResponseSchema,
   setAutoApproveRequestSchema,
   updateServerRequestSchema,
-} from '@gameplay/shared'
+} from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 
 export class CreateServerRequestDto extends createZodDto(createServerRequestSchema) {}

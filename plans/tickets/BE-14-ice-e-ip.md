@@ -37,4 +37,4 @@ Trocar `ICE_PROVIDER` muda as credenciais devolvidas sem mudar código, e o `req
 - **Falha do provider**: a rota responde só STUN com `ttlSeconds: 60` e registra um aviso, para a entrada na sala não travar. O web pede de novo depois. *(Suposição minha: cair para STUN em vez de responder erro.)*
 - **IP**: `TRUST_PROXY_HOPS` liga o `trust proxy` do Express (padrão 0). Com 1, o `request.ip` é o último endereço do `X-Forwarded-For`, o que o nginx ou o cloudflared acrescentou; um valor forjado pelo cliente antes dele é ignorado. O prefixo `::ffff:` de IPv4 é removido. **Em produção, atrás do nginx, usar `TRUST_PROXY_HOPS=1`.** Isso também corrige o IP usado pelo throttler, que antes via sempre o proxy.
 - Env: `ICE_PROVIDER` (padrão `stun-only`), `STUN_URLS` (lista separada por vírgula, padrão `stun:stun.cloudflare.com:3478`), `ICE_TTL_SECONDS` (padrão 86400, entre 60 e 172800), `CLOUDFLARE_TURN_KEY_ID`, `CLOUDFLARE_TURN_API_TOKEN`, `COTURN_URLS`, `COTURN_SECRET`. A validação exige as variáveis do provider escolhido.
-- Contrato em `packages/shared/src/realtime/ice.ts`.
+- Contrato em `packages/contracts/src/realtime/ice.ts`.
