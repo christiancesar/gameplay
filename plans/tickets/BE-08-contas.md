@@ -8,7 +8,7 @@ O usuário troca ou remove o próprio avatar. O tema (escuro padrão, ou claro) 
 ## Escopo
 - Use-cases e rotas:
   - `GetMyProfile` e `UpdateMyProfile` (username de exibição, tema, idioma);
-  - `UploadAvatar` e `RemoveAvatar`, com o `ImageProcessor` no perfil `square256`.
+  - `UploadAvatar` e `RemoveAvatar`, com o `ImageProcessor` no perfil `square256`. O upload grava a URL pública em `user.image` (campo do Better Auth, lido pelo frontend em `session.user.image`) e a chave em `avatarKey`, usada para apagar o arquivo antigo na troca. O `/update-user` recusa `image` (BE-04), então esse endpoint é o único caminho.
 - Modelo `DeviceReport` e use-cases:
   - `ReportDevice` (upsert por `userId + deviceId`, recebendo o que o browser coletou);
   - `UpdateDeviceManualInfo` (campos informados pelo usuário);

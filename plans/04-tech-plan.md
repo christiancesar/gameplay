@@ -60,7 +60,7 @@ model User {
   email String @unique
   username String @unique          // plugin username (normalizado)
   displayUsername String?
-  role String @default("user")     // plugin admin: "user" | "admin" (= platform_admin)
+  role String @default("user")     // plugin admin: "user" | "admin" (admin da plataforma)
   banned Boolean @default(false)   // suspensão
   twoFactorEnabled Boolean @default(false)
   avatarKey String?
@@ -173,7 +173,7 @@ Relações e regras de integridade:
 | Módulo | Responsabilidade | Depende de |
 |---|---|---|
 | `env`, `lib/prisma`, `lib/logger`, `lib/otel` | configuração validada, cliente do banco, logs, traces | |
-| `common` | `DomainError` e filtro, `ZodValidationPipe`, `@CurrentUser`, `AuthGuard`, `PlatformAdminGuard`, throttler | auth |
+| `common` | `DomainError` e filtro, `ZodValidationPipe`, `@CurrentUser`, `AuthGuard`, `@PlatformAdmin()`, throttler | auth |
 | `auth` (`lib/auth.ts`) | instância Better Auth, hooks do sign-up, seed do admin | registration-invites, memberships |
 | `registration-invites` | gerar, listar, revogar e consumir keys | |
 | `limits` | `PlatformSettings` e overrides; `ResolveEffectiveLimit` | |

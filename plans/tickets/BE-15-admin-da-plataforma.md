@@ -3,7 +3,7 @@
 > Pontos: 8 · Modelo sugerido: Sonnet · Depende de: BE-05, BE-06, BE-09, BE-11 · Onda 8
 
 ## Contexto
-O `platform_admin` usa o mesmo app e o mesmo login, sempre com 2FA verificado. O painel lista usuários com status online, sessões com IP e user agent, e servidores com owner, membros e salas. Pelo painel ele também:
+O admin da plataforma (`role = admin`) usa o mesmo app e o mesmo login, sempre com 2FA verificado. O painel lista usuários com status online, sessões com IP e user agent, e servidores com owner, membros e salas. Pelo painel ele também:
 - suspende e reativa contas, derrubando sessões e conexões;
 - encerra as sessões de um usuário;
 - exclui qualquer servidor;
@@ -13,7 +13,7 @@ O `platform_admin` usa o mesmo app e o mesmo login, sempre com 2FA verificado. O
 As keys de cadastro e os limites já têm rotas próprias (BE-05 e BE-06).
 
 ## Escopo
-Todas as rotas com `PlatformAdminGuard`:
+Todas as rotas com `@PlatformAdmin()`. As rotas `/api/auth/admin/*` do Better Auth estão desligadas (BE-04): os use-cases chamam o plugin pelo servidor (`auth.api.banUser`, `auth.api.setUserPassword` etc.), assim valem o 2FA e os eventos de domínio:
 - `ListUsers`, paginado com busca, com o status online do `PresenceStore`.
 - `ListUserSessions` (IP e user agent do Better Auth) e `RevokeUserSessions`, que publica `user.sessions-revoked`.
 - `SuspendUser` e `ReactivateUser`, pelo plugin `admin`. A suspensão publica `user.suspended`.

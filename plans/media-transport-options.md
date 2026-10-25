@@ -65,11 +65,11 @@ A escolha certa depende de quantas pessoas estão assistindo e do upload de quem
 
 | Papel | Onde | O que controla |
 |---|---|---|
-| `platform_admin` | Painel do admin, no módulo `limits` | Liga ou desliga o SFU na plataforma, define o orçamento mensal de egress (GB) e pode dar override por servidor. |
+| Admin da plataforma | Painel do admin, no módulo `limits` | Liga ou desliga o SFU na plataforma, define o orçamento mensal de egress (GB) e pode dar override por servidor. |
 | Streamer | Diálogo antes de transmitir (F8), junto do preset | **Modo**: Automático (padrão), Direto ou Via servidor. |
 | Espectador | Player ao assistir | **Qualidade**: Auto (padrão), Alta, Média ou Baixa. |
 
-Owner e admin do servidor não controlam o modo no MVP. O custo é da plataforma, então quem decide é o `platform_admin`.
+Owner e admin do servidor não controlam o modo no MVP. O custo é da plataforma, então quem decide é o admin da plataforma.
 
 ### 2.2 Modo do streamer
 

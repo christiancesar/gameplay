@@ -40,10 +40,9 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 
 ### Pausa em 2026-10-24 (retomar daqui)
 - Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo.
-- **Pendente do BE-04 (decisão do usuário):** o Better Auth expõe 56 rotas em `/api/auth/*` (lista na fonte "Auth (Better Auth)" do Scalar). Proposta: desligar com `disabledPaths` as que conflitam com o plano: `admin/impersonate-user`, `admin/stop-impersonating`, `admin/remove-user`, `delete-user` (e callback), `admin/create-user` (o seed usa a API interna, não a rota), `request-password-reset`, `reset-password` (e `/{token}`), `send-verification-email`, `verify-email`, `change-email`, `sign-in/social`, `link-social`, `unlink-account`, `callback/{id}`, `get-access-token`, `refresh-token`, `two-factor/send-otp`, `two-factor/verify-otp`; e um e2e garantindo 404. Perguntas em aberto:
-  1. Desligar também `admin/set-role` (o plano diz que admin só vem por seed)?
-  2. Manter `change-password` e `update-user` (trocar a própria senha e o username), que o plano não cita?
-  3. Aplicar a lista acima?
+- **Pendência do BE-04 resolvida:** todas as rotas `/api/auth/admin/*` desligadas (o painel do BE-15 usa rotas próprias com 2FA), além de fluxos de email, login social, exclusão de conta e OTP do 2FA. `change-password` e `update-user` ficam ligadas. Avatar só por upload: `update-user` recusa `image`, e o upload do BE-08 grava a URL em `user.image`. Detalhes em `tickets/BE-04-auth-better-auth.md`.
+- **Ajuste pendente no Storybook:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
+- Nos documentos, `platform_admin` virou "admin da plataforma" (`user.role = 'admin'`). Papéis dentro do servidor ficam em `Membership.role`.
 - Opcional sugerido: juntar as rotas do Better Auth no documento REST do Scalar (hoje é uma fonte separada no seletor).
 - Banco de dev local tem um admin de teste criado pelo seed: `admin@gameplay.local` / `admin-pass-123`.
 - Docker: `npm run docker:api` sobe a imagem de produção na porta 3334 ao lado do `npm run dev` (3333). Docs só na 3333.

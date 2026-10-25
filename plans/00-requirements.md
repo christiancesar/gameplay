@@ -89,9 +89,9 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - **Assistir sob demanda**: a tela só é enviada para quem clicar em assistir. Voz vai para todos.
 
 ### 2.10 Admin da plataforma
-- Papel de plataforma `platform_admin`, separado dos papéis de servidor. **Mesmo app e mesmo login**, sem aplicação administrativa separada.
+- Papel de plataforma **admin da plataforma** (`user.role = 'admin'` do Better Auth), separado dos papéis de servidor (`Membership.role`: owner, admin, member). **Mesmo app e mesmo login**, sem aplicação administrativa separada.
 - Atribuído **somente por seed** (script/env). Não há promoção a admin da plataforma pela interface.
-- **Login com verificação extra:** 2FA por **TOTP obrigatório** para `platform_admin`, com códigos de recuperação. Rotas e telas administrativas exigem papel **e** sessão com 2FA verificado, checados no backend a cada requisição. Usuários comuns nunca acessam o painel.
+- **Login com verificação extra:** 2FA por **TOTP obrigatório** para o admin da plataforma, com códigos de recuperação. Rotas e telas administrativas exigem papel **e** sessão com 2FA verificado, checados no backend a cada requisição. Usuários comuns nunca acessam o painel.
 - Painel administrativo:
   - Listar usuários, com status **online/offline** (presença do Socket.IO).
   - Ver **IP e user agent** das sessões (gravados pelo Better Auth; Nest confia no `X-Forwarded-For` do nginx/cloudflared).
@@ -197,7 +197,7 @@ gameplay/
 ### 3.3 Backend (`apps/api`)
 - **NestJS 11** *(revisado em 2026-10-24: o Nest 12 ainda não é aceito pelo `nestjs-asyncapi` nem pelo `nestjs-zod`; migrar quando o ecossistema alcançar)*. REST e **Socket.IO Gateway** (`@nestjs/websockets`) no mesmo processo, para sinalização WebRTC e presença.
 - **PostgreSQL + Prisma 7** *(revisado em 2026-10-24: antes MongoDB + Prisma 6. O Prisma 6 só recebe patches de segurança até 19/11/2026, o Prisma 7 não tem conector Mongo e o Prisma 8 com Mongo ainda é RC. Os dados são relacionais)*. Driver adapter `@prisma/adapter-pg`, `prisma.config.ts`, schema dividido em vários arquivos (`prisma/schema/*.prisma`), migrations versionadas.
-- **Better Auth** com `prismaAdapter` (provider `postgresql`) e integração `@thallesp/nestjs-better-auth`. Plugins: `username` (login por email ou username), `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para `platform_admin`). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
+- **Better Auth** com `prismaAdapter` (provider `postgresql`) e integração `@thallesp/nestjs-better-auth`. Plugins: `username` (login por email ou username), `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para o admin da plataforma). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
 - Postgres local em container no `docker-compose.dev.yml`; na Fase 2, **Neon free** *(suposição: Neon em vez de Supabase)*.
 - DTOs e validação com **`nestjs-zod`** (`createZodDto` a partir dos schemas do `packages/shared`), que alimenta o OpenAPI e o AsyncAPI.
 - SOLID leve: cada use-case é um `@Injectable` com um único `execute()` (SRP). Repositório como `abstract class` usada como token de DI, com implementações `prisma` e `in-memory` (DIP). Testes unitários usam `in-memory`.
@@ -240,7 +240,7 @@ apps/api/
 │   │   │   │   ├── in-memory/
 │   │   │   │   └── prisma/
 │   │   │   └── use-cases/              # *.use-case.ts + *.use-case.spec.ts
-│   │   ├── accounts/                   # perfil, avatar, seed do platform_admin
+│   │   ├── accounts/                   # perfil, avatar, seed do admin da plataforma
 │   │   ├── platform-admin/             # painel: usuários, IP, sessões, suspender, excluir servidor
 │   │   ├── limits/                     # padrões globais + overrides, resolução do limite efetivo
 │   │   ├── servers/                    # criar (limite), ícone, auto aprovação, papéis
