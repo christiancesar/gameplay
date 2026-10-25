@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (BE-01 a BE-04 concluídos; pausa).
+> Última atualização: 2026-10-24 (BE-01 a BE-05 concluídos).
 
 ## Status das fases (workflow ágil)
 
@@ -36,10 +36,12 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-02 concluído: Postgres 18 no compose, env validado, Prisma 7, logs pino, `/api/health`, base dos e2e e imagem Docker da API (`npm run docker:api`).
 - BE-03 concluído: contrato de erro, validação com zod, docs REST e Socket.IO no Scalar (só fora de produção), throttler e barramento de eventos.
 - BE-04 concluído: Better Auth (email ou username, admin, 2FA), guard global, `@PlatformAdmin()`, seed do admin e primeira migration.
-- Próximo: BE-05, BE-06, BE-08 ou BE-14 (onda 5), ou BE-07/BE-16 (onda 3).
+- BE-05 concluído: keys de cadastro (HMAC, rotas de admin, consumo no hook do sign-up com reserva e devolução se o cadastro falhar).
+- Próximo: BE-06, BE-08 ou BE-14 (onda 5), ou BE-07/BE-16 (onda 3).
 
-### Pausa em 2026-10-24 (retomar daqui)
-- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo.
+### Estado em 2026-10-24 (retomar daqui)
+- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo. **BE-05 aguardando review.**
+- `apps/api/.env` precisa de `REGISTRATION_KEY_SECRET` (já adicionado no ambiente local; ver `.env.example`).
 - **Pendência do BE-04 resolvida:** todas as rotas `/api/auth/admin/*` desligadas (o painel do BE-15 usa rotas próprias com 2FA), além de fluxos de email, login social, exclusão de conta e OTP do 2FA. `change-password` e `update-user` ficam ligadas. Avatar só por upload: `update-user` recusa `image`, e o upload do BE-08 grava a URL em `user.image`. Detalhes em `tickets/BE-04-auth-better-auth.md`.
 - **Ajuste pendente no Storybook:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
 - Nos documentos, `platform_admin` virou "admin da plataforma" (`user.role = 'admin'`). Papéis dentro do servidor ficam em `Membership.role`.

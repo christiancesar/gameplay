@@ -15,7 +15,7 @@ Como trabalhar:
 | [BE-07 Storage e imagens](BE-07-storage-e-imagens.md) | 5 | 3 | pendente |
 | [BE-16 OpenTelemetry](BE-16-observabilidade.md) | 3 | 3 | pendente |
 | [BE-04 Better Auth](BE-04-auth-better-auth.md) | 8 | 4 | concluído |
-| [BE-05 Keys de cadastro](BE-05-keys-de-cadastro.md) | 5 | 5 | pendente |
+| [BE-05 Keys de cadastro](BE-05-keys-de-cadastro.md) | 5 | 5 | concluído |
 | [BE-06 Limites e configurações](BE-06-limites-e-configuracoes.md) | 3 | 5 | pendente |
 | [BE-08 Conta e hardware](BE-08-contas.md) | 5 | 5 | pendente |
 | [BE-14 ICE e IP](BE-14-ice-e-ip.md) | 3 | 5 | pendente |
