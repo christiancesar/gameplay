@@ -4,6 +4,7 @@ import request from 'supertest'
 import { CurrentUser } from '../../src/common/auth/current-user.decorator'
 import { PlatformAdmin } from '../../src/common/auth/platform-admin.decorator'
 import type { AuthUser } from '../../src/lib/auth'
+import { DISABLED_AUTH_PATHS } from '../../src/lib/auth-disabled-paths'
 import { PrismaService } from '../../src/lib/prisma'
 import { makeSignUp } from '../factories/user.factory'
 import { resetDatabase } from '../support/database'
@@ -147,6 +148,41 @@ describe('Authentication (e2e)', () => {
       await prisma.user.updateMany({ where: { email: body.email }, data: { role: 'admin', twoFactorEnabled: true } })
 
       expect((await agent.get('/api/auth-test/admin')).status).toBe(200)
+    })
+  })
+
+  describe('disabled routes', () => {
+    it.each(DISABLED_AUTH_PATHS)('answer 404 on %s', async (path) => {
+      const { agent } = await signUp()
+
+      // Both methods, so a GET route doesn't pass just for being called with POST.
+      expect((await agent.get(`/api/auth${path}`)).status).toBe(404)
+      expect((await agent.post(`/api/auth${path}`).send({})).status).toBe(404)
+    })
+
+    it.each(['/reset-password/some-token', '/callback/github'])('answer 404 on %s', async (path) => {
+      expect((await request(app.getHttpServer()).get(`/api/auth${path}`)).status).toBe(404)
+    })
+  })
+
+  describe('update-user', () => {
+    it('changes the username', async () => {
+      const { agent } = await signUp()
+
+      const response = await agent.post('/api/auth/update-user').send({ username: 'renamed_01' })
+
+      expect(response.status).toBe(200)
+      expect((await agent.get('/api/auth-test/me')).body).toEqual({ username: 'renamed_01' })
+    })
+
+    it('refuses an image URL', async () => {
+      const { agent, body } = await signUp()
+
+      const response = await agent.post('/api/auth/update-user').send({ image: 'https://example.com/a.png' })
+
+      expect(response.status).toBe(400)
+      const user = await prisma.user.findUniqueOrThrow({ where: { email: body.email } })
+      expect(user.image).toBeNull()
     })
   })
 })

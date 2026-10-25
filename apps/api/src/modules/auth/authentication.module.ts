@@ -4,6 +4,7 @@ import { EnvService } from '../../env/env.service'
 import { createAuth } from '../../lib/auth'
 import { PrismaService } from '../../lib/prisma'
 import { SignUpHook } from './hooks/sign-up.hook'
+import { UpdateUserHook } from './hooks/update-user.hook'
 
 // Mounts Better Auth on /api/auth and registers its global AuthGuard: every
 // route needs a session unless marked with @AllowAnonymous().
@@ -14,6 +15,6 @@ import { SignUpHook } from './hooks/sign-up.hook'
       useFactory: (prisma: PrismaService, env: EnvService) => ({ auth: createAuth(prisma, env) }),
     }),
   ],
-  providers: [SignUpHook],
+  providers: [SignUpHook, UpdateUserHook],
 })
 export class AuthenticationModule {}

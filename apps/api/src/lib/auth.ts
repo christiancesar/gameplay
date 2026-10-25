@@ -4,15 +4,19 @@ import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { admin, openAPI, twoFactor, username } from 'better-auth/plugins'
 import { isDocsEnabled } from '../docs/docs-enabled'
 import type { EnvService } from '../env/env.service'
+import { DISABLED_AUTH_PATHS, disabledAuthPrefixes } from './auth-disabled-paths'
 import type { PrismaService } from './prisma'
 
 // Better Auth instance. Built by AuthenticationModule with the app's Prisma
 // client and env; its routes are served under /api/auth.
+const BASE_PATH = '/api/auth'
+
 export function createAuth(prisma: PrismaService, env: EnvService) {
   return betterAuth({
     appName: 'Gameplay',
     baseURL: env.get('BETTER_AUTH_URL'),
-    basePath: '/api/auth',
+    basePath: BASE_PATH,
+    disabledPaths: DISABLED_AUTH_PATHS,
     secret: env.get('BETTER_AUTH_SECRET'),
     trustedOrigins: [env.get('WEB_ORIGIN')],
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
@@ -55,6 +59,7 @@ export function createAuth(prisma: PrismaService, env: EnvService) {
       // role "admin" is the platform admin; everyone else is "user".
       admin(),
       twoFactor({ issuer: 'Gameplay' }),
+      disabledAuthPrefixes(BASE_PATH),
       // OpenAPI of the auth routes, shown in /api/docs next to the app's.
       ...(isDocsEnabled(env) ? [openAPI({ disableDefaultReference: true })] : []),
     ],
