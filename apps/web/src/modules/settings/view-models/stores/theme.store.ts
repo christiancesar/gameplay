@@ -1,7 +1,8 @@
+import type { Theme as AccountTheme } from '@gameplay/contracts'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type Theme = 'dark' | 'light' | 'system'
+export type Theme = AccountTheme | 'system'
 
 type ThemeState = {
   theme: Theme
