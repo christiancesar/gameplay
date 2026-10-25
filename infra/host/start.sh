@@ -2,7 +2,8 @@
 # Starts the Gameplay self-hosting stack and prints the link to share.
 #   ./start.sh            mode from .env (TUNNEL_MODE, quick by default)
 #   ./start.sh quick      temporary *.trycloudflare.com URL, no account
-#   ./start.sh named      fixed hostname, needs CLOUDFLARE_TUNNEL_TOKEN and PUBLIC_URL
+#   ./start.sh named      fixed hostname, tunnel credentials file (see .env.example)
+#   ./start.sh token      fixed hostname, tunnel token from the dashboard
 set -euo pipefail
 
 # shellcheck source=lib.sh
@@ -78,14 +79,15 @@ ensure_env
 MODE="${1:-$(get_var TUNNEL_MODE)}"
 MODE="${MODE:-quick}"
 case "$MODE" in
-  quick | named) ;;
-  *) die "unknown mode '$MODE' (use quick or named)" ;;
+  quick | named | token) ;;
+  *) die "unknown mode '$MODE' (use quick, named or token)" ;;
 esac
 set_var TUNNEL_MODE "$MODE"
 
 # Only one tunnel at a time: drop the other mode's container if it is around.
-OTHER=$([ "$MODE" = quick ] && echo named || echo quick)
-compose --profile "$OTHER" rm -sf "cloudflared-$OTHER" >/dev/null 2>&1 || true
+for other in quick named token; do
+  [ "$other" = "$MODE" ] || compose --profile "$other" rm -sf "cloudflared-$other" >/dev/null 2>&1 || true
+done
 
 if [ "$MODE" = quick ]; then
   echo "Starting database and quick tunnel..."
@@ -96,7 +98,16 @@ if [ "$MODE" = quick ]; then
 else
   PUBLIC_URL="$(get_var PUBLIC_URL)"
   [ -n "$PUBLIC_URL" ] || die "PUBLIC_URL is empty in $ENV_FILE (your tunnel hostname, https://...)"
-  [ -n "$(get_var CLOUDFLARE_TUNNEL_TOKEN)" ] || die "CLOUDFLARE_TUNNEL_TOKEN is empty in $ENV_FILE"
+  if [ "$MODE" = token ]; then
+    [ -n "$(get_var CLOUDFLARE_TUNNEL_TOKEN)" ] || die "CLOUDFLARE_TUNNEL_TOKEN is empty in $ENV_FILE"
+  else
+    [ -n "$(get_var CLOUDFLARE_TUNNEL_ID)" ] || die "CLOUDFLARE_TUNNEL_ID is empty in $ENV_FILE"
+    CREDENTIALS="$(get_var CLOUDFLARE_TUNNEL_CREDENTIALS)"
+    [ -f "$CREDENTIALS" ] || die "CLOUDFLARE_TUNNEL_CREDENTIALS must be the path of the tunnel credentials JSON (got '$CREDENTIALS')"
+    HOSTNAME_ONLY="${PUBLIC_URL#https://}"
+    set_var PUBLIC_HOSTNAME "${HOSTNAME_ONLY%%/*}"
+    set_var CLOUDFLARED_UID "$(id -u)"
+  fi
 fi
 PUBLIC_URL="${PUBLIC_URL%/}"
 set_var PUBLIC_URL "$PUBLIC_URL"

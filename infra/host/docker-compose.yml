@@ -108,15 +108,41 @@ services:
     ports:
       - '127.0.0.1:${CLOUDFLARED_METRICS_PORT:-20241}:2000'
 
-  # Named tunnel: fixed hostname, configured in the Cloudflare dashboard to
-  # point at http://web:80.
+  # Named tunnel with a credentials file (cloudflared tunnel create): fixed
+  # hostname, routed to this tunnel in DNS beforehand. The ingress rules come
+  # from the `cloudflared-config` config below (no secrets in it).
   cloudflared-named:
     profiles: [named]
+    image: cloudflare/cloudflared:2026.10.3
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    # The credentials file is usually readable only by its owner: run as that user.
+    user: ${CLOUDFLARED_UID:-1000}
+    configs:
+      - source: cloudflared-config
+        target: /etc/cloudflared/config.yml
+    volumes:
+      - ${CLOUDFLARE_TUNNEL_CREDENTIALS:-/dev/null}:/etc/cloudflared/credentials.json:ro
+
+  # Named tunnel with a token (created in the Cloudflare dashboard): the hostname
+  # is configured there to point at http://web:80.
+  cloudflared-token:
+    profiles: [token]
     image: cloudflare/cloudflared:2026.10.3
     restart: unless-stopped
     command: tunnel --no-autoupdate run
     environment:
       TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+
+configs:
+  cloudflared-config:
+    content: |
+      tunnel: ${CLOUDFLARE_TUNNEL_ID:-unset}
+      credentials-file: /etc/cloudflared/credentials.json
+      ingress:
+        - hostname: ${PUBLIC_HOSTNAME:-unset.invalid}
+          service: http://web:80
+        - service: http_status:404
 
 volumes:
   postgres-data:
