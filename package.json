@@ -15,12 +15,16 @@
     "storybook": "turbo run storybook --filter=web",
     "build-storybook": "turbo run build-storybook",
     "format": "turbo run format",
-    "format:check": "turbo run format:check"
+    "format:check": "turbo run format:check",
+    "docker:api": "docker compose -f infra/docker-compose.dev.yml up -d --build --wait"
   },
   "devDependencies": {
     "turbo": "^2.11.10"
   },
   "engines": {
     "node": ">=24"
+  },
+  "overrides": {
+    "@nestjs/swagger": "11.4.2"
   }
 }

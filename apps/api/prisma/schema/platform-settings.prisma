@@ -1,0 +1,12 @@
+// Single row (id "global") with the platform defaults. The per-user and
+// per-server overrides live on User and Server.
+model PlatformSettings {
+  id                  String   @id @default("global")
+  maxServersPerUser   Int      @default(1)
+  maxMembersPerServer Int      @default(10)
+  maxRoomsPerServer   Int      @default(2)
+  minChromiumVersion  Int      @default(130)
+  updatedAt           DateTime @updatedAt
+
+  @@map("platform_settings")
+}

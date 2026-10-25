@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+**/storybook-static
+**/src/generated
+**/.env
+**/.env.*
+!**/.env.example
+.git

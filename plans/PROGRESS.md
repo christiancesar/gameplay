@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-23 (setup do monorepo).
+> Última atualização: 2026-10-25 (BE-01 a BE-16 concluídos: backend completo; PRs #2 e #3 abertos para a `main`).
 
 ## Status das fases (workflow ágil)
 
@@ -10,8 +10,8 @@
 | 01 · Epic Brief | `01-epic-brief.md` | Rascunho entregue, sem objeções |
 | 02 · Core Flows | `02-core-flows.md` | Concluída para as telas com mock; F7 a F13 terão o visual desenhado no Storybook |
 | 03 · PRD Validate | | Não iniciada |
-| 04 · Tech Plan | | Não iniciada |
-| Tickets e delegação | | Não iniciada |
+| 04 · Tech Plan | `04-tech-plan.md` | Rascunho do backend entregue, aguardando revisão do usuário |
+| Tickets e delegação | `tickets/` | 16 tickets do backend (BE-01 a BE-16), um por arquivo, aguardando revisão |
 
 ## Próxima sessão
 
@@ -26,6 +26,47 @@ Escopo mínimo para começar:
 
 Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
 
+## Backend (`apps/api`)
+
+- 2026-10-24: scaffold inicial em NestJS 12 (commit 25ff3fb). Na validação do plano, o usuário decidiu **NestJS 11** (o `nestjs-asyncapi` e o `nestjs-zod` não aceitam o 12) e **Postgres + Prisma 7** (o Prisma 6 sai do suporte em 19/11/2026 e o Prisma 8 com Mongo ainda é RC). O scaffold será refeito no BE-01.
+- Outras decisões do mesmo dia: `nestjs-asyncapi` para documentar os eventos, contrato tipado em `packages/shared`, VPN só pelo check do STUN, convite de servidor consumido na criação do pedido.
+- Tech plan em `04-tech-plan.md`; tickets em `tickets/` (índice e grafo em `tickets/README.md`).
+- BE-01 concluído (branch `feature/be-01-nest11-shared`): API em NestJS 11 (CommonJS) e `packages/shared` (`@gameplay/shared`, ESM) consumido pela API e pelo web.
+- Grafana Cloud configurado pelo usuário (stack `technologies`, sa-east-1); variáveis OTLP em `apps/api/.env` (gitignored), usadas no BE-16.
+- BE-02 concluído: Postgres 18 no compose, env validado, Prisma 7, logs pino, `/api/health`, base dos e2e e imagem Docker da API (`npm run docker:api`).
+- BE-03 concluído: contrato de erro, validação com zod, docs REST e Socket.IO no Scalar (só fora de produção), throttler e barramento de eventos.
+- BE-04 concluído: Better Auth (email ou username, admin, 2FA), guard global, `@PlatformAdmin()`, seed do admin e primeira migration.
+- BE-05 concluído: keys de cadastro (HMAC, rotas de admin, consumo no hook do sign-up com reserva e devolução se o cadastro falhar).
+- BE-06 concluído: configurações da plataforma, override de servidores por usuário, resolvedor e rota pública da versão mínima do Chromium. Override por servidor vai para o BE-09.
+- BE-07 concluído: storage local/S3, processamento de imagens com `sharp`, upload multipart. MinIO trocado pelo `adobe/s3mock` nos testes.
+- BE-08 concluído: perfil, tema e idioma, avatar por upload e hardware por dispositivo (`/api/me/*`). Username continua pelo `/update-user` do Better Auth.
+- BE-14 concluído: `GET /api/ice` com Cloudflare, coturn ou STUN só, cache por usuário e IP pelo proxy confiável (`TRUST_PROXY_HOPS`).
+- BE-09 concluído: servidores e salas, tabela de permissões (`ServerPermissions` e `ServerAccessService`), limites por servidor e eventos `server.updated`, `server.deleted` e `room.changed`.
+- BE-10 concluído: convites de servidor, pedidos de entrada, moderação e entrada pelo link no sign-up (módulo `memberships`).
+- BE-11 concluído: gateway Socket.IO autenticado pelo cookie, `PresenceStore` em memória, `server:subscribe` e ponte dos eventos de domínio (`server:changed`, `server:removed`, `session:revoked`), com contrato em `packages/shared` e AsyncAPI.
+- BE-12 concluído: salas de voz no gateway (um lugar por pessoa, 30 s para reconectar), sinalização só entre quem está na mesma sala, mute, deafen e transmissão, pedidos de assistir e de qualidade só para o streamer, e limpeza por exclusão, kick e suspensão.
+- BE-13 concluído: notificações do Hub gravadas a partir dos eventos de domínio, rotas de listar e dispensar, e `notification:new` pelo gateway.
+- BE-15 concluído: painel do admin da plataforma (usuários com presença e sessões, suspender e reativar, encerrar sessões, redefinir senha, qualquer servidor, hardware por usuário e resumo da base).
+- BE-16 concluído: OpenTelemetry (traces, métricas e logs por OTLP) com `trace_id` nos logs, desligado sem endpoint. Validado com coletor local e contra o Grafana Cloud (host e container, 2026-10-25); falta só ver os traces no Explore.
+- **Todos os tickets do backend estão feitos.** Próximos passos possíveis: review do usuário (BE-05 a BE-16), confirmar as suposições das notas dos tickets e voltar ao frontend (ViewModels, Screens e rotas sobre a API).
+
+### Estado em 2026-10-24 (retomar daqui)
+- Branch `feature/api-setup`, no PR #2 para a `main`. O alinhamento do Storybook com a API e a renomeação de `packages/shared` para `packages/contracts` estão no PR #3 (`feature/storybook-contract-alignment`), que depende do #2. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-16 aguardando review.**
+- **Backend completo** (BE-01 a BE-16). Suposições do BE-11 ao BE-16 a confirmar estão nas notas dos tickets.
+- **Testes (pedido do usuário em 2026-10-24):** separar dados e factories. Um fake por arquivo, dados iniciais num arquivo de seed e a montagem do contexto em outro; nos e2e, factories em `test/factories/`. Aplicado em todos os módulos (2026-10-25): não há mais `test/fakes.ts`; o `FakeEventBus` fica em `src/common/test/`.
+- **Camadas por módulo (decidido em 2026-10-24, ver `04-tech-plan.md` seção 1):** `use-cases/` são as ações chamadas pelos controllers; `services/` (`*.service.ts`, `XxxService`) é lógica compartilhada entre use-cases, e service nunca depende de use-case; `providers/` são detalhes técnicos trocáveis (aleatório, hash, API externa); `domain/` são regras puras. Exemplos: `EffectiveLimitsService.resolve()` (limites), `ServerAccessService.member()`/`require()` (acesso e permissão), `ServerViewsService` (resposta do servidor).
+- **Padrões dos módulos novos:** transação com trava de linha (`SELECT ... FOR UPDATE`) para limites e unicidade: `ServersRepository.createWithOwner` e `RoomsRepository` recebem um `guard` que roda dentro da transação; `MembershipsRepository.withServerLock()` entrega um `MembershipStore`. Testes unitários usam `makeServersContext()` (`servers/test/fakes.ts`) e `makeMembershipsContext()` (`memberships/test/fakes.ts`), com `FakeEventBus`.
+- **Suposições minhas a confirmar com o usuário:** username fora do perfil (fica no `/update-user`); `deviceMemory` arredondado em vez de recusado; ICE cai para STUN por 60 s se o provider falhar; `defaultRoomName` enviado pelo web na criação do servidor ("Room 1" se faltar); no sign-up só o convite vencido vira aviso. Detalhes nas notas de cada ticket.
+- **Produção:** `TRUST_PROXY_HOPS=1` atrás do nginx (BE-14).
+- Infra local para os testes: `docker compose -f infra/docker-compose.dev.yml up -d --wait postgres s3mock`. Se o `prisma migrate dev` travar sem saída, rodar com `< /dev/null`.
+- `apps/api/.env` precisa de `REGISTRATION_KEY_SECRET` (já adicionado no ambiente local; ver `.env.example`).
+- **Pendência do BE-04 resolvida:** todas as rotas `/api/auth/admin/*` desligadas (o painel do BE-15 usa rotas próprias com 2FA), além de fluxos de email, login social, exclusão de conta e OTP do 2FA. `change-password` e `update-user` ficam ligadas. Avatar só por upload: `update-user` recusa `image`, e o upload do BE-08 grava a URL em `user.image`. Detalhes em `tickets/BE-04-auth-better-auth.md`.
+- **Ajuste do Storybook feito no PR #3:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
+- Nos documentos, `platform_admin` virou "admin da plataforma" (`user.role = 'admin'`). Papéis dentro do servidor ficam em `Membership.role`.
+- Opcional sugerido: juntar as rotas do Better Auth no documento REST do Scalar (hoje é uma fonte separada no seletor).
+- Banco de dev local tem um admin de teste criado pelo seed: `admin@gameplay.local` / `admin-pass-123`.
+- Docker: `npm run docker:api` sobe a imagem de produção na porta 3334 ao lado do `npm run dev` (3333). Docs só na 3333.
+
 ## Assets fornecidos pelo usuário
 
 - Logo "Gameplay": `~/Downloads/FireShot/gameplay.png`
@@ -37,8 +78,16 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 
 1. Onde o **cover** do servidor aparece na interface (proporção 16:9 assumida até lá).
 2. Confirmar as suposições abaixo.
+3. Banco da Fase 2: Postgres na EC2 (recomendado) ou outro Postgres gratuito. TiDB avaliado e descartado por enquanto (é MySQL; o projeto segue em Postgres). Não bloqueia os tickets.
+4. Transporte de mídia: MVP só mesh, SFU na fase seguinte (decidido). Pendente: seletor de qualidade do espectador no MVP (`media-transport-options.md`, seção 6, item 7).
 
 ## Suposições a confirmar
+
+Configuração da transmissão pelo usuário (proposta de 2026-10-24, ver `00-requirements.md` 3.1.1):
+- Quem transmite escolhe o **preset** (720p30, 720p60, 1080p30, 1080p60, já decidido) e uma **prioridade**: "Fluidez" (padrão, mantém fps) ou "Nitidez" (mantém resolução, `contentHint 'detail'`, para texto e menus).
+- Codec, bitrate, FEC e prioridade da voz são automáticos e não aparecem na interface do MVP.
+- Trocar preset ou prioridade durante a transmissão aplica na hora, sem reiniciar (`applyConstraints` + `setParameters`). Trocar codec exigiria renegociação, por isso fica fora da interface.
+- Quem assiste não configura nada no MVP; o jitter buffer fica baixo por padrão.
 
 Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Card do servidor (decisão do usuário): ícone, nome e engrenagem; clicar abre o modal do servidor. Member vê o ícone de sair do servidor no lugar da engrenagem.

@@ -1,0 +1,106 @@
+// Better Auth tables, generated with `npx auth generate` (plugins username,
+// admin, twoFactor) plus the app fields on User. Regenerate when plugins change.
+
+model User {
+  id                         String               @id
+  name                       String
+  email                      String
+  emailVerified              Boolean              @default(false)
+  image                      String?
+  createdAt                  DateTime             @default(now())
+  updatedAt                  DateTime             @updatedAt
+  username                   String?
+  displayUsername            String?
+  role                       String?
+  banned                     Boolean?             @default(false)
+  banReason                  String?
+  banExpires                 DateTime?
+  twoFactorEnabled           Boolean?             @default(false)
+  // App fields (not managed by Better Auth)
+  avatarKey                  String?
+  theme                      String               @default("dark")
+  locale                     String?
+  maxServersOverride         Int?
+  sessions                   Session[]
+  accounts                   Account[]
+  twofactors                 TwoFactor[]
+  // App relations
+  registrationInvitesCreated RegistrationInvite[] @relation("RegistrationInviteCreatedBy")
+  registrationInviteUsed     RegistrationInvite?  @relation("RegistrationInviteUsedBy")
+  devices                    DeviceReport[]
+  notifications              Notification[]
+  serversOwned               Server[]             @relation("ServerOwner")
+  serverMemberships          ServerMember[]
+  serverInvitesCreated       ServerInvite[]       @relation("ServerInviteCreatedBy")
+  serverInvitesUsed          ServerInvite[]       @relation("ServerInviteUsedBy")
+  joinRequests               JoinRequest[]        @relation("JoinRequestUser")
+  joinRequestsDecided        JoinRequest[]        @relation("JoinRequestDecidedBy")
+
+  @@unique([email])
+  @@unique([username])
+  @@map("user")
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model TwoFactor {
+  id                      String    @id
+  secret                  String
+  backupCodes             String
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified                Boolean?  @default(true)
+  failedVerificationCount Int?      @default(0)
+  lockedUntil             DateTime?
+
+  @@index([secret])
+  @@index([userId])
+  @@map("twoFactor")
+}

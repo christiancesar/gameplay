@@ -1,0 +1,19 @@
+// Registration keys: only someone with a key can sign up. The key itself is
+// never stored, only its HMAC and the last characters for the admin list.
+model RegistrationInvite {
+  id          String    @id @default(cuid())
+  keyHmac     String    @unique
+  keySuffix   String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  // Set when a sign-up takes the key; usedById follows once the account exists.
+  usedAt      DateTime?
+  createdById String
+  createdBy   User      @relation("RegistrationInviteCreatedBy", fields: [createdById], references: [id])
+  usedById    String?   @unique
+  usedBy      User?     @relation("RegistrationInviteUsedBy", fields: [usedById], references: [id])
+
+  @@index([createdAt])
+  @@map("registration_invite")
+}

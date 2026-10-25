@@ -54,6 +54,8 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 ### 2.4 Convite de servidor
 - Código de **8 caracteres** (o link carrega o mesmo código), de **uso único** e com **validade fixa de 1 hora**, sem configuração. Para convidar várias pessoas, gera-se um convite para cada uma. *(Revisado em 2026-10-23: antes era multiuso com máximo de usos e validade configuráveis.)*
 - Owner e admin geram e revogam convites.
+- O convite é **consumido quando o pedido de entrada é criado**. Quem abre o link sem conta e demora mais de 1 hora no cadastro tem a conta criada normalmente, e o Hub avisa que o convite expirou e que é preciso pedir outro *(decidido em 2026-10-24)*.
+- Os convites ficam guardados como registro, sem limpeza. A lista mostra o status de cada um: ativo, vencido, usado ou revogado *(decidido em 2026-10-24)*.
 - O convite registra **quem criou**, **quem usou** e **quando**. Owner/admin veem isso no servidor (convites e membros) e o admin da plataforma vê na lista de membros de cada servidor.
 - Com o servidor no limite de membros, a **geração de convite fica bloqueada**.
 
@@ -87,9 +89,9 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - **Assistir sob demanda**: a tela só é enviada para quem clicar em assistir. Voz vai para todos.
 
 ### 2.10 Admin da plataforma
-- Papel de plataforma `platform_admin`, separado dos papéis de servidor. **Mesmo app e mesmo login**, sem aplicação administrativa separada.
+- Papel de plataforma **admin da plataforma** (`user.role = 'admin'` do Better Auth), separado dos papéis de servidor (`Membership.role`: owner, admin, member). **Mesmo app e mesmo login**, sem aplicação administrativa separada.
 - Atribuído **somente por seed** (script/env). Não há promoção a admin da plataforma pela interface.
-- **Login com verificação extra:** 2FA por **TOTP obrigatório** para `platform_admin`, com códigos de recuperação. Rotas e telas administrativas exigem papel **e** sessão com 2FA verificado, checados no backend a cada requisição. Usuários comuns nunca acessam o painel.
+- **Login com verificação extra:** 2FA por **TOTP obrigatório** para o admin da plataforma, com códigos de recuperação. Rotas e telas administrativas exigem papel **e** sessão com 2FA verificado, checados no backend a cada requisição. Usuários comuns nunca acessam o painel.
 - Painel administrativo:
   - Listar usuários, com status **online/offline** (presença do Socket.IO).
   - Ver **IP e user agent** das sessões (gravados pelo Better Auth; Nest confia no `X-Forwarded-For` do nginx/cloudflared).
@@ -129,7 +131,7 @@ O limite efetivo é o override, quando existe, senão o padrão global.
   - **Não Chromium:** recomenda Chrome, Edge, Brave, Opera ou Vivaldi, com links de download.
   - **Chromium abaixo da versão mínima:** mostra a versão atual e a mínima e como atualizar.
   - Dispensável com "Continuar mesmo assim" (não bloqueia o uso).
-- **VPN/proxy:** detecção por heurística (sem garantia), só para avisar: IP público visto pelo STUN diferente do IP da requisição HTTP (proxy/VPN de navegador), IP em faixa de datacenter/VPN conhecida no backend, e fuso horário do browser incompatível com a região do IP.
+- **VPN/proxy:** detecção por heurística (sem garantia), só para avisar: IP público visto pelo STUN diferente do IP da requisição HTTP (proxy/VPN de navegador). *(Revisado em 2026-10-24: a checagem de faixa de datacenter/VPN e de fuso contra a região do IP saiu do MVP, porque exige bases externas de IP e geolocalização.)*
 
 ## 3. Arquitetura
 
@@ -139,6 +141,39 @@ O limite efetivo é o override, quando existe, senão o padrão global.
 - **ICE** escolhido por env, sem mudança de código: `ICE_PROVIDER=cloudflare | coturn | stun-only`.
   - Fase local: STUN + TURN do **Cloudflare Realtime** (1.000 GB/mês grátis; STUN grátis e ilimitado), com credenciais efêmeras emitidas pela API.
   - Fase EC2: **coturn** em container no IP público.
+
+### 3.1.1 Qualidade e latência da mídia
+Discutido em 2026-10-24. O servidor (Socket.IO) só faz a sinalização (SDP, candidatos ICE, presença) e não fica no caminho da mídia. O TURN só repassa pacotes. A qualidade se decide nas pontas, e o gargalo real é o upload de quem transmite (em mesh, um stream codificado por espectador). Quando a rede não aguenta, o WebRTC baixa resolução ou fps, nunca soma delay.
+
+Quem transmite:
+- **Codec** escolhido pelo hardware coletado (Media Capabilities, `powerEfficient`): AV1 por hardware se houver, senão H.264 por hardware, senão VP9. Aplicado com `setCodecPreferences`.
+- `track.contentHint = 'motion'` e `degradationPreference: 'maintain-framerate'` como padrão para jogo: a resolução cai antes do fps.
+- `maxBitrate` e `maxFramerate` por preset via `RTCRtpSender.setParameters`, com teto coerente com o upload medido.
+- Voz com `priority: 'high'`: quando a banda aperta, cai a imagem, não a voz.
+
+Áudio (o WebRTC já cuida de: Opus com bitrate adaptativo, FEC e DTX, cancelamento de eco, supressão de ruído, ganho automático, jitter buffer e ocultação de perda, e sincronia com o vídeo do mesmo stream). O app cuida de:
+- Voz: `echoCancellation`, `noiseSuppression` e `autoGainControl` ligados no `getUserMedia`.
+- Áudio do jogo (compartilhamento): os três desligados, porque estragam música e efeitos. Opus em estéreo e bitrate maior (`stereo=1` e `maxaveragebitrate` no SDP, por exemplo 128 kbps), já que o padrão do WebRTC é afinado para voz.
+- **Eco da chamada no áudio do sistema**: no Windows, capturar a tela inteira com áudio inclui o som da própria chamada, e os outros ouvem a si mesmos. Mitigar com a constraint de excluir o áudio da própria página (`restrictOwnAudio`, em versões recentes do Chromium; verificar suporte) e preferir compartilhar a janela ou aba do jogo.
+- Dispositivos (`enumerateDevices`, `setSinkId`), volume por pessoa (Web Audio `GainNode`), mute (`track.enabled = false`), deafen (silencia o áudio recebido e o microfone) e indicador de quem fala (`AnalyserNode`).
+
+Rede:
+- Caminho direto em UDP é o caso ideal. TURN sobre TCP/TLS só como último recurso (head-of-line blocking).
+- Perda de pacote recuperada sem esperar: FEC (Opus inband FEC e RED na voz) e NACK (custa um RTT só no pacote perdido).
+- **Região do TURN**: o relay tem que ficar perto dos usuários. Cloudflare Realtime é anycast e atende pelo PoP mais próximo (São Paulo). O coturn da Fase 2 deve ficar em **sa-east-1**, mesmo que o resto da infraestrutura fique em outra região (relay em us-east-1 soma cerca de 120 ms de ida e volta para usuários no Brasil).
+- Conexão mais rápida: trickle ICE e credenciais TURN emitidas antes de entrar na sala.
+
+Quem assiste:
+- `RTCRtpReceiver.jitterBufferTarget` baixo por padrão: menos delay, com algum risco de engasgo em rede instável.
+
+Medição:
+- `getStats()` alimenta o monitor "Ao vivo" (F8): `qualityLimitationReason` (`bandwidth` ou `cpu`), `roundTripTime`, `jitterBufferDelay`, `packetsLost`, `framesDropped`.
+
+Mesh e SFU como opções para o usuário, com custo zero como padrão: documentado em `media-transport-options.md`. **MVP só mesh**; SFU na fase seguinte.
+
+Próximo passo se o upload virar o limite: trocar `MeshTransport` por SFU com simulcast ou SVC (`scalabilityMode`), para quem transmite enviar um encoding só e cada espectador receber a camada que a rede dele suporta. SFU só repassa pacotes; nunca transcodificar no servidor, porque isso soma delay.
+
+Electron (avaliado, fora do MVP): usa a mesma pilha WebRTC do Chromium, então não melhora a qualidade da imagem nem elimina sinalização e TURN. Ganhos: áudio do sistema uniforme entre SOs, captura sem o seletor do browser, push-to-talk global. Entraria como casca do mesmo app React. Pipeline nativo (estilo Parsec/Sunshine) seria outro escopo.
 
 ### 3.2 Monorepo
 - **npm workspaces + Turborepo**.
@@ -152,7 +187,7 @@ gameplay/
 │   └── shared/                   # schemas zod, DTOs, eventos Socket.IO tipados
 ├── infra/
 │   ├── nginx/default.conf
-│   ├── docker-compose.dev.yml    # nginx, web, api, mongo (replica set), cloudflared
+│   ├── docker-compose.dev.yml    # nginx, web, api, postgres, cloudflared
 │   └── docker-compose.prod.yml   # nginx, web, api, coturn
 ├── plans/
 ├── turbo.json
@@ -160,10 +195,11 @@ gameplay/
 ```
 
 ### 3.3 Backend (`apps/api`)
-- **NestJS**. REST e **Socket.IO Gateway** (`@nestjs/websockets`) no mesmo processo, para sinalização WebRTC e presença.
-- **Prisma 6.x** com MongoDB. O Prisma 7 não tem conector MongoDB estável. Schema dividido em vários arquivos (`prisma/schema/*.prisma`).
-- **Better Auth** com `prismaAdapter` (provider `mongodb`) e integração `@thallesp/nestjs-better-auth`. Plugins: `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para `platform_admin`). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
-- MongoDB local em **replica set de nó único** (`--replSet`), exigido pelas transações do Prisma.
+- **NestJS 11** *(revisado em 2026-10-24: o Nest 12 ainda não é aceito pelo `nestjs-asyncapi` nem pelo `nestjs-zod`; migrar quando o ecossistema alcançar)*. REST e **Socket.IO Gateway** (`@nestjs/websockets`) no mesmo processo, para sinalização WebRTC e presença.
+- **PostgreSQL + Prisma 7** *(revisado em 2026-10-24: antes MongoDB + Prisma 6. O Prisma 6 só recebe patches de segurança até 19/11/2026, o Prisma 7 não tem conector Mongo e o Prisma 8 com Mongo ainda é RC. Os dados são relacionais)*. Driver adapter `@prisma/adapter-pg`, `prisma.config.ts`, schema dividido em vários arquivos (`prisma/schema/*.prisma`), migrations versionadas.
+- **Better Auth** com `prismaAdapter` (provider `postgresql`) e integração `@thallesp/nestjs-better-auth`. Plugins: `username` (login por email ou username), `admin` (papel de plataforma, suspensão, listagem de usuários e sessões) e `twoFactor` (TOTP obrigatório para o admin da plataforma). Exige `bodyParser: false` no `main.ts`. O convite de cadastro é validado e consumido em hook `before` do sign-up.
+- Postgres local em container no `docker-compose.dev.yml`; na Fase 2, **Neon free** *(suposição: Neon em vez de Supabase)*.
+- DTOs e validação com **`nestjs-zod`** (`createZodDto` a partir dos schemas do `packages/shared`), que alimenta o OpenAPI e o AsyncAPI.
 - SOLID leve: cada use-case é um `@Injectable` com um único `execute()` (SRP). Repositório como `abstract class` usada como token de DI, com implementações `prisma` e `in-memory` (DIP). Testes unitários usam `in-memory`.
 - **Storage de imagens:** upload multipart para o Nest. `StorageProvider` (abstract class) com `LocalStorageProvider` e `S3StorageProvider`, ambos implementados desde o início e escolhidos por `STORAGE_DRIVER=local | s3`. Driver local grava em volume Docker servido pelo nginx (`/uploads`). Driver S3 serve por URL pública do bucket (ou CloudFront). O banco guarda só a chave/URL da imagem.
 
@@ -172,11 +208,14 @@ apps/api/
 ├── prisma/
 │   └── schema/
 │       ├── schema.prisma               # generator + datasource
-│       ├── auth.prisma                 # User, Session, Account, Verification (Better Auth)
+│       ├── auth.prisma                 # User, Session, Account, Verification, TwoFactor (Better Auth)
 │       ├── registration-invite.prisma
+│       ├── platform-settings.prisma    # limites globais, versão mínima do Chromium
 │       ├── server.prisma               # Server, ServerMember, JoinRequest
 │       ├── server-invite.prisma
-│       └── room.prisma
+│       ├── room.prisma
+│       ├── notification.prisma
+│       └── device-report.prisma        # hardware por dispositivo
 ├── src/
 │   ├── @types/                         # augmentations (Request.user etc.)
 │   ├── env/                            # schema zod + EnvService
@@ -201,11 +240,11 @@ apps/api/
 │   │   │   │   ├── in-memory/
 │   │   │   │   └── prisma/
 │   │   │   └── use-cases/              # *.use-case.ts + *.use-case.spec.ts
-│   │   ├── accounts/                   # perfil, avatar, seed do platform_admin
+│   │   ├── accounts/                   # perfil, avatar, seed do admin da plataforma
 │   │   ├── platform-admin/             # painel: usuários, IP, sessões, suspender, excluir servidor
 │   │   ├── limits/                     # padrões globais + overrides, resolução do limite efetivo
 │   │   ├── servers/                    # criar (limite), ícone, auto aprovação, papéis
-│   │   ├── server-invites/             # multi-uso, expiração, bloqueio em 10
+│   │   ├── server-invites/             # uso único, 1 hora, bloqueio no limite de membros
 │   │   ├── memberships/                # pedidos de entrada, aprovar, kick, promover/rebaixar
 │   │   ├── rooms/
 │   │   ├── realtime/                   # gateway Socket.IO: presença + sinalização
@@ -224,9 +263,19 @@ apps/api/
 │   ├── app.module.ts
 │   └── main.ts
 └── test/
-    ├── e2e/                            # supertest + mongo docker
+    ├── e2e/                            # supertest + postgres docker
     └── factories/
 ```
+
+### 3.3.1 Contrato REST e Socket.IO (decidido em 2026-10-24)
+- **REST** para o que o cliente pede e espera resposta, principalmente o que grava no banco (auth, conta, servidores, convites, membros, salas, admin, hardware, notificações, credenciais TURN). **Socket.IO** para o que o servidor precisa avisar sem ser perguntado e para o estado efêmero da conexão (presença, entrar/sair da sala de voz, sinalização WebRTC, mute/deafen, início/fim de transmissão, "assistir").
+- Padrão combinado: a ação que muda o banco vai por REST; depois de gravar, o servidor emite o evento para os interessados (kick, aprovação de entrada, suspensão). No frontend, o evento só invalida a query do TanStack Query ou atualiza a store; o REST continua a fonte dos dados.
+- **Tipagem compartilhada em `packages/shared`** (decisão do usuário): schemas zod de DTOs e payloads, interfaces `ClientToServerEvents` e `ServerToClientEvents` usadas como genéricos do Socket.IO nos dois lados (`Server<...>` na API, `Socket<...>` no web), e constantes com os nomes dos eventos para o `@SubscribeMessage`. Erro de nome ou de payload vira erro de compilação na API e no web.
+- O gateway valida todo payload recebido com o schema zod (`ZodPipe`), porque os tipos não existem em runtime.
+- Nome dos eventos no formato `dominio:acao` (`room:join`, `signal:send`, `presence:update`). A direção fica no tipo, não no nome. Pedido e resposta pelo socket usam ack (callback como último argumento).
+- **Documentação** (decisão do usuário: os eventos também são documentados):
+  - REST: OpenAPI gerado pelo Nest, exibido no **Scalar**.
+  - Socket.IO: **AsyncAPI**, gerado a partir dos mesmos schemas do `packages/shared`. Ferramenta: **`nestjs-asyncapi`** *(decidido em 2026-10-24)*, com decorators nos gateways e payloads vindos dos DTOs do `nestjs-zod`; exige `@nestjs/swagger` 11. Exibição no Scalar se a integração JS já aceitar AsyncAPI (o suporte do Scalar é experimental); senão, no visualizador do AsyncAPI.
 
 ### 3.4 Frontend (`apps/web`): MVVM
 - **React + Vite + TanStack Router** (rotas por arquivo, `beforeLoad` para auth, `loader` integrado ao TanStack Query).
@@ -292,8 +341,9 @@ apps/web/
 
 - **nginx** na frente de tudo, mesmo domínio: `/` para web, `/api` para Nest, `/socket.io` para Nest com upgrade. Cookies do Better Auth sem CORS.
 - **Storage:** fase local usa `STORAGE_DRIVER=local` (volume Docker). Fase EC2 usa `STORAGE_DRIVER=s3`. Os testes do driver S3 rodam contra **MinIO** em container.
-- **Fase 1, local (máquina do desenvolvedor):** `docker-compose.dev.yml` com nginx, web, api, mongo (replica set) e **cloudflared** (Cloudflare Tunnel) para os testers acessarem. O tunnel só carrega HTTP/WebSocket; a mídia vai direto entre os browsers. TURN via Cloudflare Realtime.
-- **Fase 2, EC2 t3.medium:** `docker-compose.prod.yml` com nginx, web, api e coturn. Banco no **MongoDB Atlas free**.
+- **Fase 1, local (máquina do desenvolvedor):** `docker-compose.dev.yml` com nginx, web, api, postgres e **cloudflared** (Cloudflare Tunnel) para os testers acessarem. O tunnel só carrega HTTP/WebSocket; a mídia vai direto entre os browsers. TURN via Cloudflare Realtime.
+- **Fase 2, EC2 t3.medium:** `docker-compose.prod.yml` com nginx, web, api e coturn. Banco no **Neon free** (Postgres).
+  - Pendente: a estimativa abaixo usa us-east-1, mas o coturn deve ficar em sa-east-1 (ver 3.1.1). Rever região e preços (sa-east-1 é mais cara, e a transferência de saída também).
 - **Estimativa de custo da Fase 2 (ideação, us-east-1, sob demanda).** Valores a revisar com medição real depois que o app estiver rodando.
 
   | Item | Cálculo | US$/mês |
@@ -305,8 +355,9 @@ apps/web/
 
   - Variáveis: transferência de saída (100 GB/mês grátis, depois US$ 0,09/GB, pesa principalmente no relay do coturn), S3 (centavos), créditos de CPU da t3 em modo unlimited (configurar como standard).
   - t3.medium não entra no free tier. EBS e IPv4 podem ser cobertos se a conta for elegível; contas novas usam o modelo de créditos.
-  - **Recomendação inicial: t4g.small** (ARM, 2 GB, ~US$ 12 de instância). Na EC2 rodam só nginx, Nest e coturn (frontend estático, Mongo no Atlas, mídia P2P). Subir para t4g.medium se a medição pedir.
+  - **Recomendação inicial: t4g.small** (ARM, 2 GB, ~US$ 12 de instância). Na EC2 rodam só nginx, Nest e coturn (frontend estático, Postgres no Neon, mídia P2P). Subir para t4g.medium se a medição pedir.
   - Segurança da instância: SSH restrito ao IP do admin (ou SSM Session Manager), EBS criptografado, portas do coturn abertas (3478 UDP/TCP, 5349 TCP e faixa UDP de relay).
+- **Imagens de produção** são geradas só no CI, para a arquitetura do servidor (ARM64 se a EC2 for t4g). A imagem buildada na máquina do desenvolvedor (`npm run docker:api`) serve só para pegar erros de build e medir tamanho e memória; nunca vai para produção *(decidido em 2026-10-24)*.
 - Deploy na Vercel **descartado**: a Vercel não mantém um processo Node persistente para o Socket.IO (WebSocket lá é experimental e preso a instância).
 
 ## 5. Observabilidade
@@ -324,7 +375,7 @@ apps/web/
 ## 6. Testes
 
 - **Unitários (Vitest):** use-cases do Nest com repositórios e storage in-memory; rules, ViewModels (`renderHook`) e stores do frontend; Testing Library onde fizer sentido.
-- **E2E da API:** supertest + Mongo em Docker.
+- **E2E da API:** supertest + Postgres em Docker.
 - **E2E do app (Cypress):** usuário A dirigido pelo Cypress; usuário B é um **peer bot** headless (Chromium com mídia fake) controlado por `cy.task`, validando P2P real.
 - **Storybook interaction tests** no CI.
 - **Lint de fronteiras MVVM** no CI.
