@@ -432,6 +432,9 @@
     "setup": {
       "title": "Set up two-factor authentication",
       "description": "Platform admins must use an authenticator app.",
+      "passwordDescription": "Platform admins must use an authenticator app. Confirm your password to start.",
+      "password": "Password",
+      "continue": "Continue",
       "scan": "1. Scan the QR code with your authenticator app.",
       "manual": "Or type this key:",
       "verify": "2. Enter the 6-digit code it shows.",

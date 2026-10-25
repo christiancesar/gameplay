@@ -1,13 +1,20 @@
 import { CheckIcon, CopyIcon, DownloadIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import type { ConfirmPasswordValues } from '@/modules/admin/model/two-factor-setup.schema'
 import { type TwoFactorCodeValues } from '@/modules/auth/model/two-factor.schema'
 import { BrandLogo } from '@/shared/ui/brand-logo'
 import { Button } from '@/shared/ui/button'
 
+import { ConfirmPasswordForm } from './two-factor-password-form.view'
 import { VerifyCodeForm } from './two-factor-verify-form.view'
 
+/**
+ * `password`: o Better Auth pede a senha para gerar o segredo e os códigos.
+ * Os códigos de recuperação já vêm nesse passo, mas só aparecem depois de validar o TOTP.
+ */
 type TwoFactorSetupState =
+  | { step: 'password'; isSubmitting: boolean; invalidPassword: boolean }
   | {
       step: 'scan'
       qrCodeUrl: string
@@ -19,6 +26,7 @@ type TwoFactorSetupState =
 
 type TwoFactorSetupViewProps = {
   state: TwoFactorSetupState
+  onConfirmPassword: (values: ConfirmPasswordValues) => void
   /** Chamado só com um código de 6 dígitos. */
   onVerify: (values: TwoFactorCodeValues) => void
   onCopyCodes: () => void
@@ -27,14 +35,33 @@ type TwoFactorSetupViewProps = {
 }
 
 /** F12.1: primeiro login do admin da plataforma. */
-function TwoFactorSetupView({ state, onVerify, onCopyCodes, onDownloadCodes, onFinish }: TwoFactorSetupViewProps) {
+function TwoFactorSetupView({
+  state,
+  onConfirmPassword,
+  onVerify,
+  onCopyCodes,
+  onDownloadCodes,
+  onFinish,
+}: TwoFactorSetupViewProps) {
   const { t } = useTranslation()
 
   return (
     <div className="bg-background text-foreground flex min-h-dvh flex-col items-center justify-center gap-8 px-4 py-10">
       <BrandLogo className="w-36" />
       <div className="bg-card text-card-foreground flex w-full max-w-md flex-col gap-6 rounded-lg border p-6">
-        {state.step === 'scan' ? (
+        {state.step === 'password' ? (
+          <>
+            <div className="flex flex-col gap-1 text-center">
+              <h1 className="text-xl font-medium">{t('admin.setup.title')}</h1>
+              <p className="text-muted-foreground text-sm">{t('admin.setup.passwordDescription')}</p>
+            </div>
+            <ConfirmPasswordForm
+              isSubmitting={state.isSubmitting}
+              invalidPassword={state.invalidPassword}
+              onSubmit={onConfirmPassword}
+            />
+          </>
+        ) : state.step === 'scan' ? (
           <>
             <div className="flex flex-col gap-1 text-center">
               <h1 className="text-xl font-medium">{t('admin.setup.title')}</h1>

@@ -19,6 +19,7 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: {
     state: scan,
+    onConfirmPassword: fn(),
     onVerify: fn(),
     onCopyCodes: fn(),
     onDownloadCodes: fn(),
@@ -28,6 +29,22 @@ const meta = {
 
 export default meta
 type Story = StoryObj<typeof meta>
+
+/** Primeiro passo: confirmar a senha, que o Better Auth exige para ligar o 2FA. */
+export const ConfirmPassword: Story = {
+  args: { state: { step: 'password', isSubmitting: false, invalidPassword: false } },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /continue/i }))
+    await expect(await canvas.findByText(/this field is required/i)).toBeVisible()
+    await userEvent.type(canvas.getByLabelText(/^password$/i), 'hunter2222')
+    await userEvent.click(canvas.getByRole('button', { name: /continue/i }))
+    await expect(args.onConfirmPassword).toHaveBeenCalledWith({ password: 'hunter2222' }, expect.anything())
+  },
+}
+
+export const WrongPassword: Story = {
+  args: { state: { step: 'password', isSubmitting: false, invalidPassword: true } },
+}
 
 export const ScanQrCode: Story = {
   play: async ({ args, canvas, userEvent }) => {

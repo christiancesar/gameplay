@@ -33,9 +33,10 @@ const meta = {
     onLeaveRoom: fn(),
   },
   render: function Render(args) {
-    // Mute e deafen alternam de verdade para ver os ícones mudarem.
+    // Simula o ViewModel: deafen também muta e, ao sair, volta o mute de antes.
     const [isMuted, setMuted] = useState(args.isMuted)
     const [isDeafened, setDeafened] = useState(args.isDeafened)
+    const [mutedBeforeDeafen, setMutedBeforeDeafen] = useState(args.isMuted)
     return (
       <UserCardView
         {...args}
@@ -47,7 +48,13 @@ const meta = {
         }}
         onToggleDeafen={() => {
           args.onToggleDeafen()
-          setDeafened((value) => !value)
+          if (isDeafened) {
+            setMuted(mutedBeforeDeafen)
+          } else {
+            setMutedBeforeDeafen(isMuted)
+            setMuted(true)
+          }
+          setDeafened(!isDeafened)
         }}
       />
     )
@@ -79,6 +86,17 @@ export const ToggleVoice: Story = {
     await expect(canvas.getByRole('button', { name: /undeafen/i })).toHaveAttribute('aria-pressed', 'true')
     await userEvent.click(canvas.getByRole('button', { name: /leave room/i }))
     await expect(args.onLeaveRoom).toHaveBeenCalledOnce()
+  },
+}
+
+/** Deafen muta junto; ao sair do deafen, o microfone volta como estava. */
+export const DeafenAlsoMutes: Story = {
+  args: { inRoom: true },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /^deafen$/i }))
+    await expect(canvas.getByRole('button', { name: /unmute/i })).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.click(canvas.getByRole('button', { name: /undeafen/i }))
+    await expect(canvas.getByRole('button', { name: /^mute$/i })).toHaveAttribute('aria-pressed', 'false')
   },
 }
 

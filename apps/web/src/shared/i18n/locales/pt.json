@@ -432,6 +432,9 @@
     "setup": {
       "title": "Configure a verificação em duas etapas",
       "description": "O admin da plataforma precisa usar um app autenticador.",
+      "passwordDescription": "Admins da plataforma precisam usar um app autenticador. Confirme sua senha para começar.",
+      "password": "Senha",
+      "continue": "Continuar",
       "scan": "1. Escaneie o QR code com seu app autenticador.",
       "manual": "Ou digite esta chave:",
       "verify": "2. Digite o código de 6 dígitos que aparece no app.",
