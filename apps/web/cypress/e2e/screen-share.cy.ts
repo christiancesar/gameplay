@@ -73,6 +73,7 @@ describe('Screen share', () => {
       cy.findByRole('button', { name: 'Share screen' }).click()
       cy.findByRole('dialog').within(() => cy.findByRole('button', { name: 'Choose and share' }).click())
       cy.findByRole('button', { name: 'Stop sharing' }).should('be.visible')
+      cy.findByText('You are presenting to everyone').should('be.visible')
       cy.findByText('Nobody is watching yet', { exact: false }).should('be.visible')
 
       cy.task('bot:watch')

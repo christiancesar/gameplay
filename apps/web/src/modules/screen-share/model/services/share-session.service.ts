@@ -6,6 +6,7 @@ import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/sc
 
 import { idleShare, type SharePriority, type ShareSettings, type ShareStateStore } from '../entities/share'
 import { toOutboundSample, toViewerStat, type OutboundSample } from '../mappers/outbound-stats.mapper'
+import { toSurface } from '../rules/surface'
 import { contentHintOf, displayMediaOptions, liveVideoConstraints, toPreset, videoEncoding } from '../rules/preset'
 
 type ShareRealtime = Pick<RealtimeService, 'startStream' | 'stopStream' | 'on'>
@@ -111,6 +112,7 @@ class ShareSession {
     store.setState({
       status: 'live',
       source: captured?.height ? { height: captured.height, fps: captured.frameRate ?? settings.fps } : null,
+      preview: { stream: capture.stream, surface: toSurface(captured?.displaySurface) },
     })
     try {
       await this.deps.realtime.startStream(preset)

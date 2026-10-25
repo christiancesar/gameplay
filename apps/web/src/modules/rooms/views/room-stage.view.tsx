@@ -1,4 +1,5 @@
 import { AudioLinesIcon, MicOffIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
@@ -11,11 +12,13 @@ type RoomStageViewProps = {
   roomName: string
   participants: readonly StageParticipant[]
   micDenied: boolean
+  /** The streamer's own screen while sharing; goes first in the grid. */
+  preview?: ReactNode
   onWatch: (participantId: string) => void
   onVolumeChange: (participantId: string, volume: number) => void
 }
 
-function RoomStageView({ roomName, participants, micDenied, onWatch, onVolumeChange }: RoomStageViewProps) {
+function RoomStageView({ roomName, participants, micDenied, preview, onWatch, onVolumeChange }: RoomStageViewProps) {
   const { t } = useTranslation()
   const othersCount = participants.filter((participant) => !participant.isMe).length
 
@@ -35,6 +38,7 @@ function RoomStageView({ roomName, participants, micDenied, onWatch, onVolumeCha
       )}
 
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4">
+        {preview && <li className="sm:col-span-2">{preview}</li>}
         {participants.map((participant) => (
           <li key={participant.id}>
             <ParticipantTileView participant={participant} onWatch={onWatch} onVolumeChange={onVolumeChange} />

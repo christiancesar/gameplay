@@ -38,7 +38,14 @@ describe('ShareSession', () => {
         status: 'live',
         settings: gameSettings,
         source: { height: 1080, fps: 60 },
+        preview: { stream: ctx.capture.stream, surface: 'unknown' },
       })
+    })
+
+    it('clears the preview when the share stops', async () => {
+      await ctx.session.start(gameSettings, 'smooth')
+      await ctx.session.stop()
+      expect(ctx.store.state.preview).toBeNull()
     })
 
     it('hints the encoder by priority: motion for smooth, detail for sharp', async () => {

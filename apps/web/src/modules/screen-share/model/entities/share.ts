@@ -38,8 +38,16 @@ type ShareSnapshot = {
   stats: Record<string, ViewerStat>
   /** Height and fps the captured source really has, to not ask more of a small window than it has. */
   source: { height: number; fps: number } | null
+  /** The running capture; null unless live. */
+  preview: SharePreview | null
   notice: ShareNotice | null
 }
+
+/** What the captured surface is, as the browser reports it (`displaySurface`). */
+type ShareSurface = 'monitor' | 'window' | 'browser' | 'unknown'
+
+/** The local capture, for the streamer's own preview. Nothing is sent for it. */
+type SharePreview = { stream: MediaStream; surface: ShareSurface }
 
 type ShareStateStore = {
   getState(): ShareSnapshot
@@ -55,6 +63,7 @@ const idleShare: ShareSnapshot = {
   viewerIds: [],
   stats: {},
   source: null,
+  preview: null,
   notice: null,
 }
 
@@ -68,6 +77,8 @@ export type {
   ShareSnapshot,
   ShareSource,
   ShareStateStore,
+  SharePreview,
   ShareStatus,
+  ShareSurface,
   ViewerStat,
 }
