@@ -99,7 +99,8 @@
       "serverFull": "This server is full.",
       "alreadyMember": "You are already a member of this server.",
       "unexpected": "Something went wrong. Try again.",
-      "codeRequired": "Enter an invite code."
+      "codeRequired": "Enter an invite code.",
+      "codeInvalid": "Invite codes have 8 letters or numbers."
     },
     "profile": "Profile",
     "joinTitle": "Join a server"

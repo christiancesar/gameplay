@@ -43,9 +43,9 @@ export const SubmitCode: Story = {
     await expect(await canvas.findByText(/this field is required/i)).toBeVisible()
     await expect(args.onSubmit).not.toHaveBeenCalled()
 
-    await userEvent.type(canvas.getByLabelText(/recovery code/i), 'ab12-cd34')
+    await userEvent.type(canvas.getByLabelText(/recovery code/i), 'aB3dE-9fGh2')
     await userEvent.click(canvas.getByRole('button', { name: /verify/i }))
-    await expect(args.onSubmit).toHaveBeenCalledWith({ code: 'ab12-cd34' }, expect.anything())
+    await expect(args.onSubmit).toHaveBeenCalledWith({ code: 'aB3dE-9fGh2' }, expect.anything())
   },
 }
 

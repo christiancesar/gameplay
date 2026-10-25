@@ -99,12 +99,12 @@ export const JoinErrorClearsOnEdit: Story = {
   },
   play: async ({ args, canvas, userEvent }) => {
     const input = canvas.getByLabelText(/invite code/i)
-    await userEvent.type(input, 'wrong1')
+    await userEvent.type(input, 'zzzz2222')
     await userEvent.click(canvas.getByRole('button', { name: /join/i }))
-    await expect(args.onJoin).toHaveBeenCalledWith('WRONG1')
+    await expect(args.onJoin).toHaveBeenCalledWith('ZZZZ2222')
     await expect(await canvas.findByText(/invite not found/i)).toBeVisible()
 
-    await userEvent.type(input, '2')
+    await userEvent.type(input, '{Backspace}3')
     await expect(canvas.queryByText(/invite not found/i)).not.toBeInTheDocument()
   },
 }
@@ -123,6 +123,25 @@ export const JoinByCode: Story = {
     await userEvent.type(canvas.getByLabelText(/invite code/i), 'jh34sd32')
     await userEvent.click(join)
     await expect(args.onJoin).toHaveBeenCalledWith('JH34SD32')
+  },
+}
+
+/** Colar o link inteiro também funciona: fica só o código. */
+export const JoinByLink: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.type(canvas.getByLabelText(/invite code/i), 'https://gameplay.app/i/jh34sd32')
+    await userEvent.click(canvas.getByRole('button', { name: /join/i }))
+    await expect(args.onJoin).toHaveBeenCalledWith('JH34SD32')
+  },
+}
+
+/** Formato errado nem chega no servidor: 8 caracteres, sem 0/O e 1/I. */
+export const JoinInvalidCode: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.type(canvas.getByLabelText(/invite code/i), 'abc')
+    await userEvent.click(canvas.getByRole('button', { name: /join/i }))
+    await expect(await canvas.findByText(/8 letters or numbers/i)).toBeVisible()
+    await expect(args.onJoin).not.toHaveBeenCalled()
   },
 }
 

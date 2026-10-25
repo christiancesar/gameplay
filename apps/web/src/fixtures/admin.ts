@@ -68,15 +68,18 @@ export const registrationKeys: RegistrationKeyItem[] = [
   { id: 'k4', hint: 'R2W', createdAt: at(-10 * hour), expiresAt: at(20 * 24 * hour), status: { type: 'revoked' } },
 ]
 
+/** Formato padrão do Better Auth: 10 códigos `xxxxx-xxxxx`, letras maiúsculas e minúsculas contam. */
 export const recoveryCodes = [
-  '8F3K-29QM',
-  'TX7P-4LNA',
-  'Q2WE-9RT5',
-  'ZB6Y-HU81',
-  'M4KD-7CXP',
-  'N8VS-3JQ2',
-  'J5GR-6FLW',
-  'C1HT-2YZB',
+  'k8F3q-29QmZ',
+  'TX7pa-4LnAe',
+  'q2WE9-rT5bH',
+  'ZB6yH-u81Kd',
+  'm4KD7-cXpW3',
+  'N8vS3-jQ2tR',
+  'J5gR6-fLw9P',
+  'c1HT2-yZbM7',
+  'Wd4nE-8sKq0',
+  'pR7xL-3vNh6',
 ]
 
 /** QR fictício (não é um código válido), só para a story. */

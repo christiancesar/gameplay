@@ -1,9 +1,11 @@
-import { REGISTRATION_KEY_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
+import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
 import { z } from 'zod'
 
 import { passwordSchema } from '@/modules/auth/model/password.schema'
 
 const INVITE_KEY_LENGTH = REGISTRATION_KEY_LENGTH
+/** Caracteres aceitos na key, em qualquer caixa: o alfabeto não tem 0/O nem 1/I. */
+const INVITE_KEY_PATTERN = `^[${REGISTRATION_KEY_ALPHABET}${REGISTRATION_KEY_ALPHABET.toLowerCase()}]+$`
 
 /** Mensagens dos schemas: chaves de `auth.errors`, a View traduz. */
 type SignUpValidationError =
@@ -13,6 +15,7 @@ type SignUpValidationError =
   | 'passwordTooShort'
   | 'passwordMismatch'
   | 'inviteKeyIncomplete'
+  | 'inviteKeyInvalid'
 
 /** Erros que só o servidor conhece. */
 type SignUpServerError =
@@ -42,6 +45,7 @@ const signUpSchema = z
       .string()
       .min(1, message('required'))
       .length(INVITE_KEY_LENGTH, message('inviteKeyIncomplete'))
+      .regex(new RegExp(INVITE_KEY_PATTERN), message('inviteKeyInvalid'))
       .transform((value) => value.toUpperCase()),
   })
   .refine((values) => values.password === values.confirmPassword, {
@@ -53,5 +57,5 @@ type SignUpInput = z.input<typeof signUpSchema>
 type SignUpValues = z.output<typeof signUpSchema>
 type SignUpField = keyof SignUpInput
 
-export { INVITE_KEY_LENGTH, signUpSchema }
+export { INVITE_KEY_LENGTH, INVITE_KEY_PATTERN, signUpSchema }
 export type { SignUpField, SignUpFieldError, SignUpInput, SignUpServerError, SignUpValues }

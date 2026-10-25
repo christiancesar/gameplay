@@ -99,7 +99,8 @@
       "serverFull": "Este servidor está cheio.",
       "alreadyMember": "Você já é membro deste servidor.",
       "unexpected": "Algo deu errado. Tente de novo.",
-      "codeRequired": "Digite um código de convite."
+      "codeRequired": "Digite um código de convite.",
+      "codeInvalid": "O código do convite tem 8 letras ou números."
     },
     "profile": "Perfil",
     "joinTitle": "Entrar em um servidor"

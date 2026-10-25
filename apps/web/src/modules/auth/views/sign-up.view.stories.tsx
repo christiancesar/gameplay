@@ -121,6 +121,14 @@ export const PasteInviteKey: Story = {
   },
 }
 
+/** A key não usa 0/O nem 1/I: esses caracteres não entram no campo. */
+export const InviteKeyRejectsAmbiguousCharacters: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByLabelText(/invite key/i), 'k0o7mx1i4p')
+    await expect(canvas.getByLabelText(/invite key/i)).toHaveValue('k7mx4p')
+  },
+}
+
 export const SubmitForm: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.type(canvas.getByLabelText(/^username$/i), 'shinigame')
