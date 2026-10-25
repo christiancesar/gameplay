@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { assertRoomExists } from '../domain/room-rules'
 import { RoomsRepository } from '../repositories/rooms.repository'
-import { ServerAccess } from '../services/server-access'
+import { ServerAccessService } from '../services/server-access.service'
 
 type Input = { serverId: string; userId: string; roomId: string }
 
@@ -12,7 +12,7 @@ type Input = { serverId: string; userId: string; roomId: string }
 export class DeleteRoomUseCase {
   constructor(
     private readonly rooms: RoomsRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly events: DomainEventBus,
   ) {}
 

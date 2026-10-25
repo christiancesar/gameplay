@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { StorageProvider } from '../../storage/storage.provider'
 import { ServersRepository } from '../repositories/servers.repository'
-import { ServerAccess } from '../services/server-access'
-import { deletePreviousImage, SERVER_IMAGES, type ServerImageKind } from '../services/server-images'
+import { ServerAccessService } from '../services/server-access.service'
+import { SERVER_IMAGES, type ServerImageKind } from '../domain/server-images'
+import { deletePreviousImage } from './delete-previous-image'
 
 type Input = { serverId: string; userId: string; kind: ServerImageKind }
 
@@ -11,7 +12,7 @@ type Input = { serverId: string; userId: string; kind: ServerImageKind }
 export class RemoveServerImageUseCase {
   constructor(
     private readonly servers: ServersRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly storage: StorageProvider,
     private readonly events: DomainEventBus,
   ) {}

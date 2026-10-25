@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { Room, ServerDetail, ServerRole, ServerSummary } from '@gameplay/shared'
-import { ResolveEffectiveLimitUseCase } from '../../limits/use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { StorageProvider } from '../../storage/storage.provider'
 import type { RoomRecord, ServerRecord } from '../domain/server'
 import { RoomsRepository } from '../repositories/rooms.repository'
@@ -13,11 +13,11 @@ export function toRoom({ id, name, position }: RoomRecord): Room {
 // Builds what the routes answer: image URLs from the keys, member count,
 // effective limits and rooms.
 @Injectable()
-export class ServerViews {
+export class ServerViewsService {
   constructor(
     private readonly servers: ServersRepository,
     private readonly rooms: RoomsRepository,
-    private readonly limits: ResolveEffectiveLimitUseCase,
+    private readonly limits: EffectiveLimitsService,
     private readonly storage: StorageProvider,
   ) {}
 
@@ -28,8 +28,8 @@ export class ServerViews {
   async detail(server: ServerRecord, role: ServerRole): Promise<ServerDetail> {
     const [memberCount, maxMembers, maxRooms, rooms] = await Promise.all([
       this.servers.countMembers(server.id),
-      this.limits.execute({ kind: 'membersPerServer', serverId: server.id }),
-      this.limits.execute({ kind: 'roomsPerServer', serverId: server.id }),
+      this.limits.resolve({ kind: 'membersPerServer', serverId: server.id }),
+      this.limits.resolve({ kind: 'roomsPerServer', serverId: server.id }),
       this.rooms.list(server.id),
     ])
     return {

@@ -1,7 +1,7 @@
 import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { PrismaService } from '../../src/lib/prisma'
-import { ResolveEffectiveLimitUseCase } from '../../src/modules/limits/use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from '../../src/modules/limits/services/effective-limits.service'
 import { resetDatabase } from '../support/database'
 import { createTestApp } from '../support/create-test-app'
 import { signedIn } from '../support/signed-in'
@@ -26,7 +26,7 @@ describe('Limits and platform settings (e2e)', () => {
   })
 
   function effectiveServers(userId: string) {
-    return app.get(ResolveEffectiveLimitUseCase).execute({ kind: 'serversPerUser', userId })
+    return app.get(EffectiveLimitsService).resolve({ kind: 'serversPerUser', userId })
   }
 
   it('starts with the defaults', async () => {

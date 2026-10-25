@@ -14,6 +14,9 @@
 - `use-cases/`: um `@Injectable` por caso de uso, com um único `execute()`. A regra mora aqui.
 - `repositories/`: `abstract class` como token de DI, com implementação `prisma/` e `in-memory/`. Os testes unitários usam a in-memory.
 - `errors/`: erros de domínio que estendem `DomainError`. Um filtro global converte para HTTP (e para ack com erro no socket).
+- `services/` (`*.service.ts`, classe `XxxService`): lógica compartilhada por vários use-cases que não é uma ação por si só, como checar o acesso a um servidor (`ServerAccessService`), montar a resposta dele (`ServerViewsService`) ou resolver o limite efetivo (`EffectiveLimitsService`). Nenhum controller chama um service direto; a dependência é sempre use-case para service, nunca o contrário. *(Decidido em 2026-10-24.)*
+- `providers/` (`*.provider.ts` ou o nome da peça): detalhe técnico trocável atrás de uma `abstract class`, para o teste usar um fake: aleatoriedade, hash, API de terceiros (`TokenGenerator`, `InviteCodeGenerator`, `IceProvider`).
+- `domain/`: tipos, constantes e regras puras, sem I/O (`ServerPermissions`, `serverInviteStatus`).
 
 **Contrato compartilhado.** `packages/shared` é a fonte da verdade dos formatos: schemas zod de DTOs, payloads de eventos e os tipos `ClientToServerEvents` e `ServerToClientEvents`. Compilado com `tsc` para `dist/` em ESM com `.d.ts` **(suposição)**. A API, em CommonJS no Nest 11, consome via `require(esm)` do Node 24. O web consome direto.
 - A API valida tudo com `nestjs-zod` (`createZodDto` + `ZodValidationPipe` global).
@@ -176,7 +179,7 @@ Relações e regras de integridade:
 | `common` | `DomainError` e filtro, `ZodValidationPipe`, `@CurrentUser`, `AuthGuard`, `@PlatformAdmin()`, throttler | auth |
 | `auth` (`lib/auth.ts`) | instância Better Auth, hooks do sign-up, seed do admin | registration-invites, memberships |
 | `registration-invites` | gerar, listar, revogar e consumir keys | |
-| `limits` | `PlatformSettings` e overrides; `ResolveEffectiveLimit` | |
+| `limits` | `PlatformSettings` e overrides; `EffectiveLimitsService` | |
 | `storage` | `StorageProvider`, `ImageProcessor` | |
 | `accounts` | perfil, avatar, tema e idioma, hardware por dispositivo | storage |
 | `servers` | criar (limite), editar, ícone e cover, auto aprovação, excluir; salas | limits, storage |

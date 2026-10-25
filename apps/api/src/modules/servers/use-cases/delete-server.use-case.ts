@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { StorageProvider } from '../../storage/storage.provider'
 import { ServersRepository } from '../repositories/servers.repository'
-import { ServerAccess } from '../services/server-access'
+import { ServerAccessService } from '../services/server-access.service'
 
 // Only the owner. Members and rooms go in cascade (invites and join requests
 // too, once BE-10 adds them). The platform admin (BE-15) reuses deleteById.
@@ -12,7 +12,7 @@ export class DeleteServerUseCase {
 
   constructor(
     private readonly servers: ServersRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly storage: StorageProvider,
     private readonly events: DomainEventBus,
   ) {}

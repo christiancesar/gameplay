@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import type { ResolvedInvite } from '@gameplay/shared'
-import { ResolveEffectiveLimitUseCase } from '../../limits/use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { ServersRepository } from '../../servers/repositories/servers.repository'
-import { ServerViews } from '../../servers/services/server-views'
+import { ServerViewsService } from '../../servers/services/server-views.service'
 import { serverInviteStatus } from '../domain/membership'
 import { MembershipsRepository } from '../repositories/memberships.repository'
 
@@ -17,8 +17,8 @@ export class ResolveInviteCodeUseCase {
   constructor(
     private readonly memberships: MembershipsRepository,
     private readonly servers: ServersRepository,
-    private readonly views: ServerViews,
-    private readonly limits: ResolveEffectiveLimitUseCase,
+    private readonly views: ServerViewsService,
+    private readonly limits: EffectiveLimitsService,
   ) {}
 
   async execute({ code, userId }: Input): Promise<ResolvedInvite> {
@@ -28,7 +28,7 @@ export class ResolveInviteCodeUseCase {
 
     const [memberCount, limit, role] = await Promise.all([
       this.servers.countMembers(server.id),
-      this.limits.execute({ kind: 'membersPerServer', serverId: server.id }),
+      this.limits.resolve({ kind: 'membersPerServer', serverId: server.id }),
       userId ? this.servers.findRole(server.id, userId) : null,
     ])
     return {

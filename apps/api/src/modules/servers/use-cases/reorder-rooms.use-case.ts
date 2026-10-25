@@ -3,8 +3,8 @@ import type { Room } from '@gameplay/shared'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { InvalidRoomOrderError } from '../errors/servers.errors'
 import { RoomsRepository } from '../repositories/rooms.repository'
-import { ServerAccess } from '../services/server-access'
-import { toRoom } from '../services/server-views'
+import { ServerAccessService } from '../services/server-access.service'
+import { toRoom } from '../services/server-views.service'
 
 type Input = { serverId: string; userId: string; roomIds: string[] }
 
@@ -13,7 +13,7 @@ type Input = { serverId: string; userId: string; roomIds: string[] }
 export class ReorderRoomsUseCase {
   constructor(
     private readonly rooms: RoomsRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly events: DomainEventBus,
   ) {}
 

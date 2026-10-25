@@ -3,8 +3,8 @@ import type { Room } from '@gameplay/shared'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { assertRoomExists, assertRoomNameFree } from '../domain/room-rules'
 import { RoomsRepository } from '../repositories/rooms.repository'
-import { ServerAccess } from '../services/server-access'
-import { toRoom } from '../services/server-views'
+import { ServerAccessService } from '../services/server-access.service'
+import { toRoom } from '../services/server-views.service'
 
 type Input = { serverId: string; userId: string; roomId: string; name: string }
 
@@ -12,7 +12,7 @@ type Input = { serverId: string; userId: string; roomId: string; name: string }
 export class RenameRoomUseCase {
   constructor(
     private readonly rooms: RoomsRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly events: DomainEventBus,
   ) {}
 

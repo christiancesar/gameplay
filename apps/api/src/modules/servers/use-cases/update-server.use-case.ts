@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common'
 import type { ServerDetail } from '@gameplay/shared'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { type ServerChanges, ServersRepository } from '../repositories/servers.repository'
-import { ServerAccess } from '../services/server-access'
-import { ServerViews } from '../services/server-views'
+import { ServerAccessService } from '../services/server-access.service'
+import { ServerViewsService } from '../services/server-views.service'
 
 type Input = {
   serverId: string
@@ -16,8 +16,8 @@ type Input = {
 export class UpdateServerUseCase {
   constructor(
     private readonly servers: ServersRepository,
-    private readonly access: ServerAccess,
-    private readonly views: ServerViews,
+    private readonly access: ServerAccessService,
+    private readonly views: ServerViewsService,
     private readonly events: DomainEventBus,
   ) {}
 

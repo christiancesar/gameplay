@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
-import { ServerAccess } from '../../servers/services/server-access'
+import { ServerAccessService } from '../../servers/services/server-access.service'
 import { MembershipsRepository } from '../repositories/memberships.repository'
 import { pendingRequest } from '../domain/decide-join-request'
 
@@ -11,7 +11,7 @@ type Input = { serverId: string; userId: string; requestId: string }
 export class DeclineJoinRequestUseCase {
   constructor(
     private readonly memberships: MembershipsRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly events: DomainEventBus,
   ) {}
 

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import type { ServerDetail } from '@gameplay/shared'
-import { ResolveEffectiveLimitUseCase } from '../../limits/use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { ServerLimitReachedError } from '../errors/servers.errors'
 import { ServersRepository } from '../repositories/servers.repository'
-import { ServerViews } from '../services/server-views'
+import { ServerViewsService } from '../services/server-views.service'
 
 type Input = { userId: string; name: string; description?: string | null; defaultRoomName?: string }
 
@@ -15,12 +15,12 @@ const DEFAULT_ROOM_NAME = 'Room 1'
 export class CreateServerUseCase {
   constructor(
     private readonly servers: ServersRepository,
-    private readonly limits: ResolveEffectiveLimitUseCase,
-    private readonly views: ServerViews,
+    private readonly limits: EffectiveLimitsService,
+    private readonly views: ServerViewsService,
   ) {}
 
   async execute({ userId, name, description = null, defaultRoomName }: Input): Promise<ServerDetail> {
-    const limit = await this.limits.execute({ kind: 'serversPerUser', userId })
+    const limit = await this.limits.resolve({ kind: 'serversPerUser', userId })
     const { server } = await this.servers.createWithOwner(
       { name, description, ownerId: userId, roomName: defaultRoomName ?? DEFAULT_ROOM_NAME },
       (ownedCount) => {

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import type { Room } from '@gameplay/shared'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
-import { ResolveEffectiveLimitUseCase } from '../../limits/use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { assertRoomNameFree } from '../domain/room-rules'
 import { RoomLimitReachedError } from '../errors/servers.errors'
 import { RoomsRepository } from '../repositories/rooms.repository'
-import { ServerAccess } from '../services/server-access'
-import { toRoom } from '../services/server-views'
+import { ServerAccessService } from '../services/server-access.service'
+import { toRoom } from '../services/server-views.service'
 
 type Input = { serverId: string; userId: string; name: string }
 
@@ -15,14 +15,14 @@ type Input = { serverId: string; userId: string; name: string }
 export class CreateRoomUseCase {
   constructor(
     private readonly rooms: RoomsRepository,
-    private readonly access: ServerAccess,
-    private readonly limits: ResolveEffectiveLimitUseCase,
+    private readonly access: ServerAccessService,
+    private readonly limits: EffectiveLimitsService,
     private readonly events: DomainEventBus,
   ) {}
 
   async execute({ serverId, userId, name }: Input): Promise<Room> {
     await this.access.require(serverId, userId, 'manageRooms')
-    const limit = await this.limits.execute({ kind: 'roomsPerServer', serverId })
+    const limit = await this.limits.resolve({ kind: 'roomsPerServer', serverId })
     const room = await this.rooms.create(serverId, name, (rooms) => {
       if (rooms.length >= limit) throw new RoomLimitReachedError(limit)
       assertRoomNameFree(rooms, name)

@@ -1,14 +1,7 @@
 import { Logger } from '@nestjs/common'
 import type { StorageProvider } from '../../storage/storage.provider'
+import { SERVER_IMAGES, type ServerImageKind } from '../domain/server-images'
 import type { ServerRecord } from '../domain/server'
-
-export type ServerImageKind = 'icon' | 'cover'
-
-// Icon: square 256. Cover: 16:9 1280x720.
-export const SERVER_IMAGES = {
-  icon: { profile: 'square256', folder: 'icons', field: 'iconKey' },
-  cover: { profile: 'cover1280x720', folder: 'covers', field: 'coverKey' },
-} as const
 
 const logger = new Logger('ServerImage')
 

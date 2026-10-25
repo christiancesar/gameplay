@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { ResolveEffectiveLimitUseCase } from '../../limits/use-cases/resolve-effective-limit.use-case'
-import { ServerAccess } from '../../servers/services/server-access'
+import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
+import { ServerAccessService } from '../../servers/services/server-access.service'
 import { type InviteListItem, SERVER_INVITE_TTL_MS } from '../domain/membership'
 import { MemberLimitReachedError } from '../errors/memberships.errors'
 import { InviteCodeGenerator } from '../providers/invite-code-generator'
@@ -13,14 +13,14 @@ type Input = { serverId: string; userId: string }
 export class CreateServerInviteUseCase {
   constructor(
     private readonly memberships: MembershipsRepository,
-    private readonly access: ServerAccess,
-    private readonly limits: ResolveEffectiveLimitUseCase,
+    private readonly access: ServerAccessService,
+    private readonly limits: EffectiveLimitsService,
     private readonly codes: InviteCodeGenerator,
   ) {}
 
   async execute({ serverId, userId }: Input): Promise<InviteListItem> {
     await this.access.require(serverId, userId, 'manageInvites')
-    const limit = await this.limits.execute({ kind: 'membersPerServer', serverId })
+    const limit = await this.limits.resolve({ kind: 'membersPerServer', serverId })
     return this.memberships.withServerLock(serverId, async (store) => {
       if ((await store.countMembers(serverId)) >= limit) throw new MemberLimitReachedError(limit)
       return store.createInvite({

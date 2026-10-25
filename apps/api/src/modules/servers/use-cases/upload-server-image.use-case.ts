@@ -3,8 +3,9 @@ import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { ImageProcessor, imageKey } from '../../storage/images/image-processor'
 import { StorageProvider } from '../../storage/storage.provider'
 import { ServersRepository } from '../repositories/servers.repository'
-import { ServerAccess } from '../services/server-access'
-import { deletePreviousImage, SERVER_IMAGES, type ServerImageKind } from '../services/server-images'
+import { ServerAccessService } from '../services/server-access.service'
+import { SERVER_IMAGES, type ServerImageKind } from '../domain/server-images'
+import { deletePreviousImage } from './delete-previous-image'
 
 type Input = { serverId: string; userId: string; kind: ServerImageKind; file: Buffer }
 
@@ -13,7 +14,7 @@ type Input = { serverId: string; userId: string; kind: ServerImageKind; file: Bu
 export class UploadServerImageUseCase {
   constructor(
     private readonly servers: ServersRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly images: ImageProcessor,
     private readonly storage: StorageProvider,
     private readonly events: DomainEventBus,

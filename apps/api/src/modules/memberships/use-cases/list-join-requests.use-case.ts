@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ServerAccess } from '../../servers/services/server-access'
+import { ServerAccessService } from '../../servers/services/server-access.service'
 import type { JoinRequestListItem } from '../domain/membership'
 import { MembershipsRepository } from '../repositories/memberships.repository'
 
@@ -7,7 +7,7 @@ import { MembershipsRepository } from '../repositories/memberships.repository'
 export class ListJoinRequestsUseCase {
   constructor(
     private readonly memberships: MembershipsRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
   ) {}
 
   async execute({ serverId, userId }: { serverId: string; userId: string }): Promise<JoinRequestListItem[]> {

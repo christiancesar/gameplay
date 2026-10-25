@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import type { JoinServerResponse } from '@gameplay/shared'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
-import { ResolveEffectiveLimitUseCase } from '../../limits/use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { ServersRepository } from '../../servers/repositories/servers.repository'
 import { serverInviteStatus } from '../domain/membership'
 import {
@@ -29,7 +29,7 @@ export class RequestToJoinUseCase {
   constructor(
     private readonly memberships: MembershipsRepository,
     private readonly servers: ServersRepository,
-    private readonly limits: ResolveEffectiveLimitUseCase,
+    private readonly limits: EffectiveLimitsService,
     private readonly events: DomainEventBus,
   ) {}
 
@@ -38,7 +38,7 @@ export class RequestToJoinUseCase {
     const server = found && (await this.servers.findById(found.serverId))
     if (!found || !server) throw new ServerInviteNotFoundError()
     const serverId = server.id
-    const limit = await this.limits.execute({ kind: 'membersPerServer', serverId })
+    const limit = await this.limits.resolve({ kind: 'membersPerServer', serverId })
 
     const outcome = await this.memberships.withServerLock(serverId, async (store) => {
       // A member just opens the server; the invite stays for someone else.

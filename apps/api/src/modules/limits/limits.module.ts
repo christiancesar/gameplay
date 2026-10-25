@@ -10,7 +10,7 @@ import { PrismaUserLimitsRepository } from './repositories/prisma/prisma-user-li
 import { ServerLimitsRepository } from './repositories/server-limits.repository'
 import { UserLimitsRepository } from './repositories/user-limits.repository'
 import { GetPlatformSettingsUseCase } from './use-cases/get-platform-settings.use-case'
-import { ResolveEffectiveLimitUseCase } from './use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from './services/effective-limits.service'
 import { SetServerLimitOverrideUseCase } from './use-cases/set-server-limit-override.use-case'
 import { SetUserLimitOverrideUseCase } from './use-cases/set-user-limit-override.use-case'
 import { UpdatePlatformSettingsUseCase } from './use-cases/update-platform-settings.use-case'
@@ -27,8 +27,8 @@ import { UpdatePlatformSettingsUseCase } from './use-cases/update-platform-setti
     UpdatePlatformSettingsUseCase,
     SetUserLimitOverrideUseCase,
     SetServerLimitOverrideUseCase,
-    ResolveEffectiveLimitUseCase,
+    EffectiveLimitsService,
   ],
-  exports: [ResolveEffectiveLimitUseCase, GetPlatformSettingsUseCase],
+  exports: [EffectiveLimitsService, GetPlatformSettingsUseCase],
 })
 export class LimitsModule {}

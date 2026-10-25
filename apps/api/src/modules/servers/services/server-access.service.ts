@@ -7,7 +7,7 @@ import { ServersRepository } from '../repositories/servers.repository'
 // Loads the server with the user's role and checks the permission table.
 // Exported for memberships, invites and realtime.
 @Injectable()
-export class ServerAccess {
+export class ServerAccessService {
   constructor(private readonly servers: ServersRepository) {}
 
   // Not a member answers the same as a missing server.

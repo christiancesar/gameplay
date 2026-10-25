@@ -6,7 +6,7 @@ import { CurrentUser } from '../../../common/auth/current-user.decorator'
 import type { AuthUser } from '../../../lib/auth'
 import { requireImageFile, UploadImage } from '../../storage/upload/upload-image.decorator'
 import { ServerImageResponseDto } from '../dtos/server.dto'
-import type { ServerImageKind } from '../services/server-images'
+import type { ServerImageKind } from '../domain/server-images'
 import { RemoveServerImageUseCase } from '../use-cases/remove-server-image.use-case'
 import { UploadServerImageUseCase } from '../use-cases/upload-server-image.use-case'
 

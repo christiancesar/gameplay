@@ -38,7 +38,7 @@ Os limites efetivos mudam pelo painel sem redeploy, e os overrides têm precedê
 - Módulo `src/modules/limits`. `PlatformSettings` com linha única `global`, criada pela migration (`INSERT` com os padrões do schema). O repositório usa `upsert`, então continua funcionando se a linha sumir (os e2e esvaziam o banco).
 - Contrato em `packages/shared/src/admin/platform-settings.ts`: `platformSettingsSchema` (limites com mínimo 1, `minChromiumVersion`), `publicSettingsSchema` e `userLimitsSchema` (`maxServers`: inteiro a partir de 0 ou `null` para voltar ao padrão). A View do Storybook usa `serversPerUser` e afins; o ViewModel faz o mapeamento.
 - Rotas: `GET` e `PUT /api/admin/settings` (objeto completo), `PUT /api/admin/users/:userId/limits` (204; usuário inexistente responde 404 `USER_NOT_FOUND`) e `GET /api/settings/public` (sem sessão, só `minChromiumVersion`). As de admin usam `@PlatformAdmin()`.
-- `ResolveEffectiveLimit` lê o banco a cada chamada (sem cache), por isso a mudança vale na hora.
+- `ResolveEffectiveLimit` lê o banco a cada chamada (sem cache), por isso a mudança vale na hora. **Renomeado em 2026-10-24** para `EffectiveLimitsService.resolve()` em `limits/services/`: não é uma ação do usuário, e os use-cases dependem dele.
 - **Ficou para o BE-09:** `Server` ainda não existe, então os tipos `membersPerServer` e `roomsPerServer` no resolvedor, o `SetServerLimitOverride` e a rota de override por servidor entram junto com o modelo `Server`. O resolvedor hoje aceita só `{ kind: 'serversPerUser', userId }`.
 - `test/support/signed-in.ts`: helper dos e2e que cadastra um usuário com key real e devolve o agent com a sessão (com `admin` e `twoFactor` opcionais).
 

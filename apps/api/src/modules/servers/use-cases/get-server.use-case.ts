@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import type { ServerDetail } from '@gameplay/shared'
-import { ServerAccess } from '../services/server-access'
-import { ServerViews } from '../services/server-views'
+import { ServerAccessService } from '../services/server-access.service'
+import { ServerViewsService } from '../services/server-views.service'
 
 @Injectable()
 export class GetServerUseCase {
   constructor(
-    private readonly access: ServerAccess,
-    private readonly views: ServerViews,
+    private readonly access: ServerAccessService,
+    private readonly views: ServerViewsService,
   ) {}
 
   async execute({ serverId, userId }: { serverId: string; userId: string }): Promise<ServerDetail> {

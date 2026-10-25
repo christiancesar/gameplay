@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ServerAccess } from '../../servers/services/server-access'
+import { ServerAccessService } from '../../servers/services/server-access.service'
 import { ServerInviteNotFoundError, ServerInviteUsedError } from '../errors/memberships.errors'
 import { MembershipsRepository } from '../repositories/memberships.repository'
 
@@ -11,7 +11,7 @@ type Input = { serverId: string; userId: string; inviteId: string }
 export class RevokeServerInviteUseCase {
   constructor(
     private readonly memberships: MembershipsRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
   ) {}
 
   async execute({ serverId, userId, inviteId }: Input): Promise<void> {

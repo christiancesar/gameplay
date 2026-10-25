@@ -8,16 +8,18 @@ type Input =
   | { kind: 'membersPerServer'; serverId: string }
   | { kind: 'roomsPerServer'; serverId: string }
 
-// The override when there is one, else the global default.
+// The limit in force: the override when there is one, else the global
+// default. A service, not a use-case: the use-cases that create servers,
+// rooms and invites, or approve join requests, ask it before writing.
 @Injectable()
-export class ResolveEffectiveLimitUseCase {
+export class EffectiveLimitsService {
   constructor(
     private readonly settings: PlatformSettingsRepository,
     private readonly userLimits: UserLimitsRepository,
     private readonly serverLimits: ServerLimitsRepository,
   ) {}
 
-  async execute(input: Input): Promise<number> {
+  async resolve(input: Input): Promise<number> {
     if (input.kind === 'serversPerUser') {
       const [settings, overrides] = await Promise.all([this.settings.get(), this.userLimits.find(input.userId)])
       return overrides?.maxServers ?? settings.maxServersPerUser

@@ -4,13 +4,13 @@ import type { DomainEventName, DomainEvents } from '../../../common/events/domai
 import { InMemoryPlatformSettingsRepository } from '../../limits/repositories/in-memory/in-memory-platform-settings.repository'
 import { InMemoryServerLimitsRepository } from '../../limits/repositories/in-memory/in-memory-server-limits.repository'
 import { InMemoryUserLimitsRepository } from '../../limits/repositories/in-memory/in-memory-user-limits.repository'
-import { ResolveEffectiveLimitUseCase } from '../../limits/use-cases/resolve-effective-limit.use-case'
+import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { InMemoryStorageProvider } from '../../storage/drivers/in-memory-storage.provider'
 import { ImageProcessor } from '../../storage/images/image-processor'
 import { InMemoryRoomsRepository } from '../repositories/in-memory/in-memory-rooms.repository'
 import { InMemoryServersRepository } from '../repositories/in-memory/in-memory-servers.repository'
-import { ServerAccess } from '../services/server-access'
-import { ServerViews } from '../services/server-views'
+import { ServerAccessService } from '../services/server-access.service'
+import { ServerViewsService } from '../services/server-views.service'
 
 // Keeps what was published, in order.
 export class FakeEventBus extends DomainEventBus {
@@ -32,7 +32,7 @@ export function makeServersContext() {
   const settings = new InMemoryPlatformSettingsRepository()
   const userLimits = new InMemoryUserLimitsRepository()
   const serverLimits = new InMemoryServerLimitsRepository()
-  const limits = new ResolveEffectiveLimitUseCase(settings, userLimits, serverLimits)
+  const limits = new EffectiveLimitsService(settings, userLimits, serverLimits)
   const storage = new InMemoryStorageProvider()
   const events = new FakeEventBus()
   return {
@@ -45,7 +45,7 @@ export function makeServersContext() {
     storage,
     events,
     images: new ImageProcessor(),
-    access: new ServerAccess(servers),
-    views: new ServerViews(servers, rooms, limits, storage),
+    access: new ServerAccessService(servers),
+    views: new ServerViewsService(servers, rooms, limits, storage),
   }
 }

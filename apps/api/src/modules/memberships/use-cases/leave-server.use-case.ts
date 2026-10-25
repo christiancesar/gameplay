@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { ServerPermissions } from '../../servers/domain/server-permissions'
-import { ServerAccess } from '../../servers/services/server-access'
+import { ServerAccessService } from '../../servers/services/server-access.service'
 import { OwnerCannotLeaveError } from '../errors/memberships.errors'
 import { MembershipsRepository } from '../repositories/memberships.repository'
 
@@ -10,7 +10,7 @@ import { MembershipsRepository } from '../repositories/memberships.repository'
 export class LeaveServerUseCase {
   constructor(
     private readonly memberships: MembershipsRepository,
-    private readonly access: ServerAccess,
+    private readonly access: ServerAccessService,
     private readonly events: DomainEventBus,
   ) {}
 

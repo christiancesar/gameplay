@@ -7,8 +7,8 @@ import { PrismaRoomsRepository } from './repositories/prisma/prisma-rooms.reposi
 import { PrismaServersRepository } from './repositories/prisma/prisma-servers.repository'
 import { RoomsRepository } from './repositories/rooms.repository'
 import { ServersRepository } from './repositories/servers.repository'
-import { ServerAccess } from './services/server-access'
-import { ServerViews } from './services/server-views'
+import { ServerAccessService } from './services/server-access.service'
+import { ServerViewsService } from './services/server-views.service'
 import { CreateRoomUseCase } from './use-cases/create-room.use-case'
 import { CreateServerUseCase } from './use-cases/create-server.use-case'
 import { DeleteRoomUseCase } from './use-cases/delete-room.use-case'
@@ -22,15 +22,15 @@ import { UpdateServerUseCase } from './use-cases/update-server.use-case'
 import { UploadServerImageUseCase } from './use-cases/upload-server-image.use-case'
 
 // Servers (create within the limit, edit, images, delete) and their rooms.
-// ServerAccess carries the permission table for the modules that come next.
+// ServerAccessService carries the permission table for the modules that come next.
 @Module({
   imports: [LimitsModule],
   controllers: [ServersController, ServerImagesController, RoomsController],
   providers: [
     { provide: ServersRepository, useClass: PrismaServersRepository },
     { provide: RoomsRepository, useClass: PrismaRoomsRepository },
-    ServerAccess,
-    ServerViews,
+    ServerAccessService,
+    ServerViewsService,
     CreateServerUseCase,
     ListMyServersUseCase,
     GetServerUseCase,
@@ -43,6 +43,6 @@ import { UploadServerImageUseCase } from './use-cases/upload-server-image.use-ca
     DeleteRoomUseCase,
     ReorderRoomsUseCase,
   ],
-  exports: [ServerAccess, ServerViews, ServersRepository, RoomsRepository, DeleteServerUseCase],
+  exports: [ServerAccessService, ServerViewsService, ServersRepository, RoomsRepository, DeleteServerUseCase],
 })
 export class ServersModule {}
