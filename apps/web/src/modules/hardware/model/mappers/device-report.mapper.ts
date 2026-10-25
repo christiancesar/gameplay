@@ -1,6 +1,6 @@
 import type { DeviceReport } from '@gameplay/contracts'
 
-import type { DeviceHardware, UserProvidedHardware } from '@/modules/hardware/views/device-hardware.view'
+import type { DeviceHardware, UserProvidedHardware } from '@/modules/hardware/model/entities/device-hardware'
 
 type EncoderEntry = DeviceHardware['encoders'][number]
 type CodecSupport = DeviceReport['collected']['videoEncoding']['h264']

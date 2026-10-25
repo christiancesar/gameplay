@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from '@tanstack/react-router'
 
-import { ADMIN_TABS, type AdminTab } from '@/modules/admin/model/admin-tab'
+import { ADMIN_TABS, type AdminTab } from '@/modules/admin/model/admin-tab.constants'
 
 const DEFAULT_TAB: AdminTab = 'users'
 

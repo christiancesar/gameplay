@@ -1,5 +1,5 @@
 // Hardware fictício de dispositivos, usado só nas stories.
-import type { DeviceHardware } from '@/modules/hardware/views/device-hardware.view'
+import type { DeviceHardware } from '@/modules/hardware/model/entities/device-hardware'
 
 export const gamingPc: DeviceHardware = {
   os: { name: 'Windows', version: '11', architecture: 'x86', bitness: '64' },

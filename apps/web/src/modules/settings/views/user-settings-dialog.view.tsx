@@ -2,7 +2,7 @@ import { CpuIcon, LogOutIcon, PaletteIcon, UserIcon, Volume2Icon } from 'lucide-
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { USER_SETTINGS_SECTIONS, type UserSettingsSection } from '@/modules/settings/model/settings.search'
+import { USER_SETTINGS_SECTIONS, type UserSettingsSection } from '@/modules/settings/model/user-settings-sections.constants'
 import { SectionDialog } from '@/shared/ui/section-dialog'
 
 const ICONS = {

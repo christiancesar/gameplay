@@ -10,7 +10,7 @@ import { browserEnvironment } from '@/modules/browser-support/model/services/bro
 import { dismissedNotices, type NoticeKey } from '@/modules/browser-support/model/services/dismissed-notices.service'
 import { publicIpsQueryOptions } from '@/modules/browser-support/model/services/public-ips.query'
 import { useBrowserSupportViewModel } from '@/modules/browser-support/view-models/use-browser-support.view-model'
-import type { HubNotification } from '@/modules/notifications/views/notifications-panel.view'
+import type { HubNotification } from '@/modules/notifications/model/entities/hub-notification'
 import { iceConfigQueryOptions } from '@/shared/media/ice.query'
 
 const NOTICE_IDS = {

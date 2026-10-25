@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LOCALES, type Locale } from '@gameplay/contracts'
 
-import type { LanguageOption } from '@/shared/ui/language-switcher'
+import type { LanguageOption } from '@/shared/lib/language-option'
 
 export type Language = Locale
 

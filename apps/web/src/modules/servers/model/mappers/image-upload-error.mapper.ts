@@ -1,4 +1,4 @@
-import type { ImageError } from '@/shared/ui/image-picker'
+import type { ImageError } from '@/shared/lib/image-error'
 
 import { ApiError } from '@/shared/lib/api-error'
 

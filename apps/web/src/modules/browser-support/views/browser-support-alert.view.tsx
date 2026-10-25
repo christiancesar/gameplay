@@ -1,3 +1,4 @@
+import type { BrowserSupportStatus } from '@/modules/browser-support/model/entities/browser-support-status'
 import { ExternalLinkIcon, TriangleAlertIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -5,10 +6,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 
 /** Detectado pelo ViewModel (User-Agent Client Hints, com fallback no user agent). */
-type BrowserSupportStatus =
-  | { type: 'unsupported'; browser: { name: string; version: string } }
-  | { type: 'outdated'; browser: { name: string; version: string }; minVersion: number }
-
 type BrowserSupportAlertViewProps = {
   status: BrowserSupportStatus
   onDismiss: () => void
@@ -71,4 +68,4 @@ function BrowserSupportAlertView({ status, onDismiss }: BrowserSupportAlertViewP
 }
 
 export { BrowserSupportAlertView, RECOMMENDED_BROWSERS }
-export type { BrowserSupportAlertViewProps, BrowserSupportStatus }
+export type { BrowserSupportAlertViewProps }

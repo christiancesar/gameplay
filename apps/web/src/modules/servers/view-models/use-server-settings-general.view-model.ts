@@ -15,7 +15,7 @@ import {
   uploadServerCover,
   uploadServerIcon,
 } from '@/modules/servers/model/services/servers.service'
-import type { ImageError } from '@/shared/ui/image-picker'
+import type { ImageError } from '@/shared/lib/image-error'
 
 import { useServerSettingsFailureViewModel } from './use-server-settings-failure.view-model'
 

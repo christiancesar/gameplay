@@ -9,7 +9,7 @@ import type { CreateServerValues } from '@/modules/servers/model/server.schema'
 import { serversKeys } from '@/modules/servers/model/services/servers.keys'
 import { createServer, uploadServerIcon } from '@/modules/servers/model/services/servers.service'
 import { ApiError } from '@/shared/lib/api-error'
-import type { ImageError } from '@/shared/ui/image-picker'
+import type { ImageError } from '@/shared/lib/image-error'
 
 type SelectedIcon = { file: File; previewUrl: string }
 

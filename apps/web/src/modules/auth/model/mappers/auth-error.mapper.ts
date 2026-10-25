@@ -1,6 +1,6 @@
-import type { SignInFormError } from '@/modules/auth/views/sign-in.view'
-import type { SignUpFormError } from '@/modules/auth/views/sign-up.view'
-import type { TwoFactorFormError } from '@/modules/auth/views/two-factor.view'
+import type { SignInFormError } from '@/modules/auth/model/entities/sign-in-form-error'
+import type { SignUpFormError } from '@/modules/auth/model/entities/sign-up-form-error'
+import type { TwoFactorFormError } from '@/modules/auth/model/entities/two-factor-form-error'
 import type { SignUpField, SignUpServerError } from '@/modules/auth/model/sign-up.schema'
 
 /** Error shape returned by the Better Auth client (`{ code, message, status }`). */

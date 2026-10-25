@@ -1,7 +1,7 @@
 import type { AdminDevice, CollectedHardware, DeviceReport } from '@gameplay/contracts'
 
-import type { AdminDeviceItem } from '@/modules/admin/views/hardware-tab.view'
-import type { DeviceHardware, EncoderStatus } from '@/modules/hardware/views/device-hardware.view'
+import type { AdminDeviceItem } from '@/modules/admin/model/entities/admin-device-item'
+import type { DeviceHardware, EncoderStatus } from '@/modules/hardware/model/entities/device-hardware'
 
 type DeviceOwner = AdminDeviceItem['user']
 

@@ -1,4 +1,4 @@
-import type { ServerRole } from '@gameplay/contracts'
+import type { PresenceMember } from '@/modules/servers/model/entities/presence-member'
 import { cn } from 'cn'
 import { ChevronRightIcon } from 'lucide-react'
 import { useState } from 'react'
@@ -7,15 +7,6 @@ import { useTranslation } from 'react-i18next'
 import { SidebarGroup, SidebarGroupLabel } from '@/shared/ui/sidebar'
 
 import { PresenceMemberList } from './presence-member-list.view'
-
-type PresenceMember = {
-  id: string
-  name: string
-  avatarUrl?: string
-  role: ServerRole
-  /** Pelo menos uma aba conectada (presence:snapshot e presence:update). */
-  isOnline: boolean
-}
 
 type MembersPresenceViewProps = {
   /** Já ordenados pelo ViewModel (papel, depois nome); a View só separa online e offline. */
@@ -59,4 +50,4 @@ function MembersPresenceView({ members }: MembersPresenceViewProps) {
 }
 
 export { MembersPresenceView }
-export type { MembersPresenceViewProps, PresenceMember }
+export type { MembersPresenceViewProps }

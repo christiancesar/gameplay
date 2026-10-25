@@ -1,4 +1,8 @@
-import type { CONNECTION_TYPES } from '@gameplay/contracts'
+import type {
+  DeviceHardware,
+  EncoderStatus,
+  DisplaysPermission,
+} from '@/modules/hardware/model/entities/device-hardware'
 import {
   CpuIcon,
   GaugeIcon,
@@ -20,43 +24,7 @@ import { HardwareRow } from './hardware-row.view'
  * Vem do `videoEncoding` do relatório: `powerEfficient` conta como hardware,
  * `supported` sem `powerEfficient` como software, e null ou não suportado como unsupported.
  */
-type EncoderStatus = 'hardware' | 'software' | 'unsupported'
-
-type DisplaysPermission = 'granted' | 'prompt' | 'denied' | 'unsupported'
-
 /** Dados que o Chrome expõe; campos ausentes não foram informados pelo browser. */
-type DeviceHardware = {
-  os: { name: string; version?: string; architecture?: string; bitness?: string }
-  browser: { name: string; version: string }
-  cpu: { logicalCores?: number }
-  memoryGb?: number
-  gpu: { vendor?: string; renderer?: string; hardwareAcceleration: boolean; webgpu: boolean }
-  encoders: readonly { codec: 'H.264' | 'VP9' | 'AV1'; status: EncoderStatus }[]
-  displays: readonly {
-    width: number
-    height: number
-    scale: number
-    refreshRate?: number
-    isPrimary?: boolean
-    label?: string
-  }[]
-  network?: { type: string; downlinkMbps: number; rttMs: number }
-  /** Complemento digitado pelo usuário (o browser não expõe esses dados). */
-  userProvided?: UserProvidedHardware
-}
-
-type ConnectionType = (typeof CONNECTION_TYPES)[number]
-
-type UserProvidedHardware = {
-  cpuModel?: string
-  ramGb?: number
-  gpuModel?: string
-  vramGb?: number
-  connection?: ConnectionType
-  downloadMbps?: number
-  uploadMbps?: number
-}
-
 type DeviceHardwareViewProps = {
   hardware: DeviceHardware
   displaysPermission: DisplaysPermission
@@ -195,11 +163,4 @@ function DeviceHardwareView({ hardware, displaysPermission, onAllowDisplays }: D
 }
 
 export { DeviceHardwareView }
-export type {
-  ConnectionType,
-  DeviceHardware,
-  DeviceHardwareViewProps,
-  DisplaysPermission,
-  EncoderStatus,
-  UserProvidedHardware,
-}
+export type { DeviceHardwareViewProps }

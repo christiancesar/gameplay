@@ -1,6 +1,6 @@
 import type { RegistrationInvite } from '@gameplay/contracts'
 
-import type { RegistrationKeyItem } from '@/modules/admin/views/keys-tab.view'
+import type { RegistrationKeyItem } from '@/modules/admin/model/entities/registration-key-item'
 
 function toRegistrationKeyItem(invite: RegistrationInvite): RegistrationKeyItem {
   const status: RegistrationKeyItem['status'] =

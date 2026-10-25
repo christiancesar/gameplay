@@ -1,3 +1,4 @@
+import type { JoinRequestItem } from '@/modules/servers/model/entities/join-request-item'
 import { CheckIcon, XIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -5,15 +6,6 @@ import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-
-type JoinRequestItem = {
-  id: string
-  /** `name` é o displayUsername (ou o username); e-mail de outra pessoa não chega aqui. */
-  user: { name: string; username: string; avatarUrl?: string }
-  requestedAt: string
-  /** Quem criou o convite usado. */
-  invitedBy: string
-}
 
 type RequestsSectionViewProps = {
   autoApprove: boolean
@@ -91,4 +83,4 @@ function RequestsSectionView({
 }
 
 export { RequestsSectionView }
-export type { JoinRequestItem, RequestsSectionViewProps }
+export type { RequestsSectionViewProps }

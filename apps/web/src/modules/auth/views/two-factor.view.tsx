@@ -1,3 +1,4 @@
+import type { TwoFactorFormError } from '@/modules/auth/model/entities/two-factor-form-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { Controller, useForm } from 'react-hook-form'
@@ -17,8 +18,6 @@ import { SubmitButton } from '@/shared/ui/submit-button'
 import { AuthLayoutView, type AuthLayoutViewProps } from './auth-layout.view'
 
 /** Erros que só o servidor conhece, compartilhados com o código de recuperação. */
-type TwoFactorFormError = 'invalidTwoFactorCode' | 'tooManyAttempts' | 'unexpected'
-
 type TwoFactorViewProps = Omit<AuthLayoutViewProps, 'children'> & {
   isSubmitting: boolean
   formError?: TwoFactorFormError
@@ -108,4 +107,4 @@ function TwoFactorView({
 }
 
 export { TwoFactorView }
-export type { TwoFactorFormError, TwoFactorViewProps }
+export type { TwoFactorViewProps }

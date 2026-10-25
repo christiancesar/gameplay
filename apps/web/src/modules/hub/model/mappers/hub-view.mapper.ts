@@ -1,6 +1,6 @@
 import type { ServerSummary } from '@gameplay/contracts'
 
-import type { HubServer, HubUser } from '@/modules/hub/views/hub.view'
+import type { HubServer, HubUser } from '@/modules/hub/model/entities/hub-server'
 
 type SessionUser = { name: string; email: string; image?: string | null }
 

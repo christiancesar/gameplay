@@ -1,6 +1,6 @@
 import type { ServerMember } from '@gameplay/contracts'
 
-import type { MemberItem } from '@/modules/servers/views/settings/members-section.view'
+import type { MemberItem } from '@/modules/servers/model/entities/member-item'
 
 import { memberName } from './presence-members.mapper'
 

@@ -1,6 +1,6 @@
 import type { ServerMember } from '@gameplay/contracts'
 
-import type { PresenceMember } from '@/modules/servers/views/members-presence.view'
+import type { PresenceMember } from '@/modules/servers/model/entities/presence-member'
 
 const ROLE_ORDER = { owner: 0, admin: 1, member: 2 } as const
 

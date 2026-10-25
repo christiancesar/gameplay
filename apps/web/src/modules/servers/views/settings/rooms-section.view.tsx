@@ -1,3 +1,4 @@
+import type { RoomItem } from '@/modules/servers/model/entities/room-item'
 import { ArrowDownIcon, ArrowUpIcon, AudioLinesIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -7,12 +8,6 @@ import { IconButton } from '@/shared/ui/icon-button'
 
 import { NewRoomForm } from './new-room-form.view'
 import { RenameRoomForm } from './rename-room-form.view'
-
-type RoomItem = {
-  id: string
-  name: string
-  occupants: number
-}
 
 type RoomsSectionViewProps = {
   rooms: readonly RoomItem[]
@@ -137,4 +132,4 @@ function RoomsSectionView({
 }
 
 export { RoomsSectionView }
-export type { RoomItem, RoomsSectionViewProps }
+export type { RoomsSectionViewProps }

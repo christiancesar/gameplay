@@ -1,3 +1,4 @@
+import type { InviteLandingState } from '@/modules/invites/model/entities/invite-error'
 import { CircleAlertIcon, HourglassIcon, UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -7,17 +8,7 @@ import { ServerIcon } from '@/shared/ui/server-icon'
 import { SubmitButton } from '@/shared/ui/submit-button'
 
 /** `isFull`: sem vaga agora. Não bloqueia: o pedido fica esperando uma vaga. */
-type InviteServer = { name: string; iconUrl?: string; memberCount: number; isFull: boolean }
-
 /** Revogado e servidor apagado chegam como `notFound`. `requestPending` vem do join. */
-type InviteError = 'expired' | 'exhausted' | 'requestPending' | 'notFound'
-
-type InviteLandingState =
-  | { status: 'signedOut'; server: InviteServer }
-  | { status: 'confirm'; server: InviteServer; isJoining: boolean }
-  | { status: 'alreadyMember'; server: InviteServer }
-  | { status: 'error'; error: InviteError }
-
 type InviteLandingViewProps = {
   state: InviteLandingState
   onCreateAccount: () => void
@@ -117,4 +108,4 @@ function InviteLandingView({
 }
 
 export { InviteLandingView }
-export type { InviteError, InviteLandingState, InviteLandingViewProps }
+export type { InviteLandingViewProps }

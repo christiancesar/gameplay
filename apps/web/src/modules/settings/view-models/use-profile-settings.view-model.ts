@@ -9,7 +9,7 @@ import { validateAvatarFile } from '@/modules/settings/model/rules/validate-avat
 import { changePassword, updateUsername } from '@/modules/settings/model/services/account-auth.service'
 import { removeAvatar, uploadAvatar } from '@/modules/settings/model/services/account.service'
 import type { ChangePasswordValues } from '@/modules/settings/model/profile.schema'
-import type { ImageError } from '@/shared/ui/image-picker'
+import type { ImageError } from '@/shared/lib/image-error'
 
 type PasswordInput = Pick<ChangePasswordValues, 'currentPassword' | 'newPassword'>
 

@@ -1,11 +1,10 @@
+import type { ImageError } from '@/shared/lib/image-error'
 import { cn } from 'cn'
 import { ImageIcon, Loader2Icon, Trash2Icon, UploadIcon } from 'lucide-react'
 import { useId, useRef } from 'react'
 
 import { Button } from '@/shared/ui/button'
 import { initialsOf } from '@/shared/ui/initials'
-
-type ImageError = 'tooLarge' | 'invalidType' | 'uploadFailed'
 
 type ImagePickerProps = {
   /** Nome usado no fallback de iniciais (vazio mostra só o ícone). */

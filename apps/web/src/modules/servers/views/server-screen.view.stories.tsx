@@ -23,7 +23,8 @@ import { StreamViewerView } from '@/modules/screen-share/views/stream-viewer.vie
 
 import { ServerScreenView } from './server-screen.view'
 import { MembersPresenceView } from './members-presence.view'
-import { ServerSidebarView, type ServerRole, type SidebarRoom } from './server-sidebar.view'
+import { ServerSidebarView, type ServerRole } from './server-sidebar.view'
+import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 import { UserCardView } from './user-card.view'
 
 type ScenarioProps = {

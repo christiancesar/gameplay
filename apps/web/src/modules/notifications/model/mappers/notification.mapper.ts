@@ -1,6 +1,6 @@
 import type { Notification } from '@gameplay/contracts'
 
-import type { HubNotification } from '@/modules/notifications/views/notifications-panel.view'
+import type { HubNotification } from '@/modules/notifications/model/entities/hub-notification'
 
 /** API types are kebab-case; the panel View switches on camelCase. */
 function toHubNotification(notification: Notification): HubNotification {

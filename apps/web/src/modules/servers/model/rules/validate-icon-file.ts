@@ -1,4 +1,4 @@
-import type { ImageError } from '@/shared/ui/image-picker'
+import type { ImageError } from '@/shared/lib/image-error'
 
 /** Same limits as the API (`IMAGE_MAX_BYTES` and the accepted formats). The API still checks the magic bytes. */
 const ICON_MAX_BYTES = 2 * 1024 * 1024

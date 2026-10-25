@@ -1,7 +1,7 @@
 import type { ServerInvite } from '@gameplay/contracts'
 
 import { inviteLink } from '@/modules/servers/model/rules/invite-link'
-import type { ServerInviteItem } from '@/modules/servers/views/settings/invites-section.view'
+import type { ServerInviteItem } from '@/modules/servers/model/entities/server-invite-item'
 
 function toStatus(invite: ServerInvite, now: number): ServerInviteItem['status'] {
   switch (invite.status) {

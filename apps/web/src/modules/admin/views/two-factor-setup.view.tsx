@@ -1,3 +1,4 @@
+import type { TwoFactorSetupState } from '@/modules/admin/model/entities/two-factor-setup-state'
 import { CheckIcon, CopyIcon, DownloadIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -13,17 +14,6 @@ import { VerifyCodeForm } from './two-factor-verify-form.view'
  * `password`: o Better Auth pede a senha para gerar o segredo e os códigos.
  * Os códigos de recuperação já vêm nesse passo, mas só aparecem depois de validar o TOTP.
  */
-type TwoFactorSetupState =
-  | { step: 'password'; isSubmitting: boolean; invalidPassword: boolean }
-  | {
-      step: 'scan'
-      qrCodeUrl: string
-      secret: string
-      isVerifying: boolean
-      /** Servidor recusou o código. */ invalidCode: boolean
-    }
-  | { step: 'recovery'; recoveryCodes: readonly string[]; copied: boolean }
-
 type TwoFactorSetupViewProps = {
   state: TwoFactorSetupState
   onConfirmPassword: (values: ConfirmPasswordValues) => void
@@ -109,4 +99,4 @@ function TwoFactorSetupView({
 }
 
 export { TwoFactorSetupView }
-export type { TwoFactorSetupState, TwoFactorSetupViewProps }
+export type { TwoFactorSetupViewProps }

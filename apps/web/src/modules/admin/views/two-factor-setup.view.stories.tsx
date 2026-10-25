@@ -3,7 +3,8 @@ import { expect, fn } from 'storybook/test'
 
 import { fakeQrCode, recoveryCodes } from '@/fixtures/admin'
 
-import { TwoFactorSetupView, type TwoFactorSetupState } from './two-factor-setup.view'
+import { TwoFactorSetupView } from './two-factor-setup.view'
+import type { TwoFactorSetupState } from '@/modules/admin/model/entities/two-factor-setup-state'
 
 const scan: TwoFactorSetupState = {
   step: 'scan',

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
-import type { PresenceMember } from './members-presence.view'
+import type { PresenceMember } from '@/modules/servers/model/entities/presence-member'
 
 function PresenceMemberList({ members }: { members: readonly PresenceMember[] }) {
   const { t } = useTranslation()

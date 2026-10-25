@@ -1,6 +1,6 @@
 import { vi } from 'vitest'
 
-import type { HubNotification } from '../../views/notifications-panel.view'
+import type { HubNotification } from '@/modules/notifications/model/entities/hub-notification'
 
 /** Stand-in for the environment notices ViewModel: fixed notices, spies for the actions. */
 function createFakeEnvironmentNotices(notices: HubNotification[] = []) {

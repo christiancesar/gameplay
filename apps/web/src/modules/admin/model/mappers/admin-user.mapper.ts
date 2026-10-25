@@ -1,7 +1,7 @@
 import type { AdminSession, AdminUser } from '@gameplay/contracts'
 
-import type { AdminSessionItem } from '@/modules/admin/views/sessions-dialog.view'
-import type { AdminUserItem } from '@/modules/admin/views/users-tab.view'
+import type { AdminSessionItem } from '@/modules/admin/model/entities/admin-session-item'
+import type { AdminUserItem } from '@/modules/admin/model/entities/admin-user-item'
 
 import { summarizeUserAgent } from '../rules/summarize-user-agent'
 

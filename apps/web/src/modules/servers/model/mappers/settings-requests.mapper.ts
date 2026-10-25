@@ -1,6 +1,6 @@
 import type { JoinRequest } from '@gameplay/contracts'
 
-import type { JoinRequestItem } from '@/modules/servers/views/settings/requests-section.view'
+import type { JoinRequestItem } from '@/modules/servers/model/entities/join-request-item'
 
 /** Oldest request first, so the queue is answered in order. */
 function toJoinRequestItems(requests: readonly JoinRequest[]): JoinRequestItem[] {

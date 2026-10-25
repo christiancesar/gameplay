@@ -1,10 +1,10 @@
 // Dados fictícios do painel admin, usados só nas stories.
-import type { AdminDeviceItem, HardwareSummary } from '@/modules/admin/views/hardware-tab.view'
-import type { AdminServerItem } from '@/modules/admin/views/servers-tab.view'
-import type { AdminServerMember } from '@/modules/admin/views/server-members-dialog.view'
-import type { AdminSessionItem } from '@/modules/admin/views/sessions-dialog.view'
-import type { AdminUserItem } from '@/modules/admin/views/users-tab.view'
-import type { RegistrationKeyItem } from '@/modules/admin/views/keys-tab.view'
+import type { AdminDeviceItem, HardwareSummary } from '@/modules/admin/model/entities/admin-device-item'
+import type { AdminServerItem } from '@/modules/admin/model/entities/admin-server-item'
+import type { AdminServerMember } from '@/modules/admin/model/entities/admin-server-member'
+import type { AdminSessionItem } from '@/modules/admin/model/entities/admin-session-item'
+import type { AdminUserItem } from '@/modules/admin/model/entities/admin-user-item'
+import type { RegistrationKeyItem } from '@/modules/admin/model/entities/registration-key-item'
 
 import { gamingPc, macbook, oldNotebook } from './hardware'
 import { people, servers } from './index'

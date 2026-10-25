@@ -1,6 +1,6 @@
 import type { Room, RoomOccupancy } from '@gameplay/contracts'
 
-import type { RoomItem } from '@/modules/servers/views/settings/rooms-section.view'
+import type { RoomItem } from '@/modules/servers/model/entities/room-item'
 
 /** Rooms by position with how many people are inside right now. */
 function toRoomItems(rooms: readonly Room[], occupancy: readonly RoomOccupancy[]): RoomItem[] {

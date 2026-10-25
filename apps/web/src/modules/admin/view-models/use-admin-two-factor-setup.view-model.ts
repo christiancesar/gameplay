@@ -12,7 +12,7 @@ import type { ConfirmPasswordValues } from '@/modules/admin/model/two-factor-set
 import type { AuthClientError } from '@/modules/auth/model/mappers/auth-error.mapper'
 import { refreshSession } from '@/modules/auth/model/services/session.query'
 import type { TwoFactorCodeValues } from '@/modules/auth/model/two-factor.schema'
-import type { TwoFactorSetupState } from '@/modules/admin/views/two-factor-setup.view'
+import type { TwoFactorSetupState } from '@/modules/admin/model/entities/two-factor-setup-state'
 
 const RECOVERY_CODES_FILE = 'gameplay-recovery-codes.txt'
 

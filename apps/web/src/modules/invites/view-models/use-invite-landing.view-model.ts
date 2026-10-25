@@ -9,7 +9,7 @@ import { inviteQueryOptions } from '@/modules/invites/model/services/invites.que
 import { joinByInvite } from '@/modules/invites/model/services/invites.service'
 import { notificationsKeys } from '@/modules/notifications/model/services/notifications.keys'
 import { serversKeys } from '@/modules/servers/model/services/servers.keys'
-import type { InviteLandingState } from '@/modules/invites/views/invite-landing.view'
+import type { InviteLandingState } from '@/modules/invites/model/entities/invite-error'
 
 /** F3: `/i/$code`, with or without a session. `state` is undefined while the invite loads. */
 function useInviteLandingViewModel() {

@@ -2,8 +2,8 @@
 import type { SharePanelState } from '@/modules/screen-share/views/share-panel.view'
 import type { ViewerQuality } from '@/modules/screen-share/views/share-details-dialog.view'
 import type { StageParticipant } from '@/modules/rooms/views/participant-tile.view'
-import type { PresenceMember } from '@/modules/servers/views/members-presence.view'
-import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
+import type { PresenceMember } from '@/modules/servers/model/entities/presence-member'
+import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 
 import { people, servers } from './index'
 

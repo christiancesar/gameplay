@@ -9,7 +9,7 @@ vi.mock('@/modules/browser-support/view-models/use-environment-notices.view-mode
   useEnvironmentNoticesViewModel: () => fakes.environment,
 }))
 
-import type { HubNotification } from '@/modules/notifications/views/notifications-panel.view'
+import type { HubNotification } from '@/modules/notifications/model/entities/hub-notification'
 import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
 import { navigate } from '@/shared/test/fake-router'

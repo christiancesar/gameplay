@@ -1,8 +1,8 @@
+import type { MemberItem } from '@/modules/servers/model/entities/member-item'
 import { CrownIcon, EllipsisVerticalIcon, ShieldIcon, ShieldOffIcon, UserXIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { ServerRole } from '@/modules/servers/views/server-sidebar.view'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,16 +24,6 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-
-type MemberItem = {
-  id: string
-  /** `name` é o displayUsername (ou o username); e-mail de outra pessoa não chega aqui. */
-  user: { name: string; username: string; avatarUrl?: string }
-  role: ServerRole
-  isMe: boolean
-  /** Como entrou: quem criou o convite usado. Ausente para o owner, que criou o servidor. */
-  joinedVia?: { invitedBy: string; joinedAt: string }
-}
 
 type MembersSectionViewProps = {
   members: readonly MemberItem[]
@@ -133,4 +123,4 @@ function MembersSectionView({ members, memberLimit, onPromote, onDemote, onKick 
 }
 
 export { MembersSectionView }
-export type { MemberItem, MembersSectionViewProps }
+export type { MembersSectionViewProps }

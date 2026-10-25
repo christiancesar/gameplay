@@ -1,4 +1,4 @@
-import type { BrowserSupportStatus } from '@/modules/browser-support/views/browser-support-alert.view'
+import type { BrowserSupportStatus } from '@/modules/browser-support/model/entities/browser-support-status'
 
 import type { DetectedBrowser } from './detect-browser'
 

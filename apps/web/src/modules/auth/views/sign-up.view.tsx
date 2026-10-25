@@ -1,3 +1,4 @@
+import type { SignUpFormError } from '@/modules/auth/model/entities/sign-up-form-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans, useTranslation } from 'react-i18next'
@@ -22,8 +23,6 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/shared/ui/input-otp'
 import { SubmitButton } from '@/shared/ui/submit-button'
 
 import { AuthLayoutView, type AuthLayoutViewProps } from './auth-layout.view'
-
-type SignUpFormError = 'unexpected'
 
 type SignUpViewProps = Omit<AuthLayoutViewProps, 'children'> & {
   defaultValues?: Partial<SignUpInput>
@@ -167,4 +166,4 @@ function SignUpView({
 }
 
 export { SignUpView }
-export type { SignUpFormError, SignUpViewProps }
+export type { SignUpViewProps }

@@ -1,6 +1,6 @@
 import type { HardwareSummary as ApiHardwareSummary } from '@gameplay/contracts'
 
-import type { HardwareSummary } from '@/modules/admin/views/hardware-tab.view'
+import type { HardwareSummary } from '@/modules/admin/model/entities/admin-device-item'
 
 /** null (no device reported the figure) becomes "no minimum" for the cores and 0% for the shares. */
 function toHardwareSummary(summary: ApiHardwareSummary): HardwareSummary {

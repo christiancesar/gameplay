@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 
-import type { UserSettingsSection } from '@/modules/settings/model/settings.search'
+import type { UserSettingsSection } from '@/modules/settings/model/user-settings-sections.constants'
 import { AccountSectionScreen } from '@/modules/settings/screens/account-section.screen'
 import { AppearanceSectionScreen } from '@/modules/settings/screens/appearance-section.screen'
 import { AudioSectionScreen } from '@/modules/settings/screens/audio-section.screen'

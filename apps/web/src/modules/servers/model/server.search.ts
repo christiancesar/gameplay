@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
-const SERVER_SETTINGS_SECTIONS = ['general', 'invites', 'requests', 'members', 'rooms', 'danger'] as const
-type ServerSettingsSection = (typeof SERVER_SETTINGS_SECTIONS)[number]
+import { SERVER_SETTINGS_SECTIONS, type ServerSettingsSection } from './server-settings-sections.constants'
 
 /** Estado da tela do servidor na URL. A sala de voz não entra aqui: vive na store de voz. */
 const serverSearchSchema = z.object({

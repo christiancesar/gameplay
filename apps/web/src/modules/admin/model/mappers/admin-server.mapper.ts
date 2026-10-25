@@ -1,7 +1,7 @@
 import type { AdminServer, ServerMember } from '@gameplay/contracts'
 
-import type { AdminServerMember } from '@/modules/admin/views/server-members-dialog.view'
-import type { AdminServerItem } from '@/modules/admin/views/servers-tab.view'
+import type { AdminServerMember } from '@/modules/admin/model/entities/admin-server-member'
+import type { AdminServerItem } from '@/modules/admin/model/entities/admin-server-item'
 
 import { displayName } from './admin-user.mapper'
 

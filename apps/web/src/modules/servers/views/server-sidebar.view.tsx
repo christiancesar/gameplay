@@ -1,3 +1,4 @@
+import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 import type { ServerRole } from '@gameplay/contracts'
 import { cn } from 'cn'
 import { AudioLinesIcon, ChevronsUpDownIcon, LogOutIcon, RadioIcon, SettingsIcon } from 'lucide-react'
@@ -36,22 +37,6 @@ import {
   useSidebar,
 } from '@/shared/ui/sidebar'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-
-type SidebarParticipant = {
-  id: string
-  name: string
-  avatarUrl?: string
-  isMuted: boolean
-  isDeafened: boolean
-  isSpeaking: boolean
-  isLive: boolean
-}
-
-type SidebarRoom = {
-  id: string
-  name: string
-  participants: readonly SidebarParticipant[]
-}
 
 type ServerSidebarViewProps = {
   server: { name: string; iconUrl?: string }
@@ -323,4 +308,4 @@ function ServerSidebarView({
 }
 
 export { ServerSidebarView }
-export type { ServerRole, ServerSidebarViewProps, SidebarParticipant, SidebarRoom }
+export type { ServerRole, ServerSidebarViewProps }

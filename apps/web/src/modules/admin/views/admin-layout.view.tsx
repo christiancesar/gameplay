@@ -2,7 +2,7 @@ import { ArrowLeftIcon, CpuIcon, KeyRoundIcon, ServerIcon, SlidersHorizontalIcon
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ADMIN_TABS, type AdminTab } from '@/modules/admin/model/admin-tab'
+import { ADMIN_TABS, type AdminTab } from '@/modules/admin/model/admin-tab.constants'
 import { BrandLogo } from '@/shared/ui/brand-logo'
 import { Button } from '@/shared/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'

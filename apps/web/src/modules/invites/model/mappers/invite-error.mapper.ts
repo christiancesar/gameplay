@@ -1,6 +1,6 @@
 import type { ResolvedInvite } from '@gameplay/contracts'
 
-import type { InviteError } from '@/modules/invites/views/invite-landing.view'
+import type { InviteError } from '@/modules/invites/model/entities/invite-error'
 import { ApiError } from '@/shared/lib/api-error'
 
 /** Error shown for an invite that cannot be used, from the status `GET /invites/:code` reports. */

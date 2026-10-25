@@ -13,7 +13,7 @@ import { Input } from '@/shared/ui/input'
 import { SubmitButton } from '@/shared/ui/submit-button'
 
 import { AuthLayoutView, type AuthLayoutViewProps } from './auth-layout.view'
-import type { TwoFactorFormError } from './two-factor.view'
+import type { TwoFactorFormError } from '@/modules/auth/model/entities/two-factor-form-error'
 
 type RecoveryCodeViewProps = Omit<AuthLayoutViewProps, 'children'> & {
   isSubmitting: boolean

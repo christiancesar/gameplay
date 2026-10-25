@@ -1,30 +1,13 @@
+import type { AdminDeviceItem, HardwareSummary } from '@/modules/admin/model/entities/admin-device-item'
 import { cn } from 'cn'
 import { useTranslation } from 'react-i18next'
 
-import type { DeviceHardware } from '@/modules/hardware/views/device-hardware.view'
 import { Badge } from '@/shared/ui/badge'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
-type AdminDeviceItem = {
-  id: string
-  user: { id: string; name: string; avatarUrl?: string }
-  /** Resumo pronto para exibir, ex.: "Windows 11 · Chrome 141". */
-  label: string
-  lastSeenAt: string
-  hardware: DeviceHardware
-}
-
 /** Calculado pelo ViewModel a partir de todos os dispositivos. */
-type HardwareSummary = {
-  devices: number
-  minCores?: number
-  minMemoryGb?: number
-  accelerationPercent: number
-  h264HardwarePercent: number
-}
-
 type HardwareTabViewProps = {
   summary: HardwareSummary
   devices: readonly AdminDeviceItem[]
@@ -135,4 +118,4 @@ function HardwareTabView({ summary, devices, onOpenDevice }: HardwareTabViewProp
 }
 
 export { HardwareTabView }
-export type { AdminDeviceItem, HardwareSummary, HardwareTabViewProps }
+export type { HardwareTabViewProps }

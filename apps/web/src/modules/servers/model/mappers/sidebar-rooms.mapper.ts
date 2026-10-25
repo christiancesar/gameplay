@@ -1,6 +1,6 @@
 import type { Room, RoomOccupancy, ServerMember } from '@gameplay/contracts'
 
-import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
+import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 
 import { memberName } from './presence-members.mapper'
 
