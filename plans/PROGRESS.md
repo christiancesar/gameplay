@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (BE-01 a BE-10 e BE-14 concluídos).
+> Última atualização: 2026-10-24 (BE-01 a BE-11 e BE-14 concluídos).
 
 ## Status das fases (workflow ágil)
 
@@ -43,11 +43,12 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-14 concluído: `GET /api/ice` com Cloudflare, coturn ou STUN só, cache por usuário e IP pelo proxy confiável (`TRUST_PROXY_HOPS`).
 - BE-09 concluído: servidores e salas, tabela de permissões (`ServerPermissions` e `ServerAccessService`), limites por servidor e eventos `server.updated`, `server.deleted` e `room.changed`.
 - BE-10 concluído: convites de servidor, pedidos de entrada, moderação e entrada pelo link no sign-up (módulo `memberships`).
-- Próximo: BE-11 (onda 7), depois BE-12, BE-13 e BE-15; BE-16 pode entrar a qualquer momento.
+- BE-11 concluído: gateway Socket.IO autenticado pelo cookie, `PresenceStore` em memória, `server:subscribe` e ponte dos eventos de domínio (`server:changed`, `server:removed`, `session:revoked`), com contrato em `packages/shared` e AsyncAPI.
+- Próximo: BE-12, depois BE-13 e BE-15; BE-16 pode entrar a qualquer momento.
 
 ### Estado em 2026-10-24 (retomar daqui)
-- Branch `feature/api-setup`, tudo commitado, sem push (último commit `1f470df`). O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-10 e BE-14 aguardando review.**
-- **Próximo ticket: BE-11** (gateway Socket.IO, handshake com a sessão do Better Auth, `PresenceStore`, `server:subscribe`, ponte dos eventos de domínio para o socket, contrato `ClientToServerEvents`/`ServerToClientEvents` no `packages/shared`, AsyncAPI). Os eventos que o BE-11 vai escutar já existem em `apps/api/src/common/events/domain-events.ts`: `server.updated`, `server.deleted`, `room.changed` (com `deletedRoomId`), `membership.*` e `server-invite.expired-on-sign-up`. `user.suspended` e `user.sessions-revoked` ainda não existem (vêm com o BE-15).
+- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-11 e BE-14 aguardando review.**
+- **Próximo ticket: BE-12** (salas de voz, sinalização WebRTC e estado de voz e transmissão no gateway do BE-11). O gateway e o `RealtimeEmitter` estão em `apps/api/src/modules/realtime`; o `room.changed` já traz `deletedRoomId` para tirar as pessoas de uma sala excluída, e o `presence:snapshot` deve ganhar `rooms`. Suposições do BE-11 a confirmar estão nas notas do ticket.
 - **Camadas por módulo (decidido em 2026-10-24, ver `04-tech-plan.md` seção 1):** `use-cases/` são as ações chamadas pelos controllers; `services/` (`*.service.ts`, `XxxService`) é lógica compartilhada entre use-cases, e service nunca depende de use-case; `providers/` são detalhes técnicos trocáveis (aleatório, hash, API externa); `domain/` são regras puras. Exemplos: `EffectiveLimitsService.resolve()` (limites), `ServerAccessService.member()`/`require()` (acesso e permissão), `ServerViewsService` (resposta do servidor).
 - **Padrões dos módulos novos:** transação com trava de linha (`SELECT ... FOR UPDATE`) para limites e unicidade: `ServersRepository.createWithOwner` e `RoomsRepository` recebem um `guard` que roda dentro da transação; `MembershipsRepository.withServerLock()` entrega um `MembershipStore`. Testes unitários usam `makeServersContext()` (`servers/test/fakes.ts`) e `makeMembershipsContext()` (`memberships/test/fakes.ts`), com `FakeEventBus`.
 - **Suposições minhas a confirmar com o usuário:** username fora do perfil (fica no `/update-user`); `deviceMemory` arredondado em vez de recusado; ICE cai para STUN por 60 s se o provider falhar; `defaultRoomName` enviado pelo web na criação do servidor ("Room 1" se faltar); no sign-up só o convite vencido vira aviso. Detalhes nas notas de cada ticket.
