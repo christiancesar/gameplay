@@ -86,7 +86,7 @@ function ServerSidebarView({
   onLeaveServer,
 }: ServerSidebarViewProps) {
   const { t } = useTranslation()
-  const { state } = useSidebar()
+  const { state, isMobile, setOpenMobile } = useSidebar()
   const canManage = role !== 'member'
 
   const [isSwitcherOpen, setSwitcherOpen] = useState(false)
@@ -251,7 +251,11 @@ function ServerSidebarView({
                     <SidebarMenuButton
                       isActive={isCurrent}
                       tooltip={room.name}
-                      onClick={() => onSelectRoom(room.id)}
+                      onClick={() => {
+                        // On phones the sidebar is a sheet over the stage; close it so the room shows.
+                        if (isMobile) setOpenMobile(false)
+                        onSelectRoom(room.id)
+                      }}
                       aria-current={isCurrent ? 'true' : undefined}
                       aria-label={
                         isCurrent

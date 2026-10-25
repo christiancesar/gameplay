@@ -129,6 +129,7 @@
     "leaveFailed": "Não foi possível sair do servidor. Tente de novo.",
     "noRooms": "Nenhuma sala ainda.",
     "toggleSidebar": "Expandir ou recolher a barra lateral",
+    "openSidebar": "Abrir a barra lateral",
     "switcher": {
       "label": "Trocar de servidor",
       "search": "Buscar servidor...",

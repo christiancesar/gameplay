@@ -167,6 +167,12 @@ type Story = StoryObj<typeof meta>
 /** Fora de sala: área principal com o logo. */
 export const OutsideRoom: Story = {}
 
+/** Celular: a sidebar vira um painel fechado e a barra do topo abre ela. */
+export const Mobile: Story = {
+  args: { rooms: roomsWithMe, currentRoomId: 'r1', main: 'room' },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
 export const OwnerWithPendingRequests: Story = { args: { pendingRequests: 2 } }
 
 export const MemberOutsideRoom: Story = { args: { role: 'member' } }

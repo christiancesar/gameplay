@@ -129,6 +129,7 @@
     "leaveFailed": "Could not leave the server. Try again.",
     "noRooms": "No rooms yet.",
     "toggleSidebar": "Expand or collapse sidebar",
+    "openSidebar": "Open sidebar",
     "switcher": {
       "label": "Switch server",
       "search": "Search servers...",
