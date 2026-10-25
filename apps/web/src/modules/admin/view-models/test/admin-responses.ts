@@ -1,0 +1,54 @@
+import type {
+  AdminServer,
+  AdminServerDetail,
+  AdminSession,
+  AdminUser,
+  DeviceReport,
+  HardwareSummary,
+  PlatformSettings,
+  RegistrationInvite,
+} from '@gameplay/contracts'
+
+import {
+  activeInvite,
+  adminServer,
+  adminServerDetail,
+  adminSession,
+  adminUser,
+  platformSettings,
+  suspendedUser,
+  usedInvite,
+} from './admin-seed'
+import { gamingDevice } from './device-seed'
+
+/** What the fake API answers on each admin GET. Specs override the parts they care about. */
+type AdminResponses = {
+  users: AdminUser[]
+  sessionsByUser: Record<string, AdminSession[]>
+  devicesByUser: Record<string, DeviceReport[]>
+  servers: AdminServer[]
+  serverDetail: AdminServerDetail
+  summary: HardwareSummary
+  settings: PlatformSettings
+  invites: RegistrationInvite[]
+}
+
+const defaultResponses: AdminResponses = {
+  users: [adminUser, suspendedUser],
+  sessionsByUser: { [adminUser.id]: [adminSession], [suspendedUser.id]: [] },
+  devicesByUser: { [adminUser.id]: [gamingDevice], [suspendedUser.id]: [] },
+  servers: [adminServer],
+  serverDetail: adminServerDetail,
+  summary: {
+    devices: 1,
+    minLogicalCores: 16,
+    minDeviceMemoryGb: 8,
+    hardwareAccelerationPercent: 100,
+    h264HardwarePercent: 100,
+  },
+  settings: platformSettings,
+  invites: [activeInvite, usedInvite],
+}
+
+export { defaultResponses }
+export type { AdminResponses }
