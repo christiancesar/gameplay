@@ -1,4 +1,5 @@
 import type { AdminCredentials, Credentials } from './credentials'
+import type { RtcStats } from './rtc-probe'
 
 declare global {
   namespace Cypress {
@@ -9,6 +10,8 @@ declare global {
       loginAdmin(credentials: AdminCredentials): Chainable<void>
       /** `<run id>-<tag>-<random>`, a name the cleanup finds and no other run uses. */
       uniqueName(tag: string): Chainable<string>
+      /** Waits until every peer connection of the app is connected and the asked media (audio by default) flows in. */
+      waitForMedia(wait?: { audio?: boolean; video?: boolean }): Chainable<RtcStats>
     }
   }
 }

@@ -43,6 +43,27 @@ async function createServerInvite(runId: string, input: { serverId: string; crea
   return code
 }
 
+/** Adds an existing user to a server as a plain member. */
+async function addMember(input: { serverId: string; userId: string }) {
+  await database().query(`insert into server_member ("serverId", "userId", role) values ($1, $2, 'MEMBER')`, [
+    input.serverId,
+    input.userId,
+  ])
+  return null
+}
+
+/** Adds another voice room after the first one. */
+async function createRoom(runId: string, input: { serverId: string; name: string; position: number }) {
+  const id = `${runId}_room_${randomBytes(4).toString('hex')}`
+  await database().query('insert into room (id, "serverId", name, position) values ($1, $2, $3, $4)', [
+    id,
+    input.serverId,
+    input.name,
+    input.position,
+  ])
+  return { id, name: input.name }
+}
+
 /** Lets a spec read what the app did: the member rows of a server. */
 async function getMembers(serverId: string) {
   const { rows } = await database().query(
@@ -52,5 +73,5 @@ async function getMembers(serverId: string) {
   return rows
 }
 
-export { createServer, createServerInvite, getMembers }
+export { addMember, createRoom, createServer, createServerInvite, getMembers }
 export type { CreateServerInput }

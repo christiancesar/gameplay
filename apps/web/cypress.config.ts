@@ -1,6 +1,7 @@
 import { defineConfig } from 'cypress'
 
 import { afterRun, createTasks } from './cypress/tasks/register-tasks.ts'
+import { FAKE_MEDIA_ARGS } from './cypress/tasks/peer-bot.ts'
 import { createRunId } from './cypress/tasks/run-id.ts'
 
 export default defineConfig({
@@ -14,6 +15,11 @@ export default defineConfig({
     viewportHeight: 800,
     defaultCommandTimeout: 8000,
     setupNodeEvents(on) {
+      // Fake mic and screen, and no permission prompts, so voice and screen share work headless.
+      on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.family === 'chromium') launchOptions.args.push(...FAKE_MEDIA_ARGS)
+        return launchOptions
+      })
       const runId = createRunId()
       on('task', createTasks(runId))
       // Everything the run created goes away when it ends, whether the specs passed or not.
