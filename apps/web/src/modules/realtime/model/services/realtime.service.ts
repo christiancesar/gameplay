@@ -4,6 +4,7 @@ import type {
   RoomJoin,
   ServerToClientEvents,
   SignalSend,
+  StreamPreset,
   VoiceState,
 } from '@gameplay/contracts'
 import { REALTIME_EVENTS } from '@gameplay/contracts'
@@ -42,6 +43,14 @@ type RealtimeService = {
   sendVoiceState(state: VoiceState): Promise<void>
   /** `signal:send`: offer, answer or ICE candidate for someone in the same room. */
   sendSignal(signal: SignalSend): Promise<void>
+  /** `stream:start`: announces the screen share (or changes its preset while it runs). */
+  startStream(preset: StreamPreset): Promise<void>
+  /** `stream:stop` */
+  stopStream(): Promise<void>
+  /** `stream:watch`: asks a streamer in the room to send their screen to me. */
+  watchStream(streamerId: string): Promise<void>
+  /** `stream:unwatch`: stops receiving it. Accepted even after the stream ended. */
+  unwatchStream(streamerId: string): Promise<void>
 }
 
 /** The API did not answer an event in time (socket dropped before the ack). */
@@ -109,6 +118,10 @@ function createRealtimeService(getSocket: () => SocketLike): RealtimeService {
     leaveRoom: () => emitWithAck<void>(getSocket(), REALTIME_EVENTS.roomLeave, {}),
     sendVoiceState: (state) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.voiceState, state),
     sendSignal: (signal) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.signalSend, signal),
+    startStream: (preset) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamStart, { preset }),
+    stopStream: () => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamStop, {}),
+    watchStream: (streamerId) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamWatch, { streamerId }),
+    unwatchStream: (streamerId) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamUnwatch, { streamerId }),
   }
 }
 

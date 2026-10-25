@@ -77,6 +77,24 @@ describe('realtime service', () => {
       expect(socket.emitted[2].args[0]).toEqual({ to: 'u2', kind: 'offer', data: { a: 1 } })
     })
 
+    it('sends the screen share events with their payloads', async () => {
+      await service.startStream('1080p60')
+      await service.watchStream('u2')
+      await service.unwatchStream('u2')
+      await service.stopStream()
+      expect(socket.emitted.map((entry) => [entry.event, entry.args[0]])).toEqual([
+        ['stream:start', { preset: '1080p60' }],
+        ['stream:watch', { streamerId: 'u2' }],
+        ['stream:unwatch', { streamerId: 'u2' }],
+        ['stream:stop', {}],
+      ])
+    })
+
+    it('rejects a watch of someone who is not streaming', async () => {
+      socket.ackReply = { ok: false, error: { code: 'NOT_STREAMING', message: 'no' } }
+      await expect(service.watchStream('u2')).rejects.toThrow('NOT_STREAMING')
+    })
+
     it('rejects with ACK_TIMEOUT when the socket never answers', async () => {
       vi.useFakeTimers()
       vi.spyOn(socket, 'emit').mockImplementation(() => undefined)

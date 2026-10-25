@@ -3,6 +3,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
 import { VoiceSession } from '@/modules/rooms/model/services/voice-session.service'
+import type { CallMedia } from '@/shared/media/call-media'
 import { WebAudioEngine, createBrowserAudioFactories } from '@/shared/media/audio-engine'
 import { createBrowserMediaStream, createBrowserPeerConnection } from '@/shared/media/browser-media'
 import { getIceConfig } from '@/shared/media/ice.service'
@@ -76,6 +77,8 @@ const voiceController = {
   toggleDeafen: () => getSession().toggleDeafen(),
   setVolume: (userId: string, percent: number) => getSession().setVolume(userId, percent),
   dismissNotice: () => getSession().dismissNotice(),
+  /** The media of the call in progress (or null), for screen share. */
+  subscribeMedia: (handler: (media: CallMedia | null) => void) => getSession().subscribeMedia(handler),
 }
 
 /** Ends the call. For the sign-out ViewModel, which must not know how the call works. */

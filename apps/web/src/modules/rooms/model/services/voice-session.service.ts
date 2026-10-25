@@ -2,6 +2,7 @@ import type { IceConfigResponse, Participant } from '@gameplay/contracts'
 
 import type { RealtimeService } from '@/modules/realtime/model/services/realtime.service'
 import type { AudioEngine } from '@/shared/media/audio-engine'
+import type { CallMedia } from '@/shared/media/call-media'
 import type { MediaTransport, PeerStatus } from '@/shared/media/media-transport'
 import type { MicrophoneHandle, MicrophoneResult } from '@/shared/media/microphone'
 
@@ -68,6 +69,8 @@ type Active = {
 class VoiceSession {
   private readonly deps: VoiceSessionDeps
   private active: Active | null = null
+  private media: CallMedia | null = null
+  private readonly mediaHandlers = new Set<(media: CallMedia | null) => void>()
 
   constructor(deps: VoiceSessionDeps) {
     this.deps = deps
@@ -141,11 +144,13 @@ class VoiceSession {
     )
     void engine.setSinkId(preferences.outputDeviceId)
     void transport.setVoiceTrack(active.mic?.track ?? null)
+    this.setMedia({ serverId, roomId, selfId, transport, audio: engine })
 
     active.stops.push(
       transport.onPeerStatus((peerId, status) => this.onPeerStatus(active, peerId, status)),
-      transport.onRemoteTrack((peerId, track, stream) => {
-        if (track.kind !== 'audio') return
+      transport.onRemoteTrack((peerId, track, stream, source) => {
+        // Screen tracks belong to the screen share, which follows the media of the call.
+        if (source !== 'voice' || track.kind !== 'audio') return
         engine.setVolume(peerId, toGain(volumeOf(store.getState().volumes, peerId)))
         engine.addStream(peerId, stream)
         active.watcher?.watch(peerId, stream)
@@ -185,6 +190,16 @@ class VoiceSession {
       return
     }
     this.scheduleIceRenewal(active, iceFailed ? ICE_RETRY_MS : iceRenewalDelayMs(ice.ttlSeconds))
+  }
+
+  /**
+   * Follows the media of the call: gets the current one at once, then every change (a transport appears
+   * when a call starts and goes away when it ends). Screen share builds on it.
+   */
+  subscribeMedia(handler: (media: CallMedia | null) => void): () => void {
+    this.mediaHandlers.add(handler)
+    handler(this.media)
+    return () => this.mediaHandlers.delete(handler)
   }
 
   /** Leaves the room. Safe to call when not in one. */
@@ -384,8 +399,16 @@ class VoiceSession {
     this.reset(notice)
   }
 
+  private setMedia(media: CallMedia | null) {
+    this.media = media
+    for (const handler of [...this.mediaHandlers]) handler(media)
+  }
+
   private release(active: Active, { leaveRoom }: { leaveRoom: boolean }) {
-    if (this.active === active) this.active = null
+    if (this.active === active) {
+      this.active = null
+      this.setMedia(null)
+    }
     clearTimeout(active.iceTimer)
     for (const retry of active.retries.values()) clearTimeout(retry.timer)
     for (const stop of active.stops) stop()

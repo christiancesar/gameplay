@@ -282,6 +282,83 @@ describe('MeshTransport', () => {
       transport.removeTrack('u9', screen)
       expect(connections[0].removeTrack).toHaveBeenCalledTimes(1)
     })
+
+    it('tells screen tracks from voice by the transceiver that brought them', async () => {
+      const transport = create('u5')
+      const received: [string, string, string][] = []
+      transport.onRemoteTrack((_peerId, track, _stream, source) => received.push([track.kind, track.id, source]))
+      transport.addPeer('u3')
+      signaling.deliver('u3', 'offer', signalData('remote', { type: 'offer', sdp: 'remote-offer' }))
+      await flush()
+      const [voice] = connections[0].transceivers
+      const screenAudio = { direction: 'recvonly' as const, sender: connections[0].senders[0] }
+      connections[0].fireTrack(fakeTrack('audio', 'voice'), [], voice)
+      connections[0].fireTrack(fakeTrack('audio', 'game'), [], screenAudio)
+      connections[0].fireTrack(fakeTrack('video', 'screen'), [])
+      expect(received).toEqual([
+        ['audio', 'voice', 'voice'],
+        ['audio', 'game', 'screen'],
+        ['video', 'screen', 'screen'],
+      ])
+    })
+
+    it('holds a screen track until the voice transceiver exists, so it never takes its place', async () => {
+      const transport = create('u5')
+      transport.addPeer('u3') // polite: no voice transceiver until the first offer
+      const game = fakeTrack('audio', 'game')
+      transport.addTrack('u3', game, fakeStream([game]))
+      expect(connections[0].senders).toHaveLength(0)
+      signaling.deliver('u3', 'offer', signalData('remote', { type: 'offer', sdp: 'remote-offer' }))
+      await flush()
+      expect(connections[0].senders).toHaveLength(2)
+      expect(connections[0].senders[1].track).toBe(game)
+    })
+
+    it('tells the encoder bitrate, frame rate and degradation, and again after the answer', async () => {
+      const transport = create('u5')
+      transport.addPeer('u9')
+      const screen = fakeTrack('video')
+      transport.addTrack('u9', screen, fakeStream([screen]))
+      const encoding = { maxBitrate: 8_000_000, maxFramerate: 60, degradationPreference: 'maintain-framerate' } as const
+      await transport.setVideoEncoding('u9', screen, encoding)
+      const sender = connections[0].senders[1]
+      expect(sender.parameters.encodings[0]).toMatchObject({ maxBitrate: 8_000_000, maxFramerate: 60 })
+      expect(sender.parameters).toMatchObject({ degradationPreference: 'maintain-framerate' })
+
+      sender.setParameters.mockClear()
+      signaling.deliver('u9', 'answer', signalData('remote', { type: 'answer', sdp: 'answer' }))
+      await flush()
+      expect(sender.setParameters).toHaveBeenCalledTimes(1)
+    })
+
+    it('survives an encoder that refuses the parameters', async () => {
+      const transport = create('u5')
+      transport.addPeer('u9')
+      const screen = fakeTrack('video')
+      transport.addTrack('u9', screen, fakeStream([screen]))
+      connections[0].senders[1].setParameters.mockRejectedValueOnce(new Error('InvalidState'))
+      await expect(
+        transport.setVideoEncoding('u9', screen, {
+          maxBitrate: 1,
+          maxFramerate: 30,
+          degradationPreference: 'balanced',
+        }),
+      ).resolves.toBeUndefined()
+    })
+
+    it('reads the stats of the sender of a track, empty when it is not sent', async () => {
+      const transport = create('u5')
+      transport.addPeer('u9')
+      const screen = fakeTrack('video')
+      expect(await transport.getSenderStats('u9', screen)).toEqual([])
+      transport.addTrack('u9', screen, fakeStream([screen]))
+      connections[0].senders[1].stats = [{ type: 'outbound-rtp', kind: 'video', bytesSent: 10 }]
+      expect(await transport.getSenderStats('u9', screen)).toEqual([
+        { type: 'outbound-rtp', kind: 'video', bytesSent: 10 },
+      ])
+      transport.removeTrack('u9', screen)
+      expect(await transport.getSenderStats('u9', screen)).toEqual([])
+    })
   })
 
   describe('ICE renewal', () => {

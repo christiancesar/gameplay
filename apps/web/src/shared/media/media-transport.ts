@@ -13,7 +13,19 @@ type SignalingChannel = {
 }
 
 type PeerStatusHandler = (peerId: string, status: PeerStatus) => void
-type RemoteTrackHandler = (peerId: string, track: MediaStreamTrack, stream: MediaStream) => void
+/** `voice` is the microphone of the peer; `screen` is a track of their screen share (video, and audio if shared). */
+type TrackSource = 'voice' | 'screen'
+type RemoteTrackHandler = (peerId: string, track: MediaStreamTrack, stream: MediaStream, source: TrackSource) => void
+
+/** What the encoder of a screen track is told. Applied through `RTCRtpSender.setParameters`. */
+type VideoEncoding = {
+  maxBitrate: number
+  maxFramerate: number
+  degradationPreference: 'maintain-framerate' | 'maintain-resolution' | 'balanced'
+}
+
+/** One entry of `getStats()`, as a plain object. */
+type StatsRecord = Record<string, unknown>
 
 /**
  * What the app needs from a way of moving media between people in a room. `MeshTransport` opens one
@@ -31,6 +43,10 @@ type MediaTransport = {
   /** Sends one more track (screen share) to one peer. Renegotiates the connection. */
   addTrack(peerId: string, track: MediaStreamTrack, stream: MediaStream): void
   removeTrack(peerId: string, track: MediaStreamTrack): void
+  /** Sets bitrate, frame rate and degradation of a video track already sent to the peer. No renegotiation. */
+  setVideoEncoding(peerId: string, track: MediaStreamTrack, encoding: VideoEncoding): Promise<void>
+  /** `getStats()` of the connection that sends the track to the peer; empty when it is not sent. */
+  getSenderStats(peerId: string, track: MediaStreamTrack): Promise<StatsRecord[]>
   /** New credentials (TURN) for connections that exist and for the ones to come. */
   updateIceServers(iceServers: IceServer[]): void
   onPeerStatus(handler: PeerStatusHandler): () => void
@@ -39,4 +55,14 @@ type MediaTransport = {
   close(): void
 }
 
-export type { MediaTransport, PeerStatus, PeerStatusHandler, RemoteTrackHandler, SignalKind, SignalingChannel }
+export type {
+  MediaTransport,
+  PeerStatus,
+  PeerStatusHandler,
+  RemoteTrackHandler,
+  SignalKind,
+  SignalingChannel,
+  StatsRecord,
+  TrackSource,
+  VideoEncoding,
+}

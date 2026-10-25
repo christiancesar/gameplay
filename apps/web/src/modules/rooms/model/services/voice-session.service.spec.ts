@@ -158,6 +158,39 @@ describe('VoiceSession', () => {
     })
   })
 
+  describe('call media', () => {
+    it('gives the media of the call when it exists and null when it ends', async () => {
+      const seen: (string | null)[] = []
+      ctx.session.subscribeMedia((media) =>
+        seen.push(media ? `${media.serverId}/${media.roomId}/${media.selfId}` : null),
+      )
+      await join()
+      await ctx.session.leave()
+      expect(seen).toEqual([null, 's1/r1/u1', null])
+    })
+
+    it('hands the transport and the audio output to who follows the media', async () => {
+      let media: Parameters<Parameters<typeof ctx.session.subscribeMedia>[0]>[0] = null
+      ctx.session.subscribeMedia((next) => (media = next))
+      await join()
+      expect(media).toMatchObject({ transport: ctx.transport, audio: ctx.engine })
+    })
+
+    it('stops telling after the unsubscribe', async () => {
+      const handler = vi.fn()
+      ctx.session.subscribeMedia(handler)()
+      await join()
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not play the screen audio as a voice', async () => {
+      await join()
+      const game = fakeTrack('audio', 'game')
+      ctx.transport.emitTrack('u2', game, fakeStream([game]), 'screen')
+      expect(ctx.engine.addStream).not.toHaveBeenCalled()
+    })
+  })
+
   describe('audio', () => {
     it('plays the voice of a peer and watches who is talking', async () => {
       await join()

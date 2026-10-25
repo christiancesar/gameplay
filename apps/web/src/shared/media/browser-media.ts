@@ -7,11 +7,21 @@ type IceCandidateLike = RTCIceCandidateInit & { toJSON?: () => RTCIceCandidateIn
 type RtpSenderLike = {
   readonly track: MediaStreamTrack | null
   replaceTrack(track: MediaStreamTrack | null): Promise<void>
+  getParameters(): RTCRtpSendParameters
+  setParameters(parameters: RTCRtpSendParameters): Promise<void>
+  getStats(): Promise<{ forEach(callback: (stats: Record<string, unknown>) => void): void }>
 }
 
 type RtpTransceiverLike = {
   direction: RTCRtpTransceiverDirection
   readonly sender: RtpSenderLike
+}
+
+type TrackEventLike = {
+  track: MediaStreamTrack
+  streams: readonly MediaStream[]
+  /** Which transceiver brought the track: the first one carries voice. Missing in fakes that do not care. */
+  transceiver?: RtpTransceiverLike
 }
 
 type PeerConnectionLike = {
@@ -20,7 +30,7 @@ type PeerConnectionLike = {
   readonly localDescription: { type: RTCSdpType; sdp: string } | null
   onnegotiationneeded: (() => void) | null
   onicecandidate: ((event: { candidate: IceCandidateLike | null }) => void) | null
-  ontrack: ((event: { track: MediaStreamTrack; streams: readonly MediaStream[] }) => void) | null
+  ontrack: ((event: TrackEventLike) => void) | null
   onconnectionstatechange: (() => void) | null
   setLocalDescription(description?: RTCLocalSessionDescriptionInit): Promise<void>
   setRemoteDescription(description: RTCSessionDescriptionInit): Promise<void>
@@ -50,4 +60,5 @@ export type {
   PeerConnectionLike,
   RtpSenderLike,
   RtpTransceiverLike,
+  TrackEventLike,
 }

@@ -15,6 +15,9 @@ import type {
   RemoteTrackHandler,
   SignalKind,
   SignalingChannel,
+  StatsRecord,
+  TrackSource,
+  VideoEncoding,
 } from './media-transport'
 import { parseSignalPayload } from './signal-payload'
 
@@ -46,6 +49,10 @@ type Peer = {
   /** The audio transceiver. The polite side has none until the first offer brings one. */
   voice: RtpTransceiverLike | null
   senders: Map<MediaStreamTrack, RtpSenderLike>
+  /** Screen tracks asked before the voice transceiver exists: adding them first would take its place. */
+  pending: Map<MediaStreamTrack, MediaStream>
+  /** What each video sender must be told, kept to apply again once the connection is negotiated. */
+  encodings: Map<MediaStreamTrack, VideoEncoding>
   status: PeerStatus
   /** Last status sent to the handlers, so each change is reported once. */
   reported: PeerStatus | null
@@ -112,15 +119,42 @@ class MeshTransport implements MediaTransport {
   addTrack(peerId: string, track: MediaStreamTrack, stream: MediaStream): void {
     const peer = this.peers.get(peerId)
     if (!peer || peer.senders.has(track)) return
+    if (!peer.voice) {
+      peer.pending.set(track, stream)
+      return
+    }
     peer.senders.set(track, peer.pc.addTrack(track, stream))
   }
 
   removeTrack(peerId: string, track: MediaStreamTrack): void {
     const peer = this.peers.get(peerId)
-    const sender = peer?.senders.get(track)
-    if (!peer || !sender) return
+    if (!peer) return
+    peer.pending.delete(track)
+    peer.encodings.delete(track)
+    const sender = peer.senders.get(track)
+    if (!sender) return
     peer.senders.delete(track)
     peer.pc.removeTrack(sender)
+  }
+
+  async setVideoEncoding(peerId: string, track: MediaStreamTrack, encoding: VideoEncoding): Promise<void> {
+    const peer = this.peers.get(peerId)
+    if (!peer) return
+    peer.encodings.set(track, encoding)
+    await this.applyEncoding(peer, track)
+  }
+
+  async getSenderStats(peerId: string, track: MediaStreamTrack): Promise<StatsRecord[]> {
+    const sender = this.peers.get(peerId)?.senders.get(track)
+    if (!sender) return []
+    try {
+      const records: StatsRecord[] = []
+      const report = await sender.getStats()
+      report.forEach((entry) => records.push(entry))
+      return records
+    } catch {
+      return []
+    }
   }
 
   updateIceServers(iceServers: IceServer[]): void {
@@ -165,6 +199,8 @@ class MeshTransport implements MediaTransport {
       ignoreOffer: false,
       voice: null,
       senders: new Map(),
+      pending: new Map(),
+      encodings: new Map(),
       status: 'connecting',
       reported: null,
       queue: Promise.resolve(),
@@ -178,10 +214,11 @@ class MeshTransport implements MediaTransport {
       if (!candidate) return
       this.send(peer, 'candidate', { candidate: this.candidateInit(candidate) })
     }
-    pc.ontrack = ({ track, streams }) => {
+    pc.ontrack = ({ track, streams, transceiver }) => {
       if (this.peers.get(peerId) !== peer) return
       const stream = streams[0] ?? this.options.createMediaStream([track])
-      for (const handler of this.trackHandlers) handler(peerId, track, stream)
+      const source = this.sourceOf(peer, track, transceiver)
+      for (const handler of this.trackHandlers) handler(peerId, track, stream, source)
     }
     pc.onconnectionstatechange = () => this.onConnectionState(peer)
 
@@ -206,6 +243,29 @@ class MeshTransport implements MediaTransport {
     peer.pc.onconnectionstatechange = null
     peer.pc.close()
     if (this.peers.get(peer.id) === peer) this.peers.delete(peer.id)
+  }
+
+  /** The first transceiver of a connection carries voice; anything else is a screen share. */
+  private sourceOf(peer: Peer, track: MediaStreamTrack, transceiver: RtpTransceiverLike | undefined): TrackSource {
+    if (track.kind === 'video') return 'screen'
+    if (!transceiver) return 'voice'
+    return peer.pc.getTransceivers()[0] === transceiver ? 'voice' : 'screen'
+  }
+
+  private async applyEncoding(peer: Peer, track: MediaStreamTrack) {
+    const sender = peer.senders.get(track)
+    const encoding = peer.encodings.get(track)
+    if (!sender || !encoding) return
+    try {
+      const parameters = sender.getParameters()
+      if (!parameters.encodings || parameters.encodings.length === 0) parameters.encodings = [{}]
+      parameters.encodings[0].maxBitrate = encoding.maxBitrate
+      parameters.encodings[0].maxFramerate = encoding.maxFramerate
+      ;(parameters as { degradationPreference?: string }).degradationPreference = encoding.degradationPreference
+      await sender.setParameters(parameters)
+    } catch {
+      // Not negotiated yet or the connection is closing: it is applied again after the answer.
+    }
   }
 
   private candidateInit(candidate: IceCandidateLike): RTCIceCandidateInit {
@@ -268,6 +328,8 @@ class MeshTransport implements MediaTransport {
         await pc.setLocalDescription()
         const answer = describe(pc)
         if (answer) this.send(peer, 'answer', { description: answer })
+      } else {
+        await Promise.all([...peer.encodings.keys()].map((track) => this.applyEncoding(peer, track)))
       }
       return
     }
@@ -288,6 +350,8 @@ class MeshTransport implements MediaTransport {
     peer.voice = transceiver
     transceiver.direction = 'sendrecv'
     await transceiver.sender.replaceTrack(this.voiceTrack).catch(() => undefined)
+    for (const [track, stream] of peer.pending) peer.senders.set(track, peer.pc.addTrack(track, stream))
+    peer.pending.clear()
   }
 
   private onConnectionState(peer: Peer) {

@@ -7,6 +7,17 @@ class FakeSender implements RtpSenderLike {
   readonly replaceTrack = vi.fn(async (track: MediaStreamTrack | null) => {
     this.track = track
   })
+  /** What `setParameters` last received. */
+  parameters: RTCRtpSendParameters = { encodings: [], transactionId: 't', codecs: [], headerExtensions: [], rtcp: {} }
+  readonly getParameters = vi.fn(() => structuredClone(this.parameters))
+  readonly setParameters = vi.fn(async (parameters: RTCRtpSendParameters) => {
+    this.parameters = parameters
+  })
+  /** Entries `getStats()` yields. */
+  stats: Record<string, unknown>[] = []
+  readonly getStats = vi.fn(async () => ({
+    forEach: (callback: (stats: Record<string, unknown>) => void) => this.stats.forEach(callback),
+  }))
 }
 
 /** In-memory RTCPeerConnection. Specs drive it with `fire*` and read what the transport asked of it. */
@@ -99,8 +110,8 @@ class FakePeerConnection implements PeerConnectionLike {
     this.onicecandidate?.({ candidate })
   }
 
-  fireTrack(track: MediaStreamTrack, streams: readonly MediaStream[] = []) {
-    this.ontrack?.({ track, streams })
+  fireTrack(track: MediaStreamTrack, streams: readonly MediaStream[] = [], transceiver?: RtpTransceiverLike) {
+    this.ontrack?.({ track, streams, transceiver })
   }
 }
 
