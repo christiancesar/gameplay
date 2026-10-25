@@ -3,6 +3,7 @@ import { MembersPresenceView } from '@/modules/servers/views/members-presence.vi
 import { ServerScreenView } from '@/modules/servers/views/server-screen.view'
 import { ServerSidebarView } from '@/modules/servers/views/server-sidebar.view'
 import { UserCardView } from '@/modules/servers/views/user-card.view'
+import { ServerSettingsScreen } from '@/modules/servers/screens/server-settings.screen'
 import { useServerScreenViewModel } from '@/modules/servers/view-models/use-server-screen.view-model'
 
 export function ServerScreen() {
@@ -12,15 +13,18 @@ export function ServerScreen() {
   if (isLoading) return <div className="bg-sidebar h-dvh" aria-busy />
 
   return (
-    <ServerScreenView
-      main={stage ? <RoomStageView {...stage} /> : undefined}
-      sidebar={
-        <ServerSidebarView
-          {...sidebar}
-          userCard={<UserCardView {...userCard} />}
-          members={<MembersPresenceView members={members} />}
-        />
-      }
-    />
+    <>
+      <ServerScreenView
+        main={stage ? <RoomStageView {...stage} /> : undefined}
+        sidebar={
+          <ServerSidebarView
+            {...sidebar}
+            userCard={<UserCardView {...userCard} />}
+            members={<MembersPresenceView members={members} />}
+          />
+        }
+      />
+      <ServerSettingsScreen />
+    </>
   )
 }

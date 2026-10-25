@@ -24,7 +24,8 @@ import { leaveServer } from '@/modules/servers/model/services/servers.service'
 
 const UNAVAILABLE_TOAST_ID = 'server-unavailable'
 
-type PendingSwitch = { targetId: string; serverName: string; roomName: string }
+// `roomId` is set when the switch comes from clicking a room of this server while connected to another one.
+type PendingSwitch = { targetId: string; roomId?: string; serverName: string; roomName: string }
 
 /** Server screen (F6): detail, role, rooms, live presence, members, server switcher and leaving. */
 function useServerScreenViewModel() {
@@ -79,11 +80,7 @@ function useServerScreenViewModel() {
     void navigate({ to: '/servers/$serverId', params: { serverId: targetId } })
   }
 
-  function onSelectServer(targetId: string) {
-    if (!needsSwitchConfirmation(connection, targetId)) {
-      openServer(targetId)
-      return
-    }
+  function askToSwitch(targetId: string, roomId?: string) {
     // The connected room may belong to another server than the one on screen (the user went through the Hub).
     const connectedRooms =
       connection?.serverId === serverId
@@ -91,9 +88,27 @@ function useServerScreenViewModel() {
         : queryClient.getQueryData(serverDetailQueryOptions(connection?.serverId ?? '').queryKey)?.rooms
     setPendingSwitch({
       targetId,
+      roomId,
       serverName: switcherServers.find((server) => server.id === targetId)?.name ?? '',
       roomName: connectedRoomName(connection, connectedRooms),
     })
+  }
+
+  function onSelectServer(targetId: string) {
+    if (!needsSwitchConfirmation(connection, targetId)) {
+      openServer(targetId)
+      return
+    }
+    askToSwitch(targetId)
+  }
+
+  function onSelectRoom(roomId: string) {
+    // Connected on another server (reached through the Hub): one connection at a time, so ask first.
+    if (needsSwitchConfirmation(connection, serverId)) {
+      askToSwitch(serverId, roomId)
+      return
+    }
+    void voice.joinRoom(serverId, roomId)
   }
 
   const user = session?.user
@@ -109,13 +124,18 @@ function useServerScreenViewModel() {
       rooms: sidebarRooms,
       currentRoomId: connection?.serverId === serverId ? connection.roomId : undefined,
       pendingSwitch: pendingSwitch && { serverName: pendingSwitch.serverName, roomName: pendingSwitch.roomName },
-      onSelectRoom: (roomId: string) => voice.joinRoom(serverId, roomId),
+      onSelectRoom,
       onBackToHub: () => void navigate({ to: '/' }),
       onSelectServer,
       onConfirmSwitch: () => {
         if (!pendingSwitch) return
-        voice.leaveRoom()
-        openServer(pendingSwitch.targetId)
+        if (pendingSwitch.roomId) {
+          // Joining a room leaves the current one first (VoiceSession switches rooms).
+          void voice.joinRoom(pendingSwitch.targetId, pendingSwitch.roomId)
+        } else {
+          voice.leaveRoom()
+          openServer(pendingSwitch.targetId)
+        }
         setPendingSwitch(undefined)
       },
       onDismissSwitch: () => setPendingSwitch(undefined),

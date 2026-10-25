@@ -225,6 +225,22 @@ describe('useServerScreenViewModel', () => {
       expect(join).toHaveBeenCalledWith('s1', 'r2')
     })
 
+    it('asks before joining a room here while connected on another server, then joins on confirm', async () => {
+      const join = vi.spyOn(voiceController, 'join').mockResolvedValue()
+      useVoiceStore.setState({ connection: { serverId: 's2', roomId: 'x1' } })
+      const { result } = setup()
+      await ready(result)
+      act(() => result.current.sidebar.onSelectRoom('r2'))
+      expect(join).not.toHaveBeenCalled()
+      expect(result.current.sidebar.pendingSwitch).toBeDefined()
+
+      act(() => result.current.sidebar.onConfirmSwitch())
+      expect(join).toHaveBeenCalledWith('s1', 'r2')
+      // Stays on this server: no navigation to another one.
+      expect(navigate).not.toHaveBeenCalledWith(expect.objectContaining({ to: '/servers/$serverId' }))
+      expect(result.current.sidebar.pendingSwitch).toBeUndefined()
+    })
+
     it('wires mute, deafen and leaving to the call and shows their state', async () => {
       const mute = vi.spyOn(voiceController, 'toggleMute').mockImplementation(() => undefined)
       const deafen = vi.spyOn(voiceController, 'toggleDeafen').mockImplementation(() => undefined)
