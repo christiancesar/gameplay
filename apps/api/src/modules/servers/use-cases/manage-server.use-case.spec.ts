@@ -97,7 +97,7 @@ describe('Server management', () => {
         return [key.split('/')[0], width, height]
       }),
     )
-    expect(sizes.sort()).toEqual([
+    expect(sizes.sort((a, b) => String(a[0]).localeCompare(String(b[0])))).toEqual([
       ['covers', 1280, 720],
       ['icons', 256, 256],
     ])
