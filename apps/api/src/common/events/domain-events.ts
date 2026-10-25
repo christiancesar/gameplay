@@ -18,6 +18,10 @@ export interface DomainEvents {
   // A sign-up came with a server invite that had expired meanwhile; the Hub
   // tells the new user to ask for another one.
   'server-invite.expired-on-sign-up': { userId: string; serverId: string; serverName: string }
+  // Published by the platform admin panel (BE-15); the realtime gateway
+  // closes the person's sockets.
+  'user.suspended': { userId: string }
+  'user.sessions-revoked': { userId: string }
 }
 
 export type DomainEventName = Extract<keyof DomainEvents, string>

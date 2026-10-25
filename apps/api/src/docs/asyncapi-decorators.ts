@@ -3,6 +3,7 @@ import type { AsyncApiSpecificOperationOptions } from 'nestjs-asyncapi'
 type OperationDecorator = (options: AsyncApiSpecificOperationOptions) => MethodDecorator & ClassDecorator
 
 type Decorators = {
+  AsyncApi: () => ClassDecorator
   AsyncApiReceive: OperationDecorator
   AsyncApiSend: OperationDecorator
 }
@@ -16,9 +17,10 @@ function load(): Decorators {
     return require('nestjs-asyncapi/dist/lib/decorators') as Decorators
   } catch {
     const noop: OperationDecorator = () => () => undefined
-    return { AsyncApiReceive: noop, AsyncApiSend: noop }
+    return { AsyncApi: () => () => undefined, AsyncApiReceive: noop, AsyncApiSend: noop }
   }
 }
 
 // AsyncApiReceive: client to server. AsyncApiSend: server to client.
-export const { AsyncApiReceive, AsyncApiSend } = load()
+// AsyncApi marks a class that is not a gateway (an emitter) to be scanned.
+export const { AsyncApi, AsyncApiReceive, AsyncApiSend } = load()

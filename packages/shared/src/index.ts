@@ -68,6 +68,22 @@ export {
 export { USERNAME_PATTERN, usernameSchema } from './account/username.js'
 export { errorResponseSchema, type ErrorBody, type ErrorResponse } from './http/error.js'
 export type { Ack, AckResponse } from './realtime/ack.js'
+export {
+  REALTIME_EVENTS,
+  SERVER_REMOVED_REASONS,
+  presenceSnapshotSchema,
+  presenceUpdateSchema,
+  serverChangedSchema,
+  serverRemovedSchema,
+  serverSubscribeSchema,
+  type ClientToServerEvents,
+  type PresenceSnapshot,
+  type PresenceUpdate,
+  type ServerChanged,
+  type ServerRemoved,
+  type ServerSubscribe,
+  type ServerToClientEvents,
+} from './realtime/events.js'
 export { iceConfigResponseSchema, iceServerSchema, type IceConfigResponse, type IceServer } from './realtime/ice.js'
 export {
   ROOM_NAME_MAX,
