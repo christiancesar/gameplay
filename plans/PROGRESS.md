@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-24 (BE-01 a BE-14 concluídos).
+> Última atualização: 2026-10-24 (BE-01 a BE-15 concluídos).
 
 ## Status das fases (workflow ágil)
 
@@ -46,11 +46,12 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - BE-11 concluído: gateway Socket.IO autenticado pelo cookie, `PresenceStore` em memória, `server:subscribe` e ponte dos eventos de domínio (`server:changed`, `server:removed`, `session:revoked`), com contrato em `packages/shared` e AsyncAPI.
 - BE-12 concluído: salas de voz no gateway (um lugar por pessoa, 30 s para reconectar), sinalização só entre quem está na mesma sala, mute, deafen e transmissão, pedidos de assistir e de qualidade só para o streamer, e limpeza por exclusão, kick e suspensão.
 - BE-13 concluído: notificações do Hub gravadas a partir dos eventos de domínio, rotas de listar e dispensar, e `notification:new` pelo gateway.
-- Próximo: BE-15 (admin da plataforma); BE-16 pode entrar a qualquer momento.
+- BE-15 concluído: painel do admin da plataforma (usuários com presença e sessões, suspender e reativar, encerrar sessões, redefinir senha, qualquer servidor, hardware por usuário e resumo da base).
+- Próximo: BE-16 (observabilidade), o último ticket do backend.
 
 ### Estado em 2026-10-24 (retomar daqui)
-- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-14 aguardando review.**
-- **Próximo ticket: BE-15** (painel do admin da plataforma). Já existem para ele: `PresenceStore` exportado pelo `RealtimeModule`, os eventos `user.suspended` e `user.sessions-revoked` (o gateway já derruba as abas e tira da sala de voz) e `DeleteServerUseCase.deleteById(serverId)` com `deletedById` nulo. Suposições do BE-11 ao BE-13 a confirmar estão nas notas dos tickets.
+- Branch `feature/api-setup`, tudo commitado, sem push. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-15 aguardando review.**
+- **Próximo ticket: BE-16** (OpenTelemetry para o Grafana Cloud; variáveis OTLP já em `apps/api/.env`). Suposições do BE-11 ao BE-15 a confirmar estão nas notas dos tickets.
 - **Testes (pedido do usuário em 2026-10-24):** separar dados e factories. Um fake por arquivo, dados iniciais num arquivo de seed e a montagem do contexto em outro; nos e2e, factories em `test/factories/`. Feito no `realtime`; os outros módulos ainda usam um `test/fakes.ts` só.
 - **Camadas por módulo (decidido em 2026-10-24, ver `04-tech-plan.md` seção 1):** `use-cases/` são as ações chamadas pelos controllers; `services/` (`*.service.ts`, `XxxService`) é lógica compartilhada entre use-cases, e service nunca depende de use-case; `providers/` são detalhes técnicos trocáveis (aleatório, hash, API externa); `domain/` são regras puras. Exemplos: `EffectiveLimitsService.resolve()` (limites), `ServerAccessService.member()`/`require()` (acesso e permissão), `ServerViewsService` (resposta do servidor).
 - **Padrões dos módulos novos:** transação com trava de linha (`SELECT ... FOR UPDATE`) para limites e unicidade: `ServersRepository.createWithOwner` e `RoomsRepository` recebem um `guard` que roda dentro da transação; `MembershipsRepository.withServerLock()` entrega um `MembershipStore`. Testes unitários usam `makeServersContext()` (`servers/test/fakes.ts`) e `makeMembershipsContext()` (`memberships/test/fakes.ts`), com `FakeEventBus`.
