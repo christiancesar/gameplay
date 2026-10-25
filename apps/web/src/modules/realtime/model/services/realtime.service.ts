@@ -1,4 +1,11 @@
-import type { AckResponse, ServerToClientEvents } from '@gameplay/contracts'
+import type {
+  AckResponse,
+  Participant,
+  RoomJoin,
+  ServerToClientEvents,
+  SignalSend,
+  VoiceState,
+} from '@gameplay/contracts'
 import { REALTIME_EVENTS } from '@gameplay/contracts'
 
 import { createSocket } from '@/shared/lib/socket'
@@ -27,6 +34,29 @@ type RealtimeService = {
   onStatusChange(handler: (status: ConnectionStatus) => void): () => void
   /** `server:subscribe` with its ack. Rejects when the API answers `{ ok: false }`. */
   subscribeToServer(serverId: string): Promise<void>
+  /** `room:join`: takes the seat (leaving any other) and resolves with who is in the room. */
+  joinRoom(payload: RoomJoin): Promise<Participant[]>
+  /** `room:leave` */
+  leaveRoom(): Promise<void>
+  /** `voice:state`: mute and deafen as the others should see them. */
+  sendVoiceState(state: VoiceState): Promise<void>
+  /** `signal:send`: offer, answer or ICE candidate for someone in the same room. */
+  sendSignal(signal: SignalSend): Promise<void>
+}
+
+/** The API did not answer an event in time (socket dropped before the ack). */
+const ACK_TIMEOUT_MS = 10_000
+
+/** Emits an event with an ack. Rejects with the API error code, or `ACK_TIMEOUT` when nobody answers. */
+function emitWithAck<T>(socket: SocketLike, event: string, payload: unknown): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('ACK_TIMEOUT')), ACK_TIMEOUT_MS)
+    socket.emit(event, payload, (response: AckResponse<T>) => {
+      clearTimeout(timer)
+      if (response.ok) resolve(response.data)
+      else reject(new Error(response.error.code))
+    })
+  })
 }
 
 function listen(socket: SocketLike, event: string, handler: (...args: never[]) => void) {
@@ -74,6 +104,11 @@ function createRealtimeService(getSocket: () => SocketLike): RealtimeService {
           else reject(new Error(response.error.code))
         })
       }),
+    joinRoom: async (payload) =>
+      (await emitWithAck<{ participants: Participant[] }>(getSocket(), REALTIME_EVENTS.roomJoin, payload)).participants,
+    leaveRoom: () => emitWithAck<void>(getSocket(), REALTIME_EVENTS.roomLeave, {}),
+    sendVoiceState: (state) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.voiceState, state),
+    sendSignal: (signal) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.signalSend, signal),
   }
 }
 
@@ -85,5 +120,5 @@ let socket: SocketLike | undefined
  */
 const realtime = createRealtimeService(() => (socket ??= createSocket() as unknown as SocketLike))
 
-export { createRealtimeService, realtime }
+export { ACK_TIMEOUT_MS, createRealtimeService, realtime }
 export type { ConnectionStatus, RealtimeService, SocketLike }

@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { FakeSocket } from '../../view-models/test/fake-socket'
-import { createRealtimeService, type ConnectionStatus } from './realtime.service'
+import { ACK_TIMEOUT_MS, createRealtimeService, type ConnectionStatus } from './realtime.service'
 
 describe('realtime service', () => {
   const socket = new FakeSocket()
@@ -48,5 +48,41 @@ describe('realtime service', () => {
   it('rejects the subscription when the API refuses', async () => {
     socket.ackReply = { ok: false, error: { code: 'FORBIDDEN', message: 'no' } }
     await expect(service.subscribeToServer('s1')).rejects.toThrow('FORBIDDEN')
+  })
+
+  describe('voice emits', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    })
+
+    it('joins a room and resolves with the participants of the ack', async () => {
+      const participants = [{ userId: 'u1', muted: false, deafened: false, streaming: null }]
+      socket.ackReply = { ok: true, data: { participants } } as never
+      await expect(service.joinRoom({ roomId: 'r1', muted: true, deafened: false })).resolves.toEqual(participants)
+      expect(socket.emitted[0].event).toBe('room:join')
+      expect(socket.emitted[0].args[0]).toEqual({ roomId: 'r1', muted: true, deafened: false })
+    })
+
+    it('rejects a join the API refuses', async () => {
+      socket.ackReply = { ok: false, error: { code: 'ROOM_NOT_FOUND', message: 'no' } }
+      await expect(service.joinRoom({ roomId: 'x' })).rejects.toThrow('ROOM_NOT_FOUND')
+    })
+
+    it('sends leave, voice state and signals with their events', async () => {
+      await service.leaveRoom()
+      await service.sendVoiceState({ muted: true, deafened: false })
+      await service.sendSignal({ to: 'u2', kind: 'offer', data: { a: 1 } })
+      expect(socket.emitted.map((entry) => entry.event)).toEqual(['room:leave', 'voice:state', 'signal:send'])
+      expect(socket.emitted[2].args[0]).toEqual({ to: 'u2', kind: 'offer', data: { a: 1 } })
+    })
+
+    it('rejects with ACK_TIMEOUT when the socket never answers', async () => {
+      vi.useFakeTimers()
+      vi.spyOn(socket, 'emit').mockImplementation(() => undefined)
+      const pending = expect(service.leaveRoom()).rejects.toThrow('ACK_TIMEOUT')
+      await vi.advanceTimersByTimeAsync(ACK_TIMEOUT_MS)
+      await pending
+    })
   })
 })
