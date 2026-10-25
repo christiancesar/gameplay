@@ -1,26 +1,24 @@
 import type { CollectedHardware } from '@gameplay/shared'
+import { makeCollected } from '../../accounts/test/hardware'
 import { summarizeHardware } from './hardware-summary'
 
-const codec = (powerEfficient: boolean) => ({ supported: true, smooth: true, powerEfficient })
-
-function device(overrides: {
-  cores?: number | null
-  memory?: number | null
-  acceleration?: boolean | null
-  h264?: boolean | null
-}): CollectedHardware {
-  const { cores = 8, memory = 8, acceleration = true, h264 = true } = overrides
+// makeCollected's device with only the figures under test set (by default
+// 8 cores, 8 GB, acceleration and H.264 by hardware).
+function device({ cores = 8, memory = 8, acceleration = true, h264 = true }: Figures): CollectedHardware {
+  const seeded = makeCollected()
   return {
-    os: { platform: 'Windows', version: '15.0.0', architecture: 'x86', bitness: '64' },
-    browser: { brand: 'Google Chrome', version: '131' },
+    ...seeded,
     logicalCores: cores,
     deviceMemoryGb: memory,
-    gpu: { vendor: null, renderer: null, hardwareAcceleration: acceleration, webgpu: null },
-    videoEncoding: { h264: h264 === null ? null : codec(h264), vp9: null, av1: null },
-    network: { effectiveType: null, downlinkMbps: null, rttMs: null, saveData: null },
-    displays: null,
+    gpu: { ...seeded.gpu, hardwareAcceleration: acceleration },
+    videoEncoding: {
+      ...seeded.videoEncoding,
+      h264: h264 === null ? null : { supported: true, smooth: true, powerEfficient: h264 },
+    },
   }
 }
+
+type Figures = { cores?: number | null; memory?: number | null; acceleration?: boolean | null; h264?: boolean | null }
 
 describe('summarizeHardware', () => {
   it('finds the weakest device and the share with acceleration and H.264 by hardware', () => {
