@@ -72,9 +72,9 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 | [FE-08 Configurações e hardware](FE-08-configuracoes.md) | 5 | 3 | concluído |
 | [FE-11 Painel admin](FE-11-admin.md) | 8 | 3 | concluído |
 | [FE-06 Tela do servidor](FE-06-tela-do-servidor.md) | 5 | 4 | concluído |
-| [FE-12 Avisos do ambiente e favicon](FE-12-avisos-do-ambiente.md) | 3 | 4 | pendente |
-| [FE-07 Modal do servidor](FE-07-modal-do-servidor.md) | 8 | 5 | pendente |
-| [FE-09 Salas de voz](FE-09-voz.md) | 8 | 5 | pendente |
+| [FE-12 Avisos do ambiente e favicon](FE-12-avisos-do-ambiente.md) | 3 | 4 | concluído |
+| [FE-07 Modal do servidor](FE-07-modal-do-servidor.md) | 8 | 5 | concluído |
+| [FE-09 Salas de voz](FE-09-voz.md) | 8 | 5 | concluído |
 | [FE-10 Compartilhar e assistir tela](FE-10-transmissao.md) | 8 | 6 | pendente |
 | [FE-14a E2E com Cypress, fluxos atuais](FE-14-e2e-cypress.md) | 3 | 5 | concluído |
 | [FE-14b E2E de voz e transmissão com peer bot](FE-14-e2e-cypress.md) | 3 | 6 | pendente |
