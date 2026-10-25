@@ -29,19 +29,35 @@ Avisar pelo socket e gravar as notificações (BE-11 e BE-13 escutam os eventos)
 - `plans/04-tech-plan.md` seções 2 e 3
 
 ## Checklist
-- [ ] Modelos e migration
-- [ ] Gerador de código de 8 caracteres (reaproveitar o `TokenGenerator` do BE-05)
-- [ ] Use-cases com testes unitários, cobrindo:
-  - [ ] convite expirado, revogado e já usado
-  - [ ] limite de membros na geração e na aprovação
-  - [ ] auto aprovação com e sem vaga
-  - [ ] pedido duplicado
-  - [ ] kick e rebaixamento do owner proibidos
-  - [ ] owner tentando sair
-- [ ] Hook `after` do sign-up, com e2e: cadastro pelo link com convite válido e com convite expirado
-- [ ] Rotas e e2e do fluxo completo: gerar, pedir, aprovar, promover, kick
-- [ ] Eventos publicados
-- [ ] Commit a cada passo verde
+- [x] Modelos e migration
+- [x] Gerador de código de 8 caracteres (reaproveitar o `TokenGenerator` do BE-05)
+- [x] Use-cases com testes unitários, cobrindo:
+  - [x] convite expirado, revogado e já usado
+  - [x] limite de membros na geração e na aprovação
+  - [x] auto aprovação com e sem vaga
+  - [x] pedido duplicado
+  - [x] kick e rebaixamento do owner proibidos
+  - [x] owner tentando sair
+- [x] Hook `after` do sign-up, com e2e: cadastro pelo link com convite válido e com convite expirado
+- [x] Rotas e e2e do fluxo completo: gerar, pedir, aprovar, promover, kick
+- [x] Eventos publicados
+- [x] Commit a cada passo verde
 
 ## Critério de aceite
 Os fluxos de convite e moderação seguem 2.3 a 2.5, e todo caso de borda listado tem teste.
+
+## Notas da execução
+- **Um módulo só**, `src/modules/memberships`, em vez de `server-invites` e `memberships` separados como no tech plan: pedir entrada consome o convite e cria o pedido na mesma transação, e dividir obrigaria um módulo a escrever nas tabelas do outro.
+- Modelos em `prisma/schema/membership.prisma`: `ServerInvite` e `JoinRequest` (`PENDING`, `APPROVED`, `DECLINED`). `ServerMember.inviteId` agora é relação com o convite. Tudo apaga em cascata com o servidor.
+- **Concorrência:** `MembershipsRepository.withServerLock()` abre uma transação com a linha do servidor travada (`SELECT ... FOR UPDATE`) e entrega um `MembershipStore` com as leituras e escritas. Gerar convite, pedir entrada, aprovar, recusar, kick, promover, rebaixar e sair passam por ali, um servidor por vez. Isso garante o limite de membros e o pedido pendente único sem índice parcial no banco. As regras ficam nos use-cases.
+- **Código:** 8 caracteres do mesmo alfabeto da key de cadastro (sem 0/O e 1/I), sem diferença de maiúsculas. Guardado em texto (vai no link e vale 1 hora). O gerador aleatório foi extraído para `common/crypto/random-code.ts` e é usado pelos dois.
+- **Rotas:**
+  - `POST`, `GET /api/servers/:serverId/invites` e `POST .../invites/:inviteId/revoke` (owner e admin). A lista traz status calculado (`active`, `expired`, `used`, `revoked`), quem criou e quem usou. Revogar de novo ou um vencido não dá erro; um usado dá 409 `SERVER_INVITE_USED`.
+  - `GET /api/invites/:code` funciona com ou sem sessão (`@OptionalAuth`): status (com `not-found` para código inexistente, mal formado ou de servidor excluído), nome, ícone, contagem de membros, `full` e `alreadyMember`.
+  - `POST /api/invites/:code/join` responde `{ serverId, result }`, com `result` `joined` (auto aprovação com vaga), `pending` ou `already-member` (quem já é membro só abre o servidor, e o convite continua livre).
+  - `GET /api/servers/:serverId/join-requests` (só pendentes) e `POST .../join-requests/:requestId/approve` ou `/decline`.
+  - `GET /api/servers/:serverId/members` (qualquer membro vê; owner primeiro, com o convite e quem convidou), `POST .../members/:targetId/kick`, `/promote`, `/demote` e `POST /api/servers/:serverId/leave`.
+- **Erros:** `MEMBER_LIMIT_REACHED` (409), `SERVER_INVITE_NOT_FOUND` (404), `SERVER_INVITE_EXPIRED` e `SERVER_INVITE_REVOKED` (410), `SERVER_INVITE_USED` (409), `JOIN_REQUEST_PENDING` (409), `JOIN_REQUEST_NOT_FOUND` (404), `JOIN_REQUEST_DECIDED` (409), `MEMBER_NOT_FOUND` (404), `CANNOT_TARGET_SELF` (400, para kick, promover ou rebaixar a si mesmo), `OWNER_CANNOT_LEAVE` (403). Sem permissão continua `SERVER_PERMISSION_DENIED` (403).
+- **Ordem das checagens ao pedir entrada:** já é membro, depois pedido pendente, depois o estado do convite. Assim um membro que abre um convite velho cai direto no servidor. Com o servidor cheio, o pedido fica pendente mesmo com auto aprovação.
+- **Sign-up pelo link:** o corpo do `/sign-up/email` aceita `serverInviteCode` opcional. O hook `after` cria o pedido para a conta nova. Convite vencido nesse meio-tempo publica `server-invite.expired-on-sign-up` (`userId`, `serverId`, `serverName`), que o BE-13 transforma no aviso `INVITE_EXPIRED`. Convite usado, revogado ou de servidor excluído só vira log: a conta já existe e o cadastro não falha. *(Suposição minha: só o vencido vira aviso, como diz o ticket.)*
+- **Eventos:** `membership.join-requested` (com `requestId`), `membership.approved` (`approvedById` nulo na auto aprovação), `membership.declined`, `membership.removed` (`kick` ou `leave`), `membership.role-changed` (`admin` ou `member`) e `server-invite.expired-on-sign-up`. Papéis em minúsculas, diferente do esboço do tech plan.

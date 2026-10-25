@@ -20,7 +20,7 @@ Como trabalhar:
 | [BE-08 Conta e hardware](BE-08-contas.md) | 5 | 5 | concluído |
 | [BE-14 ICE e IP](BE-14-ice-e-ip.md) | 3 | 5 | concluído |
 | [BE-09 Servidores e salas](BE-09-servidores-e-salas.md) | 8 | 6 | concluído |
-| [BE-10 Convites e membros](BE-10-convites-e-membros.md) | 8 | 7 | pendente |
+| [BE-10 Convites e membros](BE-10-convites-e-membros.md) | 8 | 7 | concluído |
 | [BE-11 Socket: conexão e presença](BE-11-realtime-presenca.md) | 8 | 7 | pendente |
 | [BE-12 Salas de voz e sinalização](BE-12-salas-de-voz-e-sinalizacao.md) | 8 | 8 | pendente |
 | [BE-13 Notificações](BE-13-notificacoes.md) | 3 | 8 | pendente |
