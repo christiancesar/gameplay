@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
+import { leaveVoiceRoom } from '@/modules/rooms/view-models/voice.controller'
 import { authClient } from '@/shared/lib/auth-client'
 
 /** Ends the session. The confirmation dialog belongs to the Screen that opens it. */
@@ -13,6 +14,8 @@ function useSignOutViewModel() {
     mutationFn: () => authClient.signOut(),
     // Even when the request fails the local state must go: cached data belongs to the old account.
     onSettled: async () => {
+      // Before the socket closes, so the API frees the seat at once.
+      void leaveVoiceRoom()
       realtime.disconnect()
       queryClient.clear()
       await navigate({ to: '/sign-in', replace: true })

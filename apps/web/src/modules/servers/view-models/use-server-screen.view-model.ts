@@ -6,7 +6,8 @@ import { toast } from 'sonner'
 
 import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 import { useServerSubscriptionViewModel } from '@/modules/realtime/view-models/use-server-subscription.view-model'
-import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
+import { toStageParticipants } from '@/modules/rooms/model/mappers/stage-participants.mapper'
+import { useVoiceRoomViewModel } from '@/modules/rooms/view-models/use-voice-room.view-model'
 import { toPresenceMembers } from '@/modules/servers/model/mappers/presence-members.mapper'
 import { toSidebarRooms } from '@/modules/servers/model/mappers/sidebar-rooms.mapper'
 import { toSwitcherServers } from '@/modules/servers/model/mappers/switcher-server.mapper'
@@ -31,8 +32,8 @@ function useServerScreenViewModel() {
   const { serverId } = useParams({ from: '/_authed/servers/$serverId' })
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const connection = useVoiceStore((state) => state.connection)
-  const setConnection = useVoiceStore((state) => state.setConnection)
+  const voice = useVoiceRoomViewModel()
+  const { connection } = voice
 
   const { data: session } = useQuery(sessionQueryOptions)
   const { data: servers } = useQuery(serversListQueryOptions)
@@ -53,7 +54,7 @@ function useServerScreenViewModel() {
   const leave = useMutation({
     mutationFn: () => leaveServer(serverId),
     onSuccess: async () => {
-      if (connection?.serverId === serverId) setConnection(null)
+      if (connection?.serverId === serverId) voice.leaveRoom()
       await navigate({ to: '/', replace: true })
       queryClient.removeQueries({ queryKey: serversKeys.detail(serverId) })
       await Promise.all([
@@ -68,8 +69,8 @@ function useServerScreenViewModel() {
 
   const memberList = useMemo(() => members ?? [], [members])
   const sidebarRooms = useMemo(
-    () => toSidebarRooms(detail?.rooms ?? [], occupancy, memberList),
-    [detail?.rooms, occupancy, memberList],
+    () => toSidebarRooms(detail?.rooms ?? [], occupancy, memberList, voice.speaking),
+    [detail?.rooms, occupancy, memberList, voice.speaking],
   )
   const presenceMembers = useMemo(() => toPresenceMembers(memberList, onlineUserIds), [memberList, onlineUserIds])
   const switcherServers = useMemo(() => toSwitcherServers(servers ?? []), [servers])
@@ -106,16 +107,14 @@ function useServerScreenViewModel() {
       role: detail?.role ?? 'member',
       pendingRequests: detail?.pendingJoinRequests ?? 0,
       rooms: sidebarRooms,
-      // Voice (FE-09) fills the connection; until then no room is ever current.
       currentRoomId: connection?.serverId === serverId ? connection.roomId : undefined,
       pendingSwitch: pendingSwitch && { serverName: pendingSwitch.serverName, roomName: pendingSwitch.roomName },
-      // Joining a room is FE-09: clicking one does nothing yet.
-      onSelectRoom: () => undefined,
+      onSelectRoom: (roomId: string) => voice.joinRoom(serverId, roomId),
       onBackToHub: () => void navigate({ to: '/' }),
       onSelectServer,
       onConfirmSwitch: () => {
         if (!pendingSwitch) return
-        setConnection(null)
+        voice.leaveRoom()
         openServer(pendingSwitch.targetId)
         setPendingSwitch(undefined)
       },
@@ -128,15 +127,33 @@ function useServerScreenViewModel() {
     userCard: {
       user: { name: user?.name ?? '', email: user?.email ?? '', avatarUrl: user?.image ?? undefined },
       inRoom: connection !== null,
-      // Mute and deafen come with the voice ticket (FE-09).
-      isMuted: false,
-      isDeafened: false,
+      isMuted: voice.isMuted,
+      isDeafened: voice.isDeafened,
       // Only the profile opens; server settings and watch are left out of the URL.
       onOpenSettings: () => void navigate({ to: '.', search: { settings: 'profile' as const } }),
-      onToggleMute: () => undefined,
-      onToggleDeafen: () => undefined,
-      onLeaveRoom: () => setConnection(null),
+      onToggleMute: voice.toggleMute,
+      onToggleDeafen: voice.toggleDeafen,
+      onLeaveRoom: voice.leaveRoom,
     },
+    // The stage shows the call only on the server it belongs to.
+    stage:
+      connection?.serverId === serverId
+        ? {
+            roomName: connectedRoomName(connection, detail?.rooms),
+            micDenied: voice.micDenied,
+            participants: toStageParticipants({
+              participants: voice.participants,
+              members: memberList,
+              selfId: user?.id,
+              peers: voice.peers,
+              speaking: voice.speaking,
+              volumes: voice.volumes,
+            }),
+            // Watching a screen is FE-10.
+            onWatch: () => undefined,
+            onVolumeChange: voice.setVolume,
+          }
+        : null,
   }
 }
 

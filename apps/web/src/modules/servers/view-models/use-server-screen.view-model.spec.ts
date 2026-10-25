@@ -2,7 +2,9 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { toast } from 'sonner'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/shared/lib/http', async () => ({ http: (await import('@/shared/test/fake-http')).fakeHttp }))
+vi.mock('@/shared/lib/http', async () => ({
+  http: (await import('@/shared/test/fake-http')).fakeHttp,
+}))
 vi.mock('@/shared/lib/socket', async () => {
   const { fakeSocket } = await import('@/modules/realtime/view-models/test/fake-socket.instance')
   return { createSocket: () => fakeSocket }
@@ -14,6 +16,8 @@ vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn() }) }))
 import { fakeSocket } from '@/modules/realtime/view-models/test/fake-socket.instance'
 import { usePresenceStore } from '@/modules/realtime/view-models/stores/presence.store'
 import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
+import { voiceController } from '@/modules/rooms/view-models/voice.controller'
+import { idleVoice } from '@/modules/rooms/model/entities/voice-state'
 import { serversKeys } from '@/modules/servers/model/services/servers.keys'
 import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
@@ -46,11 +50,12 @@ const ready = async (result: { current: ReturnType<typeof useServerScreenViewMod
 
 describe('useServerScreenViewModel', () => {
   beforeEach(() => {
+    vi.restoreAllMocks()
     vi.clearAllMocks()
     fakeSocket.reset()
     fakeSocket.connected = true
     usePresenceStore.getState().reset()
-    useVoiceStore.setState({ connection: null })
+    useVoiceStore.setState({ ...idleVoice })
   })
 
   it('is loading until the server detail arrives', async () => {
@@ -69,7 +74,12 @@ describe('useServerScreenViewModel', () => {
       fakeSocket.receive('presence:snapshot', {
         serverId: 's1',
         onlineUserIds: ['u2'],
-        rooms: [{ roomId: 'r1', participants: [{ userId: 'u2', muted: true, deafened: false, streaming: null }] }],
+        rooms: [
+          {
+            roomId: 'r1',
+            participants: [{ userId: 'u2', muted: true, deafened: false, streaming: null }],
+          },
+        ],
       }),
     )
     expect(result.current.members.find((member) => member.id === 'u2')?.isOnline).toBe(true)
@@ -130,7 +140,10 @@ describe('useServerScreenViewModel', () => {
     await ready(result)
     act(() => result.current.sidebar.onSelectServer('s2'))
     expect(navigate).not.toHaveBeenCalled()
-    expect(result.current.sidebar.pendingSwitch).toEqual({ serverName: 'Clan Zero', roomName: 'Raid' })
+    expect(result.current.sidebar.pendingSwitch).toEqual({
+      serverName: 'Clan Zero',
+      roomName: 'Raid',
+    })
 
     act(() => result.current.sidebar.onConfirmSwitch())
     expect(useVoiceStore.getState().connection).toBeNull()
@@ -201,6 +214,96 @@ describe('useServerScreenViewModel', () => {
       name: 'Player',
       email: 'player@gameplay.local',
       avatarUrl: '/avatars/u2.webp',
+    })
+  })
+  describe('voice', () => {
+    it('joins the room that was clicked, on the server on screen', async () => {
+      const join = vi.spyOn(voiceController, 'join').mockResolvedValue()
+      const { result } = setup()
+      await ready(result)
+      act(() => result.current.sidebar.onSelectRoom('r2'))
+      expect(join).toHaveBeenCalledWith('s1', 'r2')
+    })
+
+    it('wires mute, deafen and leaving to the call and shows their state', async () => {
+      const mute = vi.spyOn(voiceController, 'toggleMute').mockImplementation(() => undefined)
+      const deafen = vi.spyOn(voiceController, 'toggleDeafen').mockImplementation(() => undefined)
+      const leave = vi.spyOn(voiceController, 'leave').mockResolvedValue()
+      const { result } = setup()
+      await ready(result)
+      act(() => result.current.userCard.onToggleMute())
+      act(() => result.current.userCard.onToggleDeafen())
+      act(() => result.current.userCard.onLeaveRoom())
+      expect([mute, deafen, leave].map((spy) => spy.mock.calls.length)).toEqual([1, 1, 1])
+      act(() => useVoiceStore.setState({ muted: false, deafened: true }))
+      expect(result.current.userCard).toMatchObject({ isMuted: true, isDeafened: true })
+    })
+
+    it('has no stage outside a call or on another server than the one connected', async () => {
+      const { result } = setup()
+      await ready(result)
+      expect(result.current.stage).toBeNull()
+      act(() => useVoiceStore.setState({ connection: { serverId: 's2', roomId: 'x' } }))
+      expect(result.current.stage).toBeNull()
+    })
+
+    it('shows the room stage with the people in the call, who is talking and the volumes', async () => {
+      act(() =>
+        useVoiceStore.setState({
+          connection: { serverId: 's1', roomId: 'r2' },
+          micDenied: true,
+          participants: [
+            { userId: 'u1', muted: false, deafened: false, streaming: null },
+            { userId: 'u2', muted: true, deafened: false, streaming: null },
+          ],
+          peers: { u2: 'connected' },
+          speaking: { u2: true },
+          volumes: { u2: 70 },
+        }),
+      )
+      const { result } = setup({
+        session: { user: { id: 'u1', name: 'Turbex', email: 't@x.io', image: null } },
+      })
+      await ready(result)
+      expect(result.current.stage).toMatchObject({ roomName: 'Raid', micDenied: true })
+      expect(result.current.stage?.participants).toEqual([
+        expect.objectContaining({ id: 'u1', isMe: true, connection: 'connected' }),
+        expect.objectContaining({
+          id: 'u2',
+          isMuted: true,
+          isSpeaking: true,
+          volume: 70,
+          connection: 'connected',
+        }),
+      ])
+    })
+
+    it('sends the volume chosen in the stage to the call', async () => {
+      const setVolume = vi.spyOn(voiceController, 'setVolume').mockImplementation(() => undefined)
+      useVoiceStore.setState({ connection: { serverId: 's1', roomId: 'r2' } })
+      const { result } = setup()
+      await ready(result)
+      act(() => result.current.stage?.onVolumeChange('u2', 120))
+      expect(setVolume).toHaveBeenCalledWith('u2', 120)
+    })
+
+    it('marks who is speaking in the sidebar rooms', async () => {
+      const { result } = setup()
+      await ready(result)
+      act(() => {
+        fakeSocket.receive('presence:snapshot', {
+          serverId: 's1',
+          onlineUserIds: ['u2'],
+          rooms: [
+            {
+              roomId: 'r1',
+              participants: [{ userId: 'u2', muted: false, deafened: false, streaming: null }],
+            },
+          ],
+        })
+        useVoiceStore.setState({ speaking: { u2: true } })
+      })
+      expect(result.current.sidebar.rooms[0].participants[0].isSpeaking).toBe(true)
     })
   })
 })

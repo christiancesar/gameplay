@@ -153,7 +153,13 @@
     "you": "você",
     "micDeniedTitle": "Microfone bloqueado",
     "micDeniedDescription": "Você entrou só ouvindo. Libere o microfone na barra de endereço do browser e entre de novo na sala para falar.",
-    "roomEmpty": "Ninguém aqui ainda. Os outros vão te ver assim que entrarem."
+    "roomEmpty": "Ninguém aqui ainda. Os outros vão te ver assim que entrarem.",
+    "notice": {
+      "otherTab": "Você entrou numa sala em outra aba, então esta foi encerrada.",
+      "roomDeleted": "A sala foi excluída.",
+      "joinFailed": "Não foi possível entrar na sala.",
+      "reconnectFailed": "A conexão caiu e você saiu da sala."
+    }
   },
   "share": {
     "start": "Compartilhar tela",

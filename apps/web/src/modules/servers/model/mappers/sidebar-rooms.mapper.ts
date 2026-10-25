@@ -5,13 +5,14 @@ import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
 import { memberName } from './presence-members.mapper'
 
 /**
- * Rooms by position with who is inside. Speaking is not known yet (FE-09), so it is always false.
+ * Rooms by position with who is inside. `speaking` holds the ids of who is talking now.
  * Participants who are not in the member list (still loading, or just removed) are left out.
  */
 function toSidebarRooms(
   rooms: readonly Room[],
   occupancy: readonly RoomOccupancy[],
   members: readonly ServerMember[],
+  speaking: Readonly<Record<string, boolean>> = {},
 ): SidebarRoom[] {
   const byId = new Map(members.map((member) => [member.user.id, member]))
   const occupancyByRoom = new Map(occupancy.map((entry) => [entry.roomId, entry.participants]))
@@ -31,7 +32,7 @@ function toSidebarRooms(
             avatarUrl: member.user.image ?? undefined,
             isMuted: participant.muted,
             isDeafened: participant.deafened,
-            isSpeaking: false,
+            isSpeaking: speaking[member.user.id] === true,
             isLive: participant.streaming !== null,
           },
         ]

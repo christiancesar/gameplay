@@ -153,7 +153,13 @@
     "you": "you",
     "micDeniedTitle": "Microphone blocked",
     "micDeniedDescription": "You joined listening only. Allow the microphone in the browser address bar and rejoin the room to talk.",
-    "roomEmpty": "Nobody here yet. Others will see you as soon as they join."
+    "roomEmpty": "Nobody here yet. Others will see you as soon as they join.",
+    "notice": {
+      "otherTab": "You joined a room from another tab, so this one was closed.",
+      "roomDeleted": "The room was deleted.",
+      "joinFailed": "Could not join the room.",
+      "reconnectFailed": "The connection was lost and you left the room."
+    }
   },
   "share": {
     "start": "Share screen",

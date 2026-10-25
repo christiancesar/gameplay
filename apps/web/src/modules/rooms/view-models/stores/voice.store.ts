@@ -1,16 +1,18 @@
 import { create } from 'zustand'
 
-/** Room the user is connected to. Lives outside the URL: the logo goes back to the Hub without leaving the room (F6). */
-type VoiceConnection = { serverId: string; roomId: string }
+import { idleVoice, type VoiceConnection, type VoiceSnapshot } from '@/modules/rooms/model/entities/voice-state'
 
-type VoiceState = {
-  connection: VoiceConnection | null
+/**
+ * The voice call as the UI sees it. `VoiceSession` (one per tab, outside React) writes it; ViewModels
+ * only read. It lives here, not in a component, so the call survives going to the Hub (F6).
+ */
+type VoiceState = VoiceSnapshot & {
+  /** Kept for callers that only need to set the room (specs). The session sets it while joining. */
   setConnection: (connection: VoiceConnection | null) => void
 }
 
-// Stub until FE-09: only tracks which room the user is in. Media, mute and deafen come with the voice ticket.
 const useVoiceStore = create<VoiceState>()((set) => ({
-  connection: null,
+  ...idleVoice,
   setConnection: (connection) => set({ connection }),
 }))
 

@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
 
+import { useVoiceLifecycleViewModel } from '@/modules/rooms/view-models/use-voice-lifecycle.view-model'
+
 import { useConnectionStore } from './stores/connection.store'
 import { useRealtimeEventsViewModel } from './use-realtime-events.view-model'
 
@@ -11,6 +13,8 @@ import { useRealtimeEventsViewModel } from './use-realtime-events.view-model'
  */
 function useRealtimeConnectionViewModel() {
   useRealtimeEventsViewModel()
+  // Declared before the socket effect, so its cleanup (leaving the room) runs before the socket closes.
+  useVoiceLifecycleViewModel()
 
   useEffect(() => {
     const { setStatus, reset } = useConnectionStore.getState()
