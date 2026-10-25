@@ -10,6 +10,7 @@ type RtpSenderLike = {
 }
 
 type RtpTransceiverLike = {
+  direction: RTCRtpTransceiverDirection
   readonly sender: RtpSenderLike
 }
 
@@ -25,6 +26,7 @@ type PeerConnectionLike = {
   setRemoteDescription(description: RTCSessionDescriptionInit): Promise<void>
   addIceCandidate(candidate: RTCIceCandidateInit): Promise<void>
   addTransceiver(kind: 'audio' | 'video', init?: RTCRtpTransceiverInit): RtpTransceiverLike
+  getTransceivers(): RtpTransceiverLike[]
   addTrack(track: MediaStreamTrack, ...streams: MediaStream[]): RtpSenderLike
   removeTrack(sender: RtpSenderLike): void
   restartIce(): void

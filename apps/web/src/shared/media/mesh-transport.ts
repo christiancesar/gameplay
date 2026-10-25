@@ -43,7 +43,8 @@ type Peer = {
   polite: boolean
   makingOffer: boolean
   ignoreOffer: boolean
-  voice: RtpTransceiverLike
+  /** The audio transceiver. The polite side has none until the first offer brings one. */
+  voice: RtpTransceiverLike | null
   senders: Map<MediaStreamTrack, RtpSenderLike>
   status: PeerStatus
   /** Last status sent to the handlers, so each change is reported once. */
@@ -104,7 +105,7 @@ class MeshTransport implements MediaTransport {
   async setVoiceTrack(track: MediaStreamTrack | null): Promise<void> {
     this.voiceTrack = track
     await Promise.all(
-      [...this.peers.values()].map((peer) => peer.voice.sender.replaceTrack(track).catch(() => undefined)),
+      [...this.peers.values()].map((peer) => peer.voice?.sender.replaceTrack(track).catch(() => undefined)),
     )
   }
 
@@ -162,7 +163,7 @@ class MeshTransport implements MediaTransport {
       polite: selfId > peerId,
       makingOffer: false,
       ignoreOffer: false,
-      voice: undefined as unknown as RtpTransceiverLike,
+      voice: null,
       senders: new Map(),
       status: 'connecting',
       reported: null,
@@ -184,9 +185,13 @@ class MeshTransport implements MediaTransport {
     }
     pc.onconnectionstatechange = () => this.onConnectionState(peer)
 
-    // Always one audio transceiver, so a listen-only person still receives voice.
-    peer.voice = pc.addTransceiver('audio', { direction: 'sendrecv' })
-    if (this.voiceTrack) void peer.voice.sender.replaceTrack(this.voiceTrack).catch(() => undefined)
+    // Only one side makes the first offer (the lower id), so both do not offer at once and end up with
+    // two audio transceivers. The other side adopts the transceiver that comes with that offer.
+    // One audio transceiver always exists, so a listen-only person still receives voice.
+    if (!peer.polite) {
+      peer.voice = pc.addTransceiver('audio', { direction: 'sendrecv' })
+      if (this.voiceTrack) void peer.voice.sender.replaceTrack(this.voiceTrack).catch(() => undefined)
+    }
 
     this.setStatus(peer, 'connecting')
     this.armConnectTimer(peer)
@@ -259,6 +264,7 @@ class MeshTransport implements MediaTransport {
       // The polite side rolls back its own offer implicitly when setting the remote one.
       await pc.setRemoteDescription(description)
       if (kind === 'offer') {
+        await this.adoptVoice(peer)
         await pc.setLocalDescription()
         const answer = describe(pc)
         if (answer) this.send(peer, 'answer', { description: answer })
@@ -272,6 +278,16 @@ class MeshTransport implements MediaTransport {
       // Candidates of an offer we ignored are expected to fail.
       if (!peer.ignoreOffer) throw error
     }
+  }
+
+  /** The audio transceiver created by the remote offer becomes ours: it also sends our microphone. */
+  private async adoptVoice(peer: Peer) {
+    if (peer.voice) return
+    const [transceiver] = peer.pc.getTransceivers()
+    if (!transceiver) return
+    peer.voice = transceiver
+    transceiver.direction = 'sendrecv'
+    await transceiver.sender.replaceTrack(this.voiceTrack).catch(() => undefined)
   }
 
   private onConnectionState(peer: Peer) {

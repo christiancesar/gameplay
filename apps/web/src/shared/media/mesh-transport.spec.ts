@@ -54,6 +54,23 @@ describe('MeshTransport', () => {
     ])
   })
 
+  it('only the lower id makes the first offer: the other side waits and adopts the offered transceiver', async () => {
+    const transport = create('u5')
+    const mic = fakeTrack()
+    await transport.setVoiceTrack(mic)
+    transport.addPeer('u3') // u5 is polite towards u3
+    expect(connections[0].transceivers).toHaveLength(0)
+    await flush()
+    expect(signaling.ofKind('offer')).toHaveLength(0)
+
+    signaling.deliver('u3', 'offer', signalData('remote', { type: 'offer', sdp: 'remote-offer' }))
+    await flush()
+    expect(connections[0].transceivers).toHaveLength(1)
+    expect(connections[0].transceivers[0].direction).toBe('sendrecv')
+    expect(connections[0].senders[0].track).toBe(mic)
+    expect(signaling.ofKind('answer')).toHaveLength(1)
+  })
+
   it('offers when the connection asks to negotiate and relays the description', async () => {
     const transport = create()
     transport.addPeer('u9')
@@ -247,7 +264,7 @@ describe('MeshTransport', () => {
       transport.addPeer('u9')
       const mic = fakeTrack()
       await transport.setVoiceTrack(mic)
-      transport.addPeer('u3')
+      transport.addPeer('u7')
       await flush()
       expect(connections[0].senders[0].track).toBe(mic)
       expect(connections[1].senders[0].track).toBe(mic)

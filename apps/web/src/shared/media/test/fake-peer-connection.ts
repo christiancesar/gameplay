@@ -49,6 +49,7 @@ class FakePeerConnection implements PeerConnectionLike {
   async setRemoteDescription(description: RTCSessionDescriptionInit) {
     // Setting a remote offer while holding a local one rolls the local one back.
     this.remoteDescriptions.push(description)
+    if (description.type === 'offer') this.adoptRemoteTransceiver()
     this.signalingState = description.type === 'offer' ? 'have-remote-offer' : 'stable'
   }
 
@@ -58,10 +59,22 @@ class FakePeerConnection implements PeerConnectionLike {
   }
 
   addTransceiver() {
-    const transceiver = { sender: new FakeSender() }
+    const transceiver = { direction: 'sendrecv' as RTCRtpTransceiverDirection, sender: new FakeSender() }
     this.senders.push(transceiver.sender)
     this.transceivers.push(transceiver)
     return transceiver
+  }
+
+  getTransceivers() {
+    return this.transceivers
+  }
+
+  /** What the browser does when it applies a remote offer: a receive only transceiver appears. */
+  private adoptRemoteTransceiver() {
+    if (this.transceivers.length > 0) return
+    const transceiver = { direction: 'recvonly' as RTCRtpTransceiverDirection, sender: new FakeSender() }
+    this.senders.push(transceiver.sender)
+    this.transceivers.push(transceiver)
   }
 
   addTrack(track: MediaStreamTrack) {
