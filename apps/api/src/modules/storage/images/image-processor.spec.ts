@@ -1,18 +1,13 @@
 import sharp from 'sharp'
+import { makeImage } from '../test/image-seed'
 import { IMAGE_MAX_BYTES, ImageProcessor, imageKey } from './image-processor'
 import { ImageTooLargeError, UnsupportedImageError } from './image.errors'
-
-function makeImage(format: 'jpeg' | 'png' | 'webp', width = 800, height = 600) {
-  return sharp({ create: { width, height, channels: 3, background: { r: 200, g: 40, b: 40 } } })
-    .toFormat(format)
-    .toBuffer()
-}
 
 describe('ImageProcessor', () => {
   const processor = new ImageProcessor()
 
   it.each(['jpeg', 'png', 'webp'] as const)('turns a %s into a 256 px WebP square', async (format) => {
-    const result = await processor.process(await makeImage(format), 'square256')
+    const result = await processor.process(await makeImage({ format: format }), 'square256')
 
     const meta = await sharp(result.body).metadata()
     expect(meta.format).toBe('webp')
@@ -21,14 +16,17 @@ describe('ImageProcessor', () => {
   })
 
   it('crops a cover to 1280x720', async () => {
-    const result = await processor.process(await makeImage('jpeg', 1000, 1000), 'cover1280x720')
+    const result = await processor.process(
+      await makeImage({ format: 'jpeg', width: 1000, height: 1000 }),
+      'cover1280x720',
+    )
 
     expect([result.width, result.height]).toEqual([1280, 720])
   })
 
   it('removes EXIF and applies the rotation it described', async () => {
     // 800x600 stored, with orientation 6 (rotate 90°) and a camera tag.
-    const input = await sharp(await makeImage('jpeg'))
+    const input = await sharp(await makeImage({ format: 'jpeg' }))
       .withExif({ IFD0: { Orientation: '6', Make: 'SecretCam' } })
       .jpeg()
       .toBuffer()
@@ -49,17 +47,19 @@ describe('ImageProcessor', () => {
   })
 
   it('refuses a GIF', async () => {
-    await expect(processor.process(await makeImage('gif' as 'png'), 'square256')).rejects.toThrow(UnsupportedImageError)
+    await expect(processor.process(await makeImage({ format: 'gif' as 'png' }), 'square256')).rejects.toThrow(
+      UnsupportedImageError,
+    )
   })
 
   it('refuses a corrupted image with valid magic bytes', async () => {
-    const png = await makeImage('png')
+    const png = await makeImage({ format: 'png' })
 
     await expect(processor.process(png.subarray(0, 40), 'square256')).rejects.toThrow(UnsupportedImageError)
   })
 
   it('refuses more than 2 MB', async () => {
-    const big = Buffer.concat([await makeImage('png'), Buffer.alloc(IMAGE_MAX_BYTES)])
+    const big = Buffer.concat([await makeImage({ format: 'png' }), Buffer.alloc(IMAGE_MAX_BYTES)])
 
     await expect(processor.process(big, 'square256')).rejects.toThrow(ImageTooLargeError)
   })

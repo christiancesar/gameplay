@@ -1,23 +1,22 @@
 import { UserNotFoundError } from '../errors/limits.errors'
-import { InMemoryUserLimitsRepository } from '../repositories/in-memory/in-memory-user-limits.repository'
-import { SetUserLimitOverrideUseCase } from './set-user-limit-override.use-case'
+import { makeLimitsContext } from '../test/limits-context'
 
 describe('SetUserLimitOverrideUseCase', () => {
   it('sets and clears the override', async () => {
-    const userLimits = new InMemoryUserLimitsRepository()
-    userLimits.users.set('u1', { maxServers: null })
-    const sut = new SetUserLimitOverrideUseCase(userLimits)
+    const { setUserLimitOverride, userLimits } = makeLimitsContext()
 
-    await sut.execute({ userId: 'u1', limits: { maxServers: 4 } })
+    await setUserLimitOverride.execute({ userId: 'u1', limits: { maxServers: 4 } })
     expect(userLimits.users.get('u1')).toEqual({ maxServers: 4 })
 
-    await sut.execute({ userId: 'u1', limits: { maxServers: null } })
+    await setUserLimitOverride.execute({ userId: 'u1', limits: { maxServers: null } })
     expect(userLimits.users.get('u1')).toEqual({ maxServers: null })
   })
 
   it('refuses an unknown user', async () => {
-    const sut = new SetUserLimitOverrideUseCase(new InMemoryUserLimitsRepository())
+    const { setUserLimitOverride } = makeLimitsContext()
 
-    await expect(sut.execute({ userId: 'missing', limits: { maxServers: 1 } })).rejects.toThrow(UserNotFoundError)
+    await expect(setUserLimitOverride.execute({ userId: 'missing', limits: { maxServers: 1 } })).rejects.toThrow(
+      UserNotFoundError,
+    )
   })
 })

@@ -1,37 +1,12 @@
-import type { AuthHookContext } from '@thallesp/nestjs-better-auth'
 import { APIError } from 'better-auth/api'
-import { InMemoryRegistrationInvitesRepository } from '../../registration-invites/repositories/in-memory/in-memory-registration-invites.repository'
-import { FakeTokenHasher } from '../../registration-invites/test/fake-token-hasher'
-import { SEED_KEY, seedInvite } from '../../registration-invites/test/registration-invites-seed'
-import { ConsumeRegistrationInviteUseCase } from '../../registration-invites/use-cases/consume-registration-invite.use-case'
-import { SettleRegistrationInviteUseCase } from '../../registration-invites/use-cases/settle-registration-invite.use-case'
-import { makeMembershipsContext } from '../../memberships/test/memberships-context'
-import { SignUpHook } from './sign-up.hook'
-
-function contextWith(body: Record<string, unknown>, newUserId?: string) {
-  const newSession = newUserId ? { user: { id: newUserId } } : null
-  return { body, context: { newSession } } as unknown as AuthHookContext
-}
+import { SEED_KEY } from '../../registration-invites/test/registration-invites-seed'
+import { fakeHookContext } from '../test/fake-hook-context'
+import { makeSignUpHookContext } from '../test/sign-up-hook-context'
 
 describe('SignUpHook', () => {
-  async function makeSut() {
-    const invites = new InMemoryRegistrationInvitesRepository()
-    await invites.create(seedInvite())
-    const hasher = new FakeTokenHasher()
-    const servers = await makeMembershipsContext()
-    const hook = new SignUpHook(
-      new ConsumeRegistrationInviteUseCase(invites, hasher),
-      new SettleRegistrationInviteUseCase(invites, hasher),
-      servers.join,
-      servers.resolve,
-      servers.events,
-    )
-    return { hook, invites, servers }
-  }
-
   it('uses the username as the display name and takes the key', async () => {
-    const { hook, invites } = await makeSut()
-    const ctx = contextWith({ username: 'ana_01', registrationKey: 'abc234' })
+    const { hook, invites } = await makeSignUpHookContext()
+    const ctx = fakeHookContext({ username: 'ana_01', registrationKey: 'abc234' })
 
     await hook.before(ctx)
 
@@ -45,27 +20,27 @@ describe('SignUpHook', () => {
     ['invalid username', { username: 'a', registrationKey: SEED_KEY }],
     ['unknown key', { username: 'ana_01', registrationKey: 'ZZZ999' }],
   ])('refuses a %s', async (_case, body) => {
-    const { hook } = await makeSut()
+    const { hook } = await makeSignUpHookContext()
 
-    await expect(hook.before(contextWith(body))).rejects.toThrow(APIError)
+    await expect(hook.before(fakeHookContext(body))).rejects.toThrow(APIError)
   })
 
   it('links the key to the new account', async () => {
-    const { hook, invites } = await makeSut()
+    const { hook, invites } = await makeSignUpHookContext()
     const body = { username: 'ana_01', registrationKey: SEED_KEY }
-    await hook.before(contextWith(body))
+    await hook.before(fakeHookContext(body))
 
-    await hook.after(contextWith(body, 'user-1'))
+    await hook.after(fakeHookContext(body, 'user-1'))
 
     expect(invites.items[0]?.usedById).toBe('user-1')
   })
 
   it('gives the key back when the account was not created', async () => {
-    const { hook, invites } = await makeSut()
+    const { hook, invites } = await makeSignUpHookContext()
     const body = { username: 'ana_01', registrationKey: SEED_KEY }
-    await hook.before(contextWith(body))
+    await hook.before(fakeHookContext(body))
 
-    await hook.after(contextWith(body))
+    await hook.after(fakeHookContext(body))
 
     expect(invites.items[0]?.usedAt).toBeNull()
   })
@@ -76,17 +51,17 @@ describe('SignUpHook', () => {
     })
 
     async function signUpWithInvite() {
-      const sut = await makeSut()
-      const { code } = await sut.servers.createInvite.execute({ serverId: sut.servers.serverId, userId: 'owner' })
+      const ctx = await makeSignUpHookContext()
+      const { code } = await ctx.servers.createInvite.execute({ serverId: ctx.servers.serverId, userId: 'owner' })
       const body = { username: 'ana_01', registrationKey: SEED_KEY, serverInviteCode: code.toLowerCase() }
-      await sut.hook.before(contextWith(body))
-      return { ...sut, body }
+      await ctx.hook.before(fakeHookContext(body))
+      return { ...ctx, body }
     }
 
     it('creates the join request for the new account', async () => {
       const { hook, body, servers } = await signUpWithInvite()
 
-      await hook.after(contextWith(body, 'user-1'))
+      await hook.after(fakeHookContext(body, 'user-1'))
 
       expect(servers.memberships.requests).toEqual([
         expect.objectContaining({ userId: 'user-1', serverId: servers.serverId, status: 'pending' }),
@@ -98,7 +73,7 @@ describe('SignUpHook', () => {
       const { hook, body, servers } = await signUpWithInvite()
       vi.setSystemTime(new Date('2026-10-24T13:30:00Z'))
 
-      await hook.after(contextWith(body, 'user-1'))
+      await hook.after(fakeHookContext(body, 'user-1'))
 
       expect(servers.memberships.requests).toEqual([])
       expect(servers.events.published).toEqual([
@@ -112,17 +87,17 @@ describe('SignUpHook', () => {
     it('ignores the invite when the account was not created', async () => {
       const { hook, body, servers } = await signUpWithInvite()
 
-      await hook.after(contextWith(body))
+      await hook.after(fakeHookContext(body))
 
       expect(servers.memberships.requests).toEqual([])
     })
 
     it('ignores a code in the wrong format', async () => {
-      const { hook, servers } = await makeSut()
+      const { hook, servers } = await makeSignUpHookContext()
       const body = { username: 'ana_01', registrationKey: SEED_KEY, serverInviteCode: 'nope' }
-      await hook.before(contextWith(body))
+      await hook.before(fakeHookContext(body))
 
-      await expect(hook.after(contextWith(body, 'user-1'))).resolves.toBeUndefined()
+      await expect(hook.after(fakeHookContext(body, 'user-1'))).resolves.toBeUndefined()
       expect(servers.memberships.requests).toEqual([])
     })
   })

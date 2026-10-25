@@ -1,38 +1,17 @@
 import { Logger } from '@nestjs/common'
-import sharp from 'sharp'
-import { InMemoryStorageProvider } from '../../storage/drivers/in-memory-storage.provider'
+import { makeImage } from '../../storage/test/image-seed'
 import { UnsupportedImageError } from '../../storage/images/image.errors'
-import { ImageProcessor } from '../../storage/images/image-processor'
 import { AccountNotFoundError } from '../errors/accounts.errors'
-import { InMemoryProfilesRepository } from '../repositories/in-memory/in-memory-profiles.repository'
-import { GetMyProfileUseCase } from './get-my-profile.use-case'
-import { RemoveAvatarUseCase } from './remove-avatar.use-case'
-import { UploadAvatarUseCase } from './upload-avatar.use-case'
-
-function png(color: string) {
-  return sharp({ create: { width: 300, height: 200, channels: 3, background: color } })
-    .png()
-    .toBuffer()
-}
+import { makeAccountsContext } from '../test/accounts-context'
 
 describe('Avatar', () => {
-  function makeSut() {
-    const profiles = new InMemoryProfilesRepository()
-    const storage = new InMemoryStorageProvider()
-    const getProfile = new GetMyProfileUseCase(profiles)
-    profiles.add({ id: 'u1' })
-    return {
-      profiles,
-      storage,
-      upload: new UploadAvatarUseCase(profiles, getProfile, new ImageProcessor(), storage),
-      remove: new RemoveAvatarUseCase(profiles, getProfile, storage),
-    }
-  }
-
   it('stores the processed image and points the account at it', async () => {
-    const { upload, profiles, storage } = makeSut()
+    const { uploadAvatar, profiles, storage } = makeAccountsContext()
 
-    const { image } = await upload.execute({ userId: 'u1', file: await png('#ff0000') })
+    const { image } = await uploadAvatar.execute({
+      userId: 'u1',
+      file: await makeImage({ color: '#ff0000' }),
+    })
 
     const profile = profiles.profiles.get('u1')
     expect(image).toMatch(/^\/uploads\/avatars\/u1\/[0-9a-f]{16}\.webp$/)
@@ -41,30 +20,30 @@ describe('Avatar', () => {
   })
 
   it('deletes the previous file on change', async () => {
-    const { upload, profiles, storage } = makeSut()
-    await upload.execute({ userId: 'u1', file: await png('#ff0000') })
+    const { uploadAvatar, profiles, storage } = makeAccountsContext()
+    await uploadAvatar.execute({ userId: 'u1', file: await makeImage({ color: '#ff0000' }) })
     const firstKey = profiles.profiles.get('u1')?.avatarKey ?? ''
 
-    await upload.execute({ userId: 'u1', file: await png('#00ff00') })
+    await uploadAvatar.execute({ userId: 'u1', file: await makeImage({ color: '#00ff00' }) })
 
     expect(storage.files.has(firstKey)).toBe(false)
     expect(storage.files.size).toBe(1)
   })
 
   it('keeps the file when the same image is sent again', async () => {
-    const { upload, storage } = makeSut()
-    const file = await png('#ff0000')
-    await upload.execute({ userId: 'u1', file })
+    const { uploadAvatar, storage } = makeAccountsContext()
+    const file = await makeImage({ color: '#ff0000' })
+    await uploadAvatar.execute({ userId: 'u1', file })
 
-    await upload.execute({ userId: 'u1', file })
+    await uploadAvatar.execute({ userId: 'u1', file })
 
     expect(storage.files.size).toBe(1)
   })
 
   it('does not touch the account when the file is not an image', async () => {
-    const { upload, profiles, storage } = makeSut()
+    const { uploadAvatar, profiles, storage } = makeAccountsContext()
 
-    await expect(upload.execute({ userId: 'u1', file: Buffer.from('not an image') })).rejects.toThrow(
+    await expect(uploadAvatar.execute({ userId: 'u1', file: Buffer.from('not an image') })).rejects.toThrow(
       UnsupportedImageError,
     )
     expect(profiles.profiles.get('u1')?.image).toBeNull()
@@ -72,22 +51,25 @@ describe('Avatar', () => {
   })
 
   it('removes the avatar and its file', async () => {
-    const { upload, remove, profiles, storage } = makeSut()
-    await upload.execute({ userId: 'u1', file: await png('#ff0000') })
+    const { uploadAvatar, removeAvatar, profiles, storage } = makeAccountsContext()
+    await uploadAvatar.execute({ userId: 'u1', file: await makeImage({ color: '#ff0000' }) })
 
-    await remove.execute('u1')
+    await removeAvatar.execute('u1')
 
     expect(profiles.profiles.get('u1')).toMatchObject({ image: null, avatarKey: null })
     expect(storage.files.size).toBe(0)
   })
 
   it('still answers when the old file cannot be deleted', async () => {
-    const { upload, profiles, storage } = makeSut()
-    await upload.execute({ userId: 'u1', file: await png('#ff0000') })
+    const { uploadAvatar, profiles, storage } = makeAccountsContext()
+    await uploadAvatar.execute({ userId: 'u1', file: await makeImage({ color: '#ff0000' }) })
     storage.delete = () => Promise.reject(new Error('bucket down'))
     const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {})
 
-    const { image } = await upload.execute({ userId: 'u1', file: await png('#0000ff') })
+    const { image } = await uploadAvatar.execute({
+      userId: 'u1',
+      file: await makeImage({ color: '#0000ff' }),
+    })
 
     expect(profiles.profiles.get('u1')?.image).toBe(image)
     expect(warn).toHaveBeenCalledOnce()
@@ -95,10 +77,10 @@ describe('Avatar', () => {
   })
 
   it('refuses an unknown account', async () => {
-    const { upload } = makeSut()
+    const { uploadAvatar } = makeAccountsContext()
 
-    await expect(upload.execute({ userId: 'missing', file: await png('#ff0000') })).rejects.toThrow(
-      AccountNotFoundError,
-    )
+    await expect(
+      uploadAvatar.execute({ userId: 'missing', file: await makeImage({ color: '#ff0000' }) }),
+    ).rejects.toThrow(AccountNotFoundError)
   })
 })
