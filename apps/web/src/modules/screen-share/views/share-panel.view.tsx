@@ -51,7 +51,12 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
 
   if (state.status === 'idle') {
     return (
-      <Button variant="success" className="h-14 w-full" onClick={onStart} aria-label={t('share.start')}>
+      <Button
+        variant="success"
+        className="phone-landscape:h-10 h-14 w-full"
+        onClick={onStart}
+        aria-label={t('share.start')}
+      >
         <MonitorUpIcon className="size-5" aria-hidden />
       </Button>
     )

@@ -235,7 +235,8 @@ function ServerSidebarView({
         />
       )}
 
-      <SidebarContent>
+      {/* On a sideways phone the sheet is short: let the whole sheet scroll instead of squeezing the rooms to nothing. */}
+      <SidebarContent className="phone-landscape:in-data-[mobile=true]:flex-none phone-landscape:in-data-[mobile=true]:overflow-visible">
         <SidebarGroup>
           <SidebarGroupLabel>{t('server.rooms')}</SidebarGroupLabel>
           {rooms.length === 0 ? (
