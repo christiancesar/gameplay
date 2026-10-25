@@ -1,10 +1,8 @@
+import { SERVER_DESCRIPTION_MAX, SERVER_NAME_MAX } from '@gameplay/contracts'
 import { z } from 'zod'
 
 /** Mensagens dos schemas: chaves de `createServer.errors`, a View traduz. */
 type ServerNameError = 'nameRequired' | 'nameTooLong'
-
-const SERVER_NAME_MAX = 40
-const SERVER_DESCRIPTION_MAX = 280
 
 const message = (key: ServerNameError) => key
 

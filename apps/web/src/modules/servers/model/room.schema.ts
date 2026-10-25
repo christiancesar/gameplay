@@ -1,9 +1,8 @@
+import { ROOM_NAME_MAX } from '@gameplay/contracts'
 import { z } from 'zod'
 
 /** Mensagens dos schemas: chaves de `serverSettings.rooms.errors`, a View traduz. */
 type RoomNameError = 'nameRequired' | 'nameTooLong' | 'nameTaken'
-
-const ROOM_NAME_MAX = 40
 
 const message = (key: RoomNameError) => key
 

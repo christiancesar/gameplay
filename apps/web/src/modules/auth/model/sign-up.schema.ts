@@ -1,8 +1,9 @@
+import { REGISTRATION_KEY_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
 import { z } from 'zod'
 
 import { passwordSchema } from '@/modules/auth/model/password.schema'
 
-const INVITE_KEY_LENGTH = 6
+const INVITE_KEY_LENGTH = REGISTRATION_KEY_LENGTH
 
 /** Mensagens dos schemas: chaves de `auth.errors`, a View traduz. */
 type SignUpValidationError =
@@ -29,11 +30,7 @@ const message = (key: SignUpValidationError) => key
 
 const signUpSchema = z
   .object({
-    username: z
-      .string()
-      .trim()
-      .min(1, message('required'))
-      .regex(/^[a-zA-Z0-9._-]{3,32}$/, message('usernameInvalid')),
+    username: z.string().trim().min(1, message('required')).regex(USERNAME_PATTERN, message('usernameInvalid')),
     email: z
       .string()
       .trim()

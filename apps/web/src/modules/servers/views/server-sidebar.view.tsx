@@ -1,3 +1,4 @@
+import type { ServerRole } from '@gameplay/contracts'
 import { cn } from 'cn'
 import { AudioLinesIcon, ChevronsUpDownIcon, LogOutIcon, RadioIcon, SettingsIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -51,8 +52,6 @@ type SidebarRoom = {
   name: string
   participants: readonly SidebarParticipant[]
 }
-
-type ServerRole = 'owner' | 'admin' | 'member'
 
 type ServerSidebarViewProps = {
   server: { name: string; iconUrl?: string }
