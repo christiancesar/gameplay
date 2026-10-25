@@ -100,7 +100,8 @@
       "codeInvalid": "O código do convite tem 8 letras ou números."
     },
     "profile": "Perfil",
-    "joinTitle": "Entrar em um servidor"
+    "joinTitle": "Entrar em um servidor",
+    "defaultRoomName": "Sala 1"
   },
   "server": {
     "rooms": "Salas",

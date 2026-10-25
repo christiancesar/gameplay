@@ -100,7 +100,8 @@
       "codeInvalid": "Invite codes have 8 letters or numbers."
     },
     "profile": "Profile",
-    "joinTitle": "Join a server"
+    "joinTitle": "Join a server",
+    "defaultRoomName": "Room 1"
   },
   "server": {
     "rooms": "Rooms",
