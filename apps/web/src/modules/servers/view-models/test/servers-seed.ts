@@ -15,6 +15,7 @@ const createdServer: ServerDetail = {
   memberCount: 1,
   limits: { maxMembers: 10, maxRooms: 2 },
   rooms: [{ id: 'r1', name: 'hub.defaultRoomName', position: 0 }],
+  pendingJoinRequests: 0,
 }
 
 export { createdServer, joinedServer, ownedServer }

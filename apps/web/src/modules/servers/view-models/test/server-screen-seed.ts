@@ -34,9 +34,10 @@ const serverDetail: ServerDetail = {
     { id: 'r2', name: 'Raid', position: 1 },
     { id: 'r1', name: 'Lobby', position: 0 },
   ],
+  pendingJoinRequests: 2,
 }
 
-const memberDetail: ServerDetail = { ...serverDetail, role: 'member' }
+const memberDetail: ServerDetail = { ...serverDetail, role: 'member', pendingJoinRequests: null }
 
 const joinRequest = (id: string): JoinRequest => ({
   id,

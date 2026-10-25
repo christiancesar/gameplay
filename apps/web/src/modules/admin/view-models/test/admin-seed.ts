@@ -18,6 +18,10 @@ const adminUser: AdminUser = {
   suspended: false,
   twoFactorEnabled: false,
   online: true,
+  maxServersOverride: null,
+  effectiveMaxServers: 1,
+  ownedServerCount: 1,
+  sessionCount: 1,
   createdAt: '2026-10-20T10:00:00.000Z',
 }
 const suspendedUser: AdminUser = {
@@ -28,6 +32,8 @@ const suspendedUser: AdminUser = {
   email: 'marreta@gameplay.local',
   suspended: true,
   online: false,
+  sessionCount: 0,
+  ownedServerCount: 0,
 }
 
 const adminSession: AdminSession = {
@@ -35,6 +41,7 @@ const adminSession: AdminSession = {
   ipAddress: '187.64.12.201',
   userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/141.0.0.0 Safari/537.36',
   createdAt: '2026-10-25T09:00:00.000Z',
+  lastActiveAt: '2026-10-25T11:00:00.000Z',
   expiresAt: '2026-11-01T09:00:00.000Z',
 }
 
@@ -45,6 +52,10 @@ const adminServer: AdminServer = {
   owner: { id: 'u1', username: 'shinigame' },
   memberCount: 6,
   roomCount: 2,
+  maxMembersOverride: null,
+  maxRoomsOverride: null,
+  effectiveMaxMembers: 10,
+  effectiveMaxRooms: 2,
   createdAt: '2026-10-20T10:00:00.000Z',
 }
 
