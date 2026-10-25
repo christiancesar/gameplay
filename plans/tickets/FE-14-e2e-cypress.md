@@ -52,3 +52,18 @@ Suposições *(confirmar)*:
 - Para não bater no rate limit do Better Auth em dev, os testes mandam um `x-forwarded-for` falso por requisição. Só funciona porque o dev confia no header; em produção o nginx sobrescreve. *(suposição)*
 - As tasks escrevem SQL com os nomes de coluna do schema Prisma atual: mudança no schema exige ajuste em `cypress/tasks`. *(suposição)*
 - Se a execução cair antes do `after:run`, sobram dados com o prefixo da execução; dá para apagar pelo prefixo. *(suposição)*
+
+## Notas da execução do FE-14b (2026-10-25)
+
+Feito por um agente Sonnet; conferido pelo Opus rodando a suíte inteira de novo (35 de 35 em 1 min 14 s, banco sem dados `e2e`).
+
+- `cypress/tasks/peer-bot.ts`: um Chromium headless do Playwright com mídia falsa, que entra pela interface real (login pela API, abre o servidor). Tasks `bot:start`, `bot:joinRoom`, `bot:leaveRoom`, `bot:mute`, `bot:startShare`, `bot:stopShare`, `bot:watch`, `bot:stopWatching`, `bot:stats`, `bot:waitForMedia`, `bot:stop`; fechado no `after` e no `after:run` mesmo quando um teste falha.
+- O Chrome do Cypress recebe as mesmas flags de mídia falsa. `support/rtc-probe.ts` lê bytes de RTP, `framesDecoded` e o estado das conexões na página.
+- Voz (5): os dois se veem e conectam com áudio nos dois sentidos, mute aparece no bloco, sair remove o bloco, trocar de sala, sair pelo card.
+- Transmissão (4): o bot transmite e o usuário assiste (LIVE, `?watch=`, `framesDecoded > 0`), parar fecha a tela de quem assiste, parar de assistir limpa o `?watch=`, e o usuário transmite pelo diálogo com o bot assistindo.
+- 3 execuções completas seguidas, 35 de 35 em todas, sem oscilação.
+- Achado: um Vite de dev rodando há muito tempo perdeu o cache de dependências e passou a responder 504 ("Outdated Optimize Dep"). Reiniciar o `npm run dev` resolve.
+
+Suposições *(confirmar)*:
+- Um bot por execução; as tasks dele não rodam em specs paralelas. *(suposição)*
+- Limites reais de banda e os valores do monitor não são verificados. *(suposição)*

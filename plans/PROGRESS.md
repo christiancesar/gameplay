@@ -47,6 +47,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - Estado: web 694 testes, api 282 unitários e 148 e2e, Cypress 26. Liberados agora: FE-07 (modal do servidor), FE-09 (voz), FE-12 (avisos do ambiente) e FE-13 (lint MVVM e Sentry).
 - 2026-10-25: **FE-07 (modal do servidor), FE-09 (voz) e FE-12 (avisos do ambiente) concluídos** em paralelo. Voz testada com dois Chromium headless: conectam e trocam áudio. Estado: web 975 testes, api 282, Cypress 26. Faltam FE-10 (transmissão), FE-13 (lint MVVM e Sentry) e FE-14b (e2e de voz com peer bot).
 - 2026-10-25: **FE-10 (transmissão) e FE-13 (lint MVVM e Sentry) concluídos.** Transmissão testada com dois Chromium headless: quem assiste recebe vídeo. As camadas do MVVM agora são checadas pelo lint. Sentry desligado até haver DSN. Estado: web 1105 testes, api 282. Falta só o FE-14b (e2e de voz e transmissão com peer bot). A escolha de prioridade na transmissão foi adicionada logo depois (web 1110 testes, Cypress 26).
+- 2026-10-25: **FE-14b concluído**: Cypress com peer bot para voz e transmissão, 35 cenários, 3 execuções seguidas sem falha. **Todos os tickets do frontend (FE-01 a FE-14) e do backend (BE-01 a BE-17) estão concluídos** na branch `feature/web-routing`, sem push e sem PR. Corrigido também o proxy de `/uploads` no Vite (avatar não carregava em dev).
+- Próximos passos: review do usuário, confirmar as suposições das notas dos tickets, abrir o PR da `feature/web-routing` para a `main`, DSN do Sentry, config do nginx de produção (inclui `/uploads`) e decidir o seletor de qualidade do espectador (`media-transport-options.md` seção 6, item 7).
 
 ## Backend (`apps/api`)
 
