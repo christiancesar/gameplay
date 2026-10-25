@@ -27,6 +27,7 @@ Como trabalhar:
 | [BE-12 Salas de voz e sinalização](BE-12-salas-de-voz-e-sinalizacao.md) | 8 | 8 | concluído |
 | [BE-13 Notificações](BE-13-notificacoes.md) | 3 | 8 | concluído |
 | [BE-15 Admin da plataforma](BE-15-admin-da-plataforma.md) | 8 | 8 | concluído |
+| [BE-17 Lacunas para o web](BE-17-lacunas-para-o-web.md) | 5 | 9 | em andamento |
 
 Total: 90 pontos. Tickets da mesma onda podem rodar em paralelo.
 
