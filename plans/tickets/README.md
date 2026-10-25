@@ -76,7 +76,8 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 | [FE-07 Modal do servidor](FE-07-modal-do-servidor.md) | 8 | 5 | pendente |
 | [FE-09 Salas de voz](FE-09-voz.md) | 8 | 5 | pendente |
 | [FE-10 Compartilhar e assistir tela](FE-10-transmissao.md) | 8 | 6 | pendente |
-| [FE-14 E2E com Cypress](FE-14-e2e-cypress.md) | 5 | 6 | pendente |
+| [FE-14a E2E com Cypress, fluxos atuais](FE-14-e2e-cypress.md) | 3 | 5 | pendente |
+| [FE-14b E2E de voz e transmissão com peer bot](FE-14-e2e-cypress.md) | 3 | 6 | pendente |
 
 Total: 76 pontos.
 
