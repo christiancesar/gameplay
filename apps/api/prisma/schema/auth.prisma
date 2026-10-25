@@ -27,6 +27,7 @@ model User {
   // App relations
   registrationInvitesCreated RegistrationInvite[] @relation("RegistrationInviteCreatedBy")
   registrationInviteUsed     RegistrationInvite?  @relation("RegistrationInviteUsedBy")
+  devices                    DeviceReport[]
 
   @@unique([email])
   @@unique([username])
