@@ -24,14 +24,14 @@ ViewModels e Screens reais (FE-02 em diante), conexão real do socket (FE-05).
 - Docs atuais do TanStack Router (plugin do Vite) e do Better Auth client, via Context7
 
 ## Checklist
-- [ ] Branch `feature/web-routing` (ou a combinada com o usuário)
-- [ ] Dependências instaladas
-- [ ] Vite: plugin do router, proxy e projeto `unit`
-- [ ] `shared/lib/*` com teste do interceptor de erro
-- [ ] `src/app/` com router e providers
-- [ ] Árvore de rotas completa com guards
-- [ ] `typecheck`, `lint`, `format:check` e `test` verdes; stories sem mudança
-- [ ] Commit
+- [x] Branch `feature/web-routing` (ou a combinada com o usuário)
+- [x] Dependências instaladas
+- [x] Vite: plugin do router, proxy e projeto `unit`
+- [x] `shared/lib/*` com teste do interceptor de erro
+- [x] `src/app/` com router e providers
+- [x] Árvore de rotas completa com guards
+- [x] `typecheck`, `lint`, `format:check` e `test` verdes; stories sem mudança
+- [x] Commit
 
 ## Critério de aceite
 Com a API rodando: `/` sem sessão vai para `/sign-in?redirect=/`; com sessão `/sign-in` volta para `/`; `/admin` barra usuário comum e redireciona o admin para `/admin/users`; `/i/QUALQUER` abre a rota do convite. O router devtools mostra a árvore gerada a partir de `src/app/routes`.
@@ -67,3 +67,26 @@ Decisões tomadas até aqui *(suposições, confirmar com o usuário)*:
 - O context do router leva só `{ queryClient }`; a sessão sai do `ensureQueryData` nos `beforeLoad` e o `_authed` a repassa no context. Desvio do plano, que previa `{ queryClient, auth }`.
 - Constantes de seção e aba ficam no Model (`*.search.ts`, `admin-tab.ts`) e as Views podem importá-las, junto com os `*.schema.ts`.
 - `PendingScreen` única em `src/app/` em vez de um stub por módulo.
+
+## Notas da execução (conclusão, 2026-10-25)
+
+Terminado no Claude Code (Opus orquestrando, Sonnet e Haiku implementando) na branch `feature/web-routing`, criada a partir da `docs/web-plan`. Antes de seguir, fiz o code review do que o OpenCode deixou e corrigi:
+
+- Os arquivos de rota com parâmetro tinham perdido o `$` (expansão do shell): `servers..tsx` e `i..tsx` viraram `servers.$serverId.tsx` e `i.$code.tsx`.
+- Os layouts `_authed` e `admin/_panel` mostravam a `PendingScreen` sem `<Outlet />`, então nenhuma rota filha aparecia. O `_authed` agora é só `<Outlet />` (o layout do Hub vem no FE-03). O `_panel` usa `AdminPanelScreen` com `AdminLayoutView` e o ViewModel `use-admin-panel` (com spec).
+- Logo e seletor de idioma duplicados no `/sign-in` (visto pelo usuário): o `_guest` envolvia o `Outlet` no `AuthLayoutView`, e cada View de auth já faz isso. O `_guest` agora renderiza só o `Outlet`.
+- Guard do admin sem cast e sem o teste de pathname inválido. Ordem: não admin vai para `/`; sem 2FA vai para `/admin/setup`; com 2FA, `/admin/setup` vai para `/admin/users`.
+- `useLanguageViewModel` devolve `languageOptions` (a partir de `LOCALES` do contracts) e as Screens pararam de repetir a lista com `as any`.
+- `ThemeSync` em arquivo próprio (um componente por arquivo) e seguindo a troca do tema do sistema no modo `system`.
+- As Views de configurações, configurações do servidor e admin importam as seções e abas do Model.
+- `react/only-export-components` desligado só em `src/app/routes/**`.
+- `apps/api/README.md` formatado (o `format:check` da raiz falhava por ele).
+
+Resultado: `typecheck`, `lint`, `format:check` e `test` verdes (web 244 testes antes do FE-02, api 271).
+
+Suposições *(confirmar)*:
+- O context do router leva só `{ queryClient }`; a sessão sai do `ensureQueryData` nos `beforeLoad` e o `_authed` repassa `{ session }`. *(suposição)*
+- `PendingScreen` única em `src/app/` até cada ticket trazer a Screen real. *(suposição)*
+- Tema da store é `Theme | 'system'`, porque o `Theme` do contracts só tem `dark` e `light`. *(suposição)*
+- Aba desconhecida no pathname do admin cai em `users`; `onBackToHub` vai para `/`. *(suposição)*
+- Critério de aceite com a API rodando ainda não foi conferido no browser; ficou para o review do usuário.

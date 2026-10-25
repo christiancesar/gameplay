@@ -34,6 +34,7 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - Decisões do usuário: rotas em `src/app/routes` (TanStack Router por arquivo); sala de voz fora da URL (store de voz, `?watch=` para assistir); modais por search param (`?settings=`, `?serverSettings=`); abas do admin como rotas filhas.
 - O usuário não tem tokens para construir o frontend inteiro numa sessão: executar um ticket por vez e combinar a branch antes.
 - A implementação segue no **OpenCode** (decisão do usuário em 2026-10-25), guiada pelo `AGENTS.md`. O **FE-01 está pela metade** na branch `docs/web-plan`: o que foi feito e o que falta estão nas notas do ticket.
+- 2026-10-25 (tarde): de volta ao Claude Code, com Opus orquestrando e Sonnet/Haiku implementando. Review do que o OpenCode fez, correções e **FE-01 e FE-02 concluídos** na branch `feature/web-routing` (sem push, sem PR ainda). Correções do review e suposições nas notas dos dois tickets. **Aguardando review do usuário.** Próximos liberados: FE-05 (socket), FE-13 (lint MVVM e Sentry), FE-03, FE-04, FE-08 e FE-11.
 
 ## Backend (`apps/api`)
 

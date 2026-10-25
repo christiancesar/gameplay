@@ -58,12 +58,12 @@ graph LR
 
 ## Frontend
 
-Base: `plans/05-web-plan.md`. Branch e forma de review a combinar com o usuário antes do FE-01. Commit a cada passo verde e parada para review ao fim de cada ticket.
+Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo verde e parada para review ao fim de cada ticket.
 
 | Ticket | Pontos | Onda | Status |
 |---|---|---|---|
-| [FE-01 Ferramentas e rotas em `src/app/`](FE-01-fundacao-e-rotas.md) | 5 | 1 | em andamento |
-| [FE-02 SignIn, 2FA, SignUp, sair](FE-02-auth.md) | 5 | 2 | pendente |
+| [FE-01 Ferramentas e rotas em `src/app/`](FE-01-fundacao-e-rotas.md) | 5 | 1 | concluído |
+| [FE-02 SignIn, 2FA, SignUp, sair](FE-02-auth.md) | 5 | 2 | concluído |
 | [FE-05 Socket, presença e remoções](FE-05-socket-e-presenca.md) | 5 | 2 | pendente |
 | [FE-13 Lint MVVM e Sentry](FE-13-boundaries-e-sentry.md) | 3 | 2 | pendente |
 | [FE-03 Hub, criar servidor, notificações](FE-03-hub.md) | 5 | 3 | pendente |
