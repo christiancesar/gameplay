@@ -67,3 +67,7 @@ Validadas com zod na inicialização (`src/env/env.schema.ts`); a API não sobe 
 
 O banco guarda só a chave (exemplo: `avatars/<userId>/<hash>.webp`); a URL pública é montada na hora.
 
+## Observabilidade
+
+Com `OTEL_EXPORTER_OTLP_ENDPOINT` definido, a API manda traces, métricas e logs por OTLP (Grafana Cloud), com spans de HTTP, Express, Nest, Prisma e pg. Cada linha do pino ganha `trace_id` e `span_id`. Sem a variável, nada liga. O SDK sobe em `src/lib/otel.ts`, carregado pela primeira linha do `main.ts`; os testes nunca o iniciam. Variáveis em `.env.example`.
+

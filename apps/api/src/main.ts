@@ -1,3 +1,5 @@
+// Must stay the first import (see lib/otel.ts).
+import './lib/otel-start'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { setupApp } from './app.setup'

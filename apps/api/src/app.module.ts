@@ -3,6 +3,7 @@ import { CommonModule } from './common/common.module'
 import { EnvModule } from './env/env.module'
 import { LoggerModule } from './lib/logger'
 import { PrismaModule } from './lib/prisma'
+import { TelemetryModule } from './lib/telemetry.module'
 import { AccountsModule } from './modules/accounts/accounts.module'
 import { AuthenticationModule } from './modules/auth/authentication.module'
 import { IceModule } from './modules/ice/ice.module'
@@ -20,6 +21,7 @@ import { RegistrationInvitesModule } from './modules/registration-invites/regist
   imports: [
     EnvModule,
     LoggerModule,
+    TelemetryModule,
     PrismaModule,
     CommonModule,
     StorageModule,
