@@ -5,17 +5,7 @@ import type { AdminServerItem } from '@/modules/admin/views/servers-tab.view'
 
 import { displayName } from './admin-user.mapper'
 
-type ServerLimitOverride = { maxMembers?: number; maxRooms?: number }
-
-type AdminServerContext = {
-  defaultMembersLimit: number
-  defaultRoomsLimit: number
-  /** Override set from this panel, when known (the API does not return it). */
-  override?: ServerLimitOverride
-}
-
-function toAdminServerItem(server: AdminServer, context: AdminServerContext): AdminServerItem {
-  const { maxMembers, maxRooms } = context.override ?? {}
+function toAdminServerItem(server: AdminServer): AdminServerItem {
   return {
     id: server.id,
     name: server.name,
@@ -23,13 +13,13 @@ function toAdminServerItem(server: AdminServer, context: AdminServerContext): Ad
     ownerName: server.owner.username,
     members: {
       count: server.memberCount,
-      limit: maxMembers ?? context.defaultMembersLimit,
-      isOverride: maxMembers !== undefined,
+      limit: server.effectiveMaxMembers,
+      isOverride: server.maxMembersOverride !== null,
     },
     rooms: {
       count: server.roomCount,
-      limit: maxRooms ?? context.defaultRoomsLimit,
-      isOverride: maxRooms !== undefined,
+      limit: server.effectiveMaxRooms,
+      isOverride: server.maxRoomsOverride !== null,
     },
   }
 }
@@ -49,4 +39,3 @@ function toAdminServerMember(member: ServerMember): AdminServerMember {
 }
 
 export { toAdminServerItem, toAdminServerMember }
-export type { AdminServerContext, ServerLimitOverride }

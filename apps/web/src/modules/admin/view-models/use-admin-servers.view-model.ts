@@ -13,7 +13,6 @@ import {
   platformSettingsQueryOptions,
 } from '@/modules/admin/model/services/admin.query'
 import { deleteAdminServer, setServerLimits } from '@/modules/admin/model/services/admin.service'
-import { useLimitOverridesStore } from '@/modules/admin/view-models/stores/limit-overrides.store'
 import { useAdminErrorToast } from '@/modules/admin/view-models/use-admin-error-toast'
 import { useDebouncedValue } from '@/modules/admin/view-models/use-debounced-value'
 import { SEARCH_DEBOUNCE_MS } from '@/modules/admin/view-models/use-admin-users.view-model'
@@ -31,8 +30,6 @@ function useAdminServersViewModel() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const onError = useAdminErrorToast()
-  const serverOverrides = useLimitOverridesStore((state) => state.servers)
-  const setServerOverride = useLimitOverridesStore((state) => state.setServerOverride)
 
   const [search, setSearch] = useState('')
   const [dialog, setDialog] = useState<ServerDialog>()
@@ -70,25 +67,22 @@ function useAdminServersViewModel() {
         maxMembers: overrides[MEMBERS_FIELD] ?? null,
         maxRooms: overrides[ROOMS_FIELD] ?? null,
       }),
-    onSuccess: (_, { serverId, overrides }) => {
-      setServerOverride(serverId, { maxMembers: overrides[MEMBERS_FIELD], maxRooms: overrides[ROOMS_FIELD] })
+    onSuccess: async () => {
       toast.success(t('admin.notices.limitSaved'))
       close()
+      await queryClient.invalidateQueries({ queryKey: adminKeys.serversAll() })
     },
     onError,
   })
 
   const serverId = dialog?.serverId ?? ''
-  const override = serverOverrides[serverId]
   const dialogOpenChange = (type: ServerDialog['type']) => (next: boolean) => {
     if (!next && dialog?.type === type) close()
   }
 
   return {
     serversTab: {
-      servers: servers.map((server) =>
-        toAdminServerItem(server, { defaultMembersLimit, defaultRoomsLimit, override: serverOverrides[server.id] }),
-      ),
+      servers: servers.map(toAdminServerItem),
       search,
       onSearchChange: setSearch,
       onViewMembers: (id: string) => setDialog({ type: 'members', serverId: id }),
@@ -109,13 +103,13 @@ function useAdminServersViewModel() {
           id: MEMBERS_FIELD,
           label: t('admin.servers.members'),
           defaultValue: defaultMembersLimit,
-          override: override?.maxMembers,
+          override: selected?.maxMembersOverride ?? undefined,
         },
         {
           id: ROOMS_FIELD,
           label: t('admin.servers.rooms'),
           defaultValue: defaultRoomsLimit,
-          override: override?.maxRooms,
+          override: selected?.maxRoomsOverride ?? undefined,
         },
       ],
       isSaving: saveLimits.isPending,

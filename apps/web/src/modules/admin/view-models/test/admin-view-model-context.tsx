@@ -13,6 +13,9 @@ function createAdminViewModelContext(responses: Partial<AdminResponses> = {}) {
     if (url === '/admin/users') return { data: { users: api.users, total: api.users.length, page: 1, pageSize: 100 } }
     if (sessions) return { data: { sessions: api.sessionsByUser[sessions[1]] ?? [] } }
     if (devices) return { data: { devices: api.devicesByUser[devices[1]] ?? [] } }
+    if (url === '/admin/hardware/devices') {
+      return { data: { devices: api.devices, total: api.devices.length, page: 1, pageSize: 100 } }
+    }
     if (url === '/admin/servers') {
       return { data: { servers: api.servers, total: api.servers.length, page: 1, pageSize: 100 } }
     }

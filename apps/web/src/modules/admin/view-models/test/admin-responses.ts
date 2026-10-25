@@ -1,4 +1,5 @@
 import type {
+  AdminDevice,
   AdminServer,
   AdminServerDetail,
   AdminSession,
@@ -19,13 +20,14 @@ import {
   suspendedUser,
   usedInvite,
 } from './admin-seed'
-import { gamingDevice } from './device-seed'
+import { adminGamingDevice, gamingDevice } from './device-seed'
 
 /** What the fake API answers on each admin GET. Specs override the parts they care about. */
 type AdminResponses = {
   users: AdminUser[]
   sessionsByUser: Record<string, AdminSession[]>
   devicesByUser: Record<string, DeviceReport[]>
+  devices: AdminDevice[]
   servers: AdminServer[]
   serverDetail: AdminServerDetail
   summary: HardwareSummary
@@ -37,6 +39,7 @@ const defaultResponses: AdminResponses = {
   users: [adminUser, suspendedUser],
   sessionsByUser: { [adminUser.id]: [adminSession], [suspendedUser.id]: [] },
   devicesByUser: { [adminUser.id]: [gamingDevice], [suspendedUser.id]: [] },
+  devices: [adminGamingDevice],
   servers: [adminServer],
   serverDetail: adminServerDetail,
   summary: {

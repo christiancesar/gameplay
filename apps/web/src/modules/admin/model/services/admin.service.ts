@@ -2,6 +2,7 @@ import {
   adminServerDetailSchema,
   generateRegistrationInviteResponseSchema,
   hardwareSummarySchema,
+  listAdminDevicesResponseSchema,
   listAdminServersResponseSchema,
   listAdminSessionsResponseSchema,
   listAdminUsersResponseSchema,
@@ -15,6 +16,7 @@ import {
   type DeviceReport,
   type GenerateRegistrationInviteResponse,
   type HardwareSummary,
+  type ListAdminDevicesResponse,
   type ListAdminServersResponse,
   type ListAdminUsersResponse,
   type PlatformSettings,
@@ -41,6 +43,11 @@ async function listAdminDevices(userId: string): Promise<DeviceReport[]> {
   return listDevicesResponseSchema.parse(data).devices
 }
 
+async function listAllAdminDevices(query: AdminListQuery): Promise<ListAdminDevicesResponse> {
+  const { data } = await http.get('/admin/hardware/devices', { params: query })
+  return listAdminDevicesResponseSchema.parse(data)
+}
+
 async function suspendUser(userId: string): Promise<void> {
   await http.post(`/admin/users/${userId}/suspend`)
 }
@@ -51,6 +58,10 @@ async function reactivateUser(userId: string): Promise<void> {
 
 async function revokeUserSessions(userId: string): Promise<void> {
   await http.post(`/admin/users/${userId}/sessions/revoke`)
+}
+
+async function revokeUserSession(userId: string, sessionId: string): Promise<void> {
+  await http.post(`/admin/users/${userId}/sessions/${sessionId}/revoke`)
 }
 
 /** The response repeats the password; it is the only time the API returns it. */
@@ -122,10 +133,12 @@ export {
   listAdminServers,
   listAdminSessions,
   listAdminUsers,
+  listAllAdminDevices,
   listRegistrationInvites,
   reactivateUser,
   resetUserPassword,
   revokeRegistrationInvite,
+  revokeUserSession,
   revokeUserSessions,
   setServerLimits,
   setUserLimits,

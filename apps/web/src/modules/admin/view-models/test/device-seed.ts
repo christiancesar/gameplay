@@ -1,4 +1,4 @@
-import type { DeviceReport } from '@gameplay/contracts'
+import type { AdminDevice, DeviceReport } from '@gameplay/contracts'
 
 const codec = (supported: boolean, powerEfficient: boolean) => ({ supported, smooth: supported, powerEfficient })
 
@@ -55,4 +55,16 @@ const sparseDevice: DeviceReport = {
   manual: null,
 }
 
-export { gamingDevice, sparseDevice }
+const toAdminDevice = (report: DeviceReport, user: AdminDevice['user']): AdminDevice => ({
+  user,
+  deviceId: report.deviceId,
+  collected: report.collected,
+  manual: report.manual,
+  collectedAt: report.collectedAt,
+})
+
+/** Rows of `GET /admin/hardware/devices`, newest first. */
+const adminGamingDevice = toAdminDevice(gamingDevice, { id: 'u1', username: 'kisnaider' })
+const adminSparseDevice = toAdminDevice(sparseDevice, { id: 'u1', username: 'kisnaider' })
+
+export { adminGamingDevice, adminSparseDevice, gamingDevice, sparseDevice }

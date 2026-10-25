@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
 
-import { useLimitOverridesStore } from './stores/limit-overrides.store'
+import { adminUser } from './test/admin-seed'
 import { createAdminViewModelContext } from './test/admin-view-model-context'
 import { fakeBrowserModule } from './test/fake-browser'
 import { useAdminUsersViewModel } from './use-admin-users.view-model'
@@ -22,19 +22,17 @@ import { useAdminUsersViewModel } from './use-admin-users.view-model'
 const setup = async (responses = {}) => {
   const context = createAdminViewModelContext(responses)
   const hook = renderHook(() => useAdminUsersViewModel(), { wrapper: context.wrapper })
-  // Users, then each user's sessions.
-  await waitFor(() => expect(hook.result.current.usersTab.users[0]?.sessionCount).toBe(1))
+  await waitFor(() => expect(hook.result.current.usersTab.users).toHaveLength(2))
   return { ...context, ...hook }
 }
 
 describe('useAdminUsersViewModel', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    useLimitOverridesStore.setState({ users: {}, servers: {} })
-  })
+  beforeEach(() => vi.clearAllMocks())
 
-  it('lists users with presence, session count, owned servers and the default limit', async () => {
+  it('lists users with presence, session count, owned servers and the effective limit', async () => {
     const { result } = await setup()
+    expect(fakeHttp.get).not.toHaveBeenCalledWith('/admin/users/u1/sessions')
+    expect(fakeHttp.get).not.toHaveBeenCalledWith('/admin/servers', expect.anything())
     const [kisnaider, marreta] = result.current.usersTab.users
     expect(kisnaider).toMatchObject({
       id: 'u1',
@@ -82,18 +80,27 @@ describe('useAdminUsersViewModel', () => {
     const { result } = await setup()
     act(() => result.current.usersTab.onViewSessions('u1'))
     expect(result.current.sessionsDialog).toMatchObject({ open: true, userName: 'Kisnaider' })
+    await waitFor(() => expect(result.current.sessionsDialog.sessions).toHaveLength(1))
     expect(result.current.sessionsDialog.sessions).toEqual([
-      expect.objectContaining({ id: 's1', ip: '187.64.12.201', device: 'Chrome 141 · Windows' }),
+      expect.objectContaining({
+        id: 's1',
+        ip: '187.64.12.201',
+        device: 'Chrome 141 · Windows',
+        lastActiveAt: '2026-10-25T11:00:00.000Z',
+      }),
     ])
     act(() => result.current.sessionsDialog.onOpenChange(false))
     expect(result.current.sessionsDialog.open).toBe(false)
   })
 
-  it('ending one session revokes all sessions of that user', async () => {
+  it('ending one session revokes only that session', async () => {
     const { result } = await setup()
     act(() => result.current.usersTab.onViewSessions('u1'))
-    act(() => result.current.sessionsDialog.onEndSession())
-    await waitFor(() => expect(fakeHttp.post).toHaveBeenCalledWith('/admin/users/u1/sessions/revoke'))
+    await waitFor(() => expect(result.current.sessionsDialog.sessions).toHaveLength(1))
+    act(() => result.current.sessionsDialog.onEndSession('s1'))
+    await waitFor(() => expect(fakeHttp.post).toHaveBeenCalledWith('/admin/users/u1/sessions/s1/revoke'))
+    expect(fakeHttp.post).not.toHaveBeenCalledWith('/admin/users/u1/sessions/revoke')
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('admin.notices.sessionEnded'))
   })
 
   it('resets the password with a suggested one and closes the dialog', async () => {
@@ -118,7 +125,7 @@ describe('useAdminUsersViewModel', () => {
     expect(result.current.resetPasswordDialog.onGenerate()).toHaveLength(16)
   })
 
-  it('edits the server limit: default first, then the saved override', async () => {
+  it('edits the server limit with the platform default and saves it', async () => {
     const { result } = await setup()
     act(() => result.current.usersTab.onEditLimit('u1'))
     expect(result.current.limitDialog.fields).toEqual([
@@ -127,7 +134,14 @@ describe('useAdminUsersViewModel', () => {
     act(() => result.current.limitDialog.onSave({ maxServers: 3 }))
     await waitFor(() => expect(fakeHttp.put).toHaveBeenCalledWith('/admin/users/u1/limits', { maxServers: 3 }))
     await waitFor(() => expect(result.current.limitDialog.open).toBe(false))
+  })
+
+  it('prefills the dialog with the override the API reports and lists it as custom', async () => {
+    const withOverride = { ...adminUser, maxServersOverride: 3, effectiveMaxServers: 3 }
+    const { result } = await setup({ users: [withOverride, { ...adminUser, id: 'u2' }] })
     expect(result.current.usersTab.users[0].serverLimit).toEqual({ value: 3, isOverride: true })
+    act(() => result.current.usersTab.onEditLimit('u1'))
+    expect(result.current.limitDialog.fields[0]).toMatchObject({ defaultValue: 1, override: 3 })
   })
 
   it('goes back to the default by sending null', async () => {

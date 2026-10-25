@@ -442,6 +442,7 @@
       "suspended": "Account suspended.",
       "reactivated": "Account reactivated.",
       "sessionsEnded": "Sessions ended.",
+      "sessionEnded": "Session ended.",
       "passwordReset": "Password reset. Share it privately.",
       "limitSaved": "Limit saved.",
       "serverDeleted": "Server deleted."

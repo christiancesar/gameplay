@@ -10,6 +10,7 @@ import {
   listAdminServers,
   listAdminSessions,
   listAdminUsers,
+  listAllAdminDevices,
   listRegistrationInvites,
 } from './admin.service'
 
@@ -18,6 +19,10 @@ const adminUsersQueryOptions = (query: AdminListQuery = {}) =>
 
 const adminUserSessionsQueryOptions = (userId: string) =>
   queryOptions({ queryKey: adminKeys.userSessions(userId), queryFn: () => listAdminSessions(userId) })
+
+/** Every device report of the base, newest first (the Hardware tab). */
+const adminDevicesQueryOptions = (query: AdminListQuery = {}) =>
+  queryOptions({ queryKey: adminKeys.devices(query), queryFn: () => listAllAdminDevices(query) })
 
 const adminUserDevicesQueryOptions = (userId: string) =>
   queryOptions({ queryKey: adminKeys.userDevices(userId), queryFn: () => listAdminDevices(userId) })
@@ -41,6 +46,7 @@ const registrationInvitesQueryOptions = queryOptions({
 })
 
 export {
+  adminDevicesQueryOptions,
   adminServerDetailQueryOptions,
   adminServersQueryOptions,
   adminUserDevicesQueryOptions,

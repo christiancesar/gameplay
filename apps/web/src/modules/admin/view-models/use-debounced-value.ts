@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 function useDebouncedValue<T>(value: T, delayMs: number): T {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
+    // Nothing to wait for while the value has not moved away from what is already applied.
+    if (value === debounced) return
     const timer = setTimeout(() => setDebounced(value), delayMs)
     return () => clearTimeout(timer)
-  }, [value, delayMs])
+  }, [value, debounced, delayMs])
   return debounced
 }
 

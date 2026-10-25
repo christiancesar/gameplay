@@ -7,6 +7,7 @@ const adminKeys = {
   usersAll: () => [...adminKeys.all, 'users'] as const,
   userSessionsAll: () => [...adminKeys.all, 'user-sessions'] as const,
   userSessions: (userId: string) => [...adminKeys.all, 'user-sessions', userId] as const,
+  devices: (query: AdminListQuery = {}) => [...adminKeys.all, 'devices', query] as const,
   userDevices: (userId: string) => [...adminKeys.all, 'user-devices', userId] as const,
   servers: (query: AdminListQuery = {}) => [...adminKeys.all, 'servers', query] as const,
   serversAll: () => [...adminKeys.all, 'servers'] as const,

@@ -10,26 +10,22 @@ import { toast } from 'sonner'
 import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
 
-import { useLimitOverridesStore } from './stores/limit-overrides.store'
+import { adminServer } from './test/admin-seed'
 import { createAdminViewModelContext } from './test/admin-view-model-context'
 import { useAdminServersViewModel } from './use-admin-servers.view-model'
 
-const setup = async () => {
-  const context = createAdminViewModelContext()
+const setup = async (responses = {}) => {
+  const context = createAdminViewModelContext(responses)
   const hook = renderHook(() => useAdminServersViewModel(), { wrapper: context.wrapper })
   await waitFor(() => expect(hook.result.current.serversTab.servers).toHaveLength(1))
   return { ...context, ...hook }
 }
 
 describe('useAdminServersViewModel', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    useLimitOverridesStore.setState({ users: {}, servers: {} })
-  })
+  beforeEach(() => vi.clearAllMocks())
 
-  it('lists servers with owner and counts against the global defaults', async () => {
+  it('lists servers with owner and counts against the effective limits', async () => {
     const { result } = await setup()
-    await waitFor(() => expect(result.current.serversTab.servers[0].members.limit).toBe(10))
     expect(result.current.serversTab.servers[0]).toMatchObject({
       id: 'sv1',
       ownerName: 'shinigame',
@@ -69,8 +65,18 @@ describe('useAdminServersViewModel', () => {
       expect(fakeHttp.put).toHaveBeenCalledWith('/admin/servers/sv1/limits', { maxMembers: 20, maxRooms: null }),
     )
     await waitFor(() => expect(result.current.limitDialog.open).toBe(false))
-    expect(result.current.serversTab.servers[0].members).toMatchObject({ limit: 20, isOverride: true })
+  })
+
+  it('prefills the limits dialog with the overrides the API reports', async () => {
+    const custom = { ...adminServer, maxMembersOverride: 20, effectiveMaxMembers: 20 }
+    const { result } = await setup({ servers: [custom] })
+    expect(result.current.serversTab.servers[0].members).toEqual({ count: 6, limit: 20, isOverride: true })
     expect(result.current.serversTab.servers[0].rooms.isOverride).toBe(false)
+    act(() => result.current.serversTab.onEditLimits('sv1'))
+    expect(result.current.limitDialog.fields).toEqual([
+      expect.objectContaining({ id: 'maxMembers', defaultValue: 10, override: 20 }),
+      expect.objectContaining({ id: 'maxRooms', defaultValue: 2, override: undefined }),
+    ])
   })
 
   it('deletes a server and refetches the list', async () => {

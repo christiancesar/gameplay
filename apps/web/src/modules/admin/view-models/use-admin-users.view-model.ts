@@ -1,5 +1,5 @@
 import { ADMIN_PAGE_SIZE_MAX } from '@gameplay/contracts'
-import { keepPreviousData, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -9,7 +9,6 @@ import { displayName, toAdminSessionItem, toAdminUserItem } from '@/modules/admi
 import { generatePassword } from '@/modules/admin/model/rules/generate-password'
 import { adminKeys } from '@/modules/admin/model/services/admin.keys'
 import {
-  adminServersQueryOptions,
   adminUserDevicesQueryOptions,
   adminUserSessionsQueryOptions,
   adminUsersQueryOptions,
@@ -18,6 +17,7 @@ import {
 import {
   reactivateUser,
   resetUserPassword,
+  revokeUserSession,
   revokeUserSessions,
   setUserLimits,
   suspendUser,
@@ -25,7 +25,6 @@ import {
 import { copyText } from '@/modules/admin/model/services/browser.service'
 import type { LimitOverrides } from '@/modules/admin/model/limits.schema'
 import type { ResetPasswordValues } from '@/modules/admin/model/reset-password.schema'
-import { useLimitOverridesStore } from '@/modules/admin/view-models/stores/limit-overrides.store'
 import { useAdminErrorToast } from '@/modules/admin/view-models/use-admin-error-toast'
 import { useDebouncedValue } from '@/modules/admin/view-models/use-debounced-value'
 
@@ -44,8 +43,6 @@ function useAdminUsersViewModel() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const onError = useAdminErrorToast()
-  const userOverrides = useLimitOverridesStore((state) => state.users)
-  const setUserOverride = useLimitOverridesStore((state) => state.setUserOverride)
 
   const [search, setSearch] = useState('')
   const [dialog, setDialog] = useState<UserDialog>()
@@ -58,15 +55,15 @@ function useAdminUsersViewModel() {
     placeholderData: keepPreviousData,
   })
   const { data: settings } = useQuery(platformSettingsQueryOptions)
-  const { data: serversPage } = useQuery(adminServersQueryOptions({ pageSize: ADMIN_PAGE_SIZE_MAX }))
   const users = usersPage?.users ?? []
-
-  // The list does not carry session counts, so each user's sessions are read (and cached for the dialog).
-  const sessionQueries = useQueries({ queries: users.map((user) => adminUserSessionsQueryOptions(user.id)) })
-  const sessionsOf = (userId: string) => sessionQueries[users.findIndex((user) => user.id === userId)]?.data ?? []
 
   const selected = users.find((user) => user.id === dialog?.userId)
   const selectedName = selected ? displayName(selected) : ''
+  const sessionsOpen = dialog?.type === 'sessions'
+  const { data: sessions } = useQuery({
+    ...adminUserSessionsQueryOptions(dialog?.userId ?? ''),
+    enabled: sessionsOpen,
+  })
   const hardwareOpen = dialog?.type === 'hardware'
   const { data: devices } = useQuery({
     ...adminUserDevicesQueryOptions(dialog?.userId ?? ''),
@@ -74,15 +71,7 @@ function useAdminUsersViewModel() {
   })
 
   const defaultServerLimit = settings?.maxServersPerUser ?? DEFAULT_SERVER_LIMIT
-  const ownedServers = serversPage?.servers ?? []
-  const items = users.map((user) =>
-    toAdminUserItem(user, {
-      sessionCount: sessionsOf(user.id).length,
-      serversOwned: ownedServers.filter((server) => server.owner.id === user.id).length,
-      defaultServerLimit,
-      serverLimitOverride: userOverrides[user.id],
-    }),
-  )
+  const items = users.map(toAdminUserItem)
 
   const refreshUsers = () => queryClient.invalidateQueries({ queryKey: adminKeys.usersAll() })
   const refreshSessions = (userId: string) =>
@@ -113,6 +102,14 @@ function useAdminUsersViewModel() {
     },
     onError,
   })
+  const endSession = useMutation({
+    mutationFn: ({ userId, sessionId }: { userId: string; sessionId: string }) => revokeUserSession(userId, sessionId),
+    onSuccess: async (_, { userId }) => {
+      toast.success(t('admin.notices.sessionEnded'))
+      await Promise.all([refreshUsers(), refreshSessions(userId)])
+    },
+    onError,
+  })
   const resetPassword = useMutation({
     mutationFn: ({ userId, password }: { userId: string; password: string }) => resetUserPassword(userId, password),
     onSuccess: async (_, { userId }) => {
@@ -125,10 +122,10 @@ function useAdminUsersViewModel() {
   const saveLimit = useMutation({
     mutationFn: ({ userId, value }: { userId: string; value: number | undefined }) =>
       setUserLimits(userId, { maxServers: value ?? null }),
-    onSuccess: (_, { userId, value }) => {
-      setUserOverride(userId, value)
+    onSuccess: async () => {
       toast.success(t('admin.notices.limitSaved'))
       close()
+      await refreshUsers()
     },
     onError,
   })
@@ -143,7 +140,7 @@ function useAdminUsersViewModel() {
   }
 
   const userId = dialog?.userId ?? ''
-  const override = userOverrides[userId]
+  const override = selected?.maxServersOverride ?? undefined
 
   return {
     usersTab: {
@@ -159,12 +156,11 @@ function useAdminUsersViewModel() {
       onEditLimit: open('limit'),
     },
     sessionsDialog: {
-      open: dialog?.type === 'sessions',
+      open: sessionsOpen,
       userName: selectedName,
-      sessions: sessionsOf(userId).map(toAdminSessionItem),
+      sessions: (sessions ?? []).map(toAdminSessionItem),
       onOpenChange: dialogOpenChange('sessions'),
-      // The API only revokes every session of a user at once.
-      onEndSession: () => endSessions.mutate(userId),
+      onEndSession: (sessionId: string) => endSession.mutate({ userId, sessionId }),
     },
     resetPasswordDialog: {
       open: dialog?.type === 'resetPassword',

@@ -1,4 +1,4 @@
-import type { CollectedHardware, DeviceReport } from '@gameplay/contracts'
+import type { AdminDevice, CollectedHardware, DeviceReport } from '@gameplay/contracts'
 
 import type { AdminDeviceItem } from '@/modules/admin/views/hardware-tab.view'
 import type { DeviceHardware, EncoderStatus } from '@/modules/hardware/views/device-hardware.view'
@@ -77,4 +77,15 @@ function toAdminDeviceItem(report: DeviceReport, user: DeviceOwner): AdminDevice
   }
 }
 
-export { toAdminDeviceItem, toDeviceHardware }
+/** A row of the global list. The same browser can report for two accounts, so the id carries the user. */
+function toAdminDeviceListItem(device: AdminDevice): AdminDeviceItem {
+  return {
+    id: `${device.user.id}:${device.deviceId}`,
+    user: { id: device.user.id, name: device.user.username },
+    label: deviceLabel(device),
+    lastSeenAt: device.collectedAt,
+    hardware: toDeviceHardware(device),
+  }
+}
+
+export { toAdminDeviceItem, toAdminDeviceListItem, toDeviceHardware }

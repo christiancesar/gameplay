@@ -442,6 +442,7 @@
       "suspended": "Conta suspensa.",
       "reactivated": "Conta reativada.",
       "sessionsEnded": "Sessões encerradas.",
+      "sessionEnded": "Sessão encerrada.",
       "passwordReset": "Senha redefinida. Passe para a pessoa por um canal privado.",
       "limitSaved": "Limite salvo.",
       "serverDeleted": "Servidor excluído."

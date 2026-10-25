@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { gamingDevice, sparseDevice } from '../../view-models/test/device-seed'
-import { toAdminDeviceItem, toDeviceHardware } from './admin-device.mapper'
+import { adminGamingDevice, gamingDevice, sparseDevice } from '../../view-models/test/device-seed'
+import { toAdminDeviceItem, toAdminDeviceListItem, toDeviceHardware } from './admin-device.mapper'
 
 const owner = { id: 'u1', name: 'Kisnaider' }
 
@@ -17,6 +17,17 @@ describe('toAdminDeviceItem', () => {
 
   it('uses a dash as label when the browser reported nothing', () => {
     expect(toAdminDeviceItem(sparseDevice, owner).label).toBe('–')
+  })
+})
+
+describe('toAdminDeviceListItem', () => {
+  it('keys the row by user and device and names the user by username', () => {
+    expect(toAdminDeviceListItem(adminGamingDevice)).toMatchObject({
+      id: 'u1:5b0c8a3e-2f4a-4b8e-9f3a-111111111111',
+      user: { id: 'u1', name: 'kisnaider' },
+      label: 'Windows 11 · Chrome 141',
+      lastSeenAt: gamingDevice.collectedAt,
+    })
   })
 })
 

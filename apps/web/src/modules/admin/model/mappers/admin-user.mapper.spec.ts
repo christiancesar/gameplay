@@ -3,11 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { toAdminSessionItem, toAdminUserItem } from './admin-user.mapper'
 import { adminSession, adminUser } from '../../view-models/test/admin-seed'
 
-const context = { sessionCount: 2, serversOwned: 1, defaultServerLimit: 1 }
-
 describe('toAdminUserItem', () => {
-  it('maps the API user to the View item with the default limit', () => {
-    expect(toAdminUserItem(adminUser, context)).toEqual({
+  it('maps the API user to the View item with the effective limit', () => {
+    expect(toAdminUserItem(adminUser)).toEqual({
       id: 'u1',
       name: 'Kisnaider',
       email: 'kis@gameplay.local',
@@ -15,25 +13,26 @@ describe('toAdminUserItem', () => {
       isOnline: true,
       isSuspended: false,
       isPlatformAdmin: false,
-      sessionCount: 2,
+      sessionCount: 1,
       serverLimit: { value: 1, isOverride: false },
       serversOwned: 1,
     })
   })
 
   it('falls back to the username when there is no display name', () => {
-    expect(toAdminUserItem({ ...adminUser, displayUsername: null }, context).name).toBe('kisnaider')
+    expect(toAdminUserItem({ ...adminUser, displayUsername: null }).name).toBe('kisnaider')
   })
 
-  it('shows a known override as the limit', () => {
-    expect(toAdminUserItem(adminUser, { ...context, serverLimitOverride: 0 }).serverLimit).toEqual({
+  it('marks the limit as override, even when it is 0', () => {
+    const user = { ...adminUser, maxServersOverride: 0, effectiveMaxServers: 0 }
+    expect(toAdminUserItem(user).serverLimit).toEqual({
       value: 0,
       isOverride: true,
     })
   })
 
   it('flags the platform admin and the suspension', () => {
-    const item = toAdminUserItem({ ...adminUser, role: 'admin', suspended: true, image: 'x.png' }, context)
+    const item = toAdminUserItem({ ...adminUser, role: 'admin', suspended: true, image: 'x.png' })
     expect(item).toMatchObject({ isPlatformAdmin: true, isSuspended: true, avatarUrl: 'x.png' })
   })
 })
@@ -44,7 +43,7 @@ describe('toAdminSessionItem', () => {
       id: 's1',
       ip: '187.64.12.201',
       device: 'Chrome 141 · Windows',
-      lastActiveAt: adminSession.createdAt,
+      lastActiveAt: adminSession.lastActiveAt,
       isActiveNow: false,
     })
   })

@@ -3,11 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { toAdminServerItem, toAdminServerMember } from './admin-server.mapper'
 import { adminServer, adminServerMember } from '../../view-models/test/admin-seed'
 
-const context = { defaultMembersLimit: 10, defaultRoomsLimit: 2 }
-
 describe('toAdminServerItem', () => {
-  it('maps counts against the global defaults', () => {
-    expect(toAdminServerItem(adminServer, context)).toEqual({
+  it('maps counts against the effective limits', () => {
+    expect(toAdminServerItem(adminServer)).toEqual({
       id: 'sv1',
       name: 'Turbex',
       iconUrl: undefined,
@@ -17,14 +15,15 @@ describe('toAdminServerItem', () => {
     })
   })
 
-  it('uses the known override per limit', () => {
-    const item = toAdminServerItem(adminServer, { ...context, override: { maxMembers: 20 } })
+  it('marks a limit as override when the server has its own', () => {
+    const item = toAdminServerItem({ ...adminServer, maxMembersOverride: 20, effectiveMaxMembers: 20 })
     expect(item.members).toEqual({ count: 6, limit: 20, isOverride: true })
     expect(item.rooms.isOverride).toBe(false)
   })
 
   it('treats a zero override as an override', () => {
-    expect(toAdminServerItem(adminServer, { ...context, override: { maxRooms: 0 } }).rooms.limit).toBe(0)
+    const item = toAdminServerItem({ ...adminServer, maxRoomsOverride: 0, effectiveMaxRooms: 0 })
+    expect(item.rooms).toEqual({ count: 2, limit: 0, isOverride: true })
   })
 })
 
