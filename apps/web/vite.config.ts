@@ -1,6 +1,7 @@
 /// <reference types="vitest/config" />
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
@@ -10,14 +11,39 @@ import { playwright } from '@vitest/browser-playwright'
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    // Precisa vir antes do react(): gera src/app/route-tree.gen.ts a partir de src/app/routes.
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+      routesDirectory: './src/app/routes',
+      generatedRouteTree: './src/app/route-tree.gen.ts',
+    }),
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  // Mesmo domínio que o nginx em produção: os cookies do Better Auth funcionam sem CORS.
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3333',
+      '/socket.io': { target: 'http://localhost:3333', ws: true },
+    },
+  },
   test: {
     projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          include: ['src/**/*.spec.{ts,tsx}'],
+        },
+      },
       {
         extends: true,
         plugins: [

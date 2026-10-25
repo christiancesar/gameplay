@@ -32,7 +32,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - 2026-10-25: PRs #2 e #3 mergeados na `main`; branches locais apagadas.
 - Plano em `05-web-plan.md` e tickets `tickets/FE-01` a `FE-14` (índice e grafo em `tickets/README.md`). Nada foi instalado ainda.
 - Decisões do usuário: rotas em `src/app/routes` (TanStack Router por arquivo); sala de voz fora da URL (store de voz, `?watch=` para assistir); modais por search param (`?settings=`, `?serverSettings=`); abas do admin como rotas filhas.
-- O usuário não tem tokens para construir o frontend inteiro numa sessão: executar um ticket por vez, começando pelo FE-01, e combinar a branch antes.
+- O usuário não tem tokens para construir o frontend inteiro numa sessão: executar um ticket por vez e combinar a branch antes.
+- A implementação segue no **OpenCode** (decisão do usuário em 2026-10-25), guiada pelo `AGENTS.md`. O **FE-01 está pela metade** na branch `docs/web-plan`: o que foi feito e o que falta estão nas notas do ticket.
 
 ## Backend (`apps/api`)
 
