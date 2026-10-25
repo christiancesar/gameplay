@@ -1,7 +1,8 @@
-import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
+import { REGISTRATION_KEY_ALPHABET, REGISTRATION_KEY_LENGTH } from '@gameplay/contracts'
 import { z } from 'zod'
 
 import { passwordSchema } from '@/modules/auth/model/password.schema'
+import { usernameSchema } from '@/modules/auth/model/username.schema'
 
 const INVITE_KEY_LENGTH = REGISTRATION_KEY_LENGTH
 /** Caracteres aceitos na key, em qualquer caixa: o alfabeto não tem 0/O nem 1/I. */
@@ -29,7 +30,7 @@ const message = (key: SignUpValidationError) => key
 
 const signUpSchema = z
   .object({
-    username: z.string().trim().min(1, message('required')).regex(USERNAME_PATTERN, message('usernameInvalid')),
+    username: usernameSchema,
     email: z
       .string()
       .trim()

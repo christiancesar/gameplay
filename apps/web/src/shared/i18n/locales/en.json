@@ -70,6 +70,7 @@
       "invalidTwoFactorCode": "Invalid code. Try again.",
       "usernameInvalid": "Use 3 to 32 letters, numbers, dots, dashes or underscores.",
       "usernameTaken": "This username is already taken.",
+      "invalidPassword": "Current password is wrong.",
       "emailInvalid": "Enter a valid email.",
       "emailTaken": "This email is already in use.",
       "passwordTooShort": "Password must have at least 8 characters.",
@@ -348,7 +349,12 @@
       "avatar": "Avatar",
       "username": "Username",
       "email": "Email",
-      "readOnly": "Ask the platform admin to change your email or password."
+      "readOnly": "Ask the platform admin to change your email.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "changePassword": "Change password",
+      "passwordChanged": "Password changed."
     },
     "audio": {
       "microphone": "Microphone",

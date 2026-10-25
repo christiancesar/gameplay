@@ -70,6 +70,7 @@
       "invalidTwoFactorCode": "Código inválido. Tente de novo.",
       "usernameInvalid": "Use de 3 a 32 letras, números, pontos, hífens ou underscores.",
       "usernameTaken": "Este username já está em uso.",
+      "invalidPassword": "A senha atual está errada.",
       "emailInvalid": "Digite um email válido.",
       "emailTaken": "Este email já está em uso.",
       "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres.",
@@ -348,7 +349,12 @@
       "avatar": "Avatar",
       "username": "Username",
       "email": "Email",
-      "readOnly": "Peça ao admin da plataforma para trocar seu email ou senha."
+      "readOnly": "Peça ao admin da plataforma para trocar seu e-mail.",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirme a nova senha",
+      "changePassword": "Trocar senha",
+      "passwordChanged": "Senha trocada."
     },
     "audio": {
       "microphone": "Microfone",

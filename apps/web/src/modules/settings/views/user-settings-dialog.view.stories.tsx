@@ -31,12 +31,17 @@ type ScenarioProps = {
   noAvatar: boolean
   weakDevice: boolean
   displaysPermission: 'granted' | 'prompt' | 'denied'
+  usernameTaken: boolean
+  wrongPassword: boolean
+  passwordChanged: boolean
 }
 
 const onSignOut = fn()
 const onToggleTest = fn()
 const onAllowDisplays = fn()
 const onSaveManual = fn()
+const onSaveUsername = fn()
+const onChangePassword = fn()
 const lastSentAt = new Date(Date.now() - 5 * 60_000).toISOString()
 
 function Scenario({
@@ -47,6 +52,9 @@ function Scenario({
   noAvatar,
   weakDevice,
   displaysPermission,
+  usernameTaken,
+  wrongPassword,
+  passwordChanged,
 }: ScenarioProps) {
   const [section, setSection] = useState(initialSection)
   const language = useStoryLanguage()
@@ -60,6 +68,13 @@ function Scenario({
         avatarError={avatarError ? 'invalidType' : undefined}
         onSelectAvatar={fn()}
         onRemoveAvatar={fn()}
+        isSavingUsername={false}
+        usernameError={usernameTaken ? 'usernameTaken' : undefined}
+        onSaveUsername={onSaveUsername}
+        isChangingPassword={false}
+        passwordError={wrongPassword ? 'invalidPassword' : undefined}
+        passwordChanged={passwordChanged}
+        onChangePassword={onChangePassword}
       />
     ),
     audio: (
@@ -126,6 +141,9 @@ const meta = {
     noAvatar: false,
     weakDevice: false,
     displaysPermission: 'granted',
+    usernameTaken: false,
+    wrongPassword: false,
+    passwordChanged: false,
   },
   argTypes: {
     initialSection: { control: 'select', options: ['profile', 'audio', 'appearance', 'hardware', 'account'] },
@@ -139,6 +157,50 @@ type Story = StoryObj<typeof meta>
 export const Profile: Story = {}
 export const ProfileNoAvatar: Story = { args: { noAvatar: true } }
 export const ProfileAvatarError: Story = { args: { avatarError: true } }
+
+/** Salvar só libera depois de mudar; o formato é checado antes de chegar ao servidor. */
+export const EditUsername: Story = {
+  play: async ({ userEvent }) => {
+    const input = await screen.findByLabelText(/^username$/i)
+    const save = screen.getByRole('button', { name: /^save$/i })
+    await expect(save).toBeDisabled()
+    await userEvent.clear(input)
+    await userEvent.type(input, 'shini game')
+    await userEvent.click(save)
+    await expect(await screen.findByRole('alert')).toHaveTextContent(/3 to 32 letters/i)
+    await expect(onSaveUsername).not.toHaveBeenCalled()
+
+    await userEvent.clear(input)
+    await userEvent.type(input, 'Shini.Game')
+    await userEvent.click(save)
+    await expect(onSaveUsername).toHaveBeenCalledWith('Shini.Game')
+  },
+}
+
+export const UsernameTaken: Story = { args: { usernameTaken: true } }
+
+/** Nova senha com no mínimo 8 caracteres e confirmada; a atual vai junto para o servidor conferir. */
+export const ChangePassword: Story = {
+  play: async ({ userEvent }) => {
+    await userEvent.type(await screen.findByLabelText(/current password/i), 'hunter2222')
+    await userEvent.type(screen.getByLabelText(/^new password/i), 'short')
+    await userEvent.type(screen.getByLabelText(/confirm new password/i), 'other')
+    await userEvent.click(screen.getByRole('button', { name: /change password/i }))
+    await expect(await screen.findByText(/at least 8 characters/i)).toBeVisible()
+    await expect(screen.getByText(/don't match/i)).toBeVisible()
+    await expect(onChangePassword).not.toHaveBeenCalled()
+
+    await userEvent.clear(screen.getByLabelText(/^new password/i))
+    await userEvent.type(screen.getByLabelText(/^new password/i), 'correct-horse')
+    await userEvent.clear(screen.getByLabelText(/confirm new password/i))
+    await userEvent.type(screen.getByLabelText(/confirm new password/i), 'correct-horse')
+    await userEvent.click(screen.getByRole('button', { name: /change password/i }))
+    await expect(onChangePassword).toHaveBeenCalledWith({ currentPassword: 'hunter2222', newPassword: 'correct-horse' })
+  },
+}
+
+export const ChangePasswordWrongCurrent: Story = { args: { wrongPassword: true } }
+export const PasswordChanged: Story = { args: { passwordChanged: true } }
 
 export const Audio: Story = { args: { initialSection: 'audio' } }
 export const AudioTestingMicrophone: Story = {

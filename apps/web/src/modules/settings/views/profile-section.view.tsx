@@ -1,8 +1,11 @@
 import { useTranslation } from 'react-i18next'
 
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/shared/ui/field'
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/shared/ui/field'
 import { ImagePicker, type ImageError } from '@/shared/ui/image-picker'
 import { Input } from '@/shared/ui/input'
+
+import { ChangePasswordForm, type ChangePasswordFormProps } from './change-password-form.view'
+import { UsernameForm, type UsernameFormProps } from './username-form.view'
 
 type ProfileSectionViewProps = {
   user: { name: string; email: string; avatarUrl?: string }
@@ -10,14 +13,29 @@ type ProfileSectionViewProps = {
   avatarError?: ImageError
   onSelectAvatar: (file: File) => void
   onRemoveAvatar: () => void
+  isSavingUsername: boolean
+  usernameError?: UsernameFormProps['error']
+  onSaveUsername: UsernameFormProps['onSave']
+  isChangingPassword: boolean
+  passwordError?: ChangePasswordFormProps['error']
+  passwordChanged: boolean
+  onChangePassword: ChangePasswordFormProps['onSubmit']
 }
 
+/** Avatar, username e senha mudam aqui. O e-mail só pelo admin da plataforma. */
 function ProfileSectionView({
   user,
   isUploadingAvatar,
   avatarError,
   onSelectAvatar,
   onRemoveAvatar,
+  isSavingUsername,
+  usernameError,
+  onSaveUsername,
+  isChangingPassword,
+  passwordError,
+  passwordChanged,
+  onChangePassword,
 }: ProfileSectionViewProps) {
   const { t } = useTranslation()
 
@@ -37,15 +55,19 @@ function ProfileSectionView({
           onRemove={onRemoveAvatar}
         />
       </Field>
-      <Field>
-        <FieldLabel htmlFor="profile-username">{t('settings.profile.username')}</FieldLabel>
-        <Input id="profile-username" value={user.name} readOnly />
-      </Field>
+      <UsernameForm username={user.name} isSaving={isSavingUsername} error={usernameError} onSave={onSaveUsername} />
       <Field>
         <FieldLabel htmlFor="profile-email">{t('settings.profile.email')}</FieldLabel>
         <Input id="profile-email" value={user.email} readOnly />
         <FieldDescription>{t('settings.profile.readOnly')}</FieldDescription>
       </Field>
+      <FieldSeparator />
+      <ChangePasswordForm
+        isSaving={isChangingPassword}
+        error={passwordError}
+        changed={passwordChanged}
+        onSubmit={onChangePassword}
+      />
     </FieldGroup>
   )
 }
