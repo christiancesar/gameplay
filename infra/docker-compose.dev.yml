@@ -30,6 +30,11 @@ services:
     build:
       context: ..
       dockerfile: apps/api/Dockerfile
+    # Only for OTEL_* (Grafana Cloud): everything else the container needs is
+    # set below and wins over the file. Without the file, telemetry stays off.
+    env_file:
+      - path: ../apps/api/.env
+        required: false
     environment:
       NODE_ENV: production
       PORT: 3333
