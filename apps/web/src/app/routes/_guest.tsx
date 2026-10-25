@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
 import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
-import { GuestLayoutScreen } from '@/modules/auth/screens/guest-layout.screen'
 
 export const Route = createFileRoute('/_guest')({
   beforeLoad: async ({ context }) => {
@@ -11,7 +10,6 @@ export const Route = createFileRoute('/_guest')({
     }
     return { session: null }
   },
-  component: GuestLayoutScreen,
+  // Each auth View renders its own AuthLayoutView, so the layout is a bare Outlet.
+  component: Outlet,
 })
-
-export const GuestLayoutOutlet = Outlet

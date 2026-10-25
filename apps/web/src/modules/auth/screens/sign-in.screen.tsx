@@ -9,11 +9,6 @@ import { useTwoFactorViewModel } from '@/modules/auth/view-models/use-two-factor
 import { useRecoveryCodeViewModel } from '@/modules/auth/view-models/use-recovery-code.view-model'
 import { useLanguageViewModel } from '@/modules/settings/view-models/use-language.view-model'
 
-const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'EN' },
-  { value: 'pt', label: 'PT' },
-] as const
-
 type Step = 'credentials' | 'two-factor' | 'recovery-code'
 
 export function SignInScreen() {
@@ -22,14 +17,14 @@ export function SignInScreen() {
   const { signIn, goToSignUp } = useSignInViewModel()
   const { verifyTotp, goBack: goBackTwoFactor, goToRecovery } = useTwoFactorViewModel()
   const { verifyRecovery, goBack: goBackRecovery } = useRecoveryCodeViewModel()
-  const { language, setLanguage } = useLanguageViewModel()
+  const { language, languageOptions, setLanguage } = useLanguageViewModel()
 
   const [formError, setFormError] = useState<string | undefined>()
 
   const layout = {
     language,
-    languageOptions: LANGUAGE_OPTIONS,
-    onLanguageChange: (next: string) => setLanguage(next as any),
+    languageOptions,
+    onLanguageChange: (next: string) => setLanguage(next),
   }
 
   if (step === 'two-factor') {

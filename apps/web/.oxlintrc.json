@@ -21,6 +21,12 @@
       }
     },
     {
+      "files": ["src/app/routes/**"],
+      "rules": {
+        "react/only-export-components": "off"
+      }
+    },
+    {
       "files": ["**/*.stories.tsx"],
       "rules": {
         "react/no-multi-comp": "off"

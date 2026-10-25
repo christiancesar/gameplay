@@ -15,10 +15,10 @@ import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
-import { Route as IRouteImport } from './routes/i.'
+import { Route as ICodeRouteImport } from './routes/i.$code'
 import { Route as AuthedAdminPanelRouteImport } from './routes/_authed/admin/_panel'
 import { Route as AuthedAdminSetupRouteImport } from './routes/_authed/admin/setup'
-import { Route as AuthedServersRouteImport } from './routes/_authed/servers.'
+import { Route as AuthedServersServerIdRouteImport } from './routes/_authed/servers.$serverId'
 import { Route as AuthedAdminPanelIndexRouteImport } from './routes/_authed/admin/_panel/index'
 import { Route as AuthedAdminPanelHardwareRouteImport } from './routes/_authed/admin/_panel/hardware'
 import { Route as AuthedAdminPanelKeysRouteImport } from './routes/_authed/admin/_panel/keys'
@@ -54,9 +54,9 @@ const GuestSignUpRoute = GuestSignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => GuestRoute,
 } as any)
-const IRoute = IRouteImport.update({
-  id: '/i/',
-  path: '/i/',
+const ICodeRoute = ICodeRouteImport.update({
+  id: '/i/$code',
+  path: '/i/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedAdminPanelRoute = AuthedAdminPanelRouteImport.update({
@@ -68,9 +68,9 @@ const AuthedAdminSetupRoute = AuthedAdminSetupRouteImport.update({
   path: '/setup',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
-const AuthedServersRoute = AuthedServersRouteImport.update({
-  id: '/servers/',
-  path: '/servers/',
+const AuthedServersServerIdRoute = AuthedServersServerIdRouteImport.update({
+  id: '/servers/$serverId',
+  path: '/servers/$serverId',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedAdminPanelIndexRoute = AuthedAdminPanelIndexRouteImport.update({
@@ -107,12 +107,12 @@ const AuthedAdminPanelUsersRoute = AuthedAdminPanelUsersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
-  '/i/': typeof IRoute
   '/admin': typeof AuthedAdminRouteWithChildren
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
-  '/servers/': typeof AuthedServersRoute
+  '/i/$code': typeof ICodeRoute
   '/admin/setup': typeof AuthedAdminSetupRoute
+  '/servers/$serverId': typeof AuthedServersServerIdRoute
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
@@ -122,12 +122,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof AuthedIndexRoute
-  '/i': typeof IRoute
   '/admin': typeof AuthedAdminPanelIndexRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
-  '/servers': typeof AuthedServersRoute
+  '/i/$code': typeof ICodeRoute
   '/admin/setup': typeof AuthedAdminSetupRoute
+  '/servers/$serverId': typeof AuthedServersServerIdRoute
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
@@ -138,14 +138,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
-  '/i/': typeof IRoute
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
+  '/i/$code': typeof ICodeRoute
   '/_authed/': typeof AuthedIndexRoute
-  '/_authed/servers/': typeof AuthedServersRoute
   '/_authed/admin/_panel': typeof AuthedAdminPanelRouteWithChildren
   '/_authed/admin/setup': typeof AuthedAdminSetupRoute
+  '/_authed/servers/$serverId': typeof AuthedServersServerIdRoute
   '/_authed/admin/_panel/hardware': typeof AuthedAdminPanelHardwareRoute
   '/_authed/admin/_panel/keys': typeof AuthedAdminPanelKeysRoute
   '/_authed/admin/_panel/limits': typeof AuthedAdminPanelLimitsRoute
@@ -157,12 +157,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/i/'
     | '/admin'
     | '/sign-in'
     | '/sign-up'
-    | '/servers/'
+    | '/i/$code'
     | '/admin/setup'
+    | '/servers/$serverId'
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
@@ -172,12 +172,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/i'
     | '/admin'
     | '/sign-in'
     | '/sign-up'
-    | '/servers'
+    | '/i/$code'
     | '/admin/setup'
+    | '/servers/$serverId'
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
@@ -187,14 +187,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authed'
     | '/_guest'
-    | '/i/'
     | '/_authed/admin'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
+    | '/i/$code'
     | '/_authed/'
-    | '/_authed/servers/'
     | '/_authed/admin/_panel'
     | '/_authed/admin/setup'
+    | '/_authed/servers/$serverId'
     | '/_authed/admin/_panel/hardware'
     | '/_authed/admin/_panel/keys'
     | '/_authed/admin/_panel/limits'
@@ -206,7 +206,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   GuestRoute: typeof GuestRouteWithChildren
-  IRoute: typeof IRoute
+  ICodeRoute: typeof ICodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -253,11 +253,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestSignUpRouteImport
       parentRoute: typeof GuestRoute
     }
-    '/i/': {
-      id: '/i/'
-      path: '/i'
-      fullPath: '/i/'
-      preLoaderRoute: typeof IRouteImport
+    '/i/$code': {
+      id: '/i/$code'
+      path: '/i/$code'
+      fullPath: '/i/$code'
+      preLoaderRoute: typeof ICodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/admin/_panel': {
@@ -274,11 +274,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminSetupRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
-    '/_authed/servers/': {
-      id: '/_authed/servers/'
-      path: '/servers'
-      fullPath: '/servers/'
-      preLoaderRoute: typeof AuthedServersRouteImport
+    '/_authed/servers/$serverId': {
+      id: '/_authed/servers/$serverId'
+      path: '/servers/$serverId'
+      fullPath: '/servers/$serverId'
+      preLoaderRoute: typeof AuthedServersServerIdRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/admin/_panel/': {
@@ -364,13 +364,13 @@ const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
 interface AuthedRouteChildren {
   AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
   AuthedIndexRoute: typeof AuthedIndexRoute
-  AuthedServersRoute: typeof AuthedServersRoute
+  AuthedServersServerIdRoute: typeof AuthedServersServerIdRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAdminRoute: AuthedAdminRouteWithChildren,
   AuthedIndexRoute: AuthedIndexRoute,
-  AuthedServersRoute: AuthedServersRoute,
+  AuthedServersServerIdRoute: AuthedServersServerIdRoute,
 }
 
 const AuthedRouteWithChildren =
@@ -391,7 +391,7 @@ const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   GuestRoute: GuestRouteWithChildren,
-  IRoute: IRoute,
+  ICodeRoute: ICodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
