@@ -346,6 +346,9 @@
   },
   "settings": {
     "title": "Settings",
+    "errors": {
+      "unexpected": "Something went wrong. Try again."
+    },
     "sections": {
       "profile": "Profile",
       "audio": "Audio",
@@ -435,6 +438,20 @@
     "search": "Search",
     "empty": "Nothing found.",
     "default": "default",
+    "notices": {
+      "suspended": "Account suspended.",
+      "reactivated": "Account reactivated.",
+      "sessionsEnded": "Sessions ended.",
+      "passwordReset": "Password reset. Share it privately.",
+      "limitSaved": "Limit saved.",
+      "serverDeleted": "Server deleted."
+    },
+    "errors": {
+      "twoFactorRequired": "Set up two-factor authentication to use the admin panel.",
+      "cannotSuspendSelf": "You can't suspend your own account.",
+      "notFound": "That item no longer exists.",
+      "unexpected": "Something went wrong. Try again."
+    },
     "setup": {
       "title": "Set up two-factor authentication",
       "description": "Platform admins must use an authenticator app.",
@@ -469,7 +486,8 @@
       "suspendDescription": "Blocks login and drops every session and connection right away.",
       "endSessionsTitle": "End all sessions of {{name}}?",
       "endSessionsDescription": "They will be signed out on every device.",
-      "viewHardware": "View hardware"
+      "viewHardware": "View hardware",
+      "limitTitle": "Server limit of {{name}}"
     },
     "sessions": {
       "title": "Sessions of {{name}}",
@@ -502,7 +520,8 @@
       "viewMembers": "View members",
       "membersTitle": "Members of {{name}}",
       "role": "Role",
-      "joinedVia": "How they joined"
+      "joinedVia": "How they joined",
+      "limitsTitle": "Limits of {{name}}"
     },
     "limits": {
       "description": "Defaults used when a user or server has no custom value. Changes apply without redeploy.",
@@ -550,6 +569,10 @@
   },
   "hardware": {
     "title": "Hardware",
+    "errors": {
+      "collect": "Could not collect the hardware. Try again.",
+      "saveManual": "Could not save. Try again."
+    },
     "description": "What this device reports to the browser. It is sent to the platform admin to understand where Gameplay runs.",
     "lastSent": "Sent {{date}}",
     "refresh": "Collect again",

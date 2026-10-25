@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PendingScreen } from '@/app/pending.screen'
+import { AdminUsersScreen } from '@/modules/admin/screens/admin-users.screen'
 
 export const Route = createFileRoute('/_authed/admin/_panel/users')({
-  component: PendingScreen,
+  component: AdminUsersScreen,
 })
