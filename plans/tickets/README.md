@@ -27,7 +27,7 @@ Como trabalhar:
 | [BE-12 Salas de voz e sinalização](BE-12-salas-de-voz-e-sinalizacao.md) | 8 | 8 | concluído |
 | [BE-13 Notificações](BE-13-notificacoes.md) | 3 | 8 | concluído |
 | [BE-15 Admin da plataforma](BE-15-admin-da-plataforma.md) | 8 | 8 | concluído |
-| [BE-17 Lacunas para o web](BE-17-lacunas-para-o-web.md) | 5 | 9 | em andamento |
+| [BE-17 Lacunas para o web](BE-17-lacunas-para-o-web.md) | 5 | 9 | concluído |
 
 Total: 90 pontos. Tickets da mesma onda podem rodar em paralelo.
 
@@ -76,7 +76,7 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 | [FE-07 Modal do servidor](FE-07-modal-do-servidor.md) | 8 | 5 | pendente |
 | [FE-09 Salas de voz](FE-09-voz.md) | 8 | 5 | pendente |
 | [FE-10 Compartilhar e assistir tela](FE-10-transmissao.md) | 8 | 6 | pendente |
-| [FE-14a E2E com Cypress, fluxos atuais](FE-14-e2e-cypress.md) | 3 | 5 | pendente |
+| [FE-14a E2E com Cypress, fluxos atuais](FE-14-e2e-cypress.md) | 3 | 5 | concluído |
 | [FE-14b E2E de voz e transmissão com peer bot](FE-14-e2e-cypress.md) | 3 | 6 | pendente |
 
 Total: 76 pontos.

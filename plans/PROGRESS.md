@@ -42,7 +42,9 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
   2. GET dos limites próprios de usuário e servidor no admin: hoje salvar o diálogo depois de recarregar zera o limite existente. **O mais urgente.**
   3. `POST /invites/:code/join` com auto aprovação não barra servidor cheio.
   4. Encerrar uma sessão só, última atividade da sessão, contagem de pedidos pendentes e listagem global de dispositivos (melhorias, não bloqueiam).
-- Liberados agora: FE-07 (modal do servidor), FE-09 (voz), FE-12 (avisos do ambiente) e FE-13 (lint MVVM e Sentry).
+- 2026-10-25: a pedido do usuário, **BE-17** fechou as lacunas da API (limite do usuário, limites próprios no admin, encerrar uma sessão, última atividade, contagem de pedidos, listagem global de dispositivos) e o web trocou os contornos pelos dados novos. O item "convite em servidor cheio" não era lacuna: com aprovação automática e servidor cheio já vira pedido pendente.
+- 2026-10-25: Cypress é o e2e principal (Playwright só para conferência rápida do orquestrador, fora do repo). FE-14 dividido: **FE-14a concluído** (26 cenários, `npm run e2e` com API e Vite de pé, dados com prefixo apagados no fim); FE-14b (peer bot, voz e transmissão) fica para depois do FE-09 e FE-10.
+- Estado: web 694 testes, api 282 unitários e 148 e2e, Cypress 26. Liberados agora: FE-07 (modal do servidor), FE-09 (voz), FE-12 (avisos do ambiente) e FE-13 (lint MVVM e Sentry).
 
 ## Backend (`apps/api`)
 

@@ -36,3 +36,19 @@ Testes de carga.
 ## FE-14b (depois do FE-09 e FE-10)
 
 - `tasks/peer-bot.ts` headless e os cenários de entrar na sala, transmitir e assistir.
+
+## Notas da execução do FE-14a (2026-10-25)
+
+Feito por um agente Sonnet; conferido pelo Opus rodando a suíte com o código final (26 de 26 em 1 min, banco limpo no fim).
+
+- Cypress 16.2 em `apps/web/cypress` com `@testing-library/cypress`; `cypress/tsconfig.json` próprio. Scripts: `npm run e2e` na raiz (turbo, fora do `npm test`), `npm run e2e:open -w apps/web`, `npm run e2e:typecheck -w apps/web`.
+- Roda contra a API na 3333 e o Vite na 5173 (o Better Auth só confia nessa origem). Os dois precisam estar de pé antes.
+- Dados por `cy.task` direto no Postgres de dev com `pg`: keys com o mesmo HMAC da API, usuários pelo cadastro real, servidores e convites por SQL, TOTP calculado em Node (RFC 6238). Tudo com prefixo `e2e<6 hex>` e apagado no `after:run`.
+- Interface forçada em inglês; logins com `cy.session`.
+- Cenários: login (email, username, senha errada, rota protegida), 2FA do admin (setup, código errado, TOTP, código de recuperação), cadastro com key (válida, inválida, reuso), convite (sem e com sessão, auto aprovação ligada e desligada), criar servidor (abrir a tela, nome vazio, limite), configurações (tema, idioma, username), limites no admin (persistem depois de recarregar).
+
+Suposições *(confirmar)*:
+- `npm run e2e` força o Chrome (o Electron está obsoleto no Cypress 16). *(suposição)*
+- Para não bater no rate limit do Better Auth em dev, os testes mandam um `x-forwarded-for` falso por requisição. Só funciona porque o dev confia no header; em produção o nginx sobrescreve. *(suposição)*
+- As tasks escrevem SQL com os nomes de coluna do schema Prisma atual: mudança no schema exige ajuste em `cypress/tasks`. *(suposição)*
+- Se a execução cair antes do `after:run`, sobram dados com o prefixo da execução; dá para apagar pelo prefixo. *(suposição)*
