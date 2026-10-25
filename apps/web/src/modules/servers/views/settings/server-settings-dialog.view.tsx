@@ -2,10 +2,8 @@ import { AudioLinesIcon, DoorOpenIcon, InboxIcon, LinkIcon, SlidersHorizontalIco
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { SERVER_SETTINGS_SECTIONS, type ServerSettingsSection } from '@/modules/servers/model/server.search'
 import { SectionDialog } from '@/shared/ui/section-dialog'
-
-const SERVER_SETTINGS_SECTIONS = ['general', 'invites', 'requests', 'members', 'rooms', 'danger'] as const
-type ServerSettingsSection = (typeof SERVER_SETTINGS_SECTIONS)[number]
 
 const ICONS = {
   general: SlidersHorizontalIcon,
