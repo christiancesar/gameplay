@@ -1,8 +1,9 @@
-import type { AdminUserRecord } from '../domain/admin-records'
+import { makeCollected } from '../../accounts/test/hardware-seed'
+import type { AdminDeviceRecord, AdminUserRecord } from '../domain/admin-records'
 import type { AccountSession } from '../providers/auth-accounts'
 
 // The platform admin unit tests start with the admin, "ana" and "bia" (bia
-// signed up last), each with a password, and one session for ana.
+// signed up last), each with a password, and two sessions for ana.
 const user = (id: string, createdAt: number, role: 'user' | 'admin' = 'user'): AdminUserRecord => ({
   id,
   username: id,
@@ -12,6 +13,9 @@ const user = (id: string, createdAt: number, role: 'user' | 'admin' = 'user'): A
   role,
   suspended: false,
   twoFactorEnabled: role === 'admin',
+  maxServersOverride: null,
+  ownedServerCount: 0,
+  sessionCount: 0,
   createdAt: new Date(createdAt),
 })
 
@@ -19,9 +23,40 @@ export const SEED_USERS: AdminUserRecord[] = [user('admin', 1, 'admin'), user('a
 
 export const SEED_PASSWORDS: [userId: string, password: string][] = SEED_USERS.map(({ id }) => [id, `${id}-pass`])
 
+const session = (id: string, createdAt: number): AccountSession => ({
+  id,
+  ipAddress: '203.0.113.7',
+  userAgent: 'Chrome',
+  createdAt: new Date(createdAt),
+  lastActiveAt: new Date(createdAt + 5),
+  expiresAt: new Date(99),
+})
+
 export const SEED_SESSIONS: [userId: string, sessions: AccountSession[]][] = [
-  [
-    'ana',
-    [{ id: 'sess-1', ipAddress: '203.0.113.7', userAgent: 'Chrome', createdAt: new Date(10), expiresAt: new Date(99) }],
-  ],
+  ['ana', [session('sess-1', 10), session('sess-2', 20)]],
+]
+
+// Hardware reports of the base: ana's laptop is the newest, bia's desktop the oldest.
+export const SEED_DEVICES: AdminDeviceRecord[] = [
+  {
+    user: { id: 'bia', username: 'bia' },
+    deviceId: 'desktop',
+    collected: makeCollected(),
+    manual: null,
+    collectedAt: new Date(1),
+  },
+  {
+    user: { id: 'ana', username: 'ana' },
+    deviceId: 'laptop',
+    collected: makeCollected(),
+    manual: null,
+    collectedAt: new Date(3),
+  },
+  {
+    user: { id: 'ana', username: 'ana' },
+    deviceId: 'phone',
+    collected: makeCollected(),
+    manual: null,
+    collectedAt: new Date(2),
+  },
 ]

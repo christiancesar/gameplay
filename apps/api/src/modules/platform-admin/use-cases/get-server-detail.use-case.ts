@@ -23,6 +23,6 @@ export class GetServerDetailUseCase {
     const server = await this.servers.findById(serverId)
     if (!server) throw new ServerNotFoundError()
     const [rooms, members] = await Promise.all([this.rooms.list(serverId), this.memberships.listMembers(serverId)])
-    return { ...this.views.view(server), rooms, members }
+    return { ...(await this.views.view(server)), rooms, members }
   }
 }

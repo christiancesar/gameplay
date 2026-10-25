@@ -9,6 +9,8 @@ const select = {
   name: true,
   iconKey: true,
   createdAt: true,
+  maxMembersOverride: true,
+  maxRoomsOverride: true,
   owner: { select: { id: true, username: true } },
   _count: { select: { members: true, rooms: true } },
 } as const
@@ -23,6 +25,8 @@ function toRecord(row: Row): AdminServerRecord {
     owner: { id: row.owner.id, username: row.owner.username ?? '' },
     memberCount: row._count.members,
     roomCount: row._count.rooms,
+    maxMembersOverride: row.maxMembersOverride,
+    maxRoomsOverride: row.maxRoomsOverride,
     createdAt: row.createdAt,
   }
 }

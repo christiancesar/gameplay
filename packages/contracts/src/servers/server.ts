@@ -53,6 +53,8 @@ export const serverDetailSchema = z.object({
   // Effective limits (override or global default).
   limits: z.object({ maxMembers: z.number().int(), maxRooms: z.number().int() }),
   rooms: z.array(roomSchema),
+  // Join requests waiting; null for a plain member, who cannot see them.
+  pendingJoinRequests: z.number().int().nullable(),
 })
 export type ServerDetail = z.infer<typeof serverDetailSchema>
 

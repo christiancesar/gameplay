@@ -7,6 +7,8 @@ export type AccountSession = {
   ipAddress: string | null
   userAgent: string | null
   createdAt: Date
+  // The session's updatedAt: Better Auth refreshes it while the session is used.
+  lastActiveAt: Date
   expiresAt: Date
 }
 
@@ -16,6 +18,8 @@ export abstract class AuthAccounts {
   abstract suspend(userId: string): Promise<void>
   abstract reactivate(userId: string): Promise<void>
   abstract revokeSessions(userId: string): Promise<void>
+  // Ends one session of the user; false when the user has no such session.
+  abstract revokeSession(userId: string, sessionId: string): Promise<boolean>
   // Active sessions, newest first.
   abstract listSessions(userId: string): Promise<AccountSession[]>
   // False when the user has no password account.
@@ -52,14 +56,25 @@ export class BetterAuthAccounts extends AuthAccounts {
     await (await this.context()).internalAdapter.deleteUserSessions(userId)
   }
 
+  async revokeSession(userId: string, sessionId: string): Promise<boolean> {
+    const { internalAdapter } = await this.context()
+    const sessions = await internalAdapter.listSessions(userId, { onlyActiveSessions: true })
+    const session = sessions.find(({ id }) => id === sessionId)
+    if (!session) return false
+    await internalAdapter.deleteSession(session.token)
+    return true
+  }
+
   async listSessions(userId: string): Promise<AccountSession[]> {
     const sessions = await (await this.context()).internalAdapter.listSessions(userId, { onlyActiveSessions: true })
     return sessions
-      .map(({ id, ipAddress, userAgent, createdAt, expiresAt }) => ({
+
+      .map(({ id, ipAddress, userAgent, createdAt, updatedAt, expiresAt }) => ({
         id,
         ipAddress: ipAddress ?? null,
         userAgent: userAgent ?? null,
         createdAt,
+        lastActiveAt: updatedAt,
         expiresAt,
       }))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())

@@ -8,6 +8,9 @@ type Member = { serverId: string; userId: string; role: ServerRole; joinedAt: Da
 export class InMemoryServersRepository extends ServersRepository {
   readonly servers = new Map<string, ServerRecord>()
   readonly members: Member[] = []
+  // Test helper: pending join requests per server (the requests themselves
+  // live in the memberships module).
+  readonly pendingJoinRequests = new Map<string, number>()
   private sequence = 0
 
   constructor(private readonly rooms: InMemoryRoomsRepository) {
@@ -67,6 +70,14 @@ export class InMemoryServersRepository extends ServersRepository {
 
   async countMembers(serverId: string): Promise<number> {
     return this.members.filter((member) => member.serverId === serverId).length
+  }
+
+  async countOwned(userId: string): Promise<number> {
+    return [...this.servers.values()].filter((server) => server.ownerId === userId).length
+  }
+
+  async countPendingJoinRequests(serverId: string): Promise<number> {
+    return this.pendingJoinRequests.get(serverId) ?? 0
   }
 
   async listMemberIds(serverId: string): Promise<string[]> {

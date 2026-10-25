@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
 import type {
   ListAdminSessionsResponse,
   ListAdminUsersResponse,
@@ -21,6 +21,7 @@ import {
   toAdminUserDto,
 } from '../dtos/platform-admin.dto'
 import { GetUserDevicesUseCase } from '../use-cases/get-user-devices.use-case'
+import { RevokeUserSessionUseCase } from '../use-cases/revoke-user-session.use-case'
 import { ListUserSessionsUseCase } from '../use-cases/list-user-sessions.use-case'
 import { ListUsersUseCase } from '../use-cases/list-users.use-case'
 import { ReactivateUserUseCase } from '../use-cases/reactivate-user.use-case'
@@ -36,6 +37,7 @@ export class AdminUsersController {
     private readonly listUsers: ListUsersUseCase,
     private readonly listSessions: ListUserSessionsUseCase,
     private readonly revokeSessions: RevokeUserSessionsUseCase,
+    private readonly revokeSession: RevokeUserSessionUseCase,
     private readonly suspendUser: SuspendUserUseCase,
     private readonly reactivateUser: ReactivateUserUseCase,
     private readonly resetPassword: ResetUserPasswordUseCase,
@@ -60,6 +62,14 @@ export class AdminUsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async revoke(@Param('userId') userId: string): Promise<void> {
     await this.revokeSessions.execute(userId)
+  }
+
+  // 404 when the session is not one of this user's.
+  @Post(':userId/sessions/:sessionId/revoke')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse()
+  async revokeOne(@Param('userId') userId: string, @Param('sessionId') sessionId: string): Promise<void> {
+    await this.revokeSession.execute({ userId, sessionId })
   }
 
   @Post(':userId/suspend')

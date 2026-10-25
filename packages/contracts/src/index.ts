@@ -1,22 +1,26 @@
 export {
   ADMIN_PAGE_SIZE_MAX,
+  adminDeviceSchema,
   adminListQuerySchema,
   adminServerDetailSchema,
   adminServerSchema,
   adminSessionSchema,
   adminUserSchema,
   hardwareSummarySchema,
+  listAdminDevicesResponseSchema,
   listAdminServersResponseSchema,
   listAdminSessionsResponseSchema,
   listAdminUsersResponseSchema,
   resetPasswordRequestSchema,
   resetPasswordResponseSchema,
+  type AdminDevice,
   type AdminListQuery,
   type AdminServer,
   type AdminServerDetail,
   type AdminSession,
   type AdminUser,
   type HardwareSummary,
+  type ListAdminDevicesResponse,
   type ListAdminServersResponse,
   type ListAdminSessionsResponse,
   type ListAdminUsersResponse,
@@ -70,6 +74,7 @@ export {
   type ManualHardware,
   type ReportDeviceRequest,
 } from './account/device-report.js'
+export { myLimitsSchema, type MyLimits } from './account/limits.js'
 export { PASSWORD_MIN_LENGTH, passwordSchema } from './account/password.js'
 export {
   LOCALES,

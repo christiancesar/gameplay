@@ -1,4 +1,4 @@
-import { CannotSuspendSelfError, UserNotFoundError } from '../errors/platform-admin.errors'
+import { CannotSuspendSelfError, SessionNotFoundError, UserNotFoundError } from '../errors/platform-admin.errors'
 import { GENERATED_PASSWORD } from '../test/fixed-password-generator'
 import { makePlatformAdminContext } from '../test/platform-admin-context'
 
@@ -15,6 +15,21 @@ describe('platform admin user actions', () => {
     ])
     expect((await listUsers.execute({ search: 'ANA@', page: 1, pageSize: 20 })).items.map(({ id }) => id)).toEqual([
       'ana',
+    ])
+  })
+
+  it('resolves the server limit in force of each user, override or default', async () => {
+    const { listUsers, repository } = makePlatformAdminContext()
+    repository.users.find(({ id }) => id === 'ana')!.maxServersOverride = 4
+
+    const { items } = await listUsers.execute({ page: 1, pageSize: 20 })
+
+    expect(
+      items.map(({ id, maxServersOverride, effectiveMaxServers }) => [id, maxServersOverride, effectiveMaxServers]),
+    ).toEqual([
+      ['bia', null, 1],
+      ['ana', 4, 4],
+      ['admin', null, 1],
     ])
   })
 
@@ -41,10 +56,42 @@ describe('platform admin user actions', () => {
   it('lists and ends the sessions of a user', async () => {
     const { listSessions, revokeSessions, events } = makePlatformAdminContext()
 
-    expect(await listSessions.execute('ana')).toEqual([expect.objectContaining({ ipAddress: '203.0.113.7' })])
+    expect(await listSessions.execute('ana')).toHaveLength(2)
     await revokeSessions.execute('ana')
     expect(await listSessions.execute('ana')).toEqual([])
     expect(events.published).toEqual([{ name: 'user.sessions-revoked', payload: { userId: 'ana' } }])
+  })
+
+  it('lists the last activity of each session', async () => {
+    const { listSessions } = makePlatformAdminContext()
+
+    expect(await listSessions.execute('ana')).toEqual([
+      expect.objectContaining({ id: 'sess-1', lastActiveAt: new Date(15) }),
+      expect.objectContaining({ id: 'sess-2', lastActiveAt: new Date(25) }),
+    ])
+  })
+
+  it('ends one session only and tells the realtime layer which', async () => {
+    const { revokeSession, listSessions, events } = makePlatformAdminContext()
+
+    await revokeSession.execute({ userId: 'ana', sessionId: 'sess-1' })
+
+    expect((await listSessions.execute('ana')).map(({ id }) => id)).toEqual(['sess-2'])
+    expect(events.published).toEqual([
+      { name: 'user.session-revoked', payload: { userId: 'ana', sessionId: 'sess-1' } },
+    ])
+  })
+
+  it('does not end a session that is not the user, or of a user that does not exist', async () => {
+    const { revokeSession, events } = makePlatformAdminContext()
+
+    await expect(revokeSession.execute({ userId: 'bia', sessionId: 'sess-1' })).rejects.toBeInstanceOf(
+      SessionNotFoundError,
+    )
+    await expect(revokeSession.execute({ userId: 'nobody', sessionId: 'sess-1' })).rejects.toBeInstanceOf(
+      UserNotFoundError,
+    )
+    expect(events.published).toEqual([])
   })
 
   it('resets a password, typed or generated, and signs the user out', async () => {

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { LimitsModule } from '../limits/limits.module'
+import { MyLimitsController } from './controllers/my-limits.controller'
 import { RoomsController } from './controllers/rooms.controller'
 import { ServerImagesController } from './controllers/server-images.controller'
 import { ServersController } from './controllers/servers.controller'
@@ -14,6 +15,7 @@ import { CreateServerUseCase } from './use-cases/create-server.use-case'
 import { DeleteRoomUseCase } from './use-cases/delete-room.use-case'
 import { DeleteServerUseCase } from './use-cases/delete-server.use-case'
 import { GetServerUseCase } from './use-cases/get-server.use-case'
+import { GetMyLimitsUseCase } from './use-cases/get-my-limits.use-case'
 import { ListMyServersUseCase } from './use-cases/list-my-servers.use-case'
 import { RemoveServerImageUseCase } from './use-cases/remove-server-image.use-case'
 import { RenameRoomUseCase } from './use-cases/rename-room.use-case'
@@ -25,7 +27,7 @@ import { UploadServerImageUseCase } from './use-cases/upload-server-image.use-ca
 // ServerAccessService carries the permission table for the modules that come next.
 @Module({
   imports: [LimitsModule],
-  controllers: [ServersController, ServerImagesController, RoomsController],
+  controllers: [ServersController, MyLimitsController, ServerImagesController, RoomsController],
   providers: [
     { provide: ServersRepository, useClass: PrismaServersRepository },
     { provide: RoomsRepository, useClass: PrismaRoomsRepository },
@@ -34,6 +36,7 @@ import { UploadServerImageUseCase } from './use-cases/upload-server-image.use-ca
     CreateServerUseCase,
     ListMyServersUseCase,
     GetServerUseCase,
+    GetMyLimitsUseCase,
     UpdateServerUseCase,
     UploadServerImageUseCase,
     RemoveServerImageUseCase,

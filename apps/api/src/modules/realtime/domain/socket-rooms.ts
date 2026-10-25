@@ -19,3 +19,8 @@ export function isServerRoom(room: string): boolean {
 export function voiceRoom(roomId: string): string {
   return `voice:${roomId}`
 }
+
+// Every socket of one login session, to close just those.
+export function sessionRoom(sessionId: string): string {
+  return `session:${sessionId}`
+}

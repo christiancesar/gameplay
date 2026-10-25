@@ -13,6 +13,6 @@ export class ListServersUseCase {
 
   async execute(query: PageQuery): Promise<Page<AdminServerView>> {
     const { items, total } = await this.servers.list(query)
-    return { items: items.map((server) => this.views.view(server)), total }
+    return { items: await this.views.viewAll(items), total }
   }
 }

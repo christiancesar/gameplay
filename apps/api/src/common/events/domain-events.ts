@@ -23,6 +23,8 @@ export interface DomainEvents {
   // closes the person's sockets.
   'user.suspended': { userId: string }
   'user.sessions-revoked': { userId: string }
+  // One session ended; the gateway closes the sockets of that session only.
+  'user.session-revoked': { userId: string; sessionId: string }
   // A Hub notification was stored; the gateway tells the user's tabs.
   'notification.created': { userId: string; notificationId: string }
 }

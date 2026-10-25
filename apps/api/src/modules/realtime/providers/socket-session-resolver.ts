@@ -4,11 +4,11 @@ import { AuthService } from '@thallesp/nestjs-better-auth'
 import { fromNodeHeaders } from 'better-auth/node'
 import type { Auth } from '../../../lib/auth'
 
-// Finds the user of a Socket.IO handshake from the same session cookie the
+// Finds the user and session of a Socket.IO handshake from the same session cookie the
 // REST routes use.
 export abstract class SocketSessionResolver {
   // Null when there is no valid session.
-  abstract resolve(headers: IncomingHttpHeaders): Promise<string | null>
+  abstract resolve(headers: IncomingHttpHeaders): Promise<{ userId: string; sessionId: string } | null>
 }
 
 @Injectable()
@@ -17,8 +17,8 @@ export class BetterAuthSocketSessionResolver extends SocketSessionResolver {
     super()
   }
 
-  async resolve(headers: IncomingHttpHeaders): Promise<string | null> {
+  async resolve(headers: IncomingHttpHeaders): Promise<{ userId: string; sessionId: string } | null> {
     const session = await this.auth.api.getSession({ headers: fromNodeHeaders(headers) })
-    return session?.user.id ?? null
+    return session ? { userId: session.user.id, sessionId: session.session.id } : null
   }
 }

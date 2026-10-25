@@ -80,6 +80,14 @@ export class PrismaServersRepository extends ServersRepository {
     return this.prisma.serverMember.count({ where: { serverId } })
   }
 
+  countOwned(userId: string): Promise<number> {
+    return this.prisma.server.count({ where: { ownerId: userId } })
+  }
+
+  countPendingJoinRequests(serverId: string): Promise<number> {
+    return this.prisma.joinRequest.count({ where: { serverId, status: 'PENDING' } })
+  }
+
   async listMemberIds(serverId: string): Promise<string[]> {
     const members = await this.prisma.serverMember.findMany({ where: { serverId }, select: { userId: true } })
     return members.map((member) => member.userId)

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { AccountsModule } from '../accounts/accounts.module'
+import { LimitsModule } from '../limits/limits.module'
 import { MembershipsModule } from '../memberships/memberships.module'
 import { RealtimeModule } from '../realtime/realtime.module'
 import { ServersModule } from '../servers/servers.module'
@@ -20,11 +21,13 @@ import { AdminDeleteServerUseCase } from './use-cases/admin-delete-server.use-ca
 import { GetHardwareSummaryUseCase } from './use-cases/get-hardware-summary.use-case'
 import { GetServerDetailUseCase } from './use-cases/get-server-detail.use-case'
 import { GetUserDevicesUseCase } from './use-cases/get-user-devices.use-case'
+import { ListDevicesUseCase } from './use-cases/list-devices.use-case'
 import { ListServersUseCase } from './use-cases/list-servers.use-case'
 import { ListUserSessionsUseCase } from './use-cases/list-user-sessions.use-case'
 import { ListUsersUseCase } from './use-cases/list-users.use-case'
 import { ReactivateUserUseCase } from './use-cases/reactivate-user.use-case'
 import { ResetUserPasswordUseCase } from './use-cases/reset-user-password.use-case'
+import { RevokeUserSessionUseCase } from './use-cases/revoke-user-session.use-case'
 import { RevokeUserSessionsUseCase } from './use-cases/revoke-user-sessions.use-case'
 import { SuspendUserUseCase } from './use-cases/suspend-user.use-case'
 
@@ -33,7 +36,7 @@ import { SuspendUserUseCase } from './use-cases/suspend-user.use-case'
 // role admin and two-factor (@PlatformAdmin). Keys and limits have their own
 // modules.
 @Module({
-  imports: [AccountsModule, MembershipsModule, RealtimeModule, ServersModule],
+  imports: [AccountsModule, LimitsModule, MembershipsModule, RealtimeModule, ServersModule],
   controllers: [AdminUsersController, AdminServersController, AdminHardwareController],
   providers: [
     { provide: AdminUsersRepository, useClass: PrismaAdminUsersRepository },
@@ -46,6 +49,7 @@ import { SuspendUserUseCase } from './use-cases/suspend-user.use-case'
     ListUsersUseCase,
     ListUserSessionsUseCase,
     RevokeUserSessionsUseCase,
+    RevokeUserSessionUseCase,
     SuspendUserUseCase,
     ReactivateUserUseCase,
     ResetUserPasswordUseCase,
@@ -54,6 +58,7 @@ import { SuspendUserUseCase } from './use-cases/suspend-user.use-case'
     GetServerDetailUseCase,
     AdminDeleteServerUseCase,
     GetHardwareSummaryUseCase,
+    ListDevicesUseCase,
   ],
 })
 export class PlatformAdminModule {}

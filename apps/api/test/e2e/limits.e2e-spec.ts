@@ -60,6 +60,22 @@ describe('Limits and platform settings (e2e)', () => {
     expect(await effectiveServers(user.id)).toBe(defaults.maxServersPerUser)
   })
 
+  it('tells the user the server limit in force and how many they own', async () => {
+    const { agent } = await signedIn(app, { admin: true })
+    const ana = await signedIn(app)
+
+    expect((await ana.agent.get('/api/me/limits')).body).toEqual({
+      maxServers: defaults.maxServersPerUser,
+      ownedServers: 0,
+    })
+
+    await agent.put(`/api/admin/users/${ana.user.id}/limits`).send({ maxServers: 5 })
+    await ana.agent.post('/api/servers').send({ name: 'Squad' })
+
+    expect((await ana.agent.get('/api/me/limits')).body).toEqual({ maxServers: 5, ownedServers: 1 })
+    expect((await request(app.getHttpServer()).get('/api/me/limits')).status).toBe(401)
+  })
+
   it('answers 404 for the override of an unknown user', async () => {
     const { agent } = await signedIn(app, { admin: true })
 
