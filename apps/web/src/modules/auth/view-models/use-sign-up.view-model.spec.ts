@@ -4,7 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('@/shared/lib/auth-client', async () => ({
   authClient: (await import('./test/fake-auth-client')).fakeAuthClient,
 }))
+vi.mock('@/shared/lib/http', async () => ({ http: (await import('@/shared/test/fake-http')).fakeHttp }))
 vi.mock('@tanstack/react-router', async () => (await import('./test/fake-router')).fakeRouterModule)
+
+import { activeInvite } from '@/modules/invites/view-models/test/invites-seed'
+import { fakeHttp } from '@/shared/test/fake-http'
 
 import { createAuthViewModelContext } from './test/auth-view-model-context'
 import { failure, okResult, signUpValues } from './test/auth-seed'
@@ -71,5 +75,46 @@ describe('useSignUpViewModel', () => {
     const { result } = setup()
     act(() => result.current.onSignInClick())
     expect(navigate).toHaveBeenCalledWith({ to: '/sign-in' })
+  })
+
+  it('does not look up an invite without ?invite=', () => {
+    const { result } = setup()
+    expect(fakeHttp.get).not.toHaveBeenCalled()
+    expect(result.current.invitedServerName).toBeUndefined()
+  })
+
+  describe('from an invite link', () => {
+    beforeEach(() => {
+      routerSearch.current = { invite: 'JH34SD32' }
+    })
+
+    it('resolves the name of the invited server', async () => {
+      fakeHttp.get.mockResolvedValue({ data: activeInvite })
+      const { result } = setup()
+      await waitFor(() => expect(result.current.invitedServerName).toBe('Turbex'))
+      expect(fakeHttp.get).toHaveBeenCalledWith('/invites/JH34SD32')
+    })
+
+    it('hides the name when the invite is not active', async () => {
+      fakeHttp.get.mockResolvedValue({ data: { ...activeInvite, status: 'expired' } })
+      const { result } = setup()
+      await waitFor(() => expect(fakeHttp.get).toHaveBeenCalled())
+      expect(result.current.invitedServerName).toBeUndefined()
+    })
+
+    it('fails silently when the lookup fails', async () => {
+      fakeHttp.get.mockRejectedValue(new Error('offline'))
+      const { result } = setup()
+      await waitFor(() => expect(fakeHttp.get).toHaveBeenCalled())
+      expect(result.current.invitedServerName).toBeUndefined()
+      expect(result.current.formError).toBeUndefined()
+    })
+
+    it('keeps the invite when going to sign-in', () => {
+      fakeHttp.get.mockResolvedValue({ data: activeInvite })
+      const { result } = setup()
+      act(() => result.current.onSignInClick())
+      expect(navigate).toHaveBeenCalledWith({ to: '/sign-in', search: { redirect: '/i/JH34SD32' } })
+    })
   })
 })

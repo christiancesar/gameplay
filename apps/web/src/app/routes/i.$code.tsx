@@ -1,7 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PendingScreen } from '@/app/pending.screen'
+import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
+import { InviteLandingScreen } from '@/modules/invites/screens/invite-landing.screen'
 
 export const Route = createFileRoute('/i/$code')({
-  component: PendingScreen,
+  // Works with and without a session: it only warms the cache, never redirects.
+  loader: ({ context }) => context.queryClient.ensureQueryData(sessionQueryOptions).catch(() => null),
+  component: InviteLandingScreen,
 })

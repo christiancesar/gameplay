@@ -112,4 +112,18 @@ describe('useSignInViewModel', () => {
     act(() => result.current.onSignUpClick())
     expect(navigate).toHaveBeenCalledWith({ to: '/sign-up' })
   })
+
+  it('keeps the invite when going to sign-up from an invite redirect', () => {
+    routerSearch.current = { redirect: '/i/JH34SD32' }
+    const { result } = setup()
+    act(() => result.current.onSignUpClick())
+    expect(navigate).toHaveBeenCalledWith({ to: '/sign-up', search: { invite: 'JH34SD32' } })
+  })
+
+  it('does not carry a redirect that is not an invite to sign-up', () => {
+    routerSearch.current = { redirect: '/servers/abc' }
+    const { result } = setup()
+    act(() => result.current.onSignUpClick())
+    expect(navigate).toHaveBeenCalledWith({ to: '/sign-up' })
+  })
 })

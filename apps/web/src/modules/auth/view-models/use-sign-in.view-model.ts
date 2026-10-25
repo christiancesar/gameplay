@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 
+import { inviteCodeFromPath } from '@/modules/invites/model/rules/invite-path'
 import { mapSignInError, type AuthClientError } from '@/modules/auth/model/mappers/auth-error.mapper'
 import { safeRedirect } from '@/modules/auth/model/rules/safe-redirect'
 import { refreshSession } from '@/modules/auth/model/services/session.query'
@@ -45,7 +46,11 @@ function useSignInViewModel() {
     isSubmitting: mutation.isPending,
     formError: mutation.error ? mapSignInError(mutation.error as AuthClientError) : undefined,
     onSubmit: (values: SignInCredentials) => mutation.mutate(values),
-    onSignUpClick: () => void navigate({ to: '/sign-up' }),
+    // An invite link keeps its server through the switch to sign-up.
+    onSignUpClick: () => {
+      const invite = inviteCodeFromPath(redirect)
+      void navigate(invite ? { to: '/sign-up', search: { invite } } : { to: '/sign-up' })
+    },
   }
 }
 
