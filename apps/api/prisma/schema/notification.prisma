@@ -1,0 +1,24 @@
+// Notices kept on the user's Hub until dismissed. Built from domain events;
+// payload holds ids and names only, the web writes the text with i18n.
+enum NotificationType {
+  JOIN_REQUEST_SENT
+  JOIN_APPROVED
+  KICKED
+  SERVER_DELETED
+  PROMOTED
+  DEMOTED
+  INVITE_EXPIRED
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  payload     Json
+  createdAt   DateTime         @default(now())
+  dismissedAt DateTime?
+
+  @@index([userId, dismissedAt, createdAt])
+  @@map("notification")
+}

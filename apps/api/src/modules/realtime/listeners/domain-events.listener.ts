@@ -75,4 +75,9 @@ export class DomainEventsListener {
     await this.releaseSeats.execute({ userId })
     this.emitter.sessionRevoked(userId)
   }
+
+  @OnDomainEvent('notification.created')
+  notificationCreated({ userId, notificationId }: DomainEvents['notification.created']) {
+    this.emitter.notificationNew(userId, notificationId)
+  }
 }

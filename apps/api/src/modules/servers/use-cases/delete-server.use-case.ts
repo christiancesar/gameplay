@@ -19,11 +19,12 @@ export class DeleteServerUseCase {
 
   async execute({ serverId, userId }: { serverId: string; userId: string }): Promise<void> {
     await this.access.require(serverId, userId, 'deleteServer')
-    await this.deleteById(serverId)
+    await this.deleteById(serverId, userId)
   }
 
-  // No permission check: for callers that already checked theirs.
-  async deleteById(serverId: string): Promise<void> {
+  // No permission check: for callers that already checked theirs. Without
+  // deletedById, the platform admin did it.
+  async deleteById(serverId: string, deletedById: string | null = null): Promise<void> {
     const server = await this.servers.findById(serverId)
     if (!server) return
     const memberIds = await this.servers.listMemberIds(serverId)
@@ -35,6 +36,6 @@ export class DeleteServerUseCase {
           .delete(key)
           .catch((error: unknown) => this.logger.warn({ err: error, key }, 'Could not delete a server image'))
     }
-    await this.events.publish('server.deleted', { serverId, memberIds })
+    await this.events.publish('server.deleted', { serverId, serverName: server.name, memberIds, deletedById })
   }
 }

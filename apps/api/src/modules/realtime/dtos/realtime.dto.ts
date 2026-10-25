@@ -1,4 +1,5 @@
 import {
+  notificationNewSchema,
   presenceSnapshotSchema,
   presenceUpdateSchema,
   roomJoinResultSchema,
@@ -39,3 +40,4 @@ export class StreamViewerDto extends createZodDto(streamViewerSchema) {}
 export class StreamViewerQualityDto extends createZodDto(streamViewerQualitySchema) {}
 export class SignalSendDto extends createZodDto(signalSendSchema) {}
 export class SignalReceiveDto extends createZodDto(signalReceiveSchema) {}
+export class NotificationNewDto extends createZodDto(notificationNewSchema) {}

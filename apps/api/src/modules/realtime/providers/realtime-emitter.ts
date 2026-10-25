@@ -12,6 +12,7 @@ import { serverRoom, userRoom, voiceRoom } from '../domain/socket-rooms'
 import type { RealtimeServer } from '../domain/socket-data'
 import {
   NoPayloadDto,
+  NotificationNewDto,
   PresenceUpdateDto,
   RoomLeftDto,
   RoomParticipantsDto,
@@ -42,6 +43,8 @@ export abstract class RealtimeEmitter {
   abstract watchStopped(socketId: string, viewerId: string): void
   abstract qualityRequested(socketId: string, viewerId: string, level: StreamQualityLevel): void
   abstract signal(socketId: string, signal: SignalReceive): void
+  // To every tab of the user.
+  abstract notificationNew(userId: string, notificationId: string): void
 }
 
 // Socket.IO implementation; the gateway hands it the server on init. Before
@@ -158,5 +161,14 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
   })
   signal(socketId: string, signal: SignalReceive) {
     this.server?.to(socketId).emit(REALTIME_EVENTS.signalReceive, signal)
+  }
+
+  @AsyncApiSend({
+    channel: REALTIME_EVENTS.notificationNew,
+    summary: 'A Hub notification was stored for you; refetch GET /api/me/notifications',
+    message: { name: 'NotificationNew', payload: NotificationNewDto },
+  })
+  notificationNew(userId: string, notificationId: string) {
+    this.server?.to(userRoom(userId)).emit(REALTIME_EVENTS.notificationNew, { id: notificationId })
   }
 }

@@ -11,6 +11,7 @@ import { LimitsModule } from './modules/limits/limits.module'
 import { ServersModule } from './modules/servers/servers.module'
 import { StorageModule } from './modules/storage/storage.module'
 import { MembershipsModule } from './modules/memberships/memberships.module'
+import { NotificationsModule } from './modules/notifications/notifications.module'
 import { RealtimeModule } from './modules/realtime/realtime.module'
 import { RegistrationInvitesModule } from './modules/registration-invites/registration-invites.module'
 
@@ -29,6 +30,7 @@ import { RegistrationInvitesModule } from './modules/registration-invites/regist
     IceModule,
     ServersModule,
     MembershipsModule,
+    NotificationsModule,
     RealtimeModule,
   ],
 })

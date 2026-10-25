@@ -28,6 +28,7 @@ model User {
   registrationInvitesCreated RegistrationInvite[] @relation("RegistrationInviteCreatedBy")
   registrationInviteUsed     RegistrationInvite?  @relation("RegistrationInviteUsedBy")
   devices                    DeviceReport[]
+  notifications              Notification[]
   serversOwned               Server[]             @relation("ServerOwner")
   serverMemberships          ServerMember[]
   serverInvitesCreated       ServerInvite[]       @relation("ServerInviteCreatedBy")

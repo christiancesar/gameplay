@@ -3,8 +3,9 @@
 export interface DomainEvents {
   // Name, description, images or auto-approve changed.
   'server.updated': { serverId: string }
-  // Published after the delete; memberIds is who belonged to it.
-  'server.deleted': { serverId: string; memberIds: string[] }
+  // Published after the delete; memberIds is who belonged to it. deletedById
+  // is null when the platform admin deleted it.
+  'server.deleted': { serverId: string; serverName: string; memberIds: string[]; deletedById: string | null }
   // Rooms created, renamed, reordered or deleted. deletedRoomId lets the
   // realtime gateway take people out of a deleted room.
   'room.changed': { serverId: string; deletedRoomId?: string }
@@ -22,6 +23,8 @@ export interface DomainEvents {
   // closes the person's sockets.
   'user.suspended': { userId: string }
   'user.sessions-revoked': { userId: string }
+  // A Hub notification was stored; the gateway tells the user's tabs.
+  'notification.created': { userId: string; notificationId: string }
 }
 
 export type DomainEventName = Extract<keyof DomainEvents, string>

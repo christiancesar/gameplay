@@ -66,6 +66,17 @@ export {
   registrationKeySchema,
 } from './account/registration-key.js'
 export { USERNAME_PATTERN, usernameSchema } from './account/username.js'
+export {
+  NOTIFICATION_TYPES,
+  listNotificationsResponseSchema,
+  notificationNewSchema,
+  notificationSchema,
+  notificationTypeSchema,
+  type ListNotificationsResponse,
+  type Notification,
+  type NotificationNew,
+  type NotificationType,
+} from './notifications/notification.js'
 export { errorResponseSchema, type ErrorBody, type ErrorResponse } from './http/error.js'
 export type { Ack, AckResponse } from './realtime/ack.js'
 export {

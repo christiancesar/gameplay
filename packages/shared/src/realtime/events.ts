@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { NotificationNew } from '../notifications/notification.js'
 import type { Ack } from './ack.js'
 
 // Socket.IO event names (`domain:action`). The direction lives in the
@@ -23,6 +24,7 @@ export const REALTIME_EVENTS = {
   streamWatchRequest: 'stream:watch-request',
   signalSend: 'signal:send',
   signalReceive: 'signal:receive',
+  notificationNew: 'notification:new',
 } as const
 
 // Client asks to follow the server it has open. One server per socket:
@@ -172,4 +174,5 @@ export interface ServerToClientEvents {
   'stream:unwatch': (payload: StreamViewer) => void
   'stream:quality': (payload: StreamViewerQuality) => void
   'signal:receive': (payload: SignalReceive) => void
+  'notification:new': (payload: NotificationNew) => void
 }

@@ -127,7 +127,10 @@ describe('Server management', () => {
     expect(rooms.rooms).toEqual([])
     expect(storage.files.size).toBe(0)
     expect(events.published).toEqual([
-      { name: 'server.deleted', payload: { serverId, memberIds: ['owner', 'admin', 'member'] } },
+      {
+        name: 'server.deleted',
+        payload: { serverId, serverName: 'Squad', memberIds: ['owner', 'admin', 'member'], deletedById: 'owner' },
+      },
     ])
   })
 })

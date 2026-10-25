@@ -13,6 +13,7 @@ type Emitted =
   | { event: 'stream:unwatch'; socketId: string; viewerId: string }
   | { event: 'stream:quality'; socketId: string; viewerId: string; level: StreamQualityLevel }
   | { event: 'signal:receive'; socketId: string; signal: SignalReceive }
+  | { event: 'notification:new'; userId: string; notificationId: string }
 
 // Keeps what would go to the sockets, in order.
 export class FakeRealtimeEmitter extends RealtimeEmitter {
@@ -60,6 +61,10 @@ export class FakeRealtimeEmitter extends RealtimeEmitter {
 
   signal(socketId: string, signal: SignalReceive) {
     this.emitted.push({ event: 'signal:receive', socketId, signal })
+  }
+
+  notificationNew(userId: string, notificationId: string) {
+    this.emitted.push({ event: 'notification:new', userId, notificationId })
   }
 
   // Only the events of one kind.

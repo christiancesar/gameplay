@@ -114,7 +114,12 @@ describe('Servers and rooms (e2e)', () => {
     expect(await prisma.room.count()).toBe(0)
     expect(storage.files.size).toBe(0)
     expect(listener.deleted).toEqual([
-      { serverId: server.id, memberIds: expect.arrayContaining([owner.user.id, admin.user.id]) },
+      {
+        serverId: server.id,
+        serverName: 'Squad',
+        memberIds: expect.arrayContaining([owner.user.id, admin.user.id]),
+        deletedById: owner.user.id,
+      },
     ])
     expect(listener.roomChanges).toHaveLength(2)
   })

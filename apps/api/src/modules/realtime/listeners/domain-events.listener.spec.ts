@@ -45,7 +45,12 @@ describe('DomainEventsListener', () => {
   it('removes every member of a deleted server', async () => {
     const { listener, emitter } = makeRealtimeContext()
 
-    await listener.serverDeleted({ serverId: 's1', memberIds: ['ana', 'bia'] })
+    await listener.serverDeleted({
+      serverId: 's1',
+      serverName: 'Turbex',
+      memberIds: ['ana', 'bia'],
+      deletedById: 'ana',
+    })
 
     expect(emitter.emitted).toEqual([
       { event: 'server:removed', userIds: ['ana', 'bia'], removal: { serverId: 's1', reason: 'deleted' } },
@@ -63,6 +68,14 @@ describe('DomainEventsListener', () => {
       { event: 'session:revoked', userId: 'ana' },
     ])
   })
+  it('tells the tabs of the user about a new notification', () => {
+    const { listener, emitter } = makeRealtimeContext()
+
+    listener.notificationCreated({ userId: 'bia', notificationId: 'n1' })
+
+    expect(emitter.emitted).toEqual([{ event: 'notification:new', userId: 'bia', notificationId: 'n1' }])
+  })
+
   describe('voice seats', () => {
     it('clears a deleted room and tells who was in it', async () => {
       const { listener, emitter, join } = makeRealtimeContext()
@@ -114,7 +127,12 @@ describe('DomainEventsListener', () => {
       await join('caio', 'r2')
       emitter.emitted.length = 0
 
-      await listener.serverDeleted({ serverId: 's1', memberIds: ['ana', 'bia', 'caio'] })
+      await listener.serverDeleted({
+        serverId: 's1',
+        serverName: 'Turbex',
+        memberIds: ['ana', 'bia', 'caio'],
+        deletedById: 'ana',
+      })
 
       expect(await store.listServer('s1')).toEqual([])
       expect(emitter.of('room:participants')).toEqual([])
