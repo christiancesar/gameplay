@@ -75,10 +75,7 @@
       "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres.",
       "passwordMismatch": "As senhas não conferem.",
       "inviteKeyIncomplete": "A key de convite tem 6 caracteres.",
-      "inviteKeyInvalid": "Key de convite inválida.",
-      "inviteKeyExpired": "Esta key de convite expirou.",
-      "inviteKeyRevoked": "Esta key de convite foi revogada.",
-      "inviteKeyUsed": "Esta key de convite já foi usada.",
+      "inviteKeyInvalid": "Esta key de convite não é válida. Ela pode ter expirado, sido revogada ou já usada.",
       "tooManyAttempts": "Muitas tentativas. Aguarde um pouco e tente de novo.",
       "unexpected": "Algo deu errado. Tente de novo.",
       "twoFactorCodeIncomplete": "Digite os 6 dígitos do app autenticador."
@@ -96,8 +93,7 @@
       "inviteNotFound": "Convite não encontrado. Confira o código.",
       "inviteExpired": "Este convite expirou.",
       "inviteExhausted": "Este convite já foi usado. Peça um novo.",
-      "serverFull": "Este servidor está cheio.",
-      "alreadyMember": "Você já é membro deste servidor.",
+      "requestPending": "Você já tem um pedido aguardando neste servidor.",
       "unexpected": "Algo deu errado. Tente de novo.",
       "codeRequired": "Digite um código de convite.",
       "codeInvalid": "O código do convite tem 8 letras ou números."
@@ -380,10 +376,13 @@
     "confirmDescription_other": "{{count}} membros",
     "join": "Entrar no servidor",
     "requestSent": "Pedido enviado, aguarde a aprovação.",
+    "fullHint": "Este servidor está cheio. Seu pedido vai esperar uma vaga.",
+    "alreadyMemberTitle": "Você já está em {{server}}",
+    "openServer": "Abrir servidor",
     "errors": {
       "expired": "Este convite expirou.",
       "exhausted": "Este convite já foi usado. Peça um novo.",
-      "serverFull": "Este servidor está cheio.",
+      "requestPending": "Você já tem um pedido aguardando neste servidor.",
       "notFound": "Este convite não existe ou foi revogado."
     }
   },

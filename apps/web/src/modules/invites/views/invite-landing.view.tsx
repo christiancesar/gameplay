@@ -1,4 +1,4 @@
-import { CircleAlertIcon, UsersIcon } from 'lucide-react'
+import { CircleAlertIcon, HourglassIcon, UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { BrandLogo } from '@/shared/ui/brand-logo'
@@ -6,13 +6,16 @@ import { Button } from '@/shared/ui/button'
 import { ServerIcon } from '@/shared/ui/server-icon'
 import { SubmitButton } from '@/shared/ui/submit-button'
 
-type InviteServer = { name: string; iconUrl?: string; memberCount: number }
+/** `isFull`: sem vaga agora. Não bloqueia: o pedido fica esperando uma vaga. */
+type InviteServer = { name: string; iconUrl?: string; memberCount: number; isFull: boolean }
 
-type InviteError = 'expired' | 'exhausted' | 'serverFull' | 'notFound'
+/** Revogado e servidor apagado chegam como `notFound`. `requestPending` vem do join. */
+type InviteError = 'expired' | 'exhausted' | 'requestPending' | 'notFound'
 
 type InviteLandingState =
   | { status: 'signedOut'; server: InviteServer }
   | { status: 'confirm'; server: InviteServer; isJoining: boolean }
+  | { status: 'alreadyMember'; server: InviteServer }
   | { status: 'error'; error: InviteError }
 
 type InviteLandingViewProps = {
@@ -20,11 +23,19 @@ type InviteLandingViewProps = {
   onCreateAccount: () => void
   onSignIn: () => void
   onJoin: () => void
+  onOpenServer: () => void
   onBackToHub: () => void
 }
 
 /** F3: link de convite de servidor aberto no browser. */
-function InviteLandingView({ state, onCreateAccount, onSignIn, onJoin, onBackToHub }: InviteLandingViewProps) {
+function InviteLandingView({
+  state,
+  onCreateAccount,
+  onSignIn,
+  onJoin,
+  onOpenServer,
+  onBackToHub,
+}: InviteLandingViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -50,14 +61,31 @@ function InviteLandingView({ state, onCreateAccount, onSignIn, onJoin, onBackToH
               <h1 className="text-lg font-medium">
                 {state.status === 'signedOut'
                   ? t('invite.invitedTitle', { server: state.server.name })
-                  : t('invite.confirmTitle', { server: state.server.name })}
+                  : state.status === 'alreadyMember'
+                    ? t('invite.alreadyMemberTitle', { server: state.server.name })
+                    : t('invite.confirmTitle', { server: state.server.name })}
               </h1>
               <p className="text-muted-foreground flex items-center justify-center gap-1.5 text-sm">
                 <UsersIcon className="size-4" aria-hidden />
                 {t('invite.confirmDescription', { count: state.server.memberCount })}
               </p>
             </div>
-            {state.status === 'signedOut' ? (
+            {state.server.isFull && state.status !== 'alreadyMember' && (
+              <p className="text-muted-foreground flex items-start gap-2 rounded-md border px-3 py-2 text-left text-sm">
+                <HourglassIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+                {t('invite.fullHint')}
+              </p>
+            )}
+            {state.status === 'alreadyMember' ? (
+              <div className="flex w-full flex-col gap-2">
+                <Button size="lg" onClick={onOpenServer}>
+                  {t('invite.openServer')}
+                </Button>
+                <Button variant="ghost" onClick={onBackToHub}>
+                  {t('common.backToHub')}
+                </Button>
+              </div>
+            ) : state.status === 'signedOut' ? (
               <div className="flex w-full flex-col gap-2">
                 <Button size="lg" onClick={onCreateAccount}>
                   {t('invite.createAccount')}

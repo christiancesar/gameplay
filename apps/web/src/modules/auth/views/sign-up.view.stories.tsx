@@ -87,21 +87,14 @@ export const ServerFieldErrors: Story = {
   },
 }
 
-export const InviteKeyExpired: Story = {
-  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyExpired' } },
+/** Key inexistente, expirada, revogada ou usada: o servidor responde com o mesmo erro. */
+export const InviteKeyRejected: Story = {
+  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyInvalid' } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/invite key has expired/i)).toBeVisible()
+    await expect(canvas.getByText(/invite key is not valid/i)).toBeVisible()
     // Os outros campos continuam preenchidos.
     await expect(canvas.getByLabelText(/^username$/i)).toHaveValue('shinigame')
   },
-}
-
-export const InviteKeyUsed: Story = {
-  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyUsed' } },
-}
-
-export const InviteKeyRevoked: Story = {
-  args: { defaultValues: filledValues, fieldErrors: { inviteKey: 'inviteKeyRevoked' } },
 }
 
 export const TooManyAttempts: Story = {

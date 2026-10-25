@@ -17,15 +17,11 @@ type SignUpValidationError =
   | 'inviteKeyIncomplete'
   | 'inviteKeyInvalid'
 
-/** Erros que só o servidor conhece. */
-type SignUpServerError =
-  | 'usernameTaken'
-  | 'emailTaken'
-  | 'inviteKeyInvalid'
-  | 'inviteKeyExpired'
-  | 'inviteKeyRevoked'
-  | 'inviteKeyUsed'
-  | 'tooManyAttempts'
+/**
+ * Erros que só o servidor conhece. Key inexistente, expirada, revogada ou já usada
+ * voltam todas como `inviteKeyInvalid` (o backend não diz qual, de propósito).
+ */
+type SignUpServerError = 'usernameTaken' | 'emailTaken' | 'inviteKeyInvalid' | 'tooManyAttempts'
 
 type SignUpFieldError = SignUpValidationError | SignUpServerError
 

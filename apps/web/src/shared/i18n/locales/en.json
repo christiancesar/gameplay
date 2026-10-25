@@ -75,10 +75,7 @@
       "passwordTooShort": "Password must have at least 8 characters.",
       "passwordMismatch": "Passwords don't match.",
       "inviteKeyIncomplete": "The invite key has 6 characters.",
-      "inviteKeyInvalid": "Invalid invite key.",
-      "inviteKeyExpired": "This invite key has expired.",
-      "inviteKeyRevoked": "This invite key was revoked.",
-      "inviteKeyUsed": "This invite key was already used.",
+      "inviteKeyInvalid": "This invite key is not valid. It may have expired, been revoked or already used.",
       "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
       "unexpected": "Something went wrong. Try again.",
       "twoFactorCodeIncomplete": "Enter the 6 digits from your authenticator app."
@@ -96,8 +93,7 @@
       "inviteNotFound": "Invite not found. Check the code.",
       "inviteExpired": "This invite has expired.",
       "inviteExhausted": "This invite was already used. Ask for a new one.",
-      "serverFull": "This server is full.",
-      "alreadyMember": "You are already a member of this server.",
+      "requestPending": "You already have a request waiting in this server.",
       "unexpected": "Something went wrong. Try again.",
       "codeRequired": "Enter an invite code.",
       "codeInvalid": "Invite codes have 8 letters or numbers."
@@ -380,10 +376,13 @@
     "confirmDescription_other": "{{count}} members",
     "join": "Join server",
     "requestSent": "Request sent. Wait for approval.",
+    "fullHint": "This server is full. Your request will wait for a free spot.",
+    "alreadyMemberTitle": "You are already in {{server}}",
+    "openServer": "Open server",
     "errors": {
       "expired": "This invite has expired.",
       "exhausted": "This invite was already used. Ask for a new one.",
-      "serverFull": "This server is full.",
+      "requestPending": "You already have a request waiting in this server.",
       "notFound": "This invite doesn't exist or was revoked."
     }
   },

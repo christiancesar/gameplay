@@ -35,13 +35,7 @@ type HubServer = {
   iconUrl?: string
 }
 
-type HubJoinError =
-  | 'inviteNotFound'
-  | 'inviteExpired'
-  | 'inviteExhausted'
-  | 'serverFull'
-  | 'alreadyMember'
-  | 'unexpected'
+type HubJoinError = 'inviteNotFound' | 'inviteExpired' | 'inviteExhausted' | 'requestPending' | 'unexpected'
 
 type HubViewProps = {
   /** Painel de notificações: à direita em telas grandes, separado por um divisor; abaixo de "Entrar em um servidor" nas pequenas. */

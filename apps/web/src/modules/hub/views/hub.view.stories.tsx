@@ -76,7 +76,8 @@ export const Joining: Story = { args: { defaultJoinCode: 'JH34SD32', isJoining: 
 
 export const JoinInviteExpired: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'inviteExpired' } }
 
-export const JoinServerFull: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'serverFull' } }
+/** Já existe um pedido esperando aprovação nesse servidor. */
+export const JoinRequestPending: Story = { args: { defaultJoinCode: 'JH34SD32', joinError: 'requestPending' } }
 
 /** Simula o ViewModel: o servidor recusa o código e o erro some quando o usuário edita o campo. */
 export const JoinErrorClearsOnEdit: Story = {
