@@ -23,8 +23,15 @@ ENV NODE_ENV=production
 COPY --from=pruner /repo/out/json/ .
 # --omit=optional: @prisma/client has the Prisma CLI as an optional peer, which
 # would bring Prisma Studio, TypeScript and React (~250 MB) into the image.
-# Revisit when a dependency needs optional platform packages (sharp, BE-07).
-RUN npm ci --omit=dev --omit=optional --ignore-scripts && npm cache clean --force
+# That also drops sharp's prebuilt binaries (optional packages per platform),
+# so they're installed apart, for this image's platform (musl, x64 or arm64),
+# at the version in the lockfile.
+RUN npm ci --omit=dev --omit=optional --ignore-scripts \
+  && SHARP_VERSION=$(node -p "require('./node_modules/sharp/package.json').version") \
+  && npm install --prefix /tmp/sharp --no-save --no-package-lock --ignore-scripts "sharp@$SHARP_VERSION" \
+  && cp -r /tmp/sharp/node_modules/@img/. node_modules/@img/ \
+  && rm -rf /tmp/sharp \
+  && npm cache clean --force
 COPY --from=builder /repo/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /repo/apps/api/dist ./apps/api/dist
 USER node
