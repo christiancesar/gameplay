@@ -412,7 +412,10 @@
     "demoted": "Você não é mais admin de {{server}}.",
     "suspended": "Sua conta foi suspensa.",
     "sessionEnded": "Sua sessão foi encerrada. Entre de novo.",
-    "joinApproved": "Seu pedido para entrar em {{server}} foi aprovado."
+    "joinApproved": "Seu pedido para entrar em {{server}} foi aprovado.",
+    "roomOtherTab": "Você entrou na sala em outra aba. Esta aba saiu da chamada.",
+    "roomDeleted": "{{room}} foi excluída. Você saiu da chamada.",
+    "leftServer": "Você saiu de {{server}} em outra aba."
   },
   "admin": {
     "title": "Admin da plataforma",
@@ -497,6 +500,7 @@
       "serversPerUser": "Servidores por usuário",
       "membersPerServer": "Membros por servidor",
       "roomsPerServer": "Salas por servidor",
+      "minChromiumVersion": "Versão mínima do Chromium",
       "saved": "Limites salvos.",
       "errors": {
         "atLeastOne": "Use um número inteiro, a partir de 1.",
@@ -646,6 +650,10 @@
     "requestSent": {
       "title": "Pedido enviado para {{server}}",
       "description": "Aguarde um owner ou admin aprovar."
+    },
+    "inviteExpired": {
+      "title": "Seu convite para {{server}} expirou",
+      "description": "Ele venceu enquanto você se cadastrava. Peça um novo convite."
     },
     "kicked": {
       "title": "Removido de {{server}}"

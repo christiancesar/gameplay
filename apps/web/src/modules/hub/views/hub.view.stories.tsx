@@ -154,6 +154,7 @@ const sampleNotifications: HubNotification[] = [
   { id: 'n3', type: 'monitorsPermission' },
   { id: 'n4', type: 'joinApproved', server: { id: 's2', name: 'Clan Zero' }, createdAt: minutesAgo(12) },
   { id: 'n5', type: 'kicked', server: { name: 'Sexta Feira' }, createdAt: minutesAgo(60 * 26) },
+  { id: 'n6', type: 'inviteExpired', server: { name: 'Turbex' }, createdAt: minutesAgo(3) },
 ]
 
 /** Painel com estado próprio, para dispensar e limpar de verdade na story. */

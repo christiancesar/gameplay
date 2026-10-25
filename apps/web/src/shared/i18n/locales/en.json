@@ -412,7 +412,10 @@
     "demoted": "You are no longer an admin of {{server}}.",
     "suspended": "Your account was suspended.",
     "sessionEnded": "Your session was ended. Sign in again.",
-    "joinApproved": "Your request to join {{server}} was approved."
+    "joinApproved": "Your request to join {{server}} was approved.",
+    "roomOtherTab": "You joined the room in another tab. This tab left the call.",
+    "roomDeleted": "{{room}} was deleted. You left the call.",
+    "leftServer": "You left {{server}} in another tab."
   },
   "admin": {
     "title": "Platform admin",
@@ -497,6 +500,7 @@
       "serversPerUser": "Servers per user",
       "membersPerServer": "Members per server",
       "roomsPerServer": "Rooms per server",
+      "minChromiumVersion": "Minimum Chromium version",
       "saved": "Limits saved.",
       "errors": {
         "atLeastOne": "Use a whole number, 1 or more.",
@@ -646,6 +650,10 @@
     "requestSent": {
       "title": "Request sent to {{server}}",
       "description": "Wait for an owner or admin to approve it."
+    },
+    "inviteExpired": {
+      "title": "Your invite to {{server}} expired",
+      "description": "It ran out while you signed up. Ask for a new invite."
     },
     "kicked": {
       "title": "Removed from {{server}}"
