@@ -278,7 +278,7 @@ describe('Platform admin panel (e2e)', () => {
 
     const found = await admin.agent
       .get('/api/admin/hardware/devices')
-      .query({ search: ana.user.username.toUpperCase(), pageSize: 1 })
+      .query({ search: ana.user.username!.toUpperCase(), pageSize: 1 })
     expect(found.body.total).toBe(1)
     expect(found.body.devices[0].deviceId).toBe(anaDevice)
     expect((await admin.agent.get('/api/admin/hardware/devices').query({ page: 2, pageSize: 1 })).body.devices).toEqual(
