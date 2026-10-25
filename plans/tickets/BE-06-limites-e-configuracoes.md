@@ -25,11 +25,20 @@ Aplicar os limites na criação de servidor, convite e sala (BE-09 e BE-10 chama
 - `plans/04-tech-plan.md` seção 2
 
 ## Checklist
-- [ ] Modelo, migration e valores padrão
-- [ ] Resolvedor com testes (com e sem override)
-- [ ] Rotas de admin e a rota pública, com OpenAPI
-- [ ] E2E: o admin altera um limite e o efetivo muda sem reiniciar
-- [ ] Commit
+- [x] Modelo, migration e valores padrão
+- [x] Resolvedor com testes (com e sem override)
+- [x] Rotas de admin e a rota pública, com OpenAPI
+- [x] E2E: o admin altera um limite e o efetivo muda sem reiniciar
+- [x] Commit
 
 ## Critério de aceite
 Os limites efetivos mudam pelo painel sem redeploy, e os overrides têm precedência sobre o padrão.
+
+## Notas da execução
+- Módulo `src/modules/limits`. `PlatformSettings` com linha única `global`, criada pela migration (`INSERT` com os padrões do schema). O repositório usa `upsert`, então continua funcionando se a linha sumir (os e2e esvaziam o banco).
+- Contrato em `packages/shared/src/admin/platform-settings.ts`: `platformSettingsSchema` (limites com mínimo 1, `minChromiumVersion`), `publicSettingsSchema` e `userLimitsSchema` (`maxServers`: inteiro a partir de 0 ou `null` para voltar ao padrão). A View do Storybook usa `serversPerUser` e afins; o ViewModel faz o mapeamento.
+- Rotas: `GET` e `PUT /api/admin/settings` (objeto completo), `PUT /api/admin/users/:userId/limits` (204; usuário inexistente responde 404 `USER_NOT_FOUND`) e `GET /api/settings/public` (sem sessão, só `minChromiumVersion`). As de admin usam `@PlatformAdmin()`.
+- `ResolveEffectiveLimit` lê o banco a cada chamada (sem cache), por isso a mudança vale na hora.
+- **Ficou para o BE-09:** `Server` ainda não existe, então os tipos `membersPerServer` e `roomsPerServer` no resolvedor, o `SetServerLimitOverride` e a rota de override por servidor entram junto com o modelo `Server`. O resolvedor hoje aceita só `{ kind: 'serversPerUser', userId }`.
+- `test/support/signed-in.ts`: helper dos e2e que cadastra um usuário com key real e devolve o agent com a sessão (com `admin` e `twoFactor` opcionais).
+

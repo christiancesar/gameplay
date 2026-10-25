@@ -37,3 +37,8 @@ Convites e membros (BE-10), presença nas salas (BE-11), exclusão de servidor p
 
 ## Critério de aceite
 Os limites são respeitados, cada ação obedece à tabela de permissões, e excluir o servidor remove tudo em cascata e publica `server.deleted`.
+
+## Herdado do BE-06
+- Estender o `ResolveEffectiveLimit` com `membersPerServer` e `roomsPerServer` (override em `Server.maxMembersOverride` e `Server.maxRoomsOverride`).
+- Criar `SetServerLimitOverride` e a rota de admin do override por servidor.
+
