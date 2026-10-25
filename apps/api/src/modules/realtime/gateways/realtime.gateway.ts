@@ -75,12 +75,12 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   @AsyncApiReceive({
     channel: REALTIME_EVENTS.serverSubscribe,
     summary: 'Follow the open server (members only); stops following the previous one. Ack: { ok } or { ok, error }',
-    message: { payload: ServerSubscribeDto },
+    message: { name: 'ServerSubscribe', payload: ServerSubscribeDto },
   })
   @AsyncApiSend({
     channel: REALTIME_EVENTS.presenceSnapshot,
     summary: 'Members online when the socket subscribed to the server',
-    message: { payload: PresenceSnapshotDto },
+    message: { name: 'PresenceSnapshot', payload: PresenceSnapshotDto },
   })
   async subscribe(
     @ConnectedSocket() socket: RealtimeSocket,

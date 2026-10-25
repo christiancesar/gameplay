@@ -30,7 +30,7 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
   @AsyncApiSend({
     channel: REALTIME_EVENTS.presenceUpdate,
     summary: 'A member went online (first tab) or offline (last tab closed)',
-    message: { payload: PresenceUpdateDto },
+    message: { name: 'PresenceUpdate', payload: PresenceUpdateDto },
   })
   presenceUpdate(serverIds: string[], { userId, online }: { userId: string; online: boolean }) {
     for (const serverId of serverIds) {
@@ -41,7 +41,7 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
   @AsyncApiSend({
     channel: REALTIME_EVENTS.serverChanged,
     summary: 'Details, rooms, members or join requests of the server changed; refetch them',
-    message: { payload: ServerChangedDto },
+    message: { name: 'ServerChanged', payload: ServerChangedDto },
   })
   serverChanged(serverId: string) {
     this.server?.to(serverRoom(serverId)).emit(REALTIME_EVENTS.serverChanged, { serverId })
@@ -50,7 +50,7 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
   @AsyncApiSend({
     channel: REALTIME_EVENTS.serverRemoved,
     summary: 'You are no longer in the server: kicked, left in another tab, or the server was deleted',
-    message: { payload: ServerRemovedDto },
+    message: { name: 'ServerRemoved', payload: ServerRemovedDto },
   })
   serverRemoved(userIds: string[], removal: ServerRemoved) {
     if (!this.server || userIds.length === 0) return
@@ -62,7 +62,7 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
   @AsyncApiSend({
     channel: REALTIME_EVENTS.sessionRevoked,
     summary: 'Suspended or sessions ended by the platform admin; the socket closes right after',
-    message: { payload: NoPayloadDto },
+    message: { name: 'SessionRevoked', payload: NoPayloadDto },
   })
   sessionRevoked(userId: string) {
     if (!this.server) return
