@@ -9,3 +9,12 @@ export class UserNotFoundError extends DomainError {
     super('User not found.')
   }
 }
+
+export class ServerNotFoundError extends DomainError {
+  readonly code = 'SERVER_NOT_FOUND'
+  override readonly status = HttpStatus.NOT_FOUND
+
+  constructor() {
+    super('Server not found.')
+  }
+}

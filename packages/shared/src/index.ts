@@ -1,9 +1,11 @@
 export {
   platformSettingsSchema,
   publicSettingsSchema,
+  serverLimitsSchema,
   userLimitsSchema,
   type PlatformSettings,
   type PublicSettings,
+  type ServerLimits,
   type UserLimits,
 } from './admin/platform-settings.js'
 export {
@@ -66,9 +68,36 @@ export {
 export { USERNAME_PATTERN, usernameSchema } from './account/username.js'
 export { errorResponseSchema, type ErrorBody, type ErrorResponse } from './http/error.js'
 export type { Ack, AckResponse } from './realtime/ack.js'
+export { iceConfigResponseSchema, iceServerSchema, type IceConfigResponse, type IceServer } from './realtime/ice.js'
 export {
-  iceConfigResponseSchema,
-  iceServerSchema,
-  type IceConfigResponse,
-  type IceServer,
-} from './realtime/ice.js'
+  ROOM_NAME_MAX,
+  SERVER_DESCRIPTION_MAX,
+  SERVER_NAME_MAX,
+  SERVER_ROLES,
+  createServerRequestSchema,
+  listMyServersResponseSchema,
+  listRoomsResponseSchema,
+  reorderRoomsRequestSchema,
+  roomNameRequestSchema,
+  roomNameSchema,
+  roomSchema,
+  serverDetailSchema,
+  serverImageResponseSchema,
+  serverNameSchema,
+  serverRoleSchema,
+  serverSummarySchema,
+  setAutoApproveRequestSchema,
+  updateServerRequestSchema,
+  type CreateServerRequest,
+  type ListMyServersResponse,
+  type ListRoomsResponse,
+  type ReorderRoomsRequest,
+  type Room,
+  type RoomNameRequest,
+  type ServerDetail,
+  type ServerImageResponse,
+  type ServerRole,
+  type ServerSummary,
+  type SetAutoApproveRequest,
+  type UpdateServerRequest,
+} from './servers/server.js'

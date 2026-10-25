@@ -21,3 +21,10 @@ export const userLimitsSchema = z.object({
   maxServers: z.number().int().min(0).nullable(),
 })
 export type UserLimits = z.infer<typeof userLimitsSchema>
+
+// Per-server override, same rules as the user one.
+export const serverLimitsSchema = z.object({
+  maxMembers: z.number().int().min(0).nullable(),
+  maxRooms: z.number().int().min(0).nullable(),
+})
+export type ServerLimits = z.infer<typeof serverLimitsSchema>

@@ -1,0 +1,57 @@
+// A server (community) with its members and voice rooms. Deleting it removes
+// members and rooms in cascade.
+model Server {
+  id                 String         @id @default(cuid())
+  name               String
+  description        String?
+  // Storage keys; the public URLs are built from them.
+  iconKey            String?
+  coverKey           String?
+  autoApprove        Boolean        @default(false)
+  // Also the member with role OWNER; both change together in one transaction.
+  ownerId            String
+  owner              User           @relation("ServerOwner", fields: [ownerId], references: [id])
+  // Per-server limits set by the platform admin; null = global default.
+  maxMembersOverride Int?
+  maxRoomsOverride   Int?
+  createdAt          DateTime       @default(now())
+  members            ServerMember[]
+  rooms              Room[]
+
+  @@index([ownerId])
+  @@map("server")
+}
+
+enum ServerRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model ServerMember {
+  serverId String
+  server   Server     @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     ServerRole
+  // Invite used to join (BE-10); null for the owner.
+  inviteId String?
+  joinedAt DateTime   @default(now())
+
+  @@id([serverId, userId])
+  @@index([userId])
+  @@map("server_member")
+}
+
+// Only metadata; who is in a room lives in memory (realtime).
+model Room {
+  id        String   @id @default(cuid())
+  serverId  String
+  server    Server   @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  name      String
+  position  Int
+  createdAt DateTime @default(now())
+
+  @@index([serverId, position])
+  @@map("room")
+}

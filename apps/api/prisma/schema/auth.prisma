@@ -28,6 +28,8 @@ model User {
   registrationInvitesCreated RegistrationInvite[] @relation("RegistrationInviteCreatedBy")
   registrationInviteUsed     RegistrationInvite?  @relation("RegistrationInviteUsedBy")
   devices                    DeviceReport[]
+  serversOwned               Server[]             @relation("ServerOwner")
+  serverMemberships          ServerMember[]
 
   @@unique([email])
   @@unique([username])
