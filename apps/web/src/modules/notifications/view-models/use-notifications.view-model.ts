@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import type { Notification } from '@gameplay/contracts'
 
+import { useEnvironmentNoticesViewModel } from '@/modules/browser-support/view-models/use-environment-notices.view-model'
 import { toHubNotification } from '@/modules/notifications/model/mappers/notification.mapper'
 import { notificationsKeys } from '@/modules/notifications/model/services/notifications.keys'
 import { notificationsListQueryOptions } from '@/modules/notifications/model/services/notifications.query'
@@ -12,12 +13,15 @@ import {
   dismissNotification,
 } from '@/modules/notifications/model/services/notifications.service'
 
-/** Hub notification panel: list, dismiss one, dismiss all, open the server of an approval. */
+/** Hub notification panel: environment notices and server notifications; dismiss one or all, open an approved server. */
 function useNotificationsViewModel() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data } = useQuery(notificationsListQueryOptions)
-  const notifications = useMemo(() => (data ?? []).map(toHubNotification), [data])
+  const environment = useEnvironmentNoticesViewModel()
+  const serverNotifications = useMemo(() => (data ?? []).map(toHubNotification), [data])
+  // Environment notices come first: they are about this browser, right now.
+  const notifications = [...environment.notices, ...serverNotifications]
 
   // The notice leaves the list right away; a failure refetches the real one.
   const removeFromCache = async (shouldRemove: (notification: Notification) => boolean) => {
@@ -41,10 +45,12 @@ function useNotificationsViewModel() {
 
   return {
     notifications,
-    onDismiss: (id: string) => dismissOne.mutate(id),
-    onClearAll: () => dismissAll.mutate(),
-    // Monitor detection is not stored by the API; the browser notices arrive with FE-12.
-    onAllowMonitors: () => undefined,
+    onDismiss: (id: string) => (environment.isEnvironmentNotice(id) ? environment.dismiss(id) : dismissOne.mutate(id)),
+    onClearAll: () => {
+      environment.dismissAll()
+      dismissAll.mutate()
+    },
+    onAllowMonitors: () => void environment.allowMonitors(),
     onOpenServer: (serverId: string) => void navigate({ to: '/servers/$serverId', params: { serverId } }),
   }
 }
