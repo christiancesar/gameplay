@@ -1,8 +1,12 @@
 import {
+  listJoinRequestsResponseSchema,
+  listMembersResponseSchema,
   listMyServersResponseSchema,
   serverDetailSchema,
   type CreateServerRequest,
+  type JoinRequest,
   type ServerDetail,
+  type ServerMember,
   type ServerSummary,
 } from '@gameplay/contracts'
 
@@ -25,4 +29,32 @@ async function uploadServerIcon(serverId: string, file: File): Promise<void> {
   await http.put(`/servers/${serverId}/icon`, body)
 }
 
-export { createServer, listMyServers, uploadServerIcon }
+async function getServer(serverId: string): Promise<ServerDetail> {
+  const { data } = await http.get(`/servers/${serverId}`)
+  return serverDetailSchema.parse(data)
+}
+
+async function listServerMembers(serverId: string): Promise<ServerMember[]> {
+  const { data } = await http.get(`/servers/${serverId}/members`)
+  return listMembersResponseSchema.parse(data).members
+}
+
+/** Pending requests only; owner and admin. The API has no count endpoint, so the length is the count. */
+async function listPendingJoinRequests(serverId: string): Promise<JoinRequest[]> {
+  const { data } = await http.get(`/servers/${serverId}/join-requests`)
+  return listJoinRequestsResponseSchema.parse(data).requests
+}
+
+async function leaveServer(serverId: string): Promise<void> {
+  await http.post(`/servers/${serverId}/leave`)
+}
+
+export {
+  createServer,
+  getServer,
+  leaveServer,
+  listMyServers,
+  listPendingJoinRequests,
+  listServerMembers,
+  uploadServerIcon,
+}

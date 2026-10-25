@@ -125,6 +125,8 @@
     "leaveServerTitle": "Leave {{server}}?",
     "leaveServerDescription": "You will need a new invite to come back.",
     "leaveServerConfirm": "Leave",
+    "unavailable": "You no longer have access to this server.",
+    "leaveFailed": "Could not leave the server. Try again.",
     "noRooms": "No rooms yet.",
     "toggleSidebar": "Expand or collapse sidebar",
     "switcher": {

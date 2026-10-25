@@ -125,6 +125,8 @@
     "leaveServerTitle": "Sair de {{server}}?",
     "leaveServerDescription": "Você vai precisar de um novo convite para voltar.",
     "leaveServerConfirm": "Sair",
+    "unavailable": "Você não tem mais acesso a este servidor.",
+    "leaveFailed": "Não foi possível sair do servidor. Tente de novo.",
     "noRooms": "Nenhuma sala ainda.",
     "toggleSidebar": "Expandir ou recolher a barra lateral",
     "switcher": {
