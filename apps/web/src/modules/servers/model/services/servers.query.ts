@@ -1,6 +1,13 @@
 import { queryOptions } from '@tanstack/react-query'
 
-import { getMyLimits, getServer, listMyServers, listServerMembers } from './servers.service'
+import {
+  getMyLimits,
+  getServer,
+  listJoinRequests,
+  listMyServers,
+  listServerInvites,
+  listServerMembers,
+} from './servers.service'
 import { serversKeys } from './servers.keys'
 
 /** Servers the user belongs to (Hub list). */
@@ -21,4 +28,17 @@ const serverDetailQueryOptions = (serverId: string) =>
 const serverMembersQueryOptions = (serverId: string) =>
   queryOptions({ queryKey: serversKeys.members(serverId), queryFn: () => listServerMembers(serverId) })
 
-export { myLimitsQueryOptions, serverDetailQueryOptions, serverMembersQueryOptions, serversListQueryOptions }
+const serverInvitesQueryOptions = (serverId: string) =>
+  queryOptions({ queryKey: serversKeys.invites(serverId), queryFn: () => listServerInvites(serverId) })
+
+const joinRequestsQueryOptions = (serverId: string) =>
+  queryOptions({ queryKey: serversKeys.joinRequests(serverId), queryFn: () => listJoinRequests(serverId) })
+
+export {
+  joinRequestsQueryOptions,
+  myLimitsQueryOptions,
+  serverDetailQueryOptions,
+  serverInvitesQueryOptions,
+  serverMembersQueryOptions,
+  serversListQueryOptions,
+}

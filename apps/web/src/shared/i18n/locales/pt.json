@@ -254,6 +254,18 @@
   },
   "serverSettings": {
     "title": "Configurações do servidor",
+    "errors": {
+      "memberLimitReached": "O servidor está cheio. Libere uma vaga antes.",
+      "roomLimitReached": "O servidor atingiu o limite de salas.",
+      "roomNameTaken": "Já existe uma sala com esse nome.",
+      "roomNotFound": "Essa sala não existe mais.",
+      "permissionDenied": "Seu cargo não permite essa ação.",
+      "requestGone": "Esse pedido já foi respondido ou cancelado.",
+      "memberNotFound": "Essa pessoa não está mais no servidor.",
+      "inviteNotFound": "Esse convite não existe mais.",
+      "copyFailed": "Não foi possível copiar o link. Copie manualmente.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    },
     "sections": {
       "general": "Geral",
       "invites": "Convites",

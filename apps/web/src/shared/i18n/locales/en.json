@@ -254,6 +254,18 @@
   },
   "serverSettings": {
     "title": "Server settings",
+    "errors": {
+      "memberLimitReached": "The server is full. Free a spot first.",
+      "roomLimitReached": "The server reached its room limit.",
+      "roomNameTaken": "There is already a room with this name.",
+      "roomNotFound": "This room no longer exists.",
+      "permissionDenied": "Your role does not allow this action.",
+      "requestGone": "This request was already answered or withdrawn.",
+      "memberNotFound": "This person is no longer in the server.",
+      "inviteNotFound": "This invite no longer exists.",
+      "copyFailed": "Could not copy the link. Copy it by hand.",
+      "unexpected": "Something went wrong. Try again."
+    },
     "sections": {
       "general": "General",
       "invites": "Invites",
