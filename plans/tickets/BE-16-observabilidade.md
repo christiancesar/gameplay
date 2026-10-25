@@ -19,11 +19,22 @@ Dashboards e alertas no Grafana, Sentry no web.
 - `plans/04-tech-plan.md` seção 1
 
 ## Checklist
-- [ ] Consultar docs atuais do OpenTelemetry Node SDK e da instrumentação do Prisma 7
-- [ ] SDK inicializado antes do Nest
-- [ ] Exportação desligada sem env, e ligada com env (validar com um coletor local ou com o Grafana)
-- [ ] Ids de trace nos logs
-- [ ] Commit
+- [x] Consultar docs atuais do OpenTelemetry Node SDK e da instrumentação do Prisma 7
+- [x] SDK inicializado antes do Nest
+- [x] Exportação desligada sem env, e ligada com env (validar com um coletor local ou com o Grafana)
+- [x] Ids de trace nos logs
+- [x] Commit
 
 ## Critério de aceite
 Uma requisição a `/api/health` gera um trace com o span do banco no destino configurado, e o log da requisição carrega o mesmo `trace_id`.
+
+## Notas da execução
+- `src/lib/otel.ts` (`startTelemetry`, `shutdownTelemetry`), iniciado por `src/lib/otel-start.ts`, a primeira linha do `main.ts`. O `TelemetryModule` descarrega o que ficou no buffer no desligamento. Testes e e2e não passam pelo `main.ts`, então nunca ligam a telemetria.
+- Liga só com `OTEL_EXPORTER_OTLP_ENDPOINT`. Os exporters (OTLP/protobuf) leem endpoint, headers e protocolo do ambiente. O `.env` é carregado com `dotenv` antes do SDK, sem sobrescrever variáveis já definidas no container.
+- Instrumentação: HTTP, Express, Nest, pg, Prisma (`@prisma/instrumentation`, sem preview feature no Prisma 7) e pino. O pino ganha `trace_id` e `span_id` em cada linha e as linhas também vão como logs OTLP.
+- Recurso: `service.name` (`OTEL_SERVICE_NAME`, padrão `gameplay-api`), `service.version` do `package.json` e `deployment.environment.name` do `NODE_ENV`.
+- **Versões:** a última leva do OpenTelemetry (api 1.10, sdk 0.300, pacotes 3.0) saiu em 2026-10-20 com major nova. Fiquei na de 2026-08-31 (api `~1.9.1`, sdk-node e exporters 0.222, sdk-metrics e resources 2.11, instrumentações da mesma data).
+- **Validação com coletor local** (servidor OTLP/HTTP no scratchpad, nada enviado ao Grafana): `GET /api/health` gerou o trace com `prisma:client:operation`, `prisma:client:db_query` e `pg.query`; `GET /api/settings/public` gerou o log `request completed` com o mesmo `trace_id` do trace, que também tem o `db_query`. Métricas e logs chegaram no coletor.
+- **Observações:**
+  - O log automático do `/api/health` continua desligado (o healthcheck do container chama a cada 10 s), então o critério do log com `trace_id` foi conferido em outra rota. O trace do health continua sendo gerado, a cada 10 s; se pesar no free tier do Grafana, dá para ignorar o health na instrumentação HTTP.
+  - Ainda não validei contra o Grafana Cloud de verdade. As variáveis já estão no `apps/api/.env`; basta subir com `npm run docker:api` ou `npm run build && npm start`.
