@@ -1,5 +1,5 @@
 import type { TwoFactorSetupState } from '@/modules/admin/model/entities/two-factor-setup-state'
-import { CheckIcon, CopyIcon, DownloadIcon } from 'lucide-react'
+import { ArrowLeftIcon, CheckIcon, CopyIcon, DownloadIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import type { ConfirmPasswordValues } from '@/modules/admin/model/two-factor-setup.schema'
@@ -22,6 +22,8 @@ type TwoFactorSetupViewProps = {
   onCopyCodes: () => void
   onDownloadCodes: () => void
   onFinish: () => void
+  /** Leaves the setup without enabling 2FA. Hidden on the recovery step: 2FA is on and the codes show only once. */
+  onBackToHub: () => void
 }
 
 /** F12.1: primeiro login do admin da plataforma. */
@@ -32,6 +34,7 @@ function TwoFactorSetupView({
   onCopyCodes,
   onDownloadCodes,
   onFinish,
+  onBackToHub,
 }: TwoFactorSetupViewProps) {
   const { t } = useTranslation()
 
@@ -94,6 +97,12 @@ function TwoFactorSetupView({
           </>
         )}
       </div>
+      {state.step !== 'recovery' && (
+        <Button variant="ghost" size="sm" onClick={onBackToHub}>
+          <ArrowLeftIcon data-icon="inline-start" aria-hidden />
+          {t('common.backToHub')}
+        </Button>
+      )}
     </div>
   )
 }

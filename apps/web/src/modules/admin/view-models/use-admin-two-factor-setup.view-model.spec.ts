@@ -123,4 +123,11 @@ describe('useAdminTwoFactorSetupViewModel', () => {
       navigate.mock.invocationCallOrder[0],
     )
   })
+
+  it('goes back to the Hub without enabling 2FA', () => {
+    const hook = setup()
+    act(() => hook.result.current.onBackToHub())
+    expect(navigate).toHaveBeenCalledWith({ to: '/' })
+    expect(fakeTwoFactorClient.twoFactor.enable).not.toHaveBeenCalled()
+  })
 })

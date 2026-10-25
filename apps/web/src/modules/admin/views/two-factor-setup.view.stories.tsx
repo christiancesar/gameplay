@@ -25,6 +25,7 @@ const meta = {
     onCopyCodes: fn(),
     onDownloadCodes: fn(),
     onFinish: fn(),
+    onBackToHub: fn(),
   },
 } satisfies Meta<typeof TwoFactorSetupView>
 
@@ -65,6 +66,21 @@ export const Verifying: Story = { args: { state: { ...scan, isVerifying: true } 
 
 export const InvalidCode: Story = { args: { state: { ...scan, invalidCode: true } } }
 
-export const RecoveryCodes: Story = { args: { state: { step: 'recovery', recoveryCodes, copied: false } } }
+export const RecoveryCodes: Story = {
+  args: { state: { step: 'recovery', recoveryCodes, copied: false } },
+  // 2FA is already on and the codes show only once: no way out before saving them.
+  play: async ({ canvas }) => {
+    await expect(canvas.queryByRole('button', { name: /back to hub/i })).toBeNull()
+  },
+}
 
 export const RecoveryCodesCopied: Story = { args: { state: { step: 'recovery', recoveryCodes, copied: true } } }
+
+/** Fora do passo dos códigos, dá para desistir e voltar ao Hub. */
+export const BackToHub: Story = {
+  args: { state: { step: 'password', isSubmitting: false, invalidPassword: false } },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /back to hub/i }))
+    await expect(args.onBackToHub).toHaveBeenCalled()
+  },
+}
