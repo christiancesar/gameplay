@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'node:net'
 import type { INestApplication } from '@nestjs/common'
-import type { ClientToServerEvents, ServerToClientEvents } from '@gameplay/shared'
+import type { ClientToServerEvents, RoomParticipants, ServerToClientEvents } from '@gameplay/shared'
 import { io, type Socket } from 'socket.io-client'
 
 export type TestSocket = Socket<ServerToClientEvents, ClientToServerEvents>
@@ -45,4 +45,35 @@ export function nextEvent<E extends keyof ServerToClientEvents>(
       }) as never,
     )
   })
+}
+
+// Resolves with the first room:participants of that room that passes `check`.
+export function participantsWhere(
+  socket: TestSocket,
+  roomId: string,
+  check: (payload: RoomParticipants) => boolean,
+): Promise<RoomParticipants> {
+  return new Promise((resolve) => {
+    const listener = (payload: RoomParticipants) => {
+      if (payload.roomId !== roomId || !check(payload)) return
+      socket.off('room:participants', listener)
+      resolve(payload)
+    }
+    socket.on('room:participants', listener)
+  })
+}
+
+// Everything the socket got for that event during a short wait; [] proves
+// that nothing came.
+export async function collectFor<E extends keyof ServerToClientEvents>(
+  socket: TestSocket,
+  event: E,
+  ms = 150,
+): Promise<unknown[]> {
+  const got: unknown[] = []
+  const listener = (payload: unknown) => got.push(payload)
+  socket.on(event as never, listener as never)
+  await new Promise((resolve) => setTimeout(resolve, ms))
+  socket.off(event as never, listener as never)
+  return got
 }

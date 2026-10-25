@@ -22,6 +22,8 @@ export default defineConfig({
       REGISTRATION_KEY_SECRET: 'e2e-key-secret-e2e-key-secret-e2e-key',
       // As behind nginx: X-Forwarded-For decides request.ip.
       TRUST_PROXY_HOPS: '1',
+      // Short, so the e2e can watch a voice seat expire.
+      ROOM_RECONNECT_GRACE_MS: '300',
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test',
     },
   },

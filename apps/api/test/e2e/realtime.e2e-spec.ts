@@ -3,6 +3,7 @@ import request from 'supertest'
 import { DomainEventBus } from '../../src/common/events/domain-event-bus'
 import { PrismaService } from '../../src/lib/prisma'
 import { PresenceStore } from '../../src/modules/realtime/stores/presence.store'
+import { createServerWithMembers } from '../factories/server.factory'
 import { createTestApp } from '../support/create-test-app'
 import { resetDatabase } from '../support/database'
 import { signedIn } from '../support/signed-in'
@@ -37,15 +38,10 @@ describe('Realtime gateway (e2e)', () => {
     return socket
   }
 
-  // Owner and Ana, both members of the same server (auto-approve).
+  // Owner and Ana, both members of the same server.
   async function serverWithMember() {
-    const owner = await signedIn(app)
-    const serverId = (await owner.agent.post('/api/servers').send({ name: 'Turbex' })).body.id as string
-    await owner.agent.put(`/api/servers/${serverId}/auto-approve`).send({ autoApprove: true })
-    const ana = await signedIn(app)
-    const { code } = (await owner.agent.post(`/api/servers/${serverId}/invites`)).body
-    expect((await ana.agent.post(`/api/invites/${code}/join`)).body.result).toBe('joined')
-    return { owner, ana, serverId }
+    const { owner, members, serverId } = await createServerWithMembers(app)
+    return { owner, ana: members[0], serverId }
   }
 
   async function subscribed(cookie: string, serverId: string) {
