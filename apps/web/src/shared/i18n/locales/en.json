@@ -400,6 +400,9 @@
       "notFound": "This invite doesn't exist or was revoked."
     }
   },
+  "realtime": {
+    "unknownServer": "this server"
+  },
   "connection": {
     "reconnecting": "Reconnecting…",
     "reconnected": "Back online.",

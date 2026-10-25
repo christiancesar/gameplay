@@ -400,6 +400,9 @@
       "notFound": "Este convite não existe ou foi revogado."
     }
   },
+  "realtime": {
+    "unknownServer": "este servidor"
+  },
   "connection": {
     "reconnecting": "Reconectando…",
     "reconnected": "Conectado de novo.",
