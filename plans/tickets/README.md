@@ -64,9 +64,9 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 |---|---|---|---|
 | [FE-01 Ferramentas e rotas em `src/app/`](FE-01-fundacao-e-rotas.md) | 5 | 1 | concluído |
 | [FE-02 SignIn, 2FA, SignUp, sair](FE-02-auth.md) | 5 | 2 | concluído |
-| [FE-05 Socket, presença e remoções](FE-05-socket-e-presenca.md) | 5 | 2 | pendente |
+| [FE-05 Socket, presença e remoções](FE-05-socket-e-presenca.md) | 5 | 2 | concluído |
 | [FE-13 Lint MVVM e Sentry](FE-13-boundaries-e-sentry.md) | 3 | 2 | pendente |
-| [FE-03 Hub, criar servidor, notificações](FE-03-hub.md) | 5 | 3 | pendente |
+| [FE-03 Hub, criar servidor, notificações](FE-03-hub.md) | 5 | 3 | concluído |
 | [FE-04 Convite de servidor](FE-04-convite-de-servidor.md) | 3 | 3 | pendente |
 | [FE-08 Configurações e hardware](FE-08-configuracoes.md) | 5 | 3 | pendente |
 | [FE-11 Painel admin](FE-11-admin.md) | 8 | 3 | pendente |

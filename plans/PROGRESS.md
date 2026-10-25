@@ -35,6 +35,7 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - O usuário não tem tokens para construir o frontend inteiro numa sessão: executar um ticket por vez e combinar a branch antes.
 - A implementação segue no **OpenCode** (decisão do usuário em 2026-10-25), guiada pelo `AGENTS.md`. O **FE-01 está pela metade** na branch `docs/web-plan`: o que foi feito e o que falta estão nas notas do ticket.
 - 2026-10-25 (tarde): de volta ao Claude Code, com Opus orquestrando e Sonnet/Haiku implementando. Review do que o OpenCode fez, correções e **FE-01 e FE-02 concluídos** na branch `feature/web-routing` (sem push, sem PR ainda). Correções do review e suposições nas notas dos dois tickets. **Aguardando review do usuário.** Próximos liberados: FE-05 (socket), FE-13 (lint MVVM e Sentry), FE-03, FE-04, FE-08 e FE-11.
+- 2026-10-25: **FE-03 (Hub) e FE-05 (socket) concluídos** em paralelo, mesma branch. Suíte web com 412 testes. Ponto aberto para o usuário: a API não expõe o limite efetivo de servidores para o usuário comum (ver notas do FE-03). Liberados agora: FE-04, FE-06, FE-08, FE-11, FE-12 e FE-13.
 
 ## Backend (`apps/api`)
 
