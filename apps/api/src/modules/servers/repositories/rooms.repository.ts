@@ -5,6 +5,7 @@ import type { RoomRecord } from '../domain/server'
 export type RoomsGuard = (rooms: RoomRecord[]) => void
 
 export abstract class RoomsRepository {
+  abstract findById(roomId: string): Promise<RoomRecord | null>
   // By position.
   abstract list(serverId: string): Promise<RoomRecord[]>
   // Appended after the last room.

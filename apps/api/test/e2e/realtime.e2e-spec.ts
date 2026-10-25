@@ -63,7 +63,7 @@ describe('Realtime gateway (e2e)', () => {
   it('shows two members each other online and offline', async () => {
     const { owner, ana, serverId } = await serverWithMember()
     const ownerSide = await subscribed(owner.cookie, serverId)
-    expect(ownerSide.snapshot).toEqual({ serverId, onlineUserIds: [owner.user.id] })
+    expect(ownerSide.snapshot).toEqual({ serverId, onlineUserIds: [owner.user.id], rooms: [] })
 
     const anaOnline = nextEvent(ownerSide.socket, 'presence:update')
     const anaSide = await subscribed(ana.cookie, serverId)

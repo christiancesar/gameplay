@@ -1,6 +1,7 @@
 // Socket.IO rooms the gateway uses. Each socket joins its user's room on
 // connect, so a user is reached on every tab; server rooms follow
-// server:subscribe.
+// server:subscribe; voice rooms hold the socket that has the seat, so it keeps
+// hearing about its room while another server is open.
 const SERVER_PREFIX = 'server:'
 
 export function userRoom(userId: string): string {
@@ -13,4 +14,8 @@ export function serverRoom(serverId: string): string {
 
 export function isServerRoom(room: string): boolean {
   return room.startsWith(SERVER_PREFIX)
+}
+
+export function voiceRoom(roomId: string): string {
+  return `voice:${roomId}`
 }

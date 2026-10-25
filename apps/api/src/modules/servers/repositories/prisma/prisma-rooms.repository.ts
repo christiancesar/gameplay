@@ -14,6 +14,10 @@ export class PrismaRoomsRepository extends RoomsRepository {
     super()
   }
 
+  findById(roomId: string): Promise<RoomRecord | null> {
+    return this.prisma.room.findUnique({ where: { id: roomId }, select })
+  }
+
   list(serverId: string): Promise<RoomRecord[]> {
     return listRooms(this.prisma, serverId)
   }

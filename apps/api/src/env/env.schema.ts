@@ -53,6 +53,9 @@ export const envSchema = z
     COTURN_URLS: urlList.optional(),
     // static-auth-secret of coturn's REST API (use-auth-secret).
     COTURN_SECRET: z.string().min(16).optional(),
+    // How long a voice seat waits for its socket to reconnect before the
+    // person leaves the room.
+    ROOM_RECONNECT_GRACE_MS: z.coerce.number().int().min(0).default(30_000),
   })
   .superRefine((env, ctx) => {
     const required = (keys: readonly (keyof typeof env)[], when: string) => {

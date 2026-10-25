@@ -3,16 +3,18 @@ import { OnDomainEvent } from '../../../common/events/domain-event-bus'
 import type { DomainEvents } from '../../../common/events/domain-events'
 import { RealtimeEmitter } from '../providers/realtime-emitter'
 import { PresenceStore } from '../stores/presence.store'
+import { ReleaseVoiceSeatsUseCase } from '../use-cases/release-voice-seats.use-case'
 
 const REMOVED_REASON = { kick: 'kicked', leave: 'left' } as const
 
 // Bridge from the domain events published by the REST use-cases to the
-// sockets. The deleted room in room.changed is handled with voice rooms (BE-12).
+// sockets, clearing the voice seats that no longer make sense.
 @Injectable()
 export class DomainEventsListener {
   constructor(
     private readonly emitter: RealtimeEmitter,
     private readonly presence: PresenceStore,
+    private readonly releaseSeats: ReleaseVoiceSeatsUseCase,
   ) {}
 
   @OnDomainEvent('server.updated')
@@ -21,7 +23,8 @@ export class DomainEventsListener {
   }
 
   @OnDomainEvent('room.changed')
-  roomChanged({ serverId }: DomainEvents['room.changed']) {
+  async roomChanged({ serverId, deletedRoomId }: DomainEvents['room.changed']) {
+    if (deletedRoomId) await this.releaseSeats.execute({ roomId: deletedRoomId })
     this.emitter.serverChanged(serverId)
   }
 
@@ -48,23 +51,28 @@ export class DomainEventsListener {
   }
 
   @OnDomainEvent('membership.removed')
-  removed({ serverId, userId, reason }: DomainEvents['membership.removed']) {
+  async removed({ serverId, userId, reason }: DomainEvents['membership.removed']) {
+    await this.releaseSeats.execute({ userId, serverId })
     this.emitter.serverRemoved([userId], { serverId, reason: REMOVED_REASON[reason] })
     this.emitter.serverChanged(serverId)
   }
 
   @OnDomainEvent('server.deleted')
-  serverDeleted({ serverId, memberIds }: DomainEvents['server.deleted']) {
+  async serverDeleted({ serverId, memberIds }: DomainEvents['server.deleted']) {
+    await this.releaseSeats.execute({ serverId })
     this.emitter.serverRemoved(memberIds, { serverId, reason: 'deleted' })
   }
 
+  // Out of the voice room at once, without the reconnection wait.
   @OnDomainEvent('user.suspended')
-  suspended({ userId }: DomainEvents['user.suspended']) {
+  async suspended({ userId }: DomainEvents['user.suspended']) {
+    await this.releaseSeats.execute({ userId })
     this.emitter.sessionRevoked(userId)
   }
 
   @OnDomainEvent('user.sessions-revoked')
-  sessionsRevoked({ userId }: DomainEvents['user.sessions-revoked']) {
+  async sessionsRevoked({ userId }: DomainEvents['user.sessions-revoked']) {
+    await this.releaseSeats.execute({ userId })
     this.emitter.sessionRevoked(userId)
   }
 }

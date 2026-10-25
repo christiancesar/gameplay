@@ -32,6 +32,7 @@ describe('presence use-cases', () => {
     expect(await subscribe.execute({ serverId: 's1', userId: 'ana' })).toEqual({
       serverId: 's1',
       onlineUserIds: ['bia'],
+      rooms: [],
     })
   })
 

@@ -17,6 +17,11 @@ export class InMemoryRoomsRepository extends RoomsRepository {
     this.rooms = this.rooms.filter((room) => room.serverId !== serverId)
   }
 
+  async findById(roomId: string): Promise<RoomRecord | null> {
+    const room = this.rooms.find(({ id }) => id === roomId)
+    return room ? { ...room } : null
+  }
+
   async list(serverId: string): Promise<RoomRecord[]> {
     return this.byServer(serverId)
   }
