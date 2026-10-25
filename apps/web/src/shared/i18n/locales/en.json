@@ -209,7 +209,10 @@
         "unsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab."
       },
       "saveAsDefault": "Use these settings next time",
-      "start": "Choose and share"
+      "start": "Choose and share",
+      "updateTitle": "Change quality",
+      "updateDescription": "Resolution and frame rate change right away, without stopping the share.",
+      "apply": "Apply"
     },
     "monitor": {
       "target": "Target",
@@ -232,7 +235,16 @@
       "viewer": "Viewer",
       "noViewers": "Nobody is watching yet. Quality is measured once someone watches."
     },
-    "stopShort": "Stop"
+    "stopShort": "Stop",
+    "changeQuality": "Change quality",
+    "loadingStream": "Connecting to the stream…",
+    "watchFailed": "Could not watch this screen. Try again.",
+    "notices": {
+      "unsupported": "This browser cannot share the screen.",
+      "failed": "Could not start sharing the screen.",
+      "start-failed": "Could not announce the screen share to the room.",
+      "not-in-call": "Join a voice room to share your screen."
+    }
   },
   "image": {
     "choose": "Choose image",
@@ -426,6 +438,11 @@
   },
   "realtime": {
     "unknownServer": "this server"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "description": "The app hit an unexpected error. Reload the page to try again.",
+    "reload": "Reload"
   },
   "connection": {
     "reconnecting": "Reconnecting…",

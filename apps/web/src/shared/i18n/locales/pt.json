@@ -209,7 +209,10 @@
         "unsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba."
       },
       "saveAsDefault": "Usar estas configurações da próxima vez",
-      "start": "Escolher e compartilhar"
+      "start": "Escolher e compartilhar",
+      "updateTitle": "Mudar qualidade",
+      "updateDescription": "Resolução e taxa de quadros mudam na hora, sem parar a transmissão.",
+      "apply": "Aplicar"
     },
     "monitor": {
       "target": "Alvo",
@@ -232,7 +235,16 @@
       "viewer": "Espectador",
       "noViewers": "Ninguém assistindo ainda. A qualidade é medida quando alguém assiste."
     },
-    "stopShort": "Parar"
+    "stopShort": "Parar",
+    "changeQuality": "Mudar qualidade",
+    "loadingStream": "Conectando à transmissão…",
+    "watchFailed": "Não foi possível assistir a esta tela. Tente de novo.",
+    "notices": {
+      "unsupported": "Este navegador não consegue compartilhar a tela.",
+      "failed": "Não foi possível iniciar o compartilhamento.",
+      "start-failed": "Não foi possível avisar a sala sobre o compartilhamento.",
+      "not-in-call": "Entre em uma sala de voz para compartilhar a tela."
+    }
   },
   "image": {
     "choose": "Escolher imagem",
@@ -426,6 +438,11 @@
   },
   "realtime": {
     "unknownServer": "este servidor"
+  },
+  "errors": {
+    "title": "Algo deu errado",
+    "description": "O app encontrou um erro inesperado. Recarregue a página para tentar de novo.",
+    "reload": "Recarregar"
   },
   "connection": {
     "reconnecting": "Reconectando…",
