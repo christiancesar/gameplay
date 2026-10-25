@@ -51,7 +51,7 @@ function RequestsSectionView({
           {requests.map((request) => {
             const busy = request.id === busyRequestId
             return (
-              <li key={request.id} className="flex items-center gap-3 px-4 py-3">
+              <li key={request.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <UserAvatar name={request.user.name} imageUrl={request.user.avatarUrl} size="lg" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{request.user.name}</p>
@@ -65,14 +65,17 @@ function RequestsSectionView({
                     {t('serverSettings.requests.viaInvite', { name: request.invitedBy })}
                   </p>
                 </div>
-                <Button variant="ghost" size="sm" disabled={busy} onClick={() => onDecline(request.id)}>
-                  <XIcon data-icon="inline-start" aria-hidden />
-                  {t('serverSettings.requests.decline')}
-                </Button>
-                <Button size="sm" disabled={busy || isFull} onClick={() => onApprove(request.id)}>
-                  <CheckIcon data-icon="inline-start" aria-hidden />
-                  {t('serverSettings.requests.approve')}
-                </Button>
+                {/* Em tela estreita os botões descem para uma linha própria. */}
+                <div className="flex w-full justify-end gap-2 sm:w-auto">
+                  <Button variant="ghost" size="sm" disabled={busy} onClick={() => onDecline(request.id)}>
+                    <XIcon data-icon="inline-start" aria-hidden />
+                    {t('serverSettings.requests.decline')}
+                  </Button>
+                  <Button size="sm" disabled={busy || isFull} onClick={() => onApprove(request.id)}>
+                    <CheckIcon data-icon="inline-start" aria-hidden />
+                    {t('serverSettings.requests.approve')}
+                  </Button>
+                </div>
               </li>
             )
           })}
