@@ -3,6 +3,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 import type { UserSettingsSection } from '@/modules/settings/model/settings.search'
+import { displayNameOf } from '@/shared/lib/display-name'
 
 /** The settings modal lives in the URL (`?settings=<section>`), so Hub and server screens share it. */
 function useUserSettingsViewModel() {
@@ -17,7 +18,7 @@ function useUserSettingsViewModel() {
   return {
     open: settings !== undefined,
     section: settings ?? 'profile',
-    userName: user?.displayUsername ?? user?.username ?? user?.name ?? '',
+    userName: user ? displayNameOf(user) : '',
     onOpenChange: (open: boolean) => {
       if (!open) void setSettings(undefined)
     },

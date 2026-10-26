@@ -22,6 +22,7 @@ import {
   serversListQueryOptions,
 } from '@/modules/servers/model/services/servers.query'
 import { leaveServer } from '@/modules/servers/model/services/servers.service'
+import { displayNameOf } from '@/shared/lib/display-name'
 
 const SERVER_ROUTE = '/_authed/servers/$serverId'
 const UNAVAILABLE_TOAST_ID = 'server-unavailable'
@@ -194,7 +195,7 @@ function useServerScreenViewModel() {
     },
     members: presenceMembers,
     userCard: {
-      user: { name: user?.name ?? '', email: user?.email ?? '', avatarUrl: user?.image ?? undefined },
+      user: { name: user ? displayNameOf(user) : '', email: user?.email ?? '', avatarUrl: user?.image ?? undefined },
       inRoom: connection !== null,
       isMuted: voice.isMuted,
       isDeafened: voice.isDeafened,

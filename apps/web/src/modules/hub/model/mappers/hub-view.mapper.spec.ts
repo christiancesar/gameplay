@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { toHubServer, toHubUser } from './hub-view.mapper'
 
 describe('hub view mapper', () => {
+  it('shows the username, not the sign up name that does not follow a rename', () => {
+    expect(
+      toHubUser({ name: 'admin', username: 'christiancesar', displayUsername: 'christiancesar', email: 'a@b.c' }),
+    ).toMatchObject({ name: 'christiancesar' })
+  })
+
   it('maps a null avatar to undefined', () => {
     expect(toHubUser({ name: 'Admin', email: 'a@b.c', image: null })).toEqual({
       name: 'Admin',
