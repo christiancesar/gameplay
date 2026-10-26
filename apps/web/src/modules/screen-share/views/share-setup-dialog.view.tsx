@@ -23,10 +23,10 @@ const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
 /** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
 type SharePriority = (typeof SHARE_PRIORITIES)[number]
 
-type AudioSupport = 'supported' | 'recentMac' | 'windowMaybe' | 'tabOnly' | 'browserUnsupported'
+type AudioSupport = 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
 
-/** Asking for audio most likely brings none: the hint turns amber. The switch stays on, the share warns. */
-const UNLIKELY_AUDIO: readonly AudioSupport[] = ['tabOnly', 'browserUnsupported']
+/** Where the browser gives screen audio. Elsewhere the switch is locked and the hint says only the microphone goes. */
+const AUDIO_AVAILABLE: readonly AudioSupport[] = ['supported', 'recentMac']
 
 type ShareSettings = {
   source: ShareSource
@@ -69,6 +69,7 @@ function ShareSetupDialogView({
   const { t } = useTranslation()
   const isUpdate = mode === 'update'
   const set = (patch: Partial<ShareSettings>) => onChange({ ...settings, ...patch })
+  const audioAvailable = AUDIO_AVAILABLE.includes(audioSupport)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -189,18 +190,14 @@ function ShareSetupDialogView({
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <Label htmlFor="share-audio">{t('share.setup.audio')}</Label>
-                <p
-                  className={cn(
-                    'text-xs',
-                    UNLIKELY_AUDIO.includes(audioSupport) ? 'text-amber-500' : 'text-muted-foreground',
-                  )}
-                >
+                <p className={cn('text-xs', audioAvailable ? 'text-muted-foreground' : 'text-amber-500')}>
                   {t(`share.setup.audioSupport.${audioSupport}`)}
                 </p>
               </div>
               <Switch
                 id="share-audio"
-                checked={settings.includeAudio}
+                checked={settings.includeAudio && audioAvailable}
+                disabled={!audioAvailable}
                 onCheckedChange={(includeAudio) => set({ includeAudio })}
               />
             </div>

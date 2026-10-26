@@ -63,7 +63,7 @@ describe('useSharePanelViewModel', () => {
     const { result } = setup()
     act(() => result.current.onStart())
     act(() => result.current.setup.onChange({ ...defaultShareSettings, source: 'window' }))
-    expect(result.current.setup.audioSupport).toBe('windowMaybe')
+    expect(result.current.setup.audioSupport).toBe('windowUnsupported')
     fakeShareController.platform.mockReturnValueOnce({
       engine: 'firefox',
       chromiumMajor: 0,
@@ -86,12 +86,12 @@ describe('useSharePanelViewModel', () => {
     expect(result.current.setup.open).toBe(false)
   })
 
-  it('asks for audio even where it is unlikely: the share warns when it does not come', () => {
+  it('does not ask for audio from a source that has none', () => {
     const { result } = setup()
     act(() => result.current.onStart())
     act(() => result.current.setup.onChange({ ...defaultShareSettings, source: 'window', includeAudio: true }))
     act(() => result.current.setup.onStart())
-    expect(fakeShareController.start).toHaveBeenCalledWith(expect.objectContaining({ includeAudio: true }), 'smooth')
+    expect(fakeShareController.start).toHaveBeenCalledWith(expect.objectContaining({ includeAudio: false }), 'smooth')
   })
 
   it('saves the settings for next time only when asked, and forgets them when not', () => {

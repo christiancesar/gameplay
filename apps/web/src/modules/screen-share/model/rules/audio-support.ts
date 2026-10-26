@@ -3,28 +3,27 @@ import type { CapturePlatform } from './capture-platform'
 
 /**
  * What the browser can capture as screen audio here.
- * `supported`: it works. `recentMac`: needs macOS 14.2 or newer. `windowMaybe`: Chromium 141+ may offer the
- * window's own audio. `tabOnly`: only a tab has audio on this system. `browserUnsupported`: no screen audio.
+ * `supported`: it works. `recentMac`: needs macOS 14.2 or newer. `windowUnsupported`: never the audio of a
+ * single window. `tabOnly`: only a tab has audio on this system. `browserUnsupported`: no screen audio.
  */
-type AudioSupport = 'supported' | 'recentMac' | 'windowMaybe' | 'tabOnly' | 'browserUnsupported'
+type AudioSupport = 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
 
-/** First Chromium with system audio on macOS and the `windowAudio` hint. */
-const CHROMIUM_WITH_WINDOW_AUDIO = 141
+/** First Chromium with system audio on macOS. */
+const CHROMIUM_WITH_MAC_AUDIO = 141
 
 function audioSupportFor(source: ShareSource, platform: CapturePlatform): AudioSupport {
   if (platform.engine !== 'chromium') return 'browserUnsupported'
   if (source === 'tab') return 'supported'
-  const recent = platform.chromiumMajor >= CHROMIUM_WITH_WINDOW_AUDIO
-  if (source === 'window') return recent ? 'windowMaybe' : 'tabOnly'
+  if (source === 'window') return 'windowUnsupported'
   if (platform.os === 'windows' || platform.os === 'chromeos') return 'supported'
-  if (platform.os === 'mac' && recent) return 'recentMac'
+  if (platform.os === 'mac' && platform.chromiumMajor >= CHROMIUM_WITH_MAC_AUDIO) return 'recentMac'
   return 'tabOnly'
 }
 
-/** The cases where asking for audio most likely brings none: the dialog warns. */
-function isAudioUnlikely(support: AudioSupport): boolean {
-  return support === 'tabOnly' || support === 'browserUnsupported'
+/** Where the browser gives no screen audio the switch is locked: only the microphone goes. */
+function canShareAudio(support: AudioSupport): boolean {
+  return support === 'supported' || support === 'recentMac'
 }
 
-export { CHROMIUM_WITH_WINDOW_AUDIO, audioSupportFor, isAudioUnlikely }
+export { CHROMIUM_WITH_MAC_AUDIO, audioSupportFor, canShareAudio }
 export type { AudioSupport }

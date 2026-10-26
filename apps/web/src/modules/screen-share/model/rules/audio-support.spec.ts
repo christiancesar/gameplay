@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { audioSupportFor, isAudioUnlikely } from './audio-support'
+import { audioSupportFor, canShareAudio } from './audio-support'
 import type { CapturePlatform } from './capture-platform'
 
 const chrome = (os: CapturePlatform['os'], chromiumMajor = 141): CapturePlatform => ({
@@ -24,9 +24,9 @@ describe('audioSupportFor', () => {
     expect(audioSupportFor('screen', chrome('linux'))).toBe('tabOnly')
   })
 
-  it('a window may have audio from Chromium 141', () => {
-    expect(audioSupportFor('window', chrome('windows'))).toBe('windowMaybe')
-    expect(audioSupportFor('window', chrome('windows', 140))).toBe('tabOnly')
+  it('never the audio of a single window', () => {
+    expect(audioSupportFor('window', chrome('windows'))).toBe('windowUnsupported')
+    expect(audioSupportFor('window', chrome('linux'))).toBe('windowUnsupported')
   })
 
   it('Firefox and Safari capture no screen audio', () => {
@@ -36,11 +36,12 @@ describe('audioSupportFor', () => {
   })
 })
 
-describe('isAudioUnlikely', () => {
-  it('warns only where audio most likely does not come', () => {
-    expect(isAudioUnlikely('tabOnly')).toBe(true)
-    expect(isAudioUnlikely('browserUnsupported')).toBe(true)
-    expect(isAudioUnlikely('windowMaybe')).toBe(false)
-    expect(isAudioUnlikely('supported')).toBe(false)
+describe('canShareAudio', () => {
+  it('only where the browser gives screen audio', () => {
+    expect(canShareAudio('supported')).toBe(true)
+    expect(canShareAudio('recentMac')).toBe(true)
+    expect(canShareAudio('windowUnsupported')).toBe(false)
+    expect(canShareAudio('tabOnly')).toBe(false)
+    expect(canShareAudio('browserUnsupported')).toBe(false)
   })
 })

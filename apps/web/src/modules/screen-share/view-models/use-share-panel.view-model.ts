@@ -12,7 +12,7 @@ import {
   toViewerQualities,
   type ViewerProfile,
 } from '@/modules/screen-share/model/mappers/share-panel.mapper'
-import { audioSupportFor } from '@/modules/screen-share/model/rules/audio-support'
+import { audioSupportFor, canShareAudio } from '@/modules/screen-share/model/rules/audio-support'
 
 import { useSharePreferencesStore } from './stores/share-preferences.store'
 import { useShareStore } from './stores/share.store'
@@ -53,7 +53,11 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   }
 
   function start() {
-    const settings = draft
+    // A locked switch keeps its saved value; the share asks for no audio the browser cannot give.
+    const settings = {
+      ...draft,
+      includeAudio: draft.includeAudio && canShareAudio(audioSupportFor(draft.source, shareController.platform())),
+    }
     const { save, clear } = useSharePreferencesStore.getState()
     if (saveAsDefault) save(settings, draftPriority)
     else clear()

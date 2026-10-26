@@ -53,11 +53,11 @@ describe('preset rules', () => {
     expect(options.audio).toMatchObject({ echoCancellation: false, noiseSuppression: false, autoGainControl: false })
   })
 
-  it('offers system audio for a screen and the window audio for a window only when audio is asked', () => {
-    const withAudio = displayMediaOptions({ source: 'window', resolution: '1080p', fps: 60, includeAudio: true })
-    expect(withAudio).toMatchObject({ systemAudio: 'include', windowAudio: 'window' })
-    const without = displayMediaOptions({ source: 'window', resolution: '1080p', fps: 60, includeAudio: false })
-    expect(without).toMatchObject({ systemAudio: 'exclude', windowAudio: 'exclude' })
+  it('offers system audio for a screen only when audio is asked', () => {
+    const withAudio = displayMediaOptions({ source: 'screen', resolution: '1080p', fps: 60, includeAudio: true })
+    expect(withAudio).toMatchObject({ systemAudio: 'include' })
+    const without = displayMediaOptions({ source: 'screen', resolution: '1080p', fps: 60, includeAudio: false })
+    expect(without).toMatchObject({ systemAudio: 'exclude' })
   })
 
   it('smooth keeps the frame rate and uses the motion hint; sharp keeps the resolution and uses detail', () => {

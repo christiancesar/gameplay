@@ -91,7 +91,7 @@ function Scenario({
         open={overlay === 'shareSetup'}
         settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false }}
         priority="smooth"
-        audioSupport="windowMaybe"
+        audioSupport="windowUnsupported"
         saveAsDefault
         onOpenChange={fn()}
         onChange={fn()}
