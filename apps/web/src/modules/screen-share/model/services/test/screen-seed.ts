@@ -27,6 +27,18 @@ const outbound = (overrides: Record<string, unknown> = {}): StatsRecord => ({
   ...overrides,
 })
 
+/** `inbound-rtp` video entry of a screen being watched, as Chrome reports it. */
+const inbound = (overrides: Record<string, unknown> = {}): StatsRecord => ({
+  type: 'inbound-rtp',
+  kind: 'video',
+  frameWidth: 1920,
+  frameHeight: 1080,
+  framesPerSecond: 60,
+  bytesReceived: 0,
+  timestamp: 1000,
+  ...overrides,
+})
+
 function makeCallMedia(roomId = 'r1'): CallMedia & { transport: FakeMediaTransport; audio: FakeAudioEngine } {
   return { serverId: 's1', roomId, selfId, transport: new FakeMediaTransport(), audio: new FakeAudioEngine() }
 }
@@ -45,4 +57,4 @@ function makeCapture(withAudio: boolean) {
   return { stream, video, audio }
 }
 
-export { gameSettings, makeCallMedia, makeCapture, outbound, selfId, tabSettings }
+export { gameSettings, inbound, makeCallMedia, makeCapture, outbound, selfId, tabSettings }

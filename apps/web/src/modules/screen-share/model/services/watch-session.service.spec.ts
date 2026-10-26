@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fakeStream, fakeTrack } from '@/shared/media/test/media-fakes'
 
 import { makeWatchSessionContext } from './test/watch-session-context'
-import { makeCallMedia } from './test/screen-seed'
+import { inbound, makeCallMedia } from './test/screen-seed'
 
 type Context = ReturnType<typeof makeWatchSessionContext>
 
@@ -22,6 +22,7 @@ describe('WatchSession', () => {
   let ctx: Context
   let media: ReturnType<typeof makeCallMedia>
 
+  afterEach(() => vi.useRealTimers())
   beforeEach(() => {
     ctx = makeWatchSessionContext()
     media = makeCallMedia()
@@ -50,6 +51,39 @@ describe('WatchSession', () => {
     expect(ctx.store.state).toMatchObject({ status: 'playing', stream })
     expect(media.audio.addStream).toHaveBeenCalledWith('screen:u2', stream)
     expect(media.audio.setVolume).toHaveBeenCalledWith('screen:u2', 1)
+  })
+
+  it('measures what reaches me, and stops when I stop watching', async () => {
+    vi.useFakeTimers()
+    ctx.session.watch('u2')
+    const video = fakeTrack('video', 'v')
+    media.transport.emitTrack('u2', video, fakeStream([video]), 'screen')
+    expect(ctx.store.state).toMatchObject({ quality: null, hasAudio: false })
+
+    media.transport.connectionStats.u2 = [inbound({ trackIdentifier: 'v', frameHeight: 720, frameWidth: 1280 })]
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(ctx.store.state.quality).toBeNull()
+    media.transport.connectionStats.u2 = [
+      inbound({ trackIdentifier: 'v', frameHeight: 720, frameWidth: 1280, bytesReceived: 250_000, timestamp: 2000 }),
+    ]
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(ctx.store.state.quality).toEqual({ width: 1280, height: 720, fps: 60, kbps: 2000 })
+
+    ctx.session.stop()
+    media.transport.getConnectionStats.mockClear()
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(media.transport.getConnectionStats).not.toHaveBeenCalled()
+    expect(ctx.store.state.quality).toBeNull()
+  })
+
+  it('tells whether the stream carries audio', () => {
+    ctx.session.watch('u2')
+    const video = fakeTrack('video', 'v')
+    const game = fakeTrack('audio', 'game')
+    media.transport.emitTrack('u2', video, fakeStream([video]), 'screen')
+    expect(ctx.store.state.hasAudio).toBe(false)
+    media.transport.emitTrack('u2', game, fakeStream([video, game]), 'screen')
+    expect(ctx.store.state.hasAudio).toBe(true)
   })
 
   it('ignores the voice of the streamer and screens nobody asked for', () => {

@@ -30,6 +30,20 @@ describe('useStreamWatchViewModel', () => {
     expect(next.result.current).toMatchObject({ stream, isWaiting: false })
   })
 
+  it('hands over what reaches me and whether the stream has audio, once it plays', () => {
+    useWatchStore.setState({ status: 'waiting' })
+    expect(renderHook(() => useStreamWatchViewModel()).result.current).toMatchObject({
+      received: undefined,
+      hasAudio: true,
+    })
+    const quality = { width: 1280, height: 720, fps: 58, kbps: 3100 }
+    useWatchStore.setState({ status: 'playing', stream: fakeStream(), quality, hasAudio: false })
+    expect(renderHook(() => useStreamWatchViewModel()).result.current).toMatchObject({
+      received: quality,
+      hasAudio: false,
+    })
+  })
+
   it('sends the volume and the fullscreen to the session and the browser', () => {
     const { result } = renderHook(() => useStreamWatchViewModel())
     result.current.onVolumeChange(35)

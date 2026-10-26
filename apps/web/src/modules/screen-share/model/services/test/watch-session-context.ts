@@ -9,7 +9,7 @@ function makeWatchSessionContext() {
   const realtime = new FakeStreamRealtime()
   const store = new FakeSessionStore<WatchSnapshot>({ ...idleWatch })
   const source = new FakeCallMediaSource()
-  const session = new WatchSession({ realtime, store, subscribeMedia: source.subscribe })
+  const session = new WatchSession({ realtime, store, subscribeMedia: source.subscribe, pollMs: 1000 })
   session.attach()
   return { session, realtime, store, source }
 }

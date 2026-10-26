@@ -30,7 +30,22 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Watching: Story = {}
+/** Mostra o que chega para quem assiste, medido no próprio browser. */
+export const Watching: Story = {
+  args: { received: { width: 1920, height: 1080, fps: 59.6, kbps: 7800 } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByLabelText('What reaches you: 1080p, 60 fps, 7.8 Mbps')).toBeVisible()
+  },
+}
+
+/** A transmissão não tem áudio: aviso no lugar do ícone e volume desligado. */
+export const WithoutAudio: Story = {
+  args: { hasAudio: false, received: { width: 1280, height: 720, fps: 42, kbps: 2100 } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText('This stream has no audio')).toBeVisible()
+    await expect(canvas.getByRole('slider', { name: /stream volume/i })).toHaveAttribute('data-disabled')
+  },
+}
 
 /** Sideways phone: the bar and the people float over the video, and a tap on the video hides them. */
 export const PhoneLandscape: Story = {

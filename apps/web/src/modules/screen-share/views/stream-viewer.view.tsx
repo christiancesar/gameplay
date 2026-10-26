@@ -1,16 +1,24 @@
 import { cn } from 'cn'
-import { EyeOffIcon, MaximizeIcon, Volume2Icon } from 'lucide-react'
+import { EyeOffIcon, MaximizeIcon, Volume2Icon, VolumeXIcon } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
 import { ParticipantStripView } from '@/modules/rooms/views/participant-strip.view'
+import { formatKbps } from '@/shared/ui/format-kbps'
 import { IconButton } from '@/shared/ui/icon-button'
 import { Slider } from '@/shared/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
+/** Medido no lado de quem assiste: pode ser menor do que o streamer envia. */
+type ReceivedQuality = { width: number; height: number; fps: number; kbps: number }
+
 type StreamViewerViewProps = {
   streamerName: string
+  /** What reaches this viewer; missing until it is measured. */
+  received?: ReceivedQuality
+  /** False when the stream carries no audio (the streamer did not share it or the browser gave none). */
+  hasAudio?: boolean
   /** Elemento de vídeo já ligado ao stream (a Screen faz a ligação com o MediaStream). */
   video: ReactNode
   liveStreams: readonly { id: string; name: string }[]
@@ -33,6 +41,8 @@ const OVERLAY_FADE =
 
 function StreamViewerView({
   streamerName,
+  received,
+  hasAudio = true,
   video,
   liveStreams,
   currentStreamId,
@@ -65,6 +75,16 @@ function StreamViewerView({
           LIVE
         </span>
         <h1 className="font-medium">{t('share.isLive', { name: streamerName })}</h1>
+        {received && (
+          <span
+            title={t('share.receiving')}
+            aria-label={`${t('share.receiving')}: ${received.height}p, ${Math.round(received.fps)} fps, ${formatKbps(received.kbps)}`}
+            className="text-muted-foreground phone-landscape:text-white/80 font-mono text-xs tabular-nums"
+          >
+            {received.height}p · {Math.round(received.fps)} fps
+            <span className="max-sm:hidden"> · {formatKbps(received.kbps)}</span>
+          </span>
+        )}
 
         {liveStreams.length > 1 && (
           <ToggleGroup
@@ -87,8 +107,16 @@ function StreamViewerView({
         <div className="ml-auto flex items-center gap-2">
           {/* Phone browsers ignore both for now (no fullscreen on iPhone), so touch screens go without. */}
           <div className="touch:hidden flex items-center gap-2">
-            <Volume2Icon className="text-muted-foreground size-4" aria-hidden />
+            {hasAudio ? (
+              <Volume2Icon className="text-muted-foreground size-4" aria-hidden />
+            ) : (
+              <span className="flex items-center gap-1 text-xs text-amber-500">
+                <VolumeXIcon className="size-4" aria-hidden />
+                {t('share.noStreamAudio')}
+              </span>
+            )}
             <Slider
+              disabled={!hasAudio}
               aria-label={t('share.streamVolume')}
               className="w-28"
               min={0}
@@ -134,4 +162,4 @@ function StreamViewerView({
 }
 
 export { StreamViewerView }
-export type { StreamViewerViewProps }
+export type { ReceivedQuality, StreamViewerViewProps }
