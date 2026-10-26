@@ -5,6 +5,7 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core'
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
+import { RuntimeNodeInstrumentation } from '@opentelemetry/instrumentation-runtime-node'
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-proto'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
@@ -63,6 +64,8 @@ export function startTelemetry(): void {
       // Adds trace_id and span_id to every pino line and sends the lines as
       // OTLP logs too.
       new PinoInstrumentation(),
+      // Event loop delay and utilization, heap and GC of the Node process.
+      new RuntimeNodeInstrumentation(),
     ],
   })
   sdk.start()

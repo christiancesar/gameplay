@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ServersRepository } from '../../servers/repositories/servers.repository'
 import { RealtimeEmitter } from '../providers/realtime-emitter'
 import { Timers } from '../providers/timers'
@@ -14,6 +14,8 @@ type Input = { userId: string; socketId: string }
 // network blip does not make them blink out.
 @Injectable()
 export class DisconnectSocketUseCase {
+  private readonly logger = new Logger(DisconnectSocketUseCase.name)
+
   constructor(
     private readonly presence: PresenceStore,
     private readonly servers: ServersRepository,
@@ -42,6 +44,7 @@ export class DisconnectSocketUseCase {
   private async expireSeat(userId: string): Promise<void> {
     const seat = await this.store.remove(userId, null)
     if (!seat) return
+    this.logger.log({ userId, roomId: seat.roomId }, 'Voice seat expired without a reconnection')
     this.voice.released(seat, null)
     await this.voice.announce(seat.serverId, seat.roomId)
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import type { RoomLeft } from '@gameplay/contracts'
 import { type Seat, toParticipant } from '../domain/seat'
 import { NotInRoomError } from '../errors/realtime.errors'
@@ -15,6 +15,8 @@ export class VoiceRoomsConfig {
 // taking someone out of it.
 @Injectable()
 export class VoiceRoomsService {
+  private readonly logger = new Logger(VoiceRoomsService.name)
+
   constructor(
     private readonly store: RoomStateStore,
     private readonly emitter: RealtimeEmitter,
@@ -36,6 +38,8 @@ export class VoiceRoomsService {
   // The seat must already be out of the store. Cancels a pending
   // reconnection wait; the socket hears why when reason is set.
   released(seat: Seat, reason: RoomLeft['reason'] | null): void {
+    const { userId, serverId, roomId } = seat
+    this.logger.log({ userId, serverId, roomId, reason: reason ?? 'left' }, 'Left voice room')
     this.timers.cancel(seat.userId)
     if (seat.socketId) this.emitter.seatReleased(seat.socketId, seat.roomId, reason)
   }

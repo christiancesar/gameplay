@@ -1,4 +1,4 @@
-import { Logger, UseFilters, UsePipes } from '@nestjs/common'
+import { Logger, UseFilters, UseInterceptors, UsePipes } from '@nestjs/common'
 import {
   ConnectedSocket,
   MessageBody,
@@ -26,7 +26,9 @@ import {
   StreamTargetDto,
   VoiceStateDto,
 } from '../dtos/realtime.dto'
+import { RealtimeMetricsInterceptor } from '../interceptors/realtime-metrics.interceptor'
 import { SocketIoRealtimeEmitter } from '../providers/realtime-emitter'
+import { RealtimeMetrics } from '../providers/realtime-metrics'
 import { SocketSessionResolver } from '../providers/socket-session-resolver'
 import { ConnectSocketUseCase } from '../use-cases/connect-socket.use-case'
 import { DisconnectSocketUseCase } from '../use-cases/disconnect-socket.use-case'
@@ -45,12 +47,14 @@ export const UNAUTHENTICATED = 'UNAUTHENTICATED'
 @WebSocketGateway()
 @UsePipes(ZodValidationPipe)
 @UseFilters(WsAckExceptionFilter)
+@UseInterceptors(RealtimeMetricsInterceptor)
 export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(RealtimeGateway.name)
 
   constructor(
     private readonly sessions: SocketSessionResolver,
     private readonly emitter: SocketIoRealtimeEmitter,
+    private readonly metrics: RealtimeMetrics,
     private readonly connectSocket: ConnectSocketUseCase,
     private readonly disconnectSocket: DisconnectSocketUseCase,
     private readonly subscribeToServer: SubscribeToServerUseCase,
@@ -67,7 +71,10 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     server.use((socket, next) => {
       this.sessions.resolve(socket.request.headers).then(
         (resolved) => {
-          if (!resolved) return next(new Error(UNAUTHENTICATED))
+          if (!resolved) {
+            this.metrics.handshakeRejected()
+            return next(new Error(UNAUTHENTICATED))
+          }
           socket.data.userId = resolved.userId
           socket.data.sessionId = resolved.sessionId
           next()
@@ -79,6 +86,13 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   async handleConnection(socket: RealtimeSocket) {
     const { userId } = socket.data
+    this.metrics.socketOpened()
+    this.logger.log({ userId, socketId: socket.id }, 'Socket connected')
+    // Nest's disconnect hook drops the reason; Socket.IO gives it here.
+    socket.once('disconnect', (reason) => {
+      this.metrics.socketClosed(reason)
+      this.logger.log({ userId, socketId: socket.id, reason }, 'Socket disconnected')
+    })
     await socket.join([userRoom(userId), sessionRoom(socket.data.sessionId)])
     await this.connectSocket
       .execute({ userId, socketId: socket.id })

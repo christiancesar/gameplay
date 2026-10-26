@@ -47,6 +47,12 @@ export class InMemoryRoomStateStore extends RoomStateStore {
   async listServer(serverId: string): Promise<Seat[]> {
     return [...this.seats.values()].filter((seat) => seat.serverId === serverId).map((seat) => ({ ...seat }))
   }
+
+  async stats(): Promise<{ seats: number; streaming: number }> {
+    let streaming = 0
+    for (const seat of this.seats.values()) if (seat.streaming) streaming += 1
+    return { seats: this.seats.size, streaming }
+  }
 }
 
 function copy(seat: Seat | undefined): Seat | null {
