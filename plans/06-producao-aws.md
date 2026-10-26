@@ -71,12 +71,12 @@ Franquia: 1.000 GB/mês grátis, **compartilhada entre SFU e TURN**, depois US$ 
 | SFU + TURN | Cloudflare Realtime | 0 (até 1.000 GB) |
 | DNS, proxy, TLS | Cloudflare Free | 0 |
 | Erros e métricas | Sentry e Grafana Cloud Free | 0 |
-| **Total, grupo pequeno** | | **~24 a 26** |
+| **Total, grupo pequeno** | | **~23 a 26** |
 | Comunidade média | Lightsail 4 GB (US$ 24), Prisma Pro se passar de 1M operações (US$ 49), SFU acima da franquia | ~50 a 100 |
 
 Para comparação, o mesmo desenho com EC2 t4g.small (~US$ 12) + IPv4 (US$ 3,65) + disco + egress fica em ~US$ 18 só de servidor; com RDS db.t4g.micro no lugar do Prisma, mais ~US$ 12 a 15. Em São Paulo os preços da AWS ficam perto do dobro.
 
-**Os preços vêm de buscas feitas em outubro de 2026, a maioria em sites de terceiros (Lightsail, Prisma, R2).** Conferir cada um na página oficial antes de assinar.
+**Os preços vêm de buscas feitas em outubro de 2026, a maioria em sites de terceiros (Lightsail, Prisma, S3).** Conferir cada um na página oficial antes de assinar.
 
 ## 6. O que muda no código para produção (não implementado)
 
