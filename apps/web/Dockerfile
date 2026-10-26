@@ -20,10 +20,18 @@ COPY --from=pruner /repo/out/full/ .
 ARG VITE_SENTRY_DSN=
 ARG VITE_SENTRY_ENVIRONMENT=production
 ARG VITE_SENTRY_RELEASE=
+ARG SENTRY_ORG=
+ARG SENTRY_PROJECT=
 ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN \
     VITE_SENTRY_ENVIRONMENT=$VITE_SENTRY_ENVIRONMENT \
-    VITE_SENTRY_RELEASE=$VITE_SENTRY_RELEASE
-RUN npx turbo run build --filter=web
+    VITE_SENTRY_RELEASE=$VITE_SENTRY_RELEASE \
+    SENTRY_ORG=$SENTRY_ORG \
+    SENTRY_PROJECT=$SENTRY_PROJECT
+# With the sentry_auth_token secret, the build uploads the source maps to
+# Sentry and deletes them (see vite.config.ts). Without it, no source maps.
+RUN --mount=type=secret,id=sentry_auth_token,required=false \
+    SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token 2>/dev/null)" \
+    npx turbo run build --filter=web
 
 FROM nginx:1.31-alpine AS runner
 COPY --from=builder /repo/apps/web/dist /usr/share/nginx/html

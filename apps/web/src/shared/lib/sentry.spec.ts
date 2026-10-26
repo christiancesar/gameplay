@@ -5,7 +5,7 @@ import { initSentry, scrubEvent } from './sentry'
 
 describe('initSentry', () => {
   it('stays off without a DSN', () => {
-    expect(initSentry({} as Parameters<typeof initSentry>[0])).toBe(false)
+    expect(initSentry()).toBe(false)
   })
 })
 

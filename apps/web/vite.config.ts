@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 import path from 'node:path'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
@@ -21,7 +22,23 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
+    // Last plugin. Production builds with a token upload the source maps to
+    // Sentry and delete them, so nginx never serves them.
+    ...(process.env.SENTRY_AUTH_TOKEN
+      ? [
+          sentryVitePlugin({
+            org: process.env.SENTRY_ORG,
+            project: process.env.SENTRY_PROJECT,
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            release: { name: process.env.VITE_SENTRY_RELEASE || undefined },
+            sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] },
+            telemetry: false,
+          }),
+        ]
+      : []),
   ],
+  // Hidden: generated for the Sentry upload, never referenced by the bundle.
+  build: { sourcemap: process.env.SENTRY_AUTH_TOKEN ? 'hidden' : false },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),

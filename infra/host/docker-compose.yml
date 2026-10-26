@@ -89,6 +89,14 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_SENTRY_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-host}
+        # start.sh exports the git commit; Sentry groups errors by it.
+        VITE_SENTRY_RELEASE: ${GAMEPLAY_RELEASE:-}
+        SENTRY_ORG: ${SENTRY_ORG:-}
+        SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+      # Uploads the source maps; a secret, so it never lands in an image layer.
+      secrets:
+        - sentry_auth_token
     image: gameplay-host-web
     restart: unless-stopped
     ports:
@@ -145,6 +153,10 @@ configs:
         - hostname: ${PUBLIC_HOSTNAME:-unset.invalid}
           service: http://web:80
         - service: http_status:404
+
+secrets:
+  sentry_auth_token:
+    environment: SENTRY_AUTH_TOKEN
 
 volumes:
   postgres-data:

@@ -16,10 +16,23 @@ O Sentry está ligado no código desde o FE-13, mas desligado sem DSN. Decisão 
 Faro (OBS-04). CI (não existe ainda).
 
 ## Checklist
-- [ ] Tracing do Sentry removido, testes do `sentry.ts` ajustados
-- [ ] Source maps enviados no build e removidos do bundle servido
+- [x] Tracing do Sentry removido, testes do `sentry.ts` ajustados
+- [x] Source maps enviados no build e removidos do bundle servido
 - [ ] Erro de teste no host aparece no Sentry com stack trace legível
-- [ ] Commit
+- [x] Commit
 
 ## Critério de aceite
 Um erro forçado no web do host chega ao Sentry com o arquivo e a linha do código fonte, sem cookies nem dados pessoais.
+
+## Notas da execução (2026-10-26)
+
+- `sentry.ts` só com erros: saíram `tanstackRouterBrowserTracingIntegration`, `tracesSampleRate` e `tracePropagationTargets`. `initSentry()` não recebe mais o router. Replay continua só em erro, mascarando texto e mídia; `scrubEvent` igual.
+- `@sentry/vite-plugin` 11.9 por último no `vite.config.ts`, ligado só quando há `SENTRY_AUTH_TOKEN`: gera source maps `hidden`, envia ao Sentry e apaga os `.map` do `dist`. Sem token, o build fica como antes (sem source maps).
+- `turbo.json`: `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` e `SENTRY_PROJECT` em `passThroughEnv` do `build` (o modo estrito do Turbo filtraria as variáveis; passThrough não entra no hash do cache).
+- Dockerfile do web: o token entra como build secret (`--mount=type=secret,id=sentry_auth_token`), nunca como `ARG`. Compose: secret `sentry_auth_token` vindo da variável de ambiente, `SENTRY_ORG`, `SENTRY_PROJECT`, ambiente do Sentry igual ao `OTEL_DEPLOYMENT_ENVIRONMENT` (`host`) e release = commit curto (`GAMEPLAY_RELEASE`, exportado pelo `start.sh`).
+- Conferido no host: "Successfully uploaded source maps to Sentry" no build, nenhum `.map` no nginx, DSN no bundle e o token ausente do `docker history` da imagem.
+- Falta conferir um erro real chegando ao Sentry com o código original (precisa do navegador).
+
+Suposições:
+- Release do Sentry = commit curto do git no momento do `host:start`. Mudanças não commitadas entram com o mesmo release do último commit. *(suposição)*
+- `SENTRY_PROJECT_ID`, que está no `.env` do host, não é usado. *(suposição)*

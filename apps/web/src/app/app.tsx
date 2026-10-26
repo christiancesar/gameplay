@@ -11,7 +11,7 @@ import { createRouter } from './router'
 import { createRouterContext } from './router-context'
 
 const router = createRouter(createRouterContext(queryClient))
-initSentry(router)
+initSentry()
 
 export function App() {
   return (
