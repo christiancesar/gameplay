@@ -5,6 +5,6 @@ import { InviteLandingScreen } from '@/modules/invites/screens/invite-landing.sc
 
 export const Route = createFileRoute('/i/$code')({
   // Works with and without a session: it only warms the cache, never redirects.
-  loader: ({ context }) => context.queryClient.ensureQueryData(sessionQueryOptions).catch(() => null),
+  loader: ({ context }) => context.queryClient.query(sessionQueryOptions).catch(() => null),
   component: InviteLandingScreen,
 })
