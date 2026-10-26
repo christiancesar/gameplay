@@ -47,7 +47,8 @@ export function startTelemetry(): void {
       resourceFromAttributes({
         [ATTR_SERVICE_NAME]: process.env.OTEL_SERVICE_NAME ?? 'gameplay-api',
         [ATTR_SERVICE_VERSION]: serviceVersion(),
-        [ATTR_DEPLOYMENT_ENVIRONMENT]: process.env.NODE_ENV ?? 'development',
+        // NODE_ENV is production in every container, so deployments set their own name.
+        [ATTR_DEPLOYMENT_ENVIRONMENT]: process.env.OTEL_DEPLOYMENT_ENVIRONMENT || process.env.NODE_ENV || 'development',
       }),
     ),
     traceExporter: new OTLPTraceExporter(),

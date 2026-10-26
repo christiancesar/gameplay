@@ -106,7 +106,7 @@ Base: BE-16 e FE-13. Branch `feature/observability`. Decisão do usuário em 202
 
 | Ticket | Pontos | Onda | Status |
 |---|---|---|---|
-| [OBS-01 Grafana Cloud no host](OBS-01-grafana-no-host.md) | 2 | 1 | pendente |
+| [OBS-01 Grafana Cloud no host](OBS-01-grafana-no-host.md) | 2 | 1 | concluído (falta conferir no Grafana) |
 | [OBS-02 Sentry para erros do web](OBS-02-sentry-erros.md) | 3 | 1 | pendente |
 | [OBS-03 Métricas e logs do realtime na API](OBS-03-realtime-na-api.md) | 5 | 2 | pendente |
 | [OBS-04 Grafana Faro no web](OBS-04-faro.md) | 5 | 2 | pendente |

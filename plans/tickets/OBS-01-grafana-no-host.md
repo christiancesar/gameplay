@@ -14,10 +14,20 @@ O OpenTelemetry da API (BE-16) só manda dados quando `OTEL_EXPORTER_OTLP_ENDPOI
 Métricas novas (OBS-03), dashboards (OBS-05), frontend (OBS-02 e OBS-04).
 
 ## Checklist
-- [ ] Variável de ambiente de deploy no `otel.ts` e no compose
-- [ ] README e `.env.example`
+- [x] Variável de ambiente de deploy no `otel.ts` e no compose
+- [x] README e `.env.example`
 - [ ] Traces, logs e métricas do host visíveis no Grafana com `deployment.environment.name=host`
-- [ ] Commit
+- [x] Commit
 
 ## Critério de aceite
 Uma chamada a `/api/health` pelo domínio aparece no Tempo e o log dela no Loki, filtrando por `host`.
+
+## Notas da execução (2026-10-26)
+
+- `OTEL_EXPORTER_OTLP_ENDPOINT`, `_HEADERS` e `_PROTOCOL` copiados do `apps/api/.env` para o `infra/host/.env` (os dois fora do git). Mesmo stack do Grafana Cloud para dev e host.
+- `otel.ts`: `deployment.environment.name` vem de `OTEL_DEPLOYMENT_ENVIRONMENT`, com `NODE_ENV` como reserva. O compose do host usa `host` por padrão.
+- README do host com a seção "Observabilidade" e `.env.example` do host e da API documentados.
+- Conferido: a API do host sobe com o endpoint, o `deployment.environment.name` é `host` e um POST no endpoint OTLP de dentro do container responde 200 (autenticação ok).
+- Falta o usuário conferir no Grafana: traces e logs de `/api/health` filtrando por `deployment.environment.name=host`. Não tenho token de leitura do Grafana para consultar.
+- O token de escrita do Grafana apareceu no histórico da sessão por um erro meu num comando de checagem. Recomendado gerar outro e revogar o atual.
+- `OTEL_SERVICE_NAME` continua `gameplay-api` nos dois ambientes; a separação é só pelo ambiente. *(suposição)*
