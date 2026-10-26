@@ -99,3 +99,17 @@ graph LR
   FE09 --> FE10[FE-10 Transmissão]
   FE09 --> FE14[FE-14 E2E]
 ```
+
+## Observabilidade
+
+Base: BE-16 e FE-13. Branch `feature/observability`. Decisão do usuário em 2026-10-26: Sentry só para erros do web, Grafana Cloud para API e realtime, Faro para desempenho, traces do browser e qualidade de mídia.
+
+| Ticket | Pontos | Onda | Status |
+|---|---|---|---|
+| [OBS-01 Grafana Cloud no host](OBS-01-grafana-no-host.md) | 2 | 1 | pendente |
+| [OBS-02 Sentry para erros do web](OBS-02-sentry-erros.md) | 3 | 1 | pendente |
+| [OBS-03 Métricas e logs do realtime na API](OBS-03-realtime-na-api.md) | 5 | 2 | pendente |
+| [OBS-04 Grafana Faro no web](OBS-04-faro.md) | 5 | 2 | pendente |
+| [OBS-05 Dashboards e alertas](OBS-05-dashboards-e-alertas.md) | 3 | 3 | pendente |
+
+Total: 18 pontos.
