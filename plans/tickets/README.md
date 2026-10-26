@@ -78,8 +78,9 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 | [FE-10 Compartilhar e assistir tela](FE-10-transmissao.md) | 8 | 6 | concluído |
 | [FE-14a E2E com Cypress, fluxos atuais](FE-14-e2e-cypress.md) | 3 | 5 | concluído |
 | [FE-14b E2E de voz e transmissão com peer bot](FE-14-e2e-cypress.md) | 3 | 6 | concluído |
+| [FE-15 Áudio da transmissão e qualidade para quem assiste](FE-15-audio-e-qualidade-da-transmissao.md) | 5 | 7 | concluído |
 
-Total: 76 pontos.
+Total: 81 pontos.
 
 ```mermaid
 graph LR
