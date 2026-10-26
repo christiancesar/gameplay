@@ -17,6 +17,27 @@ Todos têm três variáveis no topo: fonte de métricas (Prometheus), fonte de l
 
 Importar de novo com o mesmo arquivo substitui o dashboard (o `uid` é fixo).
 
+## Alertas
+
+`alerts.json` tem as regras do grupo `gameplay-host` (pasta Gameplay, avaliado a cada minuto), todas sobre o ambiente `host`:
+
+| Regra | Dispara quando | Severidade |
+|---|---|---|
+| API stopped sending telemetry | nenhuma telemetria da API por 5 min (processo fora, reiniciando ou sem rede) | critical |
+| API 5xx above 5% | mais de 5% das requisições com erro do servidor por 5 min | critical |
+| API event loop stalling | event loop p99 acima de 200 ms por 5 min | warning |
+| Many dropped sockets | mais de 10 quedas de socket (`ping timeout`, `transport close`, `transport error`) em 5 min | warning |
+
+Para aplicar (substitui o grupo inteiro), com um token de service account (role Editor):
+
+```bash
+python3 -c 'import json; d=json.load(open("infra/grafana/alerts.json")); print(json.dumps({"title":"gameplay-host","folderUid":"gameplay","interval":60,"rules":d["rules"]}))' \
+  | curl -s -H "Authorization: Bearer $GRAFANA_SA_TOKEN" -H 'content-type: application/json' -H 'X-Disable-Provenance: true' \
+    -X PUT https://<stack>.grafana.net/api/v1/provisioning/folder/gameplay/rule-groups/gameplay-host --data-binary @-
+```
+
+Criar regra por regra (`POST /alert-rules`) é recusado pelo Grafana Cloud numa pasta nova; o `PUT` do grupo funciona. As notificações seguem a política padrão do stack: sem contact point, os alertas aparecem só em Alerting > Alert rules.
+
 ## Editar
 
 Mudanças feitas na interface do Grafana não voltam para o repositório. Para guardar, use Share > Export > Save to file e substitua o JSON aqui.

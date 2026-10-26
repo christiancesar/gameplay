@@ -20,7 +20,11 @@
         "label": "Metrics",
         "type": "datasource",
         "query": "prometheus",
-        "current": {},
+        "regex": "/-prom$/",
+        "current": {
+          "text": "grafanacloud-technologies-prom",
+          "value": "grafanacloud-prom"
+        },
         "hide": 0
       },
       {
@@ -28,7 +32,11 @@
         "label": "Logs",
         "type": "datasource",
         "query": "loki",
-        "current": {},
+        "regex": "/-logs$/",
+        "current": {
+          "text": "grafanacloud-technologies-logs",
+          "value": "grafanacloud-logs"
+        },
         "hide": 0
       },
       {
