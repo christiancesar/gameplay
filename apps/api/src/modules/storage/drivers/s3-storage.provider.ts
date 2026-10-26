@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, HeadBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { joinPublicUrl, StorageProvider } from '../storage.provider'
 
 export type S3StorageOptions = {
@@ -44,5 +44,10 @@ export class S3StorageProvider extends StorageProvider {
 
   publicUrl(key: string): string {
     return joinPublicUrl(this.options.publicBaseUrl, key)
+  }
+
+  // Bucket reachable with these credentials. Read only: nothing is written per check.
+  async check(): Promise<void> {
+    await this.client.send(new HeadBucketCommand({ Bucket: this.options.bucket }))
   }
 }

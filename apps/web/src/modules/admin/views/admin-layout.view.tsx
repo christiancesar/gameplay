@@ -38,7 +38,7 @@ function AdminLayoutView({ tab, children, onTabChange, onBackToHub }: AdminLayou
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <Tabs value={tab} onValueChange={(value) => onTabChange(value as AdminTab)}>
           {/* Five tabs do not fit a phone: the strip scrolls sideways. */}
-          <TabsList className="max-w-full justify-start overflow-x-auto">
+          <TabsList className="max-w-full justify-start overflow-x-auto overflow-y-hidden">
             {ADMIN_TABS.map((id) => {
               const Icon = ICONS[id]
               return (

@@ -22,6 +22,6 @@ export async function setupApp(app: INestApplication) {
 
   if (isDocsEnabled(env)) {
     const { setupDocs } = await import('./docs/setup-docs.js')
-    setupDocs(app)
+    await setupDocs(app)
   }
 }

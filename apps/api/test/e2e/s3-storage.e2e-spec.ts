@@ -39,6 +39,20 @@ describe('S3StorageProvider (e2e)', () => {
     await expect(client.send(new GetObjectCommand({ Bucket: bucket, Key: key }))).rejects.toBeInstanceOf(NoSuchKey)
   })
 
+  it('passes the check on a reachable bucket and fails on a missing one', async () => {
+    await expect(storage.check()).resolves.toBeUndefined()
+
+    const missing = new S3StorageProvider({
+      bucket: 'gameplay-e2e-missing',
+      region: 'us-east-1',
+      endpoint,
+      forcePathStyle: true,
+      ...credentials,
+      publicBaseUrl: '/',
+    })
+    await expect(missing.check()).rejects.toThrow()
+  })
+
   it('builds the public URL from the bucket or CDN base', () => {
     expect(storage.publicUrl('covers/s1/abc.webp')).toBe('https://cdn.example.com/covers/s1/abc.webp')
   })

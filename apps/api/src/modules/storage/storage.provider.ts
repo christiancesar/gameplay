@@ -5,6 +5,8 @@ export abstract class StorageProvider {
   // Deleting a key that doesn't exist is not an error.
   abstract delete(key: string): Promise<void>
   abstract publicUrl(key: string): string
+  // Throws when files can't be stored right now (health check).
+  abstract check(): Promise<void>
 }
 
 export function joinPublicUrl(base: string, key: string): string {
