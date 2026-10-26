@@ -85,16 +85,41 @@ Para comparação, o mesmo desenho com EC2 t4g.small (~US$ 12) + IPv4 (US$ 3,65)
 - **Uploads:** `STORAGE_DRIVER=s3` com `S3_BUCKET`, `S3_REGION=us-east-1` e a chave IAM; `PUBLIC_UPLOADS_URL` absoluto, no domínio da Cloudflare que faz cache do bucket.
 - **IP real:** com o proxy da Cloudflare, ler `CF-Connecting-IP` e ajustar `TRUST_PROXY_HOPS`; `X-Forwarded-Proto` no nginx.
 - **Banco:** `DATABASE_URL` do Prisma Postgres; conferir a conexão TCP direta com o adapter `pg` do Prisma 7; `prisma migrate deploy` no deploy.
-- **Deploy:** CI (ainda não existe `.github/workflows`) que roda typecheck, lint e testes, constrói a imagem da API, publica no Lightsail e publica o web no Workers.
+- **Deploy:** scripts rodados desta máquina, sem pipeline no GitHub (ver seção 7).
 - **Telemetria:** `OTEL_*`, `VITE_SENTRY_DSN` e `VITE_FARO_URL` de produção; os túneis `/monitoring/*` do nginx do host deixam de ser necessários se o web falar direto com os coletores.
 
-## 7. Certificados
+## 7. Deploy pela máquina local
+
+Decisão do usuário em 2026-10-26: enquanto o projeto é pequeno, tudo sai desta máquina, sem registry de imagens nem pipeline no GitHub. O build acontece aqui, e a imagem pronta vai para o servidor pela internet. O Lightsail não constrói nada: a CPU dele fica para a API.
+
+**Infra:** `terraform apply` daqui, com as credenciais da AWS e da Cloudflare nesta máquina.
+
+**API** (`npm run deploy:api`, a escrever):
+1. Recusa se não estiver na `main` ou se houver mudança sem commit; roda typecheck, lint e testes.
+2. Constrói as imagens da API e da migração com a tag do SHA do commit. A plataforma é a do Lightsail (x86; conferir no plano escolhido).
+3. Manda as imagens por SSH: `docker save | gzip | ssh … docker load`.
+4. No servidor: roda a migração (`prisma migrate deploy`) num container que sai ao terminar, sobe a API nova com `docker compose up -d --wait` e volta para a tag anterior se o healthcheck falhar.
+5. Cria uma tag no git (`deploy-api-<data>`) para registrar o que foi publicado.
+
+**Web** (`npm run deploy:web`, a escrever): build do Vite com as variáveis de produção, upload dos source maps para o Sentry e `wrangler deploy` para o Workers, com o login do `wrangler` desta máquina.
+
+**Acesso SSH** (a decidir): porta 22 liberada só para o IP desta casa, numa variável do Terraform, ou SSH pelo Cloudflare Tunnel com a porta fechada.
+
+**Otimizar as imagens** (pedido do usuário; hoje API 651 MB e migração 2,42 GB):
+- Migração: estágio próprio só com o Prisma CLI, o schema, as migrações e o seed compilado, em vez de reaproveitar o estágio de build com o monorepo inteiro.
+- API: medir o `node_modules` do `runner` (`du`) e cortar o que não roda em produção; avaliar uma base menor (por exemplo distroless para Node) mantendo o `sharp` com musl ou glibc compatível.
+- Ordem das camadas: dependências antes do código, para que um deploy que muda só o código reaproveite as camadas de baixo no build.
+- Envio: o `docker save` manda a imagem inteira a cada deploy. Se o tamanho incomodar depois da otimização, avaliar uma ferramenta que mande só as camadas novas por SSH, ou um registry.
+
+**Quando mudar:** se outra pessoa passar a fazer deploy, ou se quisermos testes automáticos em cada PR, os mesmos scripts viram passos do GitHub Actions.
+
+## 8. Certificados
 
 - **Browser → Cloudflare:** SSL Universal da Cloudflare, grátis e renovado sozinho, para `oikos.company` e `*.oikos.company` (um nível de subdomínio). Cobre `gameplay.oikos.company`, `unlimited.oikos.company` e o domínio das imagens, se for de um nível.
 - **Cloudflare → Lightsail:** certificado de origem da Cloudflare (Origin CA, grátis, até 15 anos) instalado no nginx, com a zona em modo **Full (strict)**. Hoje o túnel faz esse papel; na AWS ele sai. O firewall do Lightsail aceita só os IPs da Cloudflare.
 - **Web no Workers, TURN, SFU e Prisma Postgres:** certificados dos próprios serviços, sem nada a configurar.
 
-## 8. SFU
+## 9. SFU
 
 O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele deixa de ser fase opcional e vira requisito:
 - O módulo `ice` da API vira `media`: credenciais do TURN, criação de sessões e tracks do SFU pela API da Cloudflare (o token fica só no servidor) e controle de orçamento.
@@ -103,7 +128,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 - Orçamento mensal de GB no módulo `limits`, abaixo da franquia; ao chegar no limite, transmissões novas voltam para mesh.
 - Decisões ainda em aberto no `media-transport-options.md`, seção 6: modo automático ou sempre SFU, limite de espectadores para trocar, e o seletor de qualidade do espectador.
 
-## 9. Riscos
+## 10. Riscos
 
 - **Franquia compartilhada:** SFU e TURN somam na mesma franquia de 1.000 GB. O orçamento no `limits` evita surpresa.
 - **Operações do Prisma:** no Free, 200 mil operações/mês podem não bastar por causa da sessão consultada a cada requisição. Começar no Starter ou ativar o cache de cookie de sessão do Better Auth.
@@ -111,7 +136,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 - **Região do Prisma Postgres:** confirmar que existe em us-east-1. Se não existir, escolher a região da AWS mais próxima da que ele oferece.
 - **Lightsail:** CPU com crédito (burstable). O `sharp` processando muitas imagens de uma vez pode gastar os créditos; para o tamanho atual é suficiente.
 
-## 10. Tickets propostos (só a lista, nada executado)
+## 11. Tickets propostos (só a lista, nada executado)
 
 | Ticket | Escopo |
 |---|---|
@@ -119,13 +144,13 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 | INF-02 | Prisma Postgres, `DATABASE_URL`, migração dos dados do host |
 | INF-03 | Bucket S3, usuário IAM restrito, domínio com cache na Cloudflare e `STORAGE_DRIVER=s3` |
 | INF-04 | Web no Workers, `VITE_API_URL`, CORS e cookies entre web e API |
-| INF-05 | CI/CD: testes, imagem da API, deploy no Lightsail e no Workers |
+| INF-05 | Scripts `deploy:api` e `deploy:web` desta máquina, e imagens da API e da migração otimizadas |
 | SFU-01 | Módulo `media` na API: sessões e tracks do Cloudflare Realtime SFU |
 | SFU-02 | `SfuTransport` no web com simulcast, troca de camada pelo espectador |
 | SFU-03 | Orçamento mensal no `limits` e troca entre mesh e SFU |
 | DESK-01 | Estudo do app desktop em Electron (captura de áudio por processo) |
 
-## 11. Antes de assinar, conferir na página oficial
+## 12. Antes de assinar, conferir na página oficial
 
 - Preço do Lightsail 2 GB e 4 GB em us-east-1.
 - Prisma Postgres: preço, operações incluídas, regiões e conexão direta com o adapter `pg`.
