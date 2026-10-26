@@ -15,7 +15,8 @@ x-api-env: &api-env
   REGISTRATION_KEY_SECRET: ${REGISTRATION_KEY_SECRET:?set in .env}
   BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:8080}
   WEB_ORIGIN: ${PUBLIC_URL:-http://localhost:8080}
-  DOCS_ENABLED: 'false'
+  # Public API docs at /api/docs (REST, auth and Socket.IO events).
+  DOCS_ENABLED: ${DOCS_ENABLED:-true}
   STORAGE_DRIVER: local
   STORAGE_LOCAL_DIR: /data/uploads
   PUBLIC_UPLOADS_URL: /uploads
