@@ -7,8 +7,10 @@ type StreamVideoViewProps = {
   stream: MediaStream | null
 }
 
-/** The video of a screen (the marker is what `toggleStreamFullscreen` looks for).
- * being watched. Muted: its audio goes through the audio engine, with its own volume. */
+/**
+ * The video of the screen being watched. Muted: its audio goes through the audio engine, with its own volume.
+ * A live stream has nothing to pause: whatever pauses it (media keys, picture in picture) plays it again.
+ */
 function StreamVideoView({ stream }: StreamVideoViewProps) {
   const { t } = useTranslation()
   const ref = useRef<HTMLVideoElement>(null)
@@ -29,7 +31,18 @@ function StreamVideoView({ stream }: StreamVideoViewProps) {
     )
   }
 
-  return <video ref={ref} data-stream-video="" autoPlay playsInline muted className="size-full object-contain" />
+  return (
+    <video
+      ref={ref}
+      data-stream-video=""
+      autoPlay
+      playsInline
+      muted
+      disableRemotePlayback
+      onPause={(event) => void event.currentTarget.play().catch(() => undefined)}
+      className="size-full object-contain"
+    />
+  )
 }
 
 export { StreamVideoView }

@@ -132,7 +132,12 @@ function StreamViewerView({
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4">
-        <div className="phone-landscape:rounded-none flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black">
+        {/* The fullscreen target (`toggleStreamFullscreen`); a double click also toggles it. */}
+        <div
+          data-stream-stage=""
+          onDoubleClick={onFullscreen}
+          className="phone-landscape:rounded-none flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black"
+        >
           {video}
         </div>
 

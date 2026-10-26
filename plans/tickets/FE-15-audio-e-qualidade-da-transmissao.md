@@ -46,6 +46,7 @@ Seletor de qualidade do espectador (`media-transport-options.md`, seção 6, ite
 - Faro: medida `screen_share_start` com `audio_requested` e `audio_received` (0 ou 1) e contexto `source`, `surface`, `browser`, `engine`, `chromium_major` e `os`. Só é criada com o Faro ligado.
 - Quem assiste: `WatchSession` lê o `inbound-rtp` do vídeo assistido a cada 1 s (pelo `trackIdentifier`, porque a conexão guarda entradas de telas anteriores) e calcula resolução, fps e bitrate. O cabeçalho do viewer mostra "1080p · 60 fps · 7.8 Mbps" (o bitrate some em telas pequenas). Sem faixa de áudio na transmissão, o ícone de volume vira o aviso "Esta transmissão está sem áudio" e o slider fica desabilitado.
 - e2e: o cenário de assistir confere o rótulo da qualidade recebida. O cenário "reaches the peer" já falhava antes deste ticket: o preview do streamer repete o título quando a imagem está oculta. O teste agora busca o heading.
+- Tela cheia (pedido do usuário na mesma sessão): o botão punha o próprio `<video>` em tela cheia, e o browser mostra os controles nativos nesse modo, com pausa. Pausar uma live só congelava a imagem, enquanto o áudio seguia pelo audio engine. Agora vai para tela cheia a caixa em volta do vídeo (`data-stream-stage`), sem controles nativos, e um duplo clique nela também alterna. O vídeo volta a tocar sozinho se algo pausar (teclas de mídia, picture in picture), e `disableRemotePlayback` tira o botão de transmitir para outro aparelho.
 - Estado: web 1175 testes, api 311, Cypress de voz e transmissão verdes.
 
 Suposições:
@@ -53,4 +54,5 @@ Suposições:
 - O app já mostra o aviso de browser não suportado para Firefox (`browser-support`). O texto do diálogo de áudio repete a recomendação de Chrome ou Edge só para o áudio. *(suposição)*
 - Os valores de `windowAudio` seguem o rascunho do W3C (`system`, `window`, `exclude`). Escolhi `window` para pegar o som do jogo e não o do sistema. Não há doc oficial do Chrome confirmando o comportamento. *(suposição)*
 - Não detecto a versão do macOS (o user agent fica congelado em 10_15_7), então `recentMac` só avisa que precisa do 14.2. *(suposição)*
+- Em tela cheia só aparece o vídeo: o volume e o "parar de assistir" ficam fora. Sai com Esc ou com duplo clique. *(suposição)*
 - O medidor de nível usa o AudioContext da call. Se ele estiver suspenso pela regra de autoplay, o painel mostra "Em silêncio" mesmo com som. Na prática a call começa com um clique. *(suposição)*
