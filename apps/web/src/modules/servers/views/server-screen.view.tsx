@@ -1,3 +1,4 @@
+import { cn } from 'cn'
 import type { CSSProperties, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -11,9 +12,17 @@ type ServerScreenViewProps = {
   /** Sidebar aberta ou recolhida. Sem valor, a View controla sozinha (começa aberta). */
   isSidebarOpen?: boolean
   onSidebarOpenChange?: (open: boolean) => void
+  /** Watching a stream: on a sideways phone the top bar gives its room to the video. */
+  isWatching?: boolean
 }
 
-function ServerScreenView({ sidebar, main, isSidebarOpen, onSidebarOpenChange }: ServerScreenViewProps) {
+function ServerScreenView({
+  sidebar,
+  main,
+  isSidebarOpen,
+  onSidebarOpenChange,
+  isWatching = false,
+}: ServerScreenViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -26,7 +35,12 @@ function ServerScreenView({ sidebar, main, isSidebarOpen, onSidebarOpenChange }:
       {sidebar}
       <SidebarInset className="min-h-0 overflow-hidden">
         {/* Below md the sidebar is a closed sheet; this bar is the only way to open it. */}
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-2 md:hidden">
+        <header
+          className={cn(
+            'flex h-12 shrink-0 items-center gap-2 border-b px-2 md:hidden',
+            isWatching && 'phone-landscape:hidden',
+          )}
+        >
           <SidebarTrigger aria-label={t('server.openSidebar')} title={t('server.openSidebar')} />
           <BrandLogo className="w-12" />
         </header>

@@ -139,6 +139,7 @@ function Scenario({
           />
         }
         main={mainContent}
+        isWatching={main === 'watching'}
         isSidebarOpen={isSidebarOpen}
         onSidebarOpenChange={setSidebarOpen}
       />
@@ -215,6 +216,12 @@ export const SharingDetails: Story = { args: { ...SharingDegraded.args, overlay:
 export const OthersLive: Story = { args: { ...InRoom.args, main: 'roomWithLive' } }
 
 export const WatchingStream: Story = { args: { ...InRoom.args, main: 'watching' } }
+
+/** Celular deitado assistindo: a barra do topo some e a transmissão ocupa a tela. */
+export const WatchingOnSidewaysPhone: Story = {
+  args: { ...WatchingStream.args },
+  globals: { viewport: { value: 'mobile1', isRotated: true } },
+}
 
 /** Sidebar recolhida em ícones para dar mais espaço à transmissão. */
 export const WatchingWithSidebarCollapsed: Story = { args: { ...WatchingStream.args, sidebarCollapsed: true } }

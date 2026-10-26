@@ -186,6 +186,7 @@
     "watching": "Assistindo",
     "stopWatching": "Parar de assistir",
     "fullscreen": "Tela cheia",
+    "toggleControls": "Mostrar ou ocultar controles",
     "streamVolume": "Volume da transmissão",
     "liveNow": "Ao vivo agora",
     "isLive": "{{name}} está ao vivo",

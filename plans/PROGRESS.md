@@ -145,3 +145,5 @@ Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Excluir o servidor exige digitar o nome dele.
 - Microfone negado: a pessoa entra na sala só ouvindo, com aviso.
 - Testes do driver S3 rodam contra MinIO em container.
+- Assistindo no celular deitado: a barra do app some, a barra da transmissão e os cards ficam por cima do vídeo, e um toque no vídeo mostra ou esconde os dois. Não há auto-ocultar por tempo *(suposição)*.
+- Volume da tela e tela cheia ficam escondidos em telas touch (`hover: none` e `pointer: coarse`, inclui iPad) até termos uma solução para o Safari do iPhone.

@@ -186,6 +186,7 @@
     "watching": "Watching",
     "stopWatching": "Stop watching",
     "fullscreen": "Fullscreen",
+    "toggleControls": "Show or hide controls",
     "streamVolume": "Stream volume",
     "liveNow": "Live now",
     "isLive": "{{name}} is live",
