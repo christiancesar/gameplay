@@ -47,6 +47,10 @@ type MediaTransport = {
   setVideoEncoding(peerId: string, track: MediaStreamTrack, encoding: VideoEncoding): Promise<void>
   /** `getStats()` of the connection that sends the track to the peer; empty when it is not sent. */
   getSenderStats(peerId: string, track: MediaStreamTrack): Promise<StatsRecord[]>
+  /** People with a connection, in any state. */
+  peerIds(): string[]
+  /** `getStats()` of the whole connection with the peer (call quality); empty without one. */
+  getConnectionStats(peerId: string): Promise<StatsRecord[]>
   /** New credentials (TURN) for connections that exist and for the ones to come. */
   updateIceServers(iceServers: IceServer[]): void
   onPeerStatus(handler: PeerStatusHandler): () => void

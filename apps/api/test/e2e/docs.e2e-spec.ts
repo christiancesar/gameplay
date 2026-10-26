@@ -47,6 +47,14 @@ describe('API docs (e2e)', () => {
     expect(JSON.stringify(response.body)).toContain('test:ping')
   })
 
+  it('points the AsyncAPI server at the public host', async () => {
+    const response = await request(app.getHttpServer()).get('/api/docs/asyncapi.json')
+
+    const body = JSON.stringify(response.body)
+    expect(body).not.toContain('gameplay.invalid')
+    expect(body).toContain(new URL(process.env.BETTER_AUTH_URL as string).host)
+  })
+
   it('serves the OpenAPI document of the auth routes', async () => {
     const response = await request(app.getHttpServer()).get('/api/auth/open-api/generate-schema')
 

@@ -90,6 +90,20 @@ npm run host:start
 
 O script rebuilda as imagens, reaplica as migrations (job `migrate`) e o seed do admin, que é idempotente.
 
+## Documentação da API
+
+A documentação fica pública em `<PUBLIC_URL>/api/docs`: REST, rotas de autenticação e eventos do Socket.IO. Os documentos são gerados no build da imagem. Para esconder, use `DOCS_ENABLED=false` no `.env`.
+
+## Observabilidade (Grafana Cloud)
+
+A API manda traces, métricas e logs por OTLP quando `OTEL_EXPORTER_OTLP_ENDPOINT` está preenchido. Sem ele a telemetria fica desligada.
+
+1. No Grafana Cloud, abra o stack > OpenTelemetry > Configure e gere um token. Copie o endpoint e o header `Authorization=Basic ...`.
+2. No `.env`: `OTEL_EXPORTER_OTLP_ENDPOINT` e `OTEL_EXPORTER_OTLP_HEADERS`. Os mesmos valores do `apps/api/.env` servem.
+3. `npm run host:start` de novo.
+
+No Grafana, os dados deste servidor vêm com `deployment.environment.name=host` (`OTEL_DEPLOYMENT_ENVIRONMENT`), separados do dev.
+
 ## Backup
 
 Os dados ficam em dois volumes: `gameplay-host_postgres-data` e `gameplay-host_uploads`.

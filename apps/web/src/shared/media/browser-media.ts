@@ -41,6 +41,7 @@ type PeerConnectionLike = {
   removeTrack(sender: RtpSenderLike): void
   restartIce(): void
   setConfiguration(configuration: RTCConfiguration): void
+  getStats(): Promise<{ forEach(callback: (stats: Record<string, unknown>) => void): void }>
   close(): void
 }
 

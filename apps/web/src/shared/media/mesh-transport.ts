@@ -157,6 +157,23 @@ class MeshTransport implements MediaTransport {
     }
   }
 
+  peerIds(): string[] {
+    return [...this.peers.keys()]
+  }
+
+  async getConnectionStats(peerId: string): Promise<StatsRecord[]> {
+    const pc = this.peers.get(peerId)?.pc
+    if (!pc) return []
+    try {
+      const records: StatsRecord[] = []
+      const report = await pc.getStats()
+      report.forEach((entry) => records.push(entry))
+      return records
+    } catch {
+      return []
+    }
+  }
+
   updateIceServers(iceServers: IceServer[]): void {
     this.iceServers = iceServers
     for (const peer of this.peers.values()) {

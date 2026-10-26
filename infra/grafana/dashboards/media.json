@@ -1,0 +1,718 @@
+{
+  "uid": "gameplay-media",
+  "title": "Gameplay \u00b7 Call quality",
+  "description": "WebRTC quality reported by the browsers every 30 s, and Web Vitals (Grafana Faro).",
+  "tags": [
+    "gameplay",
+    "web",
+    "webrtc"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "1m",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "prom",
+        "label": "Metrics",
+        "type": "datasource",
+        "query": "prometheus",
+        "regex": "/-prom$/",
+        "current": {
+          "text": "grafanacloud-technologies-prom",
+          "value": "grafanacloud-prom"
+        },
+        "hide": 0
+      },
+      {
+        "name": "loki",
+        "label": "Logs",
+        "type": "datasource",
+        "query": "loki",
+        "regex": "/-logs$/",
+        "current": {
+          "text": "grafanacloud-technologies-logs",
+          "value": "grafanacloud-logs"
+        },
+        "hide": 0
+      },
+      {
+        "name": "env",
+        "label": "Environment",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prom}"
+        },
+        "query": {
+          "query": "label_values(target_info{service_name=\"gameplay-api\"}, deployment_environment_name)",
+          "refId": "env"
+        },
+        "definition": "label_values(target_info{service_name=\"gameplay-api\"}, deployment_environment_name)",
+        "current": {
+          "text": "host",
+          "value": "host"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Calls",
+      "id": 1,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Readings through TURN",
+      "description": "Share of connection readings that go through the TURN relay instead of browser to browser",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | context_connection=\"relay\" [$__auto])) / sum(count_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" [$__auto]))",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Round trip p95",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.95, {service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_rtt_ms!=\"\" | unwrap value_rtt_ms | __error__=\"\" [$__auto])",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Voice loss",
+      "description": "Packets lost over packets sent, between readings",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_audio_loss_ratio!=\"\" | unwrap value_audio_loss_ratio | __error__=\"\" [$__auto])",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Screen fps received",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_screen_in_fps!=\"\" | unwrap value_screen_in_fps | __error__=\"\" [$__auto])",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          }
+        },
+        "overrides": []
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Connections by path",
+      "description": "One reading per person in the call every 30 seconds",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (context_connection) (count_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" [$__auto]))",
+          "legendFormat": "{{context_connection}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 6,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Round trip p95",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.95, {service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_rtt_ms!=\"\" | unwrap value_rtt_ms | __error__=\"\" [$__auto]) by (context_connection)",
+          "legendFormat": "{{context_connection}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 7,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Voice jitter p95",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.95, {service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_audio_jitter_ms!=\"\" | unwrap value_audio_jitter_ms | __error__=\"\" [$__auto]) by (context_connection)",
+          "legendFormat": "{{context_connection}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 8,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      }
+    },
+    {
+      "type": "row",
+      "title": "Voice and screen",
+      "id": 9,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Voice loss",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_audio_loss_ratio!=\"\" | unwrap value_audio_loss_ratio | __error__=\"\" [$__auto]) by (context_connection)",
+          "legendFormat": "{{context_connection}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 10,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Screen received",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_screen_in_fps!=\"\" | unwrap value_screen_in_fps | __error__=\"\" [$__auto])",
+          "legendFormat": "fps"
+        },
+        {
+          "refId": "B",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_screen_in_height!=\"\" | unwrap value_screen_in_height | __error__=\"\" [$__auto])",
+          "legendFormat": "height (px)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Screen sent",
+      "description": "Encoder of this side: limited means the browser lowered quality on its own",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_screen_out_fps!=\"\" | unwrap value_screen_out_fps | __error__=\"\" [$__auto])",
+          "legendFormat": "fps"
+        },
+        {
+          "refId": "B",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_screen_out_height!=\"\" | unwrap value_screen_out_height | __error__=\"\" [$__auto])",
+          "legendFormat": "height (px)"
+        },
+        {
+          "refId": "C",
+          "expr": "avg_over_time({service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"webrtc\" | value_screen_out_limited!=\"\" | unwrap value_screen_out_limited | __error__=\"\" [$__auto])",
+          "legendFormat": "share limited by bandwidth or CPU"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 12,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      }
+    },
+    {
+      "type": "row",
+      "title": "Web Vitals",
+      "id": 13,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "LCP p75",
+      "description": "Largest Contentful Paint: under 2.5 s is good",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.75, {service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"web-vitals\" | value_lcp!=\"\" | unwrap value_lcp | __error__=\"\" [$__auto]) by ()",
+          "legendFormat": "LCP"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 14,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 23
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "INP p75",
+      "description": "Interaction to Next Paint: under 200 ms is good",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.75, {service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"web-vitals\" | value_inp!=\"\" | unwrap value_inp | __error__=\"\" [$__auto]) by ()",
+          "legendFormat": "INP"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 15,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 23
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "CLS p75",
+      "description": "Cumulative Layout Shift: under 0.1 is good",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.75, {service_name=\"gameplay-web\", deployment_environment_name=\"$env\", kind=\"measurement\"} | logfmt | type=\"web-vitals\" | value_cls!=\"\" | unwrap value_cls | __error__=\"\" [$__auto]) by ()",
+          "legendFormat": "CLS"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 16,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 23
+      }
+    }
+  ],
+  "editable": true,
+  "graphTooltip": 1
+}

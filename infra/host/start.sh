@@ -112,6 +112,20 @@ fi
 PUBLIC_URL="${PUBLIC_URL%/}"
 set_var PUBLIC_URL "$PUBLIC_URL"
 
+# Build inputs that are not plain .env interpolation: the commit names the
+# Sentry release, and the token goes in as a build secret (empty: no upload).
+GAMEPLAY_RELEASE="$(git -C "$HOST_DIR" rev-parse --short HEAD 2>/dev/null || true)"
+SENTRY_AUTH_TOKEN="$(get_var SENTRY_AUTH_TOKEN)"
+# Where nginx forwards the Sentry tunnel: https://KEY@HOST/PROJECT becomes
+# https://HOST/api/PROJECT/envelope/. Empty without a DSN (tunnel answers 404).
+GAMEPLAY_SENTRY_ENVELOPE_URL=""
+SENTRY_DSN="$(get_var VITE_SENTRY_DSN)"
+if [ -n "$SENTRY_DSN" ]; then
+  DSN_HOST="${SENTRY_DSN#*@}"
+  GAMEPLAY_SENTRY_ENVELOPE_URL="https://${DSN_HOST%%/*}/api/${SENTRY_DSN##*/}/envelope/"
+fi
+export GAMEPLAY_RELEASE SENTRY_AUTH_TOKEN GAMEPLAY_SENTRY_ENVELOPE_URL
+
 echo "Building and starting the stack for $PUBLIC_URL ..."
 compose --profile "$MODE" up -d --build
 

@@ -1,7 +1,5 @@
 import * as Sentry from '@sentry/react'
 
-type SentryRouter = Parameters<typeof Sentry.tanstackRouterBrowserTracingIntegration>[0]
-
 const SENSITIVE_HEADERS = ['cookie', 'authorization', 'set-cookie', 'x-csrf-token']
 
 /** Removes cookies, auth headers and user identifiers from an event before it leaves the browser. */
@@ -20,8 +18,11 @@ function scrubEvent<T extends Sentry.ErrorEvent>(event: T): T {
   return event
 }
 
-/** Starts Sentry. Does nothing (returns false) when `VITE_SENTRY_DSN` is empty. */
-function initSentry(router: SentryRouter): boolean {
+/**
+ * Starts Sentry for errors only: performance and browser traces go to Grafana Faro.
+ * Does nothing (returns false) when `VITE_SENTRY_DSN` is empty.
+ */
+function initSentry(): boolean {
   const dsn = import.meta.env.VITE_SENTRY_DSN
   if (!dsn) return false
 
@@ -29,13 +30,10 @@ function initSentry(router: SentryRouter): boolean {
     dsn,
     environment: import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.MODE,
     release: import.meta.env.VITE_SENTRY_RELEASE || undefined,
+    // Same-origin path forwarded to Sentry, so ad blockers don't drop the events.
+    tunnel: import.meta.env.VITE_SENTRY_TUNNEL || undefined,
     // v11 has no sendDefaultPii option: personal data is off unless opted in, and scrubEvent strips the rest.
-    integrations: [
-      Sentry.tanstackRouterBrowserTracingIntegration(router),
-      Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true }),
-    ],
-    tracesSampleRate: import.meta.env.DEV ? 1 : 0.1,
-    tracePropagationTargets: [/^\/api/],
+    integrations: [Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true })],
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1,
     beforeSend: scrubEvent,

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import type { RoomJoinResult } from '@gameplay/contracts'
 import { RoomNotFoundError, ServerNotFoundError } from '../../servers/errors/servers.errors'
 import { RoomsRepository } from '../../servers/repositories/rooms.repository'
@@ -16,6 +16,8 @@ type Input = { userId: string; socketId: string; roomId: string; muted: boolean;
 // connection keeps the seat and the screen share.
 @Injectable()
 export class JoinRoomUseCase {
+  private readonly logger = new Logger(JoinRoomUseCase.name)
+
   constructor(
     private readonly rooms: RoomsRepository,
     private readonly access: ServerAccessService,
@@ -43,6 +45,10 @@ export class JoinRoomUseCase {
     }
     if (previous && previous.roomId !== roomId) await this.voice.announce(previous.serverId, previous.roomId)
 
+    this.logger.log(
+      { userId, serverId: room.serverId, roomId, rejoined: previous?.roomId === roomId },
+      'Joined voice room',
+    )
     this.emitter.seatTaken(socketId, roomId)
     await this.voice.announce(room.serverId, roomId)
     const seats = await this.store.listRoom(roomId)
