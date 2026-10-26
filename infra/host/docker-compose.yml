@@ -91,6 +91,8 @@ services:
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
         # Same-origin path nginx forwards to Sentry (see nginx.conf).
         VITE_SENTRY_TUNNEL: /monitoring/sentry
+        # Faro on only with a collector; the browser talks to the nginx tunnel.
+        VITE_FARO_URL: ${FARO_COLLECTOR_URL:+/monitoring/faro}
         VITE_SENTRY_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-host}
         # start.sh exports the git commit; Sentry groups errors by it.
         VITE_SENTRY_RELEASE: ${GAMEPLAY_RELEASE:-}
@@ -106,6 +108,7 @@ services:
     environment:
       NGINX_ENVSUBST_FILTER: '^GAMEPLAY_'
       GAMEPLAY_SENTRY_ENVELOPE_URL: ${GAMEPLAY_SENTRY_ENVELOPE_URL:-}
+      GAMEPLAY_FARO_COLLECTOR_URL: ${FARO_COLLECTOR_URL:-}
     volumes:
       - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - uploads:/data/uploads:ro

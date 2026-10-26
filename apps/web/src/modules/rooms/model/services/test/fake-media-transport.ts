@@ -15,6 +15,10 @@ class FakeMediaTransport implements MediaTransport {
   /** What `getSenderStats` answers, per `peerId`. */
   stats: Record<string, StatsRecord[]> = {}
   readonly getSenderStats = vi.fn(async (peerId: string) => this.stats[peerId] ?? [])
+  /** What `getConnectionStats` answers, per `peerId`. */
+  connectionStats: Record<string, StatsRecord[]> = {}
+  readonly getConnectionStats = vi.fn(async (peerId: string) => this.connectionStats[peerId] ?? [])
+  peerIds = () => [...this.peers]
   readonly updateIceServers = vi.fn((_iceServers: IceServer[]) => undefined)
   readonly close = vi.fn()
   private statusHandler: ((peerId: string, status: PeerStatus) => void) | undefined

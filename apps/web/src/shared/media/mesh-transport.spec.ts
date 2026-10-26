@@ -359,6 +359,16 @@ describe('MeshTransport', () => {
       transport.removeTrack('u9', screen)
       expect(await transport.getSenderStats('u9', screen)).toEqual([])
     })
+
+    it('lists the peers and reads the stats of a whole connection, empty without one', async () => {
+      const transport = create('u5')
+      expect(await transport.getConnectionStats('u9')).toEqual([])
+      transport.addPeer('u9')
+      connections[0].stats = [{ type: 'transport', selectedCandidatePairId: 'CP1' }]
+
+      expect(transport.peerIds()).toEqual(['u9'])
+      expect(await transport.getConnectionStats('u9')).toEqual([{ type: 'transport', selectedCandidatePairId: 'CP1' }])
+    })
   })
 
   describe('ICE renewal', () => {
