@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-25 (backend completo e mergeado na `main`; plano do frontend e tickets FE-01 a FE-14 escritos).
+> Última atualização: 2026-10-26 (backend e frontend completos; `feature/web-routing` fechada no PR para a `main`; próximo foco: observabilidade).
 
 ## Status das fases (workflow ágil)
 
@@ -11,7 +11,7 @@
 | 02 · Core Flows | `02-core-flows.md` | Concluída para as telas com mock; F7 a F13 terão o visual desenhado no Storybook |
 | 03 · PRD Validate | | Não iniciada |
 | 04 · Tech Plan | `04-tech-plan.md` | Rascunho do backend entregue, aguardando revisão do usuário |
-| Tickets e delegação | `tickets/` | Backend BE-01 a BE-16 concluídos; frontend FE-01 a FE-14 pendentes |
+| Tickets e delegação | `tickets/` | Backend BE-01 a BE-17 e frontend FE-01 a FE-14b concluídos |
 | 05 · Plano do frontend | `05-web-plan.md` | Escrito em 2026-10-25, ferramentas e árvore de rotas em `src/app/` |
 
 ## Próxima sessão
@@ -49,7 +49,10 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - 2026-10-25: **FE-10 (transmissão) e FE-13 (lint MVVM e Sentry) concluídos.** Transmissão testada com dois Chromium headless: quem assiste recebe vídeo. As camadas do MVVM agora são checadas pelo lint. Sentry desligado até haver DSN. Estado: web 1105 testes, api 282. Falta só o FE-14b (e2e de voz e transmissão com peer bot). A escolha de prioridade na transmissão foi adicionada logo depois (web 1110 testes, Cypress 26).
 - 2026-10-25: **FE-14b concluído**: Cypress com peer bot para voz e transmissão, 35 cenários, 3 execuções seguidas sem falha. **Todos os tickets do frontend (FE-01 a FE-14) e do backend (BE-01 a BE-17) estão concluídos** na branch `feature/web-routing`, sem push e sem PR. Corrigido também o proxy de `/uploads` no Vite (avatar não carregava em dev).
 - 2026-10-25: **servidor na máquina do usuário** (Fase 1): `infra/host/` com Postgres, migração e seed do admin, API, web no nginx e cloudflared, separado do banco de dev. Túnel fixo `gameplay` (id `98fc40f2…`) criado na conta Cloudflare do usuário, com DNS `gameplay.oikos.company`; o túnel antigo `oikos-local-dev` e o `~/.cloudflared/config.yml` não foram alterados. TURN do Cloudflare Realtime configurado (`ICE_PROVIDER=cloudflare`). Conferido pelo domínio: página, `/api/health`, login, WebSocket e `/api/ice` com 6 URLs de TURN. Comandos: `npm run host:start`, `host:stop`, `host:logs`; guia em `infra/host/README.md`.
-- Próximos passos: review do usuário, confirmar as suposições das notas dos tickets, abrir o PR da `feature/web-routing` para a `main`, DSN do Sentry, config do nginx de produção (inclui `/uploads`) e decidir o seletor de qualidade do espectador (`media-transport-options.md` seção 6, item 7).
+- 2026-10-26: overlay da transmissão no celular deitado e volta para a call depois do reload conferidos pelo usuário no celular, pelo domínio. `feature/web-routing` encerrada e enviada em PR para a `main`.
+- Lacunas fora dos tickets (levantadas em 2026-10-26): não há CI (`.github/workflows`), não há infra de produção (Fase 2 na AWS, sob `oikos.company`, fica para depois; o TURN continua o da Cloudflare, não coturn), não há backup agendado do Postgres do host, e a telemetria está desligada no host (`OTEL_*` e `VITE_SENTRY_DSN` vazios em `infra/host/.env`).
+- Próximo foco escolhido pelo usuário: **observabilidade** (Grafana para API e websocket, Sentry no web).
+- Próximos passos (anteriores): review do usuário, confirmar as suposições das notas dos tickets, abrir o PR da `feature/web-routing` para a `main`, DSN do Sentry, config do nginx de produção (inclui `/uploads`) e decidir o seletor de qualidade do espectador (`media-transport-options.md` seção 6, item 7).
 
 ## Backend (`apps/api`)
 
