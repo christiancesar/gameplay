@@ -77,7 +77,7 @@ function Scenario({
         participants={stageWithLive}
         onSwitchStream={fn()}
         onStopWatching={fn()}
-        onFullscreen={fn()}
+        onImmersiveChange={fn()}
         onStreamVolumeChange={fn()}
         onWatch={fn()}
         onVolumeChange={fn()}

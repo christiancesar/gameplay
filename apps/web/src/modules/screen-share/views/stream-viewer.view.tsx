@@ -1,6 +1,6 @@
 import { cn } from 'cn'
-import { EyeOffIcon, MaximizeIcon, Volume2Icon, VolumeXIcon } from 'lucide-react'
-import { type ReactNode, useState } from 'react'
+import { EyeOffIcon, MaximizeIcon, MinimizeIcon, UsersIcon, Volume2Icon, VolumeXIcon } from 'lucide-react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
@@ -25,19 +25,24 @@ type StreamViewerViewProps = {
   currentStreamId: string
   streamVolume: number
   participants: readonly StageParticipant[]
+  /** The video over the whole screen with the controls on top. The ViewModel decides when (button, phone sideways). */
+  immersive?: boolean
+  onImmersiveChange: (immersive: boolean) => void
   onSwitchStream: (participantId: string) => void
   onStopWatching: () => void
-  onFullscreen: () => void
   onStreamVolumeChange: (volume: number) => void
   onWatch: (participantId: string) => void
   onVolumeChange: (participantId: string, volume: number) => void
-  /** Opens the server sidebar; shown on a sideways phone, where the app bar is hidden. */
+  /** Opens the server sidebar from the immersive player, which covers the app bar. */
   sidebarTrigger?: ReactNode
 }
 
-/** On a sideways phone the bar and the people float over the video, and a tap on the video hides them. */
+/** In the immersive player the controls hide after this long without a touch. */
+const CONTROLS_HIDE_MS = 3000
+
+/** Immersive player: the bar and the people fade out together, and a tap on the video brings them back. */
 const OVERLAY_FADE =
-  'phone-landscape:transition-opacity phone-landscape:group-data-[controls=hidden]:pointer-events-none phone-landscape:group-data-[controls=hidden]:opacity-0'
+  'transition-opacity group-data-[controls=hidden]:pointer-events-none group-data-[controls=hidden]:opacity-0'
 
 function StreamViewerView({
   streamerName,
@@ -48,9 +53,10 @@ function StreamViewerView({
   currentStreamId,
   streamVolume,
   participants,
+  immersive = false,
+  onImmersiveChange,
   onSwitchStream,
   onStopWatching,
-  onFullscreen,
   onStreamVolumeChange,
   onWatch,
   onVolumeChange,
@@ -58,28 +64,57 @@ function StreamViewerView({
 }: StreamViewerViewProps) {
   const { t } = useTranslation()
   const [controlsVisible, setControlsVisible] = useState(true)
+  const [peopleOpen, setPeopleOpen] = useState(false)
+  // Bumped on every touch inside the player, so the hide timer starts over.
+  const [activity, setActivity] = useState(0)
+  const [wasImmersive, setWasImmersive] = useState(immersive)
+
+  // Entering or leaving immersive starts with the controls shown and the people closed.
+  if (wasImmersive !== immersive) {
+    setWasImmersive(immersive)
+    setControlsVisible(true)
+    setPeopleOpen(false)
+  }
+
+  useEffect(() => {
+    if (!immersive || !controlsVisible || peopleOpen) return
+    const timer = setTimeout(() => setControlsVisible(false), CONTROLS_HIDE_MS)
+    return () => clearTimeout(timer)
+  }, [immersive, controlsVisible, peopleOpen, activity])
+
+  const shown = !immersive || controlsVisible
+  // Over the video the buttons stay white in both themes.
+  const overlayButton = immersive ? 'text-white hover:bg-white/15 hover:text-white' : undefined
 
   return (
     <div
-      data-controls={controlsVisible ? 'shown' : 'hidden'}
-      className="group phone-landscape:gap-0 phone-landscape:p-0 relative flex h-full flex-col gap-4 p-4"
+      data-stream-stage=""
+      data-immersive={immersive || undefined}
+      data-controls={shown ? 'shown' : 'hidden'}
+      onPointerDown={() => setActivity((count) => count + 1)}
+      className={cn(
+        'group relative flex h-full flex-col gap-4 p-4',
+        immersive && 'fixed inset-0 z-50 h-dvh gap-0 bg-black p-0 text-white',
+      )}
     >
       <header
         className={cn(
-          'phone-landscape:absolute phone-landscape:inset-x-0 phone-landscape:top-0 phone-landscape:z-10 phone-landscape:bg-linear-to-b phone-landscape:from-black/70 phone-landscape:to-transparent phone-landscape:px-3 phone-landscape:pt-2 phone-landscape:pb-6 phone-landscape:text-white flex flex-wrap items-center gap-3',
-          OVERLAY_FADE,
+          'flex flex-wrap items-center gap-3',
+          immersive &&
+            'absolute inset-x-0 top-0 z-20 bg-linear-to-b from-black/80 to-transparent px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-8',
+          immersive && OVERLAY_FADE,
         )}
       >
-        {sidebarTrigger && <div className="phone-landscape:max-md:contents hidden">{sidebarTrigger}</div>}
+        {immersive && sidebarTrigger}
         <span className="rounded-sm bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white">
           LIVE
         </span>
-        <h1 className="font-medium">{t('share.isLive', { name: streamerName })}</h1>
+        <h1 className="min-w-0 truncate font-medium">{t('share.isLive', { name: streamerName })}</h1>
         {received && (
           <span
             title={t('share.receiving')}
             aria-label={`${t('share.receiving')}: ${received.height}p, ${Math.round(received.fps)} fps, ${formatKbps(received.kbps)}`}
-            className="text-muted-foreground phone-landscape:text-white/80 font-mono text-xs tabular-nums"
+            className={cn('font-mono text-xs tabular-nums', immersive ? 'text-white/80' : 'text-muted-foreground')}
           >
             {received.height}p · {Math.round(received.fps)} fps
             <span className="max-sm:hidden"> · {formatKbps(received.kbps)}</span>
@@ -105,62 +140,95 @@ function StreamViewerView({
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          {/* Phone browsers ignore both for now (no fullscreen on iPhone), so touch screens go without. */}
-          <div className="touch:hidden flex items-center gap-2">
-            {hasAudio ? (
-              <Volume2Icon className="text-muted-foreground size-4" aria-hidden />
-            ) : (
-              <span className="flex items-center gap-1 text-xs text-amber-500">
-                <VolumeXIcon className="size-4" aria-hidden />
-                {t('share.noStreamAudio')}
-              </span>
-            )}
-            <Slider
-              disabled={!hasAudio}
-              aria-label={t('share.streamVolume')}
-              className="w-28"
-              min={0}
-              max={100}
-              step={5}
-              value={[streamVolume]}
-              onValueChange={([next]) => onStreamVolumeChange(next)}
+          {hasAudio ? (
+            <Volume2Icon className={cn('size-4', !immersive && 'text-muted-foreground')} aria-hidden />
+          ) : (
+            <span className="flex items-center gap-1 text-xs text-amber-500">
+              <VolumeXIcon className="size-4" aria-hidden />
+              <span className={cn(immersive && 'max-sm:sr-only')}>{t('share.noStreamAudio')}</span>
+            </span>
+          )}
+          <Slider
+            disabled={!hasAudio}
+            aria-label={t('share.streamVolume')}
+            className="w-24 sm:w-28"
+            min={0}
+            max={100}
+            step={5}
+            value={[streamVolume]}
+            onValueChange={([next]) => onStreamVolumeChange(next)}
+          />
+          {immersive && (
+            <IconButton
+              label={t('share.people')}
+              icon={<UsersIcon />}
+              className={overlayButton}
+              aria-pressed={peopleOpen}
+              onClick={() => setPeopleOpen((open) => !open)}
             />
-            <IconButton label={t('share.fullscreen')} icon={<MaximizeIcon />} onClick={onFullscreen} />
-          </div>
-          <IconButton label={t('share.stopWatching')} icon={<EyeOffIcon />} onClick={onStopWatching} />
+          )}
+          <IconButton
+            label={immersive ? t('share.exitFullscreen') : t('share.fullscreen')}
+            icon={immersive ? <MinimizeIcon /> : <MaximizeIcon />}
+            className={overlayButton}
+            onClick={() => onImmersiveChange(!immersive)}
+          />
+          <IconButton
+            label={t('share.stopWatching')}
+            icon={<EyeOffIcon />}
+            className={overlayButton}
+            onClick={onStopWatching}
+          />
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4">
-        {/* The fullscreen target (`toggleStreamFullscreen`); a double click also toggles it. */}
+      {/* Left out of immersive on a sideways phone, the people go beside the video. */}
+      <div className={cn('flex min-h-0 flex-1 flex-col gap-4', immersive ? 'gap-0' : 'phone-landscape:flex-row')}>
         <div
-          data-stream-stage=""
-          onDoubleClick={onFullscreen}
-          className="phone-landscape:rounded-none flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black"
+          onDoubleClick={() => onImmersiveChange(!immersive)}
+          className={cn(
+            'flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black',
+            immersive && 'rounded-none',
+          )}
         >
           {video}
         </div>
 
-        <button
-          type="button"
-          aria-label={t('share.toggleControls')}
-          className="phone-landscape:block absolute inset-0 hidden"
-          onClick={() => setControlsVisible((visible) => !visible)}
-        />
+        {immersive && (
+          <button
+            type="button"
+            aria-label={t('share.toggleControls')}
+            className="absolute inset-0 z-10"
+            onClick={() => setControlsVisible((visible) => !visible)}
+            onDoubleClick={() => onImmersiveChange(false)}
+          />
+        )}
 
-        <div
-          className={cn(
-            'phone-landscape:absolute phone-landscape:top-12 phone-landscape:right-2 phone-landscape:bottom-2 phone-landscape:z-10 phone-landscape:flex phone-landscape:flex-col',
-            OVERLAY_FADE,
-          )}
-        >
+        {immersive ? (
+          peopleOpen && (
+            <div
+              className={cn(
+                'absolute top-16 right-2 bottom-2 z-20 w-56 overflow-y-auto rounded-xl bg-black/60 p-1.5 text-white backdrop-blur-sm',
+                OVERLAY_FADE,
+              )}
+            >
+              <ParticipantStripView
+                participants={participants}
+                watchedId={currentStreamId}
+                layout="column"
+                onWatch={onWatch}
+                onVolumeChange={onVolumeChange}
+              />
+            </div>
+          )
+        ) : (
           <ParticipantStripView
             participants={participants}
             watchedId={currentStreamId}
             onWatch={onWatch}
             onVolumeChange={onVolumeChange}
           />
-        </div>
+        )}
       </div>
     </div>
   )

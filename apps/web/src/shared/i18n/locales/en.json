@@ -276,7 +276,9 @@
       "no-audio": "Sharing without audio: the browser gave no sound. Check the audio box in the picker, or use Chrome or Edge."
     },
     "receiving": "What reaches you",
-    "noStreamAudio": "This stream has no audio"
+    "noStreamAudio": "This stream has no audio",
+    "people": "People",
+    "exitFullscreen": "Exit fullscreen"
   },
   "image": {
     "choose": "Choose image",

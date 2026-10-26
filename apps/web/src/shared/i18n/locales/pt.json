@@ -276,7 +276,9 @@
       "no-audio": "Transmitindo sem áudio: o browser não entregou o som. Marque a caixa de áudio no seletor ou use Chrome ou Edge."
     },
     "receiving": "O que chega para você",
-    "noStreamAudio": "Esta transmissão está sem áudio"
+    "noStreamAudio": "Esta transmissão está sem áudio",
+    "people": "Pessoas",
+    "exitFullscreen": "Sair da tela cheia"
   },
   "image": {
     "choose": "Escolher imagem",

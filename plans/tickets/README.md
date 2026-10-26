@@ -79,8 +79,9 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 | [FE-14a E2E com Cypress, fluxos atuais](FE-14-e2e-cypress.md) | 3 | 5 | concluído |
 | [FE-14b E2E de voz e transmissão com peer bot](FE-14-e2e-cypress.md) | 3 | 6 | concluído |
 | [FE-15 Áudio da transmissão e qualidade para quem assiste](FE-15-audio-e-qualidade-da-transmissao.md) | 5 | 7 | concluído |
+| [FE-16 Player imersivo da live e tela cheia no celular](FE-16-player-imersivo.md) | 5 | 7 | concluído |
 
-Total: 81 pontos.
+Total: 86 pontos.
 
 ```mermaid
 graph LR

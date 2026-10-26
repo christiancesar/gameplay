@@ -48,6 +48,13 @@ describe('Screen share', () => {
       })
       // Measured on this side from the stats of the received video.
       cy.findByLabelText(/^What reaches you: \d+p, \d+ fps/).should('be.visible')
+
+      // Fullscreen is our own player: the video stays and the controls float over it.
+      cy.findByRole('button', { name: 'Fullscreen' }).click()
+      cy.get('[data-stream-stage][data-immersive]').should('exist')
+      streamVideo().should('be.visible')
+      cy.findByRole('button', { name: 'Exit fullscreen' }).click()
+      cy.get('[data-stream-stage][data-immersive]').should('not.exist')
     })
 
     it('closes the watch view when the peer stops sharing', () => {
