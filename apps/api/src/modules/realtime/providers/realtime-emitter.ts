@@ -8,7 +8,7 @@ import {
   type StreamQualityLevel,
 } from '@gameplay/contracts'
 import { AsyncApi, AsyncApiSend } from '../../../docs/asyncapi-decorators'
-import { serverRoom, userRoom, voiceRoom } from '../domain/socket-rooms'
+import { serverRoom, sessionRoom, userRoom, voiceRoom } from '../domain/socket-rooms'
 import type { RealtimeServer } from '../domain/socket-data'
 import {
   NoPayloadDto,
@@ -32,6 +32,8 @@ export abstract class RealtimeEmitter {
   abstract serverRemoved(userIds: string[], removal: ServerRemoved): void
   // Tells the user and closes all their sockets.
   abstract sessionRevoked(userId: string): void
+  // Tells the sockets of that one session and closes them.
+  abstract sessionEnded(sessionId: string): void
   // To who follows the server and to the room itself.
   abstract roomParticipants(serverId: string, roomId: string, participants: Participant[]): void
   // The socket took a seat: it hears about the room even with another server open.
@@ -92,13 +94,20 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
 
   @AsyncApiSend({
     channel: REALTIME_EVENTS.sessionRevoked,
-    summary: 'Suspended or sessions ended by the platform admin; the socket closes right after',
+    summary:
+      'Suspended, or sessions ended by the platform admin (all of them or this one); the socket closes right after',
     message: { name: 'SessionRevoked', payload: NoPayloadDto },
   })
   sessionRevoked(userId: string) {
     if (!this.server) return
     this.server.to(userRoom(userId)).emit(REALTIME_EVENTS.sessionRevoked)
     this.server.in(userRoom(userId)).disconnectSockets()
+  }
+
+  sessionEnded(sessionId: string) {
+    if (!this.server) return
+    this.server.to(sessionRoom(sessionId)).emit(REALTIME_EVENTS.sessionRevoked)
+    this.server.in(sessionRoom(sessionId)).disconnectSockets()
   }
 
   @AsyncApiSend({

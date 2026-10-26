@@ -7,23 +7,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { Slider } from '@/shared/ui/slider'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
+import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
+
 import { ParticipantStatusView } from './participant-status.view'
-
-type ParticipantConnection = 'connecting' | 'connected' | 'failed'
-
-type StageParticipant = {
-  id: string
-  name: string
-  avatarUrl?: string
-  isMe: boolean
-  isMuted: boolean
-  isDeafened: boolean
-  isSpeaking: boolean
-  isLive: boolean
-  connection: ParticipantConnection
-  /** Volume local deste participante, de 0 a 200 (%). */
-  volume: number
-}
 
 type ParticipantTileViewProps = {
   participant: StageParticipant
@@ -48,18 +34,25 @@ function ParticipantTileView({
       <UserAvatar
         name={name}
         imageUrl={avatarUrl}
-        size={compact ? 'lg' : 'xl'}
+        size={compact ? 'lg' : '2xl'}
         className={cn(
           'transition-shadow',
-          !compact && 'size-20 text-xl',
-          isSpeaking && 'ring-4 ring-emerald-500',
+          compact && 'phone-landscape:size-6 phone-landscape:[&_[data-slot=avatar-fallback]]:text-[10px]',
+          isSpeaking && (compact ? 'phone-landscape:ring-2 ring-4 ring-emerald-500' : 'ring-4 ring-emerald-500'),
           connection !== 'connected' && 'opacity-50',
         )}
       />
-      <span className="flex max-w-full items-center gap-2 text-sm font-medium">
-        <span className="truncate">
-          {name}
-          {isMe && <span className="text-muted-foreground font-normal"> ({t('voice.you')})</span>}
+      <span
+        className={cn(
+          'flex max-w-full min-w-0 items-center gap-2 text-sm font-medium',
+          compact && 'phone-landscape:gap-1 phone-landscape:text-xs',
+        )}
+      >
+        <span className="flex min-w-0 items-baseline gap-1">
+          <span className="truncate" title={name}>
+            {name}
+          </span>
+          {isMe && <span className="text-muted-foreground shrink-0 font-normal">({t('voice.you')})</span>}
         </span>
         <ParticipantStatusView isMuted={isMuted} isDeafened={isDeafened} />
       </span>
@@ -71,26 +64,44 @@ function ParticipantTileView({
       data-speaking={isSpeaking || undefined}
       className={cn(
         'bg-muted/60 relative flex flex-col items-center justify-center gap-2 rounded-xl border p-3',
-        compact ? 'h-36 w-40 shrink-0' : 'h-52',
+        // Sideways phone: the compact tile becomes a slim row so the screen keeps the room.
+        compact
+          ? 'phone-landscape:h-auto phone-landscape:w-full phone-landscape:flex-row phone-landscape:justify-start phone-landscape:rounded-lg phone-landscape:p-1.5 h-36 w-40 shrink-0'
+          : 'h-52',
         isSpeaking && 'border-emerald-500/60',
         isWatched && 'border-foreground/40',
       )}
     >
       {isLive && (
-        <span className="absolute top-2 left-2 rounded-sm bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white">
+        <span
+          className={cn(
+            'absolute top-2 left-2 rounded-sm bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white',
+            compact && 'phone-landscape:static phone-landscape:order-last phone-landscape:ml-auto',
+          )}
+        >
           LIVE
         </span>
       )}
 
       {isMe ? (
-        <div className="flex flex-col items-center gap-3">{body}</div>
+        <div
+          className={cn(
+            'flex max-w-full min-w-0 flex-col items-center gap-3',
+            compact && 'phone-landscape:flex-row phone-landscape:gap-2',
+          )}
+        >
+          {body}
+        </div>
       ) : (
         <Popover>
           <PopoverTrigger asChild>
             <button
               type="button"
               aria-label={t('voice.volumeFor', { name })}
-              className="focus-visible:ring-ring/50 flex flex-col items-center gap-3 rounded-lg outline-none focus-visible:ring-3"
+              className={cn(
+                'focus-visible:ring-ring/50 flex max-w-full min-w-0 flex-col items-center gap-3 rounded-lg outline-none focus-visible:ring-3',
+                compact && 'phone-landscape:flex-row phone-landscape:gap-2',
+              )}
             >
               {body}
             </button>
@@ -116,7 +127,12 @@ function ParticipantTileView({
       )}
 
       {/* Rodapé com altura fixa, para todos os blocos ficarem do mesmo tamanho. */}
-      <div className="flex h-7 items-center justify-center">
+      <div
+        className={cn(
+          'flex h-7 items-center justify-center',
+          compact && 'phone-landscape:h-auto phone-landscape:empty:hidden',
+        )}
+      >
         {connection === 'connecting' ? (
           <span className="text-muted-foreground flex items-center gap-1 text-xs" role="status">
             <Loader2Icon className="size-3 animate-spin" aria-hidden />
@@ -130,12 +146,12 @@ function ParticipantTileView({
         ) : isLive && !isMe && !isWatched ? (
           <Button size="sm" variant="secondary" onClick={() => onWatch(id)}>
             <EyeIcon data-icon="inline-start" aria-hidden />
-            {t('share.watch')}
+            <span className={cn(compact && 'phone-landscape:sr-only')}>{t('share.watch')}</span>
           </Button>
         ) : isWatched ? (
           <span className="text-muted-foreground flex items-center gap-1 text-xs">
             <EyeIcon className="size-3" aria-hidden />
-            {t('share.watching')}
+            <span className={cn(compact && 'phone-landscape:sr-only')}>{t('share.watching')}</span>
           </span>
         ) : null}
       </div>
@@ -144,4 +160,4 @@ function ParticipantTileView({
 }
 
 export { ParticipantTileView }
-export type { ParticipantConnection, ParticipantTileViewProps, StageParticipant }
+export type { ParticipantTileViewProps }

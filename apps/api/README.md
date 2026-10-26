@@ -31,17 +31,17 @@ Os dois usam o mesmo banco de dev. As migrations ainda não rodam dentro do cont
 
 ## Scripts
 
-| Script                                        | O que faz                                                                                                            |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `dev`                                         | sobe a API em modo watch                                                                                             |
-| `build` / `start`                             | compila para `dist/` e roda o build                                                                                  |
-| `typecheck`, `lint`, `format`, `format:check` | checagens                                                                                                            |
-| `test`                                        | testes unitários (`src/**/*.spec.ts`)                                                                                |
+| Script                                        | O que faz                                                                                                                                                               |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dev`                                         | sobe a API em modo watch                                                                                                                                                |
+| `build` / `start`                             | compila para `dist/` e roda o build                                                                                                                                     |
+| `typecheck`, `lint`, `format`, `format:check` | checagens                                                                                                                                                               |
+| `test`                                        | testes unitários (`src/**/*.spec.ts`)                                                                                                                                   |
 | `test:e2e`                                    | testes e2e (`test/e2e`) contra o banco `gameplay_test` e o `s3mock` (porta 9090); aplica as migrations antes. Outros endereços: `TEST_DATABASE_URL`, `S3_TEST_ENDPOINT` |
-| `db:generate`                                 | gera o Prisma Client em `src/generated/prisma` (roda também no `postinstall`)                                        |
-| `db:migrate`                                  | cria e aplica migrations em dev                                                                                      |
-| `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                           |
-| `db:studio`                                   | abre o Prisma Studio                                                                                                 |
+| `db:generate`                                 | gera o Prisma Client em `src/generated/prisma` (roda também no `postinstall`)                                                                                           |
+| `db:migrate`                                  | cria e aplica migrations em dev                                                                                                                                         |
+| `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                                                                              |
+| `db:studio`                                   | abre o Prisma Studio                                                                                                                                                    |
 
 ## Autenticação
 
@@ -70,4 +70,3 @@ O banco guarda só a chave (exemplo: `avatars/<userId>/<hash>.webp`); a URL púb
 ## Observabilidade
 
 Com `OTEL_EXPORTER_OTLP_ENDPOINT` definido, a API manda traces, métricas e logs por OTLP (Grafana Cloud), com spans de HTTP, Express, Nest, Prisma e pg. Cada linha do pino ganha `trace_id` e `span_id`. Sem a variável, nada liga. O SDK sobe em `src/lib/otel.ts`, carregado pela primeira linha do `main.ts`; os testes nunca o iniciam. Variáveis em `.env.example`.
-

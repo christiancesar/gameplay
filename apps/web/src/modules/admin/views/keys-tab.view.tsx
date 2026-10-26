@@ -1,4 +1,5 @@
-import { REGISTRATION_INVITE_VALIDITIES, type RegistrationInviteValidity } from '@gameplay/contracts'
+import type { RegistrationKeyItem, KeyDuration } from '@/modules/admin/model/entities/registration-key-item'
+import { REGISTRATION_INVITE_VALIDITIES } from '@gameplay/contracts'
 import { CheckIcon, CopyIcon, PlusIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,17 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
 const KEY_DURATIONS = REGISTRATION_INVITE_VALIDITIES
-type KeyDuration = RegistrationInviteValidity
-
-type RegistrationKeyItem = {
-  id: string
-  /** Só os últimos caracteres são conhecidos depois de gerada (a key fica em hash). */
-  hint: string
-  createdAt: string
-  expiresAt: string
-  status: { type: 'active' } | { type: 'used'; userName: string } | { type: 'revoked' } | { type: 'expired' }
-}
-
 type KeysTabViewProps = {
   keys: readonly RegistrationKeyItem[]
   duration: KeyDuration
@@ -153,4 +143,4 @@ function KeysTabView({
 }
 
 export { KEY_DURATIONS, KeysTabView }
-export type { KeyDuration, KeysTabViewProps, RegistrationKeyItem }
+export type { KeysTabViewProps }

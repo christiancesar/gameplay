@@ -69,6 +69,68 @@ describe('Platform admin panel (e2e)', () => {
     expect((await admin.agent.get(`/api/admin/users/${randomUUID()}/sessions`)).status).toBe(404)
   })
 
+  it('shows the own limits, effective limits and counts of each user', async () => {
+    const admin = await signedIn(app, { admin: true })
+    const ana = await signedIn(app)
+    await ana.agent.post('/api/servers').send({ name: 'Squad' })
+    await admin.agent.put(`/api/admin/users/${ana.user.id}/limits`).send({ maxServers: 4 })
+
+    const [row] = (await admin.agent.get('/api/admin/users').query({ search: ana.user.username })).body.users
+    expect(row).toMatchObject({
+      maxServersOverride: 4,
+      effectiveMaxServers: 4,
+      ownedServerCount: 1,
+      sessionCount: 1,
+    })
+    const [plain] = (await admin.agent.get('/api/admin/users').query({ search: admin.user.username })).body.users
+    expect(plain).toMatchObject({ maxServersOverride: null, ownedServerCount: 0, sessionCount: 1 })
+    expect(plain.effectiveMaxServers).toBeGreaterThanOrEqual(1)
+
+    await app
+      .get(PrismaService)
+      .session.updateMany({ where: { userId: ana.user.id }, data: { expiresAt: new Date(0) } })
+    const [expired] = (await admin.agent.get('/api/admin/users').query({ search: ana.user.username })).body.users
+    expect(expired.sessionCount).toBe(0)
+  })
+
+  it('ends one session only: its socket closes, the other session stays', async () => {
+    const admin = await signedIn(app, { admin: true })
+    const ana = await signedIn(app)
+    const other = request.agent(app.getHttpServer())
+    const secondLogin = await signIn(ana.user.email, PASSWORD)
+    expect(secondLogin.status).toBe(200)
+    const secondCookie = ([] as string[])
+      .concat(secondLogin.headers['set-cookie'] ?? [])
+      .map((line) => line.split(';')[0])
+      .join('; ')
+    const first = await connectSocket(app, ana.cookie)
+    const second = await connectSocket(app, secondCookie)
+    sockets.push(first, second)
+
+    const sessions = (await admin.agent.get(`/api/admin/users/${ana.user.id}/sessions`)).body.sessions
+    expect(sessions).toHaveLength(2)
+    expect(sessions[0].lastActiveAt).toEqual(expect.any(String))
+    const target = await app.get(PrismaService).session.findFirstOrThrow({
+      where: { userId: ana.user.id },
+      orderBy: { createdAt: 'asc' },
+    })
+
+    const revoked = nextEvent(first, 'session:revoked')
+    const closed = new Promise((resolve) => first.once('disconnect', resolve))
+    const url = `/api/admin/users/${ana.user.id}/sessions/${target.id}/revoke`
+    expect((await admin.agent.post(url)).status).toBe(204)
+    await Promise.all([revoked, closed])
+
+    expect((await ana.agent.get('/api/me/profile')).status).toBe(401)
+    expect(second.connected).toBe(true)
+    expect((await other.get('/api/me/profile').set('Cookie', secondCookie)).status).toBe(200)
+    expect((await admin.agent.get(`/api/admin/users/${ana.user.id}/sessions`)).body.sessions).toHaveLength(1)
+
+    expect((await admin.agent.post(url)).status).toBe(404)
+    expect((await admin.agent.post(`/api/admin/users/${admin.user.id}/sessions/${target.id}/revoke`)).status).toBe(404)
+    expect((await admin.agent.post(`/api/admin/users/${randomUUID()}/sessions/${target.id}/revoke`)).status).toBe(404)
+  })
+
   it('suspends at once: socket closed, sessions gone, sign-in blocked until reactivated', async () => {
     const admin = await signedIn(app, { admin: true })
     const ana = await signedIn(app)
@@ -124,6 +186,30 @@ describe('Platform admin panel (e2e)', () => {
     expect(tooShort.status).toBe(400)
   })
 
+  it('shows the own and effective limits of each server', async () => {
+    const admin = await signedIn(app, { admin: true })
+    const { serverId } = await createServerWithMembers(app)
+    const defaults = (await admin.agent.get('/api/admin/settings')).body
+
+    const [plain] = (await admin.agent.get('/api/admin/servers')).body.servers
+    expect(plain).toMatchObject({
+      maxMembersOverride: null,
+      maxRoomsOverride: null,
+      effectiveMaxMembers: defaults.maxMembersPerServer,
+      effectiveMaxRooms: defaults.maxRoomsPerServer,
+    })
+
+    await admin.agent.put(`/api/admin/servers/${serverId}/limits`).send({ maxMembers: 25, maxRooms: null })
+    const expected = {
+      maxMembersOverride: 25,
+      maxRoomsOverride: null,
+      effectiveMaxMembers: 25,
+      effectiveMaxRooms: defaults.maxRoomsPerServer,
+    }
+    expect((await admin.agent.get('/api/admin/servers')).body.servers[0]).toMatchObject(expected)
+    expect((await admin.agent.get(`/api/admin/servers/${serverId}`)).body).toMatchObject(expected)
+  })
+
   it('lists, details and deletes any server, notifying its owner', async () => {
     const admin = await signedIn(app, { admin: true })
     const { owner, members, serverId, roomIds } = await createServerWithMembers(app)
@@ -169,6 +255,38 @@ describe('Platform admin panel (e2e)', () => {
     })
   })
 
+  it('lists the devices of the whole base with their users, newest first, searchable', async () => {
+    const admin = await signedIn(app, { admin: true })
+    const ana = await signedIn(app)
+    const bia = await signedIn(app)
+    const [anaDevice, biaDevice] = [randomUUID(), randomUUID()]
+    await ana.agent.post('/api/me/devices').send({ deviceId: anaDevice, collected: makeCollected() })
+    await bia.agent.post('/api/me/devices').send({ deviceId: biaDevice, collected: makeCollected() })
+
+    const all = await admin.agent.get('/api/admin/hardware/devices')
+    expect(all.body).toMatchObject({ total: 2, page: 1, pageSize: 20 })
+    expect(all.body.devices).toEqual([
+      {
+        user: { id: bia.user.id, username: bia.user.username },
+        deviceId: biaDevice,
+        collected: expect.objectContaining({ logicalCores: expect.any(Number) }),
+        manual: null,
+        collectedAt: expect.any(String),
+      },
+      expect.objectContaining({ user: { id: ana.user.id, username: ana.user.username }, deviceId: anaDevice }),
+    ])
+
+    const found = await admin.agent
+      .get('/api/admin/hardware/devices')
+      .query({ search: ana.user.username!.toUpperCase(), pageSize: 1 })
+    expect(found.body.total).toBe(1)
+    expect(found.body.devices[0].deviceId).toBe(anaDevice)
+    expect((await admin.agent.get('/api/admin/hardware/devices').query({ page: 2, pageSize: 1 })).body.devices).toEqual(
+      [expect.objectContaining({ deviceId: anaDevice })],
+    )
+    expect((await ana.agent.get('/api/admin/hardware/devices')).status).toBe(403)
+  })
+
   it('documents the admin routes in OpenAPI', async () => {
     const response = await request(app.getHttpServer()).get('/api/docs/openapi.json')
 
@@ -177,7 +295,10 @@ describe('Platform admin panel (e2e)', () => {
         '/api/admin/users',
         '/api/admin/users/{userId}/suspend',
         '/api/admin/servers/{serverId}',
+        '/api/admin/users/{userId}/sessions/{sessionId}/revoke',
         '/api/admin/hardware/summary',
+        '/api/admin/hardware/devices',
+        '/api/me/limits',
       ]),
     )
   })

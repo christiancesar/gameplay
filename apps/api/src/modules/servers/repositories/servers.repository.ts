@@ -24,6 +24,10 @@ export abstract class ServersRepository {
   abstract listForUser(userId: string): Promise<ServerWithRole[]>
   abstract update(serverId: string, changes: ServerChanges): Promise<ServerRecord>
   abstract countMembers(serverId: string): Promise<number>
+  // Servers the user owns.
+  abstract countOwned(userId: string): Promise<number>
+  // Join requests waiting for a decision.
+  abstract countPendingJoinRequests(serverId: string): Promise<number>
   abstract listMemberIds(serverId: string): Promise<string[]>
   // Members and rooms go in cascade.
   abstract delete(serverId: string): Promise<void>

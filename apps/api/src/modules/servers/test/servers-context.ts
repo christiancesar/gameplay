@@ -10,6 +10,7 @@ import { CreateRoomUseCase } from '../use-cases/create-room.use-case'
 import { CreateServerUseCase } from '../use-cases/create-server.use-case'
 import { DeleteRoomUseCase } from '../use-cases/delete-room.use-case'
 import { DeleteServerUseCase } from '../use-cases/delete-server.use-case'
+import { GetMyLimitsUseCase } from '../use-cases/get-my-limits.use-case'
 import { GetServerUseCase } from '../use-cases/get-server.use-case'
 import { ListMyServersUseCase } from '../use-cases/list-my-servers.use-case'
 import { RemoveServerImageUseCase } from '../use-cases/remove-server-image.use-case'
@@ -42,6 +43,7 @@ export function makeServersContext() {
     access,
     views,
     createServer: new CreateServerUseCase(servers, limits, views),
+    getMyLimits: new GetMyLimitsUseCase(servers, limits),
     getServer: new GetServerUseCase(access, views),
     listMyServers: new ListMyServersUseCase(servers, views),
     updateServer: new UpdateServerUseCase(servers, access, views, events),

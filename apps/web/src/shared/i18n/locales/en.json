@@ -100,7 +100,8 @@
       "codeInvalid": "Invite codes have 8 letters or numbers."
     },
     "profile": "Profile",
-    "joinTitle": "Join a server"
+    "joinTitle": "Join a server",
+    "defaultRoomName": "Room 1"
   },
   "server": {
     "rooms": "Rooms",
@@ -124,8 +125,11 @@
     "leaveServerTitle": "Leave {{server}}?",
     "leaveServerDescription": "You will need a new invite to come back.",
     "leaveServerConfirm": "Leave",
+    "unavailable": "You no longer have access to this server.",
+    "leaveFailed": "Could not leave the server. Try again.",
     "noRooms": "No rooms yet.",
     "toggleSidebar": "Expand or collapse sidebar",
+    "openSidebar": "Open sidebar",
     "switcher": {
       "label": "Switch server",
       "search": "Search servers...",
@@ -150,7 +154,13 @@
     "you": "you",
     "micDeniedTitle": "Microphone blocked",
     "micDeniedDescription": "You joined listening only. Allow the microphone in the browser address bar and rejoin the room to talk.",
-    "roomEmpty": "Nobody here yet. Others will see you as soon as they join."
+    "roomEmpty": "Nobody here yet. Others will see you as soon as they join.",
+    "notice": {
+      "otherTab": "You joined a room from another tab, so this one was closed.",
+      "roomDeleted": "The room was deleted.",
+      "joinFailed": "Could not join the room.",
+      "reconnectFailed": "The connection was lost and you left the room."
+    }
   },
   "share": {
     "start": "Share screen",
@@ -165,10 +175,18 @@
       "resolution": "Resolution",
       "status": "Status"
     },
+    "preview": {
+      "title": "You are presenting to everyone",
+      "stop": "Stop presenting",
+      "hide": "Hide preview",
+      "show": "Show preview",
+      "hiddenHint": "Preview hidden to avoid a mirror effect when you share the entire screen."
+    },
     "watch": "Watch",
     "watching": "Watching",
     "stopWatching": "Stop watching",
     "fullscreen": "Fullscreen",
+    "toggleControls": "Show or hide controls",
     "streamVolume": "Stream volume",
     "liveNow": "Live now",
     "isLive": "{{name}} is live",
@@ -193,6 +211,17 @@
       "gameTip": "Games in exclusive fullscreen can show up black. Use borderless window mode.",
       "resolution": "Resolution",
       "fps": "Frame rate",
+      "priority": "Priority",
+      "priorities": {
+        "smooth": {
+          "label": "Smooth",
+          "hint": "Keeps the frame rate. Resolution drops first. Best for games and video."
+        },
+        "sharp": {
+          "label": "Sharp",
+          "hint": "Keeps the resolution. Frame rate drops first. Best for text and menus."
+        }
+      },
       "audio": "Share audio",
       "audioSupport": {
         "supported": "Tab audio works on any system.",
@@ -200,7 +229,10 @@
         "unsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab."
       },
       "saveAsDefault": "Use these settings next time",
-      "start": "Choose and share"
+      "start": "Choose and share",
+      "updateTitle": "Change quality",
+      "updateDescription": "Resolution and frame rate change right away, without stopping the share.",
+      "apply": "Apply"
     },
     "monitor": {
       "target": "Target",
@@ -223,7 +255,16 @@
       "viewer": "Viewer",
       "noViewers": "Nobody is watching yet. Quality is measured once someone watches."
     },
-    "stopShort": "Stop"
+    "stopShort": "Stop",
+    "changeQuality": "Change quality",
+    "loadingStream": "Connecting to the stream…",
+    "watchFailed": "Could not watch this screen. Try again.",
+    "notices": {
+      "unsupported": "This browser cannot share the screen.",
+      "failed": "Could not start sharing the screen.",
+      "start-failed": "Could not announce the screen share to the room.",
+      "not-in-call": "Join a voice room to share your screen."
+    }
   },
   "image": {
     "choose": "Choose image",
@@ -251,6 +292,18 @@
   },
   "serverSettings": {
     "title": "Server settings",
+    "errors": {
+      "memberLimitReached": "The server is full. Free a spot first.",
+      "roomLimitReached": "The server reached its room limit.",
+      "roomNameTaken": "There is already a room with this name.",
+      "roomNotFound": "This room no longer exists.",
+      "permissionDenied": "Your role does not allow this action.",
+      "requestGone": "This request was already answered or withdrawn.",
+      "memberNotFound": "This person is no longer in the server.",
+      "inviteNotFound": "This invite no longer exists.",
+      "copyFailed": "Could not copy the link. Copy it by hand.",
+      "unexpected": "Something went wrong. Try again."
+    },
     "sections": {
       "general": "General",
       "invites": "Invites",
@@ -343,6 +396,9 @@
   },
   "settings": {
     "title": "Settings",
+    "errors": {
+      "unexpected": "Something went wrong. Try again."
+    },
     "sections": {
       "profile": "Profile",
       "audio": "Audio",
@@ -400,6 +456,14 @@
       "notFound": "This invite doesn't exist or was revoked."
     }
   },
+  "realtime": {
+    "unknownServer": "this server"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "description": "The app hit an unexpected error. Reload the page to try again.",
+    "reload": "Reload"
+  },
   "connection": {
     "reconnecting": "Reconnecting…",
     "reconnected": "Back online.",
@@ -429,6 +493,21 @@
     "search": "Search",
     "empty": "Nothing found.",
     "default": "default",
+    "notices": {
+      "suspended": "Account suspended.",
+      "reactivated": "Account reactivated.",
+      "sessionsEnded": "Sessions ended.",
+      "sessionEnded": "Session ended.",
+      "passwordReset": "Password reset. Share it privately.",
+      "limitSaved": "Limit saved.",
+      "serverDeleted": "Server deleted."
+    },
+    "errors": {
+      "twoFactorRequired": "Set up two-factor authentication to use the admin panel.",
+      "cannotSuspendSelf": "You can't suspend your own account.",
+      "notFound": "That item no longer exists.",
+      "unexpected": "Something went wrong. Try again."
+    },
     "setup": {
       "title": "Set up two-factor authentication",
       "description": "Platform admins must use an authenticator app.",
@@ -463,7 +542,8 @@
       "suspendDescription": "Blocks login and drops every session and connection right away.",
       "endSessionsTitle": "End all sessions of {{name}}?",
       "endSessionsDescription": "They will be signed out on every device.",
-      "viewHardware": "View hardware"
+      "viewHardware": "View hardware",
+      "limitTitle": "Server limit of {{name}}"
     },
     "sessions": {
       "title": "Sessions of {{name}}",
@@ -496,7 +576,8 @@
       "viewMembers": "View members",
       "membersTitle": "Members of {{name}}",
       "role": "Role",
-      "joinedVia": "How they joined"
+      "joinedVia": "How they joined",
+      "limitsTitle": "Limits of {{name}}"
     },
     "limits": {
       "description": "Defaults used when a user or server has no custom value. Changes apply without redeploy.",
@@ -544,6 +625,10 @@
   },
   "hardware": {
     "title": "Hardware",
+    "errors": {
+      "collect": "Could not collect the hardware. Try again.",
+      "saveManual": "Could not save. Try again."
+    },
     "description": "What this device reports to the browser. It is sent to the platform admin to understand where Gameplay runs.",
     "lastSent": "Sent {{date}}",
     "refresh": "Collect again",

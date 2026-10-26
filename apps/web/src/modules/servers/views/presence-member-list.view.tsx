@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
-import type { PresenceMember } from './members-presence.view'
+import type { PresenceMember } from '@/modules/servers/model/entities/presence-member'
 
 function PresenceMemberList({ members }: { members: readonly PresenceMember[] }) {
   const { t } = useTranslation()
@@ -16,7 +16,7 @@ function PresenceMemberList({ members }: { members: readonly PresenceMember[] })
           className={cn('flex h-8 items-center gap-2 px-2 text-sm', !member.isOnline && 'opacity-60')}
         >
           <span className="relative">
-            <UserAvatar name={member.name} imageUrl={member.avatarUrl} size="sm" className="size-5" />
+            <UserAvatar name={member.name} imageUrl={member.avatarUrl} size="xs" />
             {member.isOnline && (
               <span
                 className="ring-sidebar absolute -right-0.5 -bottom-0.5 size-2 rounded-full bg-emerald-500 ring-2"

@@ -1,9 +1,9 @@
 // Estado fictício da tela do servidor, usado só nas stories.
 import type { SharePanelState } from '@/modules/screen-share/views/share-panel.view'
 import type { ViewerQuality } from '@/modules/screen-share/views/share-details-dialog.view'
-import type { StageParticipant } from '@/modules/rooms/views/participant-tile.view'
-import type { PresenceMember } from '@/modules/servers/views/members-presence.view'
-import type { SidebarRoom } from '@/modules/servers/views/server-sidebar.view'
+import type { StageParticipant } from '@/modules/rooms/model/entities/stage-participant'
+import type { PresenceMember } from '@/modules/servers/model/entities/presence-member'
+import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 
 import { people, servers } from './index'
 
@@ -57,6 +57,11 @@ export const stageConnecting: StageParticipant[] = [
   { ...people.jacutinga, ...stageBase, connection: 'connecting' },
   { ...people.kisnaider, ...stageBase, connection: 'failed' },
   { ...people.lua, ...stageBase, isDeafened: true, isMuted: true, volume: 60 },
+]
+
+export const stageLongNames: StageParticipant[] = [
+  { ...people.shinigame, ...stageBase, isMe: true, name: 'christiancesarrodriguessantos', isLive: true },
+  { ...people.jacutinga, ...stageBase, name: 'Jacutinga da Silva Sauro Junior', isMuted: true, isLive: true },
 ]
 
 // Estados ao vivo do painel de transmissão.

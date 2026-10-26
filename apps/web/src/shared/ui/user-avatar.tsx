@@ -6,22 +6,36 @@ import { initialsOf } from '@/shared/ui/initials'
 type UserAvatarProps = {
   name: string
   imageUrl?: string
-  size?: 'sm' | 'default' | 'lg' | 'xl'
+  size?: 'xs' | 'sm' | 'default' | 'lg' | 'xl' | '2xl'
   className?: string
 }
 
 const SIZE_CLASS = {
-  sm: 'size-6 text-[10px]',
-  default: 'size-8 text-xs',
-  lg: 'size-10 text-sm',
-  xl: 'size-12 text-base',
+  xs: 'size-5',
+  sm: 'size-6',
+  default: 'size-8',
+  lg: 'size-10',
+  xl: 'size-12',
+  '2xl': 'size-20',
+} as const
+
+// The shadcn fallback sets its own text-sm, so the initials size goes on the fallback, not the root.
+const TEXT_CLASS = {
+  xs: 'text-[8px]',
+  sm: 'text-[10px]',
+  default: 'text-xs',
+  lg: 'text-sm',
+  xl: 'text-base',
+  '2xl': 'text-xl',
 } as const
 
 function UserAvatar({ name, imageUrl, size = 'default', className }: UserAvatarProps) {
   return (
     <Avatar className={cn(SIZE_CLASS[size], className)}>
       {imageUrl && <AvatarImage src={imageUrl} alt={name} />}
-      <AvatarFallback className="bg-muted text-foreground font-medium">{initialsOf(name)}</AvatarFallback>
+      <AvatarFallback className={cn('bg-muted text-foreground font-medium', TEXT_CLASS[size])}>
+        {initialsOf(name)}
+      </AvatarFallback>
     </Avatar>
   )
 }

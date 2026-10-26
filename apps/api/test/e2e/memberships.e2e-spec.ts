@@ -135,6 +135,29 @@ describe('Invites and members (e2e)', () => {
     ])
   })
 
+  it('counts the pending requests in the server detail for owner and admin, not for members', async () => {
+    const { owner, serverId } = await ownServer()
+    const admin = await signedIn(app)
+    const member = await signedIn(app)
+    for (const person of [admin, member]) {
+      await owner.agent.put(`/api/servers/${serverId}/auto-approve`).send({ autoApprove: true })
+      await person.agent.post(`/api/invites/${(await invite(owner.agent, serverId)).code}/join`)
+    }
+    await owner.agent.post(`/api/servers/${serverId}/members/${admin.user.id}/promote`)
+    await owner.agent.put(`/api/servers/${serverId}/auto-approve`).send({ autoApprove: false })
+    const pending = await signedIn(app)
+    await pending.agent.post(`/api/invites/${(await invite(owner.agent, serverId)).code}/join`)
+
+    const detail = (person: { agent: ReturnType<typeof request.agent> }) => person.agent.get(`/api/servers/${serverId}`)
+    expect((await detail(owner)).body.pendingJoinRequests).toBe(1)
+    expect((await detail(admin)).body.pendingJoinRequests).toBe(1)
+    expect((await detail(member)).body.pendingJoinRequests).toBeNull()
+
+    const requestId = (await owner.agent.get(`/api/servers/${serverId}/join-requests`)).body.requests[0].id
+    await owner.agent.post(`/api/servers/${serverId}/join-requests/${requestId}/decline`)
+    expect((await detail(owner)).body.pendingJoinRequests).toBe(0)
+  })
+
   it('joins right away with auto-approve', async () => {
     const { owner, serverId } = await ownServer()
     await owner.agent.put(`/api/servers/${serverId}/auto-approve`).send({ autoApprove: true })

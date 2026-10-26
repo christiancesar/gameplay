@@ -19,6 +19,16 @@ export class FakeAuthAccounts extends AuthAccounts {
     this.sessions.delete(userId)
   }
 
+  async revokeSession(userId: string, sessionId: string) {
+    const sessions = this.sessions.get(userId) ?? []
+    if (!sessions.some(({ id }) => id === sessionId)) return false
+    this.sessions.set(
+      userId,
+      sessions.filter(({ id }) => id !== sessionId),
+    )
+    return true
+  }
+
   async listSessions(userId: string) {
     return this.sessions.get(userId) ?? []
   }

@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-25 (BE-01 a BE-16 concluídos: backend completo; PRs #2 e #3 abertos para a `main`).
+> Última atualização: 2026-10-26 (backend e frontend completos; `feature/web-routing` fechada no PR para a `main`; próximo foco: observabilidade).
 
 ## Status das fases (workflow ágil)
 
@@ -11,7 +11,8 @@
 | 02 · Core Flows | `02-core-flows.md` | Concluída para as telas com mock; F7 a F13 terão o visual desenhado no Storybook |
 | 03 · PRD Validate | | Não iniciada |
 | 04 · Tech Plan | `04-tech-plan.md` | Rascunho do backend entregue, aguardando revisão do usuário |
-| Tickets e delegação | `tickets/` | 16 tickets do backend (BE-01 a BE-16), um por arquivo, aguardando revisão |
+| Tickets e delegação | `tickets/` | Backend BE-01 a BE-17 e frontend FE-01 a FE-14b concluídos |
+| 05 · Plano do frontend | `05-web-plan.md` | Escrito em 2026-10-25, ferramentas e árvore de rotas em `src/app/` |
 
 ## Próxima sessão
 
@@ -25,6 +26,33 @@ Escopo mínimo para começar:
 5. **Todas as Views dos fluxos F1 a F13 estão no Storybook**, com stories de todos os estados e interaction tests (157 testes). A página "Introdução" do Storybook liga cada fluxo às stories.
 
 Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
+
+## Frontend (`apps/web`), retomar daqui
+
+- 2026-10-25: PRs #2 e #3 mergeados na `main`; branches locais apagadas.
+- Plano em `05-web-plan.md` e tickets `tickets/FE-01` a `FE-14` (índice e grafo em `tickets/README.md`). Nada foi instalado ainda.
+- Decisões do usuário: rotas em `src/app/routes` (TanStack Router por arquivo); sala de voz fora da URL (store de voz, `?watch=` para assistir); modais por search param (`?settings=`, `?serverSettings=`); abas do admin como rotas filhas.
+- O usuário não tem tokens para construir o frontend inteiro numa sessão: executar um ticket por vez e combinar a branch antes.
+- A implementação segue no **OpenCode** (decisão do usuário em 2026-10-25), guiada pelo `AGENTS.md`. O **FE-01 está pela metade** na branch `docs/web-plan`: o que foi feito e o que falta estão nas notas do ticket.
+- 2026-10-25 (tarde): de volta ao Claude Code, com Opus orquestrando e Sonnet/Haiku implementando. Review do que o OpenCode fez, correções e **FE-01 e FE-02 concluídos** na branch `feature/web-routing` (sem push, sem PR ainda). Correções do review e suposições nas notas dos dois tickets. **Aguardando review do usuário.** Próximos liberados: FE-05 (socket), FE-13 (lint MVVM e Sentry), FE-03, FE-04, FE-08 e FE-11.
+- 2026-10-25: **FE-03 (Hub) e FE-05 (socket) concluídos** em paralelo, mesma branch. Suíte web com 412 testes. Ponto aberto para o usuário: a API não expõe o limite efetivo de servidores para o usuário comum (ver notas do FE-03). Liberados agora: FE-04, FE-06, FE-08, FE-11, FE-12 e FE-13.
+- 2026-10-25: **FE-04, FE-06, FE-08 e FE-11 concluídos** em paralelo (quatro agentes Sonnet). Suíte web com 694 testes, api 271. Teste headless (Playwright) contra a API local: login, Hub, configurações, setup do 2FA, convite inválido e tela do servidor sem erros no console. O Vite do usuário que roda desde as 09:42 ficou com cache velho (página branca, `RootLayout` não encontrado); reiniciar o `npm run dev` resolve.
+- Pontos abertos na API, para o usuário decidir (detalhes nas notas do FE-03, FE-04 e FE-11):
+  1. Limite efetivo de servidores para o usuário comum (o card de criar não sabe quando bloquear).
+  2. GET dos limites próprios de usuário e servidor no admin: hoje salvar o diálogo depois de recarregar zera o limite existente. **O mais urgente.**
+  3. `POST /invites/:code/join` com auto aprovação não barra servidor cheio.
+  4. Encerrar uma sessão só, última atividade da sessão, contagem de pedidos pendentes e listagem global de dispositivos (melhorias, não bloqueiam).
+- 2026-10-25: a pedido do usuário, **BE-17** fechou as lacunas da API (limite do usuário, limites próprios no admin, encerrar uma sessão, última atividade, contagem de pedidos, listagem global de dispositivos) e o web trocou os contornos pelos dados novos. O item "convite em servidor cheio" não era lacuna: com aprovação automática e servidor cheio já vira pedido pendente.
+- 2026-10-25: Cypress é o e2e principal (Playwright só para conferência rápida do orquestrador, fora do repo). FE-14 dividido: **FE-14a concluído** (26 cenários, `npm run e2e` com API e Vite de pé, dados com prefixo apagados no fim); FE-14b (peer bot, voz e transmissão) fica para depois do FE-09 e FE-10.
+- Estado: web 694 testes, api 282 unitários e 148 e2e, Cypress 26. Liberados agora: FE-07 (modal do servidor), FE-09 (voz), FE-12 (avisos do ambiente) e FE-13 (lint MVVM e Sentry).
+- 2026-10-25: **FE-07 (modal do servidor), FE-09 (voz) e FE-12 (avisos do ambiente) concluídos** em paralelo. Voz testada com dois Chromium headless: conectam e trocam áudio. Estado: web 975 testes, api 282, Cypress 26. Faltam FE-10 (transmissão), FE-13 (lint MVVM e Sentry) e FE-14b (e2e de voz com peer bot).
+- 2026-10-25: **FE-10 (transmissão) e FE-13 (lint MVVM e Sentry) concluídos.** Transmissão testada com dois Chromium headless: quem assiste recebe vídeo. As camadas do MVVM agora são checadas pelo lint. Sentry desligado até haver DSN. Estado: web 1105 testes, api 282. Falta só o FE-14b (e2e de voz e transmissão com peer bot). A escolha de prioridade na transmissão foi adicionada logo depois (web 1110 testes, Cypress 26).
+- 2026-10-25: **FE-14b concluído**: Cypress com peer bot para voz e transmissão, 35 cenários, 3 execuções seguidas sem falha. **Todos os tickets do frontend (FE-01 a FE-14) e do backend (BE-01 a BE-17) estão concluídos** na branch `feature/web-routing`, sem push e sem PR. Corrigido também o proxy de `/uploads` no Vite (avatar não carregava em dev).
+- 2026-10-25: **servidor na máquina do usuário** (Fase 1): `infra/host/` com Postgres, migração e seed do admin, API, web no nginx e cloudflared, separado do banco de dev. Túnel fixo `gameplay` (id `98fc40f2…`) criado na conta Cloudflare do usuário, com DNS `gameplay.oikos.company`; o túnel antigo `oikos-local-dev` e o `~/.cloudflared/config.yml` não foram alterados. TURN do Cloudflare Realtime configurado (`ICE_PROVIDER=cloudflare`). Conferido pelo domínio: página, `/api/health`, login, WebSocket e `/api/ice` com 6 URLs de TURN. Comandos: `npm run host:start`, `host:stop`, `host:logs`; guia em `infra/host/README.md`.
+- 2026-10-26: overlay da transmissão no celular deitado e volta para a call depois do reload conferidos pelo usuário no celular, pelo domínio. `feature/web-routing` encerrada e enviada em PR para a `main`.
+- Lacunas fora dos tickets (levantadas em 2026-10-26): não há CI (`.github/workflows`), não há infra de produção (Fase 2 na AWS, sob `oikos.company`, fica para depois; o TURN continua o da Cloudflare, não coturn), não há backup agendado do Postgres do host, e a telemetria está desligada no host (`OTEL_*` e `VITE_SENTRY_DSN` vazios em `infra/host/.env`).
+- Próximo foco escolhido pelo usuário: **observabilidade** (Grafana para API e websocket, Sentry no web).
+- Próximos passos (anteriores): review do usuário, confirmar as suposições das notas dos tickets, abrir o PR da `feature/web-routing` para a `main`, DSN do Sentry, config do nginx de produção (inclui `/uploads`) e decidir o seletor de qualidade do espectador (`media-transport-options.md` seção 6, item 7).
 
 ## Backend (`apps/api`)
 
@@ -120,3 +148,6 @@ Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Excluir o servidor exige digitar o nome dele.
 - Microfone negado: a pessoa entra na sala só ouvindo, com aviso.
 - Testes do driver S3 rodam contra MinIO em container.
+- Assistindo no celular deitado: a barra do app some, a barra da transmissão e os cards ficam por cima do vídeo, e um toque no vídeo mostra ou esconde os dois. Não há auto-ocultar por tempo *(suposição)*.
+- Volume da tela e tela cheia ficam escondidos em telas touch (`hover: none` e `pointer: coarse`, inclui iPad) até termos uma solução para o Safari do iPhone.
+- Refresh durante a call: a aba guarda a sala no `sessionStorage` e marca a hora em que a página saiu. Ao recarregar em até 30 s (o tempo que a API segura o lugar), volta para a sala sozinha. Se o lugar ainda dizia que a aba transmitia, a transmissão é encerrada, porque ela morreu com a página. O som dos outros pode só começar no primeiro clique ou tecla (regra de autoplay do navegador). A janela de 30 s no cliente é fixa e precisa acompanhar `ROOM_RECONNECT_GRACE_MS` *(suposição)*.

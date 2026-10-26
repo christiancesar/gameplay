@@ -2,12 +2,10 @@ import { ArrowLeftIcon, CpuIcon, KeyRoundIcon, ServerIcon, SlidersHorizontalIcon
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ADMIN_TABS, type AdminTab } from '@/modules/admin/model/admin-tab.constants'
 import { BrandLogo } from '@/shared/ui/brand-logo'
 import { Button } from '@/shared/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-
-const ADMIN_TABS = ['users', 'servers', 'hardware', 'limits', 'keys'] as const
-type AdminTab = (typeof ADMIN_TABS)[number]
 
 const ICONS = {
   users: UsersIcon,
@@ -37,9 +35,10 @@ function AdminLayoutView({ tab, children, onTabChange, onBackToHub }: AdminLayou
           {t('common.backToHub')}
         </Button>
       </header>
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <Tabs value={tab} onValueChange={(value) => onTabChange(value as AdminTab)}>
-          <TabsList>
+          {/* Five tabs do not fit a phone: the strip scrolls sideways. */}
+          <TabsList className="max-w-full justify-start overflow-x-auto">
             {ADMIN_TABS.map((id) => {
               const Icon = ICONS[id]
               return (
@@ -51,7 +50,7 @@ function AdminLayoutView({ tab, children, onTabChange, onBackToHub }: AdminLayou
             })}
           </TabsList>
         </Tabs>
-        <main>{children}</main>
+        <main className="min-w-0">{children}</main>
       </div>
     </div>
   )

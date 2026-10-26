@@ -2,6 +2,7 @@ import {
   createServerRequestSchema,
   listMyServersResponseSchema,
   listRoomsResponseSchema,
+  myLimitsSchema,
   reorderRoomsRequestSchema,
   roomNameRequestSchema,
   roomSchema,
@@ -16,6 +17,7 @@ export class CreateServerRequestDto extends createZodDto(createServerRequestSche
 export class UpdateServerRequestDto extends createZodDto(updateServerRequestSchema) {}
 export class SetAutoApproveRequestDto extends createZodDto(setAutoApproveRequestSchema) {}
 export class ServerDetailDto extends createZodDto(serverDetailSchema) {}
+export class MyLimitsDto extends createZodDto(myLimitsSchema) {}
 export class ListMyServersResponseDto extends createZodDto(listMyServersResponseSchema) {}
 export class ServerImageResponseDto extends createZodDto(serverImageResponseSchema) {}
 export class RoomNameRequestDto extends createZodDto(roomNameRequestSchema) {}

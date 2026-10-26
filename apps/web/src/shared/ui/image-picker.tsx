@@ -1,11 +1,10 @@
+import type { ImageError } from '@/shared/lib/image-error'
 import { cn } from 'cn'
 import { ImageIcon, Loader2Icon, Trash2Icon, UploadIcon } from 'lucide-react'
 import { useId, useRef } from 'react'
 
 import { Button } from '@/shared/ui/button'
 import { initialsOf } from '@/shared/ui/initials'
-
-type ImageError = 'tooLarge' | 'invalidType' | 'uploadFailed'
 
 type ImagePickerProps = {
   /** Nome usado no fallback de iniciais (vazio mostra só o ícone). */
@@ -63,8 +62,8 @@ function ImagePicker({
           </span>
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-2">
+      <div className="flex min-w-0 flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant="outline"

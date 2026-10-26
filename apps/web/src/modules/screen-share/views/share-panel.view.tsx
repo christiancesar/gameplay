@@ -3,6 +3,7 @@ import {
   ChartNoAxesColumnIcon,
   Loader2Icon,
   MonitorUpIcon,
+  SlidersHorizontalIcon,
   SquareIcon,
   TriangleAlertIcon,
   UsersIcon,
@@ -39,16 +40,23 @@ type SharePanelViewProps = {
   onStart: () => void
   onStop: () => void
   onOpenDetails: () => void
+  /** Opens the dialog to change resolution and frame rate while live. Hidden when missing. */
+  onChangeQuality?: () => void
 }
 
 const TARGET_HEIGHT = { '720p': 720, '1080p': 1080 } as const
 
-function SharePanelView({ state, onStart, onStop, onOpenDetails }: SharePanelViewProps) {
+function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality }: SharePanelViewProps) {
   const { t } = useTranslation()
 
   if (state.status === 'idle') {
     return (
-      <Button variant="success" className="h-14 w-full" onClick={onStart} aria-label={t('share.start')}>
+      <Button
+        variant="success"
+        className="phone-landscape:h-10 h-14 w-full"
+        onClick={onStart}
+        aria-label={t('share.start')}
+      >
         <MonitorUpIcon className="size-5" aria-hidden />
       </Button>
     )
@@ -123,6 +131,13 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails }: SharePanelVie
             {limitation !== 'other' && t(`share.monitor.tips.${limitation}`)}
           </span>
         </p>
+      )}
+
+      {onChangeQuality && (
+        <Button variant="ghost" size="sm" onClick={onChangeQuality}>
+          <SlidersHorizontalIcon data-icon="inline-start" aria-hidden />
+          {t('share.changeQuality')}
+        </Button>
       )}
 
       <div className="flex gap-2">

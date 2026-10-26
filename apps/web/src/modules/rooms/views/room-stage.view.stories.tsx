@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, screen, waitFor } from 'storybook/test'
 
-import { stage, stageConnecting, stageWithLive } from '@/fixtures/server'
+import { stage, stageConnecting, stageLongNames, stageWithLive } from '@/fixtures/server'
 
 import { RoomStageView } from './room-stage.view'
 
@@ -35,6 +35,8 @@ export const WithLiveStreams: Story = {
 }
 
 export const ConnectingAndFailed: Story = { args: { participants: stageConnecting } }
+
+export const LongNames: Story = { args: { participants: stageLongNames } }
 
 export const MicrophoneDenied: Story = { args: { micDenied: true } }
 

@@ -6,7 +6,7 @@ import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
-import type { AdminDeviceItem } from './hardware-tab.view'
+import type { AdminDeviceItem } from '@/modules/admin/model/entities/admin-device-item'
 
 type DeviceHardwareDialogViewProps = {
   open: boolean

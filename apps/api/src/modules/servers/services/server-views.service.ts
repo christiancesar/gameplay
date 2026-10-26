@@ -3,6 +3,7 @@ import type { Room, ServerDetail, ServerRole, ServerSummary } from '@gameplay/co
 import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
 import { StorageProvider } from '../../storage/storage.provider'
 import type { RoomRecord, ServerRecord } from '../domain/server'
+import { ServerPermissions } from '../domain/server-permissions'
 import { RoomsRepository } from '../repositories/rooms.repository'
 import { ServersRepository } from '../repositories/servers.repository'
 
@@ -11,7 +12,7 @@ export function toRoom({ id, name, position }: RoomRecord): Room {
 }
 
 // Builds what the routes answer: image URLs from the keys, member count,
-// effective limits and rooms.
+// effective limits, rooms and, for who decides join requests, how many wait.
 @Injectable()
 export class ServerViewsService {
   constructor(
@@ -26,11 +27,13 @@ export class ServerViewsService {
   }
 
   async detail(server: ServerRecord, role: ServerRole): Promise<ServerDetail> {
-    const [memberCount, maxMembers, maxRooms, rooms] = await Promise.all([
+    const [memberCount, maxMembers, maxRooms, rooms, pendingJoinRequests] = await Promise.all([
       this.servers.countMembers(server.id),
       this.limits.resolve({ kind: 'membersPerServer', serverId: server.id }),
       this.limits.resolve({ kind: 'roomsPerServer', serverId: server.id }),
       this.rooms.list(server.id),
+      // Only who can decide the requests sees how many wait.
+      ServerPermissions.can(role, 'decideJoinRequests') ? this.servers.countPendingJoinRequests(server.id) : null,
     ])
     return {
       id: server.id,
@@ -44,6 +47,7 @@ export class ServerViewsService {
       memberCount,
       limits: { maxMembers, maxRooms },
       rooms: rooms.map(toRoom),
+      pendingJoinRequests,
     }
   }
 

@@ -76,6 +76,13 @@ export class DomainEventsListener {
     this.emitter.sessionRevoked(userId)
   }
 
+  // Only the sockets of that session close; the voice seat of a closed tab
+  // frees itself after the reconnection wait.
+  @OnDomainEvent('user.session-revoked')
+  sessionRevoked({ sessionId }: DomainEvents['user.session-revoked']) {
+    this.emitter.sessionEnded(sessionId)
+  }
+
   @OnDomainEvent('notification.created')
   notificationCreated({ userId, notificationId }: DomainEvents['notification.created']) {
     this.emitter.notificationNew(userId, notificationId)

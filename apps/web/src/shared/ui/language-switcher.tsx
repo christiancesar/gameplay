@@ -1,11 +1,7 @@
+import type { LanguageOption } from '@/shared/lib/language-option'
 import { cn } from 'cn'
 
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-
-type LanguageOption = {
-  value: string
-  label: string
-}
 
 type LanguageSwitcherProps = {
   value: string

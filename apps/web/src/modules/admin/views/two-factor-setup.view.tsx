@@ -1,4 +1,5 @@
-import { CheckIcon, CopyIcon, DownloadIcon } from 'lucide-react'
+import type { TwoFactorSetupState } from '@/modules/admin/model/entities/two-factor-setup-state'
+import { ArrowLeftIcon, CheckIcon, CopyIcon, DownloadIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import type { ConfirmPasswordValues } from '@/modules/admin/model/two-factor-setup.schema'
@@ -13,17 +14,6 @@ import { VerifyCodeForm } from './two-factor-verify-form.view'
  * `password`: o Better Auth pede a senha para gerar o segredo e os códigos.
  * Os códigos de recuperação já vêm nesse passo, mas só aparecem depois de validar o TOTP.
  */
-type TwoFactorSetupState =
-  | { step: 'password'; isSubmitting: boolean; invalidPassword: boolean }
-  | {
-      step: 'scan'
-      qrCodeUrl: string
-      secret: string
-      isVerifying: boolean
-      /** Servidor recusou o código. */ invalidCode: boolean
-    }
-  | { step: 'recovery'; recoveryCodes: readonly string[]; copied: boolean }
-
 type TwoFactorSetupViewProps = {
   state: TwoFactorSetupState
   onConfirmPassword: (values: ConfirmPasswordValues) => void
@@ -32,6 +22,8 @@ type TwoFactorSetupViewProps = {
   onCopyCodes: () => void
   onDownloadCodes: () => void
   onFinish: () => void
+  /** Leaves the setup without enabling 2FA. Hidden on the recovery step: 2FA is on and the codes show only once. */
+  onBackToHub: () => void
 }
 
 /** F12.1: primeiro login do admin da plataforma. */
@@ -42,6 +34,7 @@ function TwoFactorSetupView({
   onCopyCodes,
   onDownloadCodes,
   onFinish,
+  onBackToHub,
 }: TwoFactorSetupViewProps) {
   const { t } = useTranslation()
 
@@ -104,9 +97,15 @@ function TwoFactorSetupView({
           </>
         )}
       </div>
+      {state.step !== 'recovery' && (
+        <Button variant="ghost" size="sm" onClick={onBackToHub}>
+          <ArrowLeftIcon data-icon="inline-start" aria-hidden />
+          {t('common.backToHub')}
+        </Button>
+      )}
     </div>
   )
 }
 
 export { TwoFactorSetupView }
-export type { TwoFactorSetupState, TwoFactorSetupViewProps }
+export type { TwoFactorSetupViewProps }

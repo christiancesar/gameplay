@@ -23,7 +23,8 @@ import { StreamViewerView } from '@/modules/screen-share/views/stream-viewer.vie
 
 import { ServerScreenView } from './server-screen.view'
 import { MembersPresenceView } from './members-presence.view'
-import { ServerSidebarView, type ServerRole, type SidebarRoom } from './server-sidebar.view'
+import { ServerSidebarView, type ServerRole } from './server-sidebar.view'
+import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 import { UserCardView } from './user-card.view'
 
 type ScenarioProps = {
@@ -89,10 +90,12 @@ function Scenario({
       <ShareSetupDialogView
         open={overlay === 'shareSetup'}
         settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false }}
+        priority="smooth"
         audioSupport="unsupported"
         saveAsDefault
         onOpenChange={fn()}
         onChange={fn()}
+        onPriorityChange={fn()}
         onSaveAsDefaultChange={fn()}
         onStart={fn()}
       />
@@ -136,6 +139,7 @@ function Scenario({
           />
         }
         main={mainContent}
+        isWatching={main === 'watching'}
         isSidebarOpen={isSidebarOpen}
         onSidebarOpenChange={setSidebarOpen}
       />
@@ -163,6 +167,12 @@ type Story = StoryObj<typeof meta>
 
 /** Fora de sala: área principal com o logo. */
 export const OutsideRoom: Story = {}
+
+/** Celular: a sidebar vira um painel fechado e a barra do topo abre ela. */
+export const Mobile: Story = {
+  args: { rooms: roomsWithMe, currentRoomId: 'r1', main: 'room' },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
 
 export const OwnerWithPendingRequests: Story = { args: { pendingRequests: 2 } }
 
@@ -206,6 +216,12 @@ export const SharingDetails: Story = { args: { ...SharingDegraded.args, overlay:
 export const OthersLive: Story = { args: { ...InRoom.args, main: 'roomWithLive' } }
 
 export const WatchingStream: Story = { args: { ...InRoom.args, main: 'watching' } }
+
+/** Celular deitado assistindo: a barra do topo some e a transmissão ocupa a tela. */
+export const WatchingOnSidewaysPhone: Story = {
+  args: { ...WatchingStream.args },
+  globals: { viewport: { value: 'mobile1', isRotated: true } },
+}
 
 /** Sidebar recolhida em ícones para dar mais espaço à transmissão. */
 export const WatchingWithSidebarCollapsed: Story = { args: { ...WatchingStream.args, sidebarCollapsed: true } }

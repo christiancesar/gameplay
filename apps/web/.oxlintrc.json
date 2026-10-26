@@ -1,7 +1,7 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "typescript", "oxc"],
-  "ignorePatterns": ["storybook-static", "dist"],
+  "ignorePatterns": ["storybook-static", "dist", "src/app/route-tree.gen.ts"],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/only-export-components": [
@@ -10,7 +10,278 @@
         "allowConstantExport": true
       }
     ],
-    "react/no-multi-comp": "error"
+    "react/no-multi-comp": "error",
+    "boundaries/dependencies": [
+      "error",
+      {
+        "default": "disallow",
+        "policies": [
+          {
+            "from": {
+              "element": {
+                "type": "model"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["model", "model-service", "shared-lib", "shared-media"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "model-service"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["model", "model-service", "shared-lib", "shared-media"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "store"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["model", "model-service", "store", "shared-lib", "shared-media"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "view-model"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": [
+                    "model",
+                    "model-service",
+                    "store",
+                    "view-model",
+                    "shared-lib",
+                    "shared-media",
+                    "shared-i18n"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "view"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["view", "shared-ui", "shared-lib", "shared-i18n"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "screen"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["view-model", "store", "view", "screen", "shared-ui", "shared-lib"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "route"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["screen", "model-service", "shared-lib", "app"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "app"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["app", "screen", "shared-ui", "shared-lib", "shared-i18n"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "shared-ui"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["shared-ui", "shared-lib", "shared-other", "shared-i18n"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "shared-lib"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["shared-lib"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "shared-media"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["shared-media", "shared-lib"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "shared-i18n"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["shared-i18n", "shared-lib"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "types": ["model", "model-service", "store", "view-model", "view", "screen", "route"]
+              }
+            },
+            "allow": {
+              "to": {
+                "file": {
+                  "categories": ["schema"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "types": ["model", "model-service", "store", "view-model", "route"]
+              }
+            },
+            "allow": {
+              "to": {
+                "file": {
+                  "categories": ["search"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "app"
+              }
+            },
+            "allow": {
+              "to": {
+                "file": {
+                  "categories": ["route-tree"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "file": {
+                "categories": ["entry"]
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["app", "shared-i18n"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "view"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["model"]
+                }
+              },
+              "dependency": {
+                "kind": "type"
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "types": ["model", "model-service", "store", "view-model", "view", "screen", "route"]
+              }
+            },
+            "allow": {
+              "to": {
+                "file": {
+                  "categories": ["constants"]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {
@@ -21,10 +292,173 @@
       }
     },
     {
+      "files": ["src/app/routes/**"],
+      "rules": {
+        "react/only-export-components": "off"
+      }
+    },
+    {
       "files": ["**/*.stories.tsx"],
       "rules": {
         "react/no-multi-comp": "off"
       }
+    },
+    {
+      "files": [
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/test/**",
+        "**/*.stories.tsx",
+        "src/fixtures/**",
+        "src/shared/test/**"
+      ],
+      "rules": {
+        "boundaries/dependencies": "off"
+      }
+    },
+    {
+      "files": ["src/modules/*/views/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@tanstack/react-router"
+              },
+              {
+                "name": "@tanstack/react-query"
+              },
+              {
+                "name": "zustand"
+              },
+              {
+                "name": "axios"
+              },
+              {
+                "name": "socket.io-client"
+              },
+              {
+                "name": "@sentry/react"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.stories.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
     }
-  ]
+  ],
+  "jsPlugins": [
+    {
+      "name": "boundaries",
+      "specifier": "eslint-plugin-boundaries"
+    }
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.app.json"
+      }
+    },
+    "boundaries/elements": [
+      {
+        "type": "model-service",
+        "pattern": "src/modules/*/model/services/**",
+        "partialMatch": false
+      },
+      {
+        "type": "model",
+        "pattern": "src/modules/*/model/**",
+        "partialMatch": false
+      },
+      {
+        "type": "store",
+        "pattern": "src/modules/*/view-models/stores/**",
+        "partialMatch": false
+      },
+      {
+        "type": "view-model",
+        "pattern": "src/modules/*/view-models/**",
+        "partialMatch": false
+      },
+      {
+        "type": "view",
+        "pattern": "src/modules/*/views/**",
+        "partialMatch": false
+      },
+      {
+        "type": "screen",
+        "pattern": "src/modules/*/screens/**",
+        "partialMatch": false
+      },
+      {
+        "type": "route",
+        "pattern": "src/app/routes/**",
+        "partialMatch": false
+      },
+      {
+        "type": "app",
+        "pattern": "src/app/*",
+        "partialMatch": false
+      },
+      {
+        "type": "shared-ui",
+        "pattern": "src/shared/ui/**",
+        "partialMatch": false
+      },
+      {
+        "type": "shared-lib",
+        "pattern": "src/shared/lib/**",
+        "partialMatch": false
+      },
+      {
+        "type": "shared-media",
+        "pattern": "src/shared/media/**",
+        "partialMatch": false
+      },
+      {
+        "type": "shared-i18n",
+        "pattern": "src/shared/i18n/**",
+        "partialMatch": false
+      },
+      {
+        "type": "shared-other",
+        "pattern": "src/shared/**",
+        "partialMatch": false
+      },
+      {
+        "type": "fixtures",
+        "pattern": "src/fixtures/**",
+        "partialMatch": false
+      }
+    ],
+    "boundaries/files": [
+      {
+        "pattern": "src/modules/*/model/**/*.schema.ts",
+        "category": "schema"
+      },
+      {
+        "pattern": "src/modules/*/model/**/*.search.ts",
+        "category": "search"
+      },
+      {
+        "pattern": "src/app/route-tree.gen.ts",
+        "category": "route-tree"
+      },
+      {
+        "pattern": "src/main.tsx",
+        "category": "entry"
+      },
+      {
+        "pattern": "src/modules/*/model/**/*.constants.ts",
+        "category": "constants"
+      }
+    ]
+  }
 }

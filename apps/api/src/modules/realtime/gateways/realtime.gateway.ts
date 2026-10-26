@@ -12,7 +12,7 @@ import { type AckResponse, REALTIME_EVENTS, type RoomJoinResult } from '@gamepla
 import { ZodValidationPipe } from 'nestjs-zod'
 import { WsAckExceptionFilter } from '../../../common/errors/ws-ack-exception.filter'
 import { AsyncApiReceive, AsyncApiSend } from '../../../docs/asyncapi-decorators'
-import { isServerRoom, serverRoom, userRoom } from '../domain/socket-rooms'
+import { isServerRoom, serverRoom, sessionRoom, userRoom } from '../domain/socket-rooms'
 import type { RealtimeServer, RealtimeSocket } from '../domain/socket-data'
 import {
   NoPayloadDto,
@@ -66,9 +66,10 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     this.emitter.attach(server)
     server.use((socket, next) => {
       this.sessions.resolve(socket.request.headers).then(
-        (userId) => {
-          if (!userId) return next(new Error(UNAUTHENTICATED))
-          socket.data.userId = userId
+        (resolved) => {
+          if (!resolved) return next(new Error(UNAUTHENTICATED))
+          socket.data.userId = resolved.userId
+          socket.data.sessionId = resolved.sessionId
           next()
         },
         (error: unknown) => next(error instanceof Error ? error : new Error(String(error))),
@@ -78,7 +79,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   async handleConnection(socket: RealtimeSocket) {
     const { userId } = socket.data
-    await socket.join(userRoom(userId))
+    await socket.join([userRoom(userId), sessionRoom(socket.data.sessionId)])
     await this.connectSocket
       .execute({ userId, socketId: socket.id })
       .catch((error: unknown) => this.logger.error({ err: error, userId }, 'Could not mark the user online'))

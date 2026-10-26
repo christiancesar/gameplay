@@ -1,0 +1,4 @@
+.tanstack/
+cypress/screenshots/
+cypress/downloads/
+cypress/videos/

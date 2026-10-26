@@ -1,8 +1,8 @@
 // Dados fictícios do modal do servidor, usados só nas stories.
-import type { JoinRequestItem } from '@/modules/servers/views/settings/requests-section.view'
-import type { MemberItem } from '@/modules/servers/views/settings/members-section.view'
-import type { RoomItem } from '@/modules/servers/views/settings/rooms-section.view'
-import type { ServerInviteItem } from '@/modules/servers/views/settings/invites-section.view'
+import type { JoinRequestItem } from '@/modules/servers/model/entities/join-request-item'
+import type { MemberItem } from '@/modules/servers/model/entities/member-item'
+import type { RoomItem } from '@/modules/servers/model/entities/room-item'
+import type { ServerInviteItem } from '@/modules/servers/model/entities/server-invite-item'
 
 import { people } from './index'
 

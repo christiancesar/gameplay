@@ -1,3 +1,4 @@
+import type { ServerInviteItem } from '@/modules/servers/model/entities/server-invite-item'
 import { cn } from 'cn'
 import { CheckIcon, CopyIcon, LinkIcon, PlusIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -10,19 +11,6 @@ import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { Switch } from '@/shared/ui/switch'
 
 /** Convite de uso único, válido por 1 hora a partir da criação. */
-type ServerInviteItem = {
-  code: string
-  link: string
-  createdBy: { name: string }
-  createdAt: string
-  expiresAt: string
-  status:
-    | { type: 'active' }
-    | { type: 'used'; user: { name: string }; usedAt: string }
-    | { type: 'expired' }
-    | { type: 'revoked' }
-}
-
 type InvitesSectionViewProps = {
   autoApprove: boolean
   /** Convites ativos primeiro; o resto aparece no histórico. */
@@ -159,4 +147,4 @@ function InvitesSectionView({
 }
 
 export { InvitesSectionView }
-export type { InvitesSectionViewProps, ServerInviteItem }
+export type { InvitesSectionViewProps }

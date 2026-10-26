@@ -19,6 +19,16 @@ export class EffectiveLimitsService {
     private readonly serverLimits: ServerLimitsRepository,
   ) {}
 
+  // The global defaults, for lists that resolve many overrides with one read.
+  async defaults(): Promise<{ maxServers: number; maxMembers: number; maxRooms: number }> {
+    const settings = await this.settings.get()
+    return {
+      maxServers: settings.maxServersPerUser,
+      maxMembers: settings.maxMembersPerServer,
+      maxRooms: settings.maxRoomsPerServer,
+    }
+  }
+
   async resolve(input: Input): Promise<number> {
     if (input.kind === 'serversPerUser') {
       const [settings, overrides] = await Promise.all([this.settings.get(), this.userLimits.find(input.userId)])

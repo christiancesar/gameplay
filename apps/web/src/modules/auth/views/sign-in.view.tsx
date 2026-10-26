@@ -1,3 +1,4 @@
+import type { SignInFormError } from '@/modules/auth/model/entities/sign-in-form-error'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -15,8 +16,6 @@ import { SubmitButton } from '@/shared/ui/submit-button'
 import { AuthLayoutView, type AuthLayoutViewProps } from './auth-layout.view'
 
 /** Erros que só o servidor conhece. Os de preenchimento vêm do schema. */
-type SignInFormError = 'invalidCredentials' | 'accountSuspended' | 'tooManyAttempts' | 'unexpected'
-
 type SignInViewProps = Omit<AuthLayoutViewProps, 'children'> & {
   /** Valores iniciais (ex.: login lembrado). */
   defaultValues?: Partial<SignInCredentials>
@@ -97,4 +96,4 @@ function SignInView({ defaultValues, isSubmitting, formError, onSubmit, onSignUp
 }
 
 export { SignInView }
-export type { SignInFormError, SignInViewProps }
+export type { SignInViewProps }

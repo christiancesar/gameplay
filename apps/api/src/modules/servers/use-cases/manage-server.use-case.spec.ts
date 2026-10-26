@@ -13,6 +13,19 @@ describe('Server management', () => {
     })
   })
 
+  it('counts the pending join requests for owner and admin, and hides them from members', async () => {
+    const { getServer, servers, serverId } = await makeSeededServersContext()
+    servers.pendingJoinRequests.set(serverId, 2)
+
+    const counts = await Promise.all(
+      ['owner', 'admin', 'member'].map(
+        async (userId) => (await getServer.execute({ serverId, userId })).pendingJoinRequests,
+      ),
+    )
+
+    expect(counts).toEqual([2, 2, null])
+  })
+
   it('hides the server from non-members', async () => {
     const { getServer, serverId } = await makeSeededServersContext()
 

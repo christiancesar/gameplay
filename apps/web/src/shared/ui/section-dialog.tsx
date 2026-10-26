@@ -45,7 +45,7 @@ function SectionDialog<Id extends string>({
       >
         <nav
           aria-label={subtitle}
-          className="bg-muted/40 flex shrink-0 gap-1 overflow-x-auto border-b p-2 md:w-52 md:flex-col md:border-r md:border-b-0 md:p-3"
+          className="bg-muted/40 flex shrink-0 gap-1 overflow-x-auto p-2 max-md:me-10 md:w-52 md:flex-col md:border-r md:p-3"
         >
           <DialogHeader className="hidden px-2 pt-1 pb-3 md:flex">
             <DialogTitle className="truncate">{title}</DialogTitle>
@@ -56,6 +56,12 @@ function SectionDialog<Id extends string>({
               key={id}
               type="button"
               aria-current={id === current ? 'page' : undefined}
+              // On narrow screens the sections are a horizontal strip; keep the open one in view.
+              ref={
+                id === current
+                  ? (button) => button?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+                  : undefined
+              }
               onClick={() => onSectionChange(id)}
               className={cn(
                 'hover:bg-accent focus-visible:ring-ring/50 flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm outline-none focus-visible:ring-3',
@@ -73,9 +79,14 @@ function SectionDialog<Id extends string>({
             </button>
           ))}
         </nav>
-        {/* Só o conteúdo rola, com a barra fina do ScrollArea dentro do painel. */}
-        <ScrollArea key={current} type="hover" className="min-h-0 flex-1">
-          <section className="p-6 pr-7">
+        {/* Só o conteúdo rola, com a barra fina do ScrollArea dentro do painel. O Radix embrulha o conteúdo
+            num display: table, que cresce com a linha mais larga; em block o conteúdo respeita a largura do modal. */}
+        <ScrollArea
+          key={current}
+          type="hover"
+          className="min-h-0 min-w-0 flex-1 max-md:border-t [&_[data-slot=scroll-area-viewport]>div]:block!"
+        >
+          <section className="p-4 pr-5 sm:p-6 sm:pr-7">
             <h2 className="mb-5 text-lg font-medium">{currentSection?.label}</h2>
             {children}
           </section>

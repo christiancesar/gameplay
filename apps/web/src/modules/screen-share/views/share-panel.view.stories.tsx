@@ -87,3 +87,12 @@ export const OpenDetails: Story = {
     await waitFor(() => expect(screen.getByRole('dialog', { name: /stream quality/i })).toBeVisible())
   },
 }
+
+/** Com `onChangeQuality`, o painel ao vivo ganha o botão para trocar resolução e FPS sem parar. */
+export const LiveWithChangeQuality: Story = {
+  args: { state: liveOnTarget, onChangeQuality: fn() },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /change quality/i }))
+    await expect(args.onChangeQuality).toHaveBeenCalledOnce()
+  },
+}

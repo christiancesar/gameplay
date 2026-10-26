@@ -1,3 +1,4 @@
+import type { AdminUserItem } from '@/modules/admin/model/entities/admin-user-item'
 import { cn } from 'cn'
 import {
   CpuIcon,
@@ -35,20 +36,6 @@ import {
 import { Input } from '@/shared/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-
-type AdminUserItem = {
-  id: string
-  name: string
-  email: string
-  avatarUrl?: string
-  isOnline: boolean
-  isSuspended: boolean
-  isPlatformAdmin: boolean
-  sessionCount: number
-  /** Limite efetivo e se vem de override. */
-  serverLimit: { value: number; isOverride: boolean }
-  serversOwned: number
-}
 
 type ConfirmAction = { type: 'suspend' | 'endSessions'; user: AdminUserItem }
 
@@ -242,4 +229,4 @@ function UsersTabView({
 }
 
 export { UsersTabView }
-export type { AdminUserItem, UsersTabViewProps }
+export type { UsersTabViewProps }

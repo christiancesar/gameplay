@@ -1,3 +1,4 @@
+import type { AdminServerMember } from '@/modules/admin/model/entities/admin-server-member'
 import { useTranslation } from 'react-i18next'
 
 import { Badge } from '@/shared/ui/badge'
@@ -5,13 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/di
 import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-
-type AdminServerMember = {
-  id: string
-  user: { name: string; username: string; avatarUrl?: string }
-  role: 'owner' | 'admin' | 'member'
-  joinedVia?: { invitedBy: string; joinedAt: string }
-}
 
 type ServerMembersDialogViewProps = {
   open: boolean
@@ -75,4 +69,4 @@ function ServerMembersDialogView({ open, serverName, members, onOpenChange }: Se
 }
 
 export { ServerMembersDialogView }
-export type { AdminServerMember, ServerMembersDialogViewProps }
+export type { ServerMembersDialogViewProps }

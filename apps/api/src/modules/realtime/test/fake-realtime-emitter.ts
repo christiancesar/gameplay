@@ -6,6 +6,7 @@ type Emitted =
   | { event: 'server:changed'; serverId: string }
   | { event: 'server:removed'; userIds: string[]; removal: ServerRemoved }
   | { event: 'session:revoked'; userId: string }
+  | { event: 'session:ended'; sessionId: string }
   | { event: 'room:participants'; serverId: string; roomId: string; participants: Participant[] }
   | { event: 'seat:taken'; socketId: string; roomId: string }
   | { event: 'seat:released'; socketId: string; roomId: string; reason: RoomLeft['reason'] | null }
@@ -33,6 +34,10 @@ export class FakeRealtimeEmitter extends RealtimeEmitter {
 
   sessionRevoked(userId: string) {
     this.emitted.push({ event: 'session:revoked', userId })
+  }
+
+  sessionEnded(sessionId: string) {
+    this.emitted.push({ event: 'session:ended', sessionId })
   }
 
   roomParticipants(serverId: string, roomId: string, participants: Participant[]) {

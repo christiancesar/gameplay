@@ -1,10 +1,11 @@
 import { z } from 'zod'
+import { collectedHardwareSchema, manualHardwareSchema } from '../account/device-report.js'
 import { passwordSchema } from '../account/password.js'
 import { serverMemberSchema } from '../servers/membership.js'
 import { roomSchema } from '../servers/server.js'
 
 // Query of the paginated admin lists. search matches part of the name (and
-// of the email, for users), ignoring case.
+// of the email, for users; of the username, for devices), ignoring case.
 export const ADMIN_PAGE_SIZE_MAX = 100
 export const adminListQuerySchema = z.object({
   search: z.string().trim().max(100).optional(),
@@ -27,6 +28,13 @@ export const adminUserSchema = z.object({
   twoFactorEnabled: z.boolean(),
   // At least one tab connected right now.
   online: z.boolean(),
+  // Own limit of servers the user may own; null follows the platform default.
+  maxServersOverride: z.number().int().nullable(),
+  // The limit in force (override or default).
+  effectiveMaxServers: z.number().int(),
+  ownedServerCount: z.number().int(),
+  // Active sessions (not expired).
+  sessionCount: z.number().int(),
   createdAt: z.iso.datetime(),
 })
 export type AdminUser = z.infer<typeof adminUserSchema>
@@ -41,6 +49,8 @@ export const adminSessionSchema = z.object({
   ipAddress: z.string().nullable(),
   userAgent: z.string().nullable(),
   createdAt: z.iso.datetime(),
+  // Last time Better Auth refreshed the session.
+  lastActiveAt: z.iso.datetime(),
   expiresAt: z.iso.datetime(),
 })
 export type AdminSession = z.infer<typeof adminSessionSchema>
@@ -62,6 +72,12 @@ export const adminServerSchema = z.object({
   owner: z.object({ id: z.string(), username: z.string() }),
   memberCount: z.number().int(),
   roomCount: z.number().int(),
+  // Own limits of the server; null follows the platform default.
+  maxMembersOverride: z.number().int().nullable(),
+  maxRoomsOverride: z.number().int().nullable(),
+  // The limits in force (override or default).
+  effectiveMaxMembers: z.number().int(),
+  effectiveMaxRooms: z.number().int(),
   createdAt: z.iso.datetime(),
 })
 export type AdminServer = z.infer<typeof adminServerSchema>
@@ -87,3 +103,16 @@ export const hardwareSummarySchema = z.object({
   h264HardwarePercent: z.number().nullable(),
 })
 export type HardwareSummary = z.infer<typeof hardwareSummarySchema>
+
+// One report of one device, with who sent it. Newest first.
+export const adminDeviceSchema = z.object({
+  user: z.object({ id: z.string(), username: z.string() }),
+  deviceId: z.string(),
+  collected: collectedHardwareSchema,
+  manual: manualHardwareSchema.nullable(),
+  collectedAt: z.iso.datetime(),
+})
+export type AdminDevice = z.infer<typeof adminDeviceSchema>
+
+export const listAdminDevicesResponseSchema = z.object({ devices: z.array(adminDeviceSchema), ...pageSchema })
+export type ListAdminDevicesResponse = z.infer<typeof listAdminDevicesResponseSchema>

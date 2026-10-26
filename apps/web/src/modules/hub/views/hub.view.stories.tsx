@@ -6,7 +6,8 @@ import { me, servers } from '@/fixtures'
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
 import { useStoryTheme } from '@/fixtures/theme'
 
-import { NotificationsPanelView, type HubNotification } from '@/modules/notifications/views/notifications-panel.view'
+import { NotificationsPanelView } from '@/modules/notifications/views/notifications-panel.view'
+import type { HubNotification } from '@/modules/notifications/model/entities/hub-notification'
 
 import { HubView, type HubJoinError } from './hub.view'
 

@@ -1,3 +1,4 @@
+import type { HubServer, HubUser } from '@/modules/hub/model/entities/hub-server'
 import {
   ChevronRightIcon,
   LayoutGridIcon,
@@ -22,18 +23,6 @@ import { ThemeToggle } from '@/shared/ui/theme-toggle'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
 import { JoinByCodeForm } from './join-by-code-form.view'
-
-type HubUser = {
-  name: string
-  email: string
-  avatarUrl?: string
-}
-
-type HubServer = {
-  id: string
-  name: string
-  iconUrl?: string
-}
 
 type HubJoinError = 'inviteNotFound' | 'inviteExpired' | 'inviteExhausted' | 'requestPending' | 'unexpected'
 
@@ -220,4 +209,4 @@ function HubView({
 }
 
 export { HubView }
-export type { HubJoinError, HubServer, HubUser, HubViewProps }
+export type { HubJoinError, HubViewProps }

@@ -1,3 +1,4 @@
+import type { AdminServerItem, CountWithLimit } from '@/modules/admin/model/entities/admin-server-item'
 import { EllipsisVerticalIcon, SearchIcon, SlidersHorizontalIcon, Trash2Icon, UsersIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -14,17 +15,6 @@ import {
 import { Input } from '@/shared/ui/input'
 import { ServerIcon } from '@/shared/ui/server-icon'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
-
-type CountWithLimit = { count: number; limit: number; isOverride: boolean }
-
-type AdminServerItem = {
-  id: string
-  name: string
-  iconUrl?: string
-  ownerName: string
-  members: CountWithLimit
-  rooms: CountWithLimit
-}
 
 type ServersTabViewProps = {
   servers: readonly AdminServerItem[]
@@ -149,4 +139,4 @@ function ServersTabView({
 }
 
 export { ServersTabView }
-export type { AdminServerItem, ServersTabViewProps }
+export type { ServersTabViewProps }

@@ -100,7 +100,8 @@
       "codeInvalid": "O código do convite tem 8 letras ou números."
     },
     "profile": "Perfil",
-    "joinTitle": "Entrar em um servidor"
+    "joinTitle": "Entrar em um servidor",
+    "defaultRoomName": "Sala 1"
   },
   "server": {
     "rooms": "Salas",
@@ -124,8 +125,11 @@
     "leaveServerTitle": "Sair de {{server}}?",
     "leaveServerDescription": "Você vai precisar de um novo convite para voltar.",
     "leaveServerConfirm": "Sair",
+    "unavailable": "Você não tem mais acesso a este servidor.",
+    "leaveFailed": "Não foi possível sair do servidor. Tente de novo.",
     "noRooms": "Nenhuma sala ainda.",
     "toggleSidebar": "Expandir ou recolher a barra lateral",
+    "openSidebar": "Abrir a barra lateral",
     "switcher": {
       "label": "Trocar de servidor",
       "search": "Buscar servidor...",
@@ -150,7 +154,13 @@
     "you": "você",
     "micDeniedTitle": "Microfone bloqueado",
     "micDeniedDescription": "Você entrou só ouvindo. Libere o microfone na barra de endereço do browser e entre de novo na sala para falar.",
-    "roomEmpty": "Ninguém aqui ainda. Os outros vão te ver assim que entrarem."
+    "roomEmpty": "Ninguém aqui ainda. Os outros vão te ver assim que entrarem.",
+    "notice": {
+      "otherTab": "Você entrou numa sala em outra aba, então esta foi encerrada.",
+      "roomDeleted": "A sala foi excluída.",
+      "joinFailed": "Não foi possível entrar na sala.",
+      "reconnectFailed": "A conexão caiu e você saiu da sala."
+    }
   },
   "share": {
     "start": "Compartilhar tela",
@@ -165,10 +175,18 @@
       "resolution": "Resolução",
       "status": "Status"
     },
+    "preview": {
+      "title": "Você está apresentando para todos",
+      "stop": "Parar apresentação",
+      "hide": "Ocultar prévia",
+      "show": "Mostrar prévia",
+      "hiddenHint": "Prévia oculta para evitar o efeito espelho ao compartilhar a tela inteira."
+    },
     "watch": "Assistir",
     "watching": "Assistindo",
     "stopWatching": "Parar de assistir",
     "fullscreen": "Tela cheia",
+    "toggleControls": "Mostrar ou ocultar controles",
     "streamVolume": "Volume da transmissão",
     "liveNow": "Ao vivo agora",
     "isLive": "{{name}} está ao vivo",
@@ -193,6 +211,17 @@
       "gameTip": "Jogos em tela cheia exclusiva podem aparecer pretos. Use o modo janela sem bordas.",
       "resolution": "Resolução",
       "fps": "Taxa de quadros",
+      "priority": "Prioridade",
+      "priorities": {
+        "smooth": {
+          "label": "Fluido",
+          "hint": "Mantém a taxa de quadros. A resolução cai primeiro. Melhor para jogos e vídeo."
+        },
+        "sharp": {
+          "label": "Nítido",
+          "hint": "Mantém a resolução. A taxa de quadros cai primeiro. Melhor para texto e menus."
+        }
+      },
       "audio": "Compartilhar áudio",
       "audioSupport": {
         "supported": "Áudio de aba funciona em qualquer sistema.",
@@ -200,7 +229,10 @@
         "unsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba."
       },
       "saveAsDefault": "Usar estas configurações da próxima vez",
-      "start": "Escolher e compartilhar"
+      "start": "Escolher e compartilhar",
+      "updateTitle": "Mudar qualidade",
+      "updateDescription": "Resolução e taxa de quadros mudam na hora, sem parar a transmissão.",
+      "apply": "Aplicar"
     },
     "monitor": {
       "target": "Alvo",
@@ -223,7 +255,16 @@
       "viewer": "Espectador",
       "noViewers": "Ninguém assistindo ainda. A qualidade é medida quando alguém assiste."
     },
-    "stopShort": "Parar"
+    "stopShort": "Parar",
+    "changeQuality": "Mudar qualidade",
+    "loadingStream": "Conectando à transmissão…",
+    "watchFailed": "Não foi possível assistir a esta tela. Tente de novo.",
+    "notices": {
+      "unsupported": "Este navegador não consegue compartilhar a tela.",
+      "failed": "Não foi possível iniciar o compartilhamento.",
+      "start-failed": "Não foi possível avisar a sala sobre o compartilhamento.",
+      "not-in-call": "Entre em uma sala de voz para compartilhar a tela."
+    }
   },
   "image": {
     "choose": "Escolher imagem",
@@ -251,6 +292,18 @@
   },
   "serverSettings": {
     "title": "Configurações do servidor",
+    "errors": {
+      "memberLimitReached": "O servidor está cheio. Libere uma vaga antes.",
+      "roomLimitReached": "O servidor atingiu o limite de salas.",
+      "roomNameTaken": "Já existe uma sala com esse nome.",
+      "roomNotFound": "Essa sala não existe mais.",
+      "permissionDenied": "Seu cargo não permite essa ação.",
+      "requestGone": "Esse pedido já foi respondido ou cancelado.",
+      "memberNotFound": "Essa pessoa não está mais no servidor.",
+      "inviteNotFound": "Esse convite não existe mais.",
+      "copyFailed": "Não foi possível copiar o link. Copie manualmente.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    },
     "sections": {
       "general": "Geral",
       "invites": "Convites",
@@ -343,6 +396,9 @@
   },
   "settings": {
     "title": "Configurações",
+    "errors": {
+      "unexpected": "Algo deu errado. Tente de novo."
+    },
     "sections": {
       "profile": "Perfil",
       "audio": "Áudio",
@@ -400,6 +456,14 @@
       "notFound": "Este convite não existe ou foi revogado."
     }
   },
+  "realtime": {
+    "unknownServer": "este servidor"
+  },
+  "errors": {
+    "title": "Algo deu errado",
+    "description": "O app encontrou um erro inesperado. Recarregue a página para tentar de novo.",
+    "reload": "Recarregar"
+  },
   "connection": {
     "reconnecting": "Reconectando…",
     "reconnected": "Conectado de novo.",
@@ -429,6 +493,21 @@
     "search": "Buscar",
     "empty": "Nada encontrado.",
     "default": "padrão",
+    "notices": {
+      "suspended": "Conta suspensa.",
+      "reactivated": "Conta reativada.",
+      "sessionsEnded": "Sessões encerradas.",
+      "sessionEnded": "Sessão encerrada.",
+      "passwordReset": "Senha redefinida. Passe para a pessoa por um canal privado.",
+      "limitSaved": "Limite salvo.",
+      "serverDeleted": "Servidor excluído."
+    },
+    "errors": {
+      "twoFactorRequired": "Configure a autenticação em duas etapas para usar o painel admin.",
+      "cannotSuspendSelf": "Você não pode suspender a própria conta.",
+      "notFound": "Esse item não existe mais.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    },
     "setup": {
       "title": "Configure a verificação em duas etapas",
       "description": "O admin da plataforma precisa usar um app autenticador.",
@@ -463,7 +542,8 @@
       "suspendDescription": "Bloqueia o login e derruba todas as sessões e conexões na hora.",
       "endSessionsTitle": "Encerrar todas as sessões de {{name}}?",
       "endSessionsDescription": "A pessoa sai da conta em todos os dispositivos.",
-      "viewHardware": "Ver hardware"
+      "viewHardware": "Ver hardware",
+      "limitTitle": "Limite de servidores de {{name}}"
     },
     "sessions": {
       "title": "Sessões de {{name}}",
@@ -496,7 +576,8 @@
       "viewMembers": "Ver membros",
       "membersTitle": "Membros de {{name}}",
       "role": "Papel",
-      "joinedVia": "Como entrou"
+      "joinedVia": "Como entrou",
+      "limitsTitle": "Limites de {{name}}"
     },
     "limits": {
       "description": "Padrões usados quando o usuário ou servidor não tem valor próprio. Mudanças valem sem redeploy.",
@@ -544,6 +625,10 @@
   },
   "hardware": {
     "title": "Hardware",
+    "errors": {
+      "collect": "Não foi possível coletar o hardware. Tente de novo.",
+      "saveManual": "Não foi possível salvar. Tente de novo."
+    },
     "description": "O que este dispositivo informa ao browser. É enviado ao admin da plataforma para entender onde o Gameplay roda.",
     "lastSent": "Enviado {{date}}",
     "refresh": "Coletar de novo",

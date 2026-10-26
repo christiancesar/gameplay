@@ -19,3 +19,12 @@ export class CannotSuspendSelfError extends DomainError {
     super('You cannot suspend your own account.')
   }
 }
+
+export class SessionNotFoundError extends DomainError {
+  readonly code = 'SESSION_NOT_FOUND'
+  override readonly status = HttpStatus.NOT_FOUND
+
+  constructor() {
+    super('Session not found.')
+  }
+}

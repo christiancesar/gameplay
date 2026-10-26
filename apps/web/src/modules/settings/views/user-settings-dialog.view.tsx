@@ -2,10 +2,11 @@ import { CpuIcon, LogOutIcon, PaletteIcon, UserIcon, Volume2Icon } from 'lucide-
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  USER_SETTINGS_SECTIONS,
+  type UserSettingsSection,
+} from '@/modules/settings/model/user-settings-sections.constants'
 import { SectionDialog } from '@/shared/ui/section-dialog'
-
-const USER_SETTINGS_SECTIONS = ['profile', 'audio', 'appearance', 'hardware', 'account'] as const
-type UserSettingsSection = (typeof USER_SETTINGS_SECTIONS)[number]
 
 const ICONS = {
   profile: UserIcon,

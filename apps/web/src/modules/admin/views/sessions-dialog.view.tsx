@@ -1,3 +1,4 @@
+import type { AdminSessionItem } from '@/modules/admin/model/entities/admin-session-item'
 import { useTranslation } from 'react-i18next'
 
 import { Badge } from '@/shared/ui/badge'
@@ -5,15 +6,6 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
-
-type AdminSessionItem = {
-  id: string
-  ip: string
-  /** User agent já resumido (ex.: "Chrome 141 · Windows"). */
-  device: string
-  lastActiveAt: string
-  isActiveNow: boolean
-}
 
 type SessionsDialogViewProps = {
   open: boolean
@@ -81,4 +73,4 @@ function SessionsDialogView({ open, userName, sessions, onOpenChange, onEndSessi
 }
 
 export { SessionsDialogView }
-export type { AdminSessionItem, SessionsDialogViewProps }
+export type { SessionsDialogViewProps }

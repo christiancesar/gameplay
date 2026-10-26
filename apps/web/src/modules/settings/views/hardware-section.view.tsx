@@ -11,11 +11,8 @@ import {
   type ManualHardwareField,
   type ManualHardwareInput,
 } from '@/modules/hardware/model/manual-hardware.schema'
-import {
-  DeviceHardwareView,
-  type DeviceHardware,
-  type DisplaysPermission,
-} from '@/modules/hardware/views/device-hardware.view'
+import { DeviceHardwareView } from '@/modules/hardware/views/device-hardware.view'
+import type { DeviceHardware, DisplaysPermission } from '@/modules/hardware/model/entities/device-hardware'
 import { Button } from '@/shared/ui/button'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/shared/ui/field'
 import { Input } from '@/shared/ui/input'

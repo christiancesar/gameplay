@@ -1,3 +1,4 @@
+import type { SidebarRoom } from '@/modules/servers/model/entities/sidebar-room'
 import type { ServerRole } from '@gameplay/contracts'
 import { cn } from 'cn'
 import { AudioLinesIcon, ChevronsUpDownIcon, LogOutIcon, RadioIcon, SettingsIcon } from 'lucide-react'
@@ -36,22 +37,6 @@ import {
   useSidebar,
 } from '@/shared/ui/sidebar'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-
-type SidebarParticipant = {
-  id: string
-  name: string
-  avatarUrl?: string
-  isMuted: boolean
-  isDeafened: boolean
-  isSpeaking: boolean
-  isLive: boolean
-}
-
-type SidebarRoom = {
-  id: string
-  name: string
-  participants: readonly SidebarParticipant[]
-}
 
 type ServerSidebarViewProps = {
   server: { name: string; iconUrl?: string }
@@ -101,7 +86,7 @@ function ServerSidebarView({
   onLeaveServer,
 }: ServerSidebarViewProps) {
   const { t } = useTranslation()
-  const { state } = useSidebar()
+  const { state, isMobile, setOpenMobile } = useSidebar()
   const canManage = role !== 'member'
 
   const [isSwitcherOpen, setSwitcherOpen] = useState(false)
@@ -250,7 +235,8 @@ function ServerSidebarView({
         />
       )}
 
-      <SidebarContent>
+      {/* On a sideways phone the sheet is short: let the whole sheet scroll instead of squeezing the rooms to nothing. */}
+      <SidebarContent className="phone-landscape:in-data-[mobile=true]:flex-none phone-landscape:in-data-[mobile=true]:overflow-visible">
         <SidebarGroup>
           <SidebarGroupLabel>{t('server.rooms')}</SidebarGroupLabel>
           {rooms.length === 0 ? (
@@ -266,7 +252,11 @@ function ServerSidebarView({
                     <SidebarMenuButton
                       isActive={isCurrent}
                       tooltip={room.name}
-                      onClick={() => onSelectRoom(room.id)}
+                      onClick={() => {
+                        // On phones the sidebar is a sheet over the stage; close it so the room shows.
+                        if (isMobile) setOpenMobile(false)
+                        onSelectRoom(room.id)
+                      }}
                       aria-current={isCurrent ? 'true' : undefined}
                       aria-label={
                         isCurrent
@@ -291,8 +281,8 @@ function ServerSidebarView({
                               <UserAvatar
                                 name={participant.name}
                                 imageUrl={participant.avatarUrl}
-                                size="sm"
-                                className={cn('size-5', participant.isSpeaking && 'ring-2 ring-emerald-500')}
+                                size="xs"
+                                className={cn(participant.isSpeaking && 'ring-2 ring-emerald-500')}
                               />
                               <span className="min-w-0 flex-1 truncate">{participant.name}</span>
                               {participant.isLive && (
@@ -323,4 +313,4 @@ function ServerSidebarView({
 }
 
 export { ServerSidebarView }
-export type { ServerRole, ServerSidebarViewProps, SidebarParticipant, SidebarRoom }
+export type { ServerRole, ServerSidebarViewProps }

@@ -68,6 +68,14 @@ describe('DomainEventsListener', () => {
       { event: 'session:revoked', userId: 'ana' },
     ])
   })
+  it('closes only the sockets of the revoked session', () => {
+    const { listener, emitter } = makeRealtimeContext()
+
+    listener.sessionRevoked({ userId: 'ana', sessionId: 'sess-1' })
+
+    expect(emitter.emitted).toEqual([{ event: 'session:ended', sessionId: 'sess-1' }])
+  })
+
   it('tells the tabs of the user about a new notification', () => {
     const { listener, emitter } = makeRealtimeContext()
 
