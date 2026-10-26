@@ -29,6 +29,8 @@ type AudioElementLike = {
 type AudioEngineFactories = {
   createContext: () => AudioContextLike
   createElement: () => AudioElementLike
+  /** Calls the handler once, on the next click or key press. Returns the function that stops waiting. */
+  onUserGesture?: (handler: () => void) => () => void
 }
 
 /** Plays what the peers send. Volume goes from 0 to 2 (200 %). */
@@ -52,9 +54,22 @@ type AudioEngine = AudioOutput & {
 
 type PeerAudio = { element: AudioElementLike; source: AudioNodeLike; gain: GainNodeLike }
 
+const GESTURE_EVENTS = ['pointerdown', 'keydown'] as const
+
 const createBrowserAudioFactories = (): AudioEngineFactories => ({
   createContext: () => new AudioContext() as unknown as AudioContextLike,
   createElement: () => new Audio() as unknown as AudioElementLike,
+  onUserGesture: (handler) => {
+    const stop = () => {
+      for (const event of GESTURE_EVENTS) document.removeEventListener(event, run, true)
+    }
+    const run = () => {
+      stop()
+      handler()
+    }
+    for (const event of GESTURE_EVENTS) document.addEventListener(event, run, true)
+    return stop
+  },
 })
 
 /**
@@ -66,21 +81,36 @@ class WebAudioEngine implements AudioEngine {
   private readonly master: GainNodeLike
   private readonly sink: AudioElementLike
   private readonly createElement: () => AudioElementLike
+  private readonly onUserGesture: AudioEngineFactories['onUserGesture']
+  private stopWaitingGesture: (() => void) | undefined
   private readonly peers = new Map<string, PeerAudio>()
   private readonly volumes = new Map<string, number>()
   private disposed = false
 
   constructor(factories: AudioEngineFactories) {
     this.createElement = factories.createElement
+    this.onUserGesture = factories.onUserGesture
     this.context = factories.createContext()
     this.master = this.context.createGain()
     const destination = this.context.createMediaStreamDestination()
     this.master.connect(destination)
     this.sink = factories.createElement()
     this.sink.srcObject = destination.stream
-    // Autoplay rules: the call starts from a click, so both start here.
+    // Autoplay rules: a call started from a click plays at once. One resumed after a reload has no click
+    // yet, so the browser blocks the sound until the next one.
     void this.context.resume().catch(() => undefined)
-    void this.sink.play().catch(() => undefined)
+    void this.sink.play().catch(() => this.startOnGesture())
+  }
+
+  private startOnGesture() {
+    if (this.disposed || !this.onUserGesture) return
+    this.stopWaitingGesture?.()
+    this.stopWaitingGesture = this.onUserGesture(() => {
+      this.stopWaitingGesture = undefined
+      if (this.disposed) return
+      void this.context.resume().catch(() => undefined)
+      void this.sink.play().catch(() => undefined)
+    })
   }
 
   addStream(peerId: string, stream: MediaStream): void {
@@ -153,6 +183,8 @@ class WebAudioEngine implements AudioEngine {
   dispose(): void {
     if (this.disposed) return
     this.disposed = true
+    this.stopWaitingGesture?.()
+    this.stopWaitingGesture = undefined
     for (const peerId of [...this.peers.keys()]) this.removeStream(peerId)
     this.sink.pause()
     this.sink.srcObject = null

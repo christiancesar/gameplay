@@ -17,6 +17,7 @@ class FakeVoiceRealtime implements VoiceRealtime {
   })
   readonly leaveRoom = vi.fn(async () => undefined)
   readonly sendVoiceState = vi.fn(async () => undefined)
+  readonly stopStream = vi.fn(async () => undefined)
   private readonly handlers = new Map<string, Set<Handler>>()
   private readonly statusHandlers = new Set<(status: ConnectionStatus) => void>()
 

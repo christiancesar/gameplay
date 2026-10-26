@@ -147,3 +147,4 @@ Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Testes do driver S3 rodam contra MinIO em container.
 - Assistindo no celular deitado: a barra do app some, a barra da transmissão e os cards ficam por cima do vídeo, e um toque no vídeo mostra ou esconde os dois. Não há auto-ocultar por tempo *(suposição)*.
 - Volume da tela e tela cheia ficam escondidos em telas touch (`hover: none` e `pointer: coarse`, inclui iPad) até termos uma solução para o Safari do iPhone.
+- Refresh durante a call: a aba guarda a sala no `sessionStorage` e marca a hora em que a página saiu. Ao recarregar em até 30 s (o tempo que a API segura o lugar), volta para a sala sozinha. Se o lugar ainda dizia que a aba transmitia, a transmissão é encerrada, porque ela morreu com a página. O som dos outros pode só começar no primeiro clique ou tecla (regra de autoplay do navegador). A janela de 30 s no cliente é fixa e precisa acompanhar `ROOM_RECONNECT_GRACE_MS` *(suposição)*.

@@ -6,15 +6,20 @@ import type { CallMedia } from '@/shared/media/call-media'
 import type { MediaTransport, PeerStatus } from '@/shared/media/media-transport'
 import type { MicrophoneHandle, MicrophoneResult } from '@/shared/media/microphone'
 
+import type { CallMemory } from './call-memory.service'
 import { idleVoice, type VoiceNotice, type VoiceSnapshot, type VoiceStateStore } from '../entities/voice-state'
 import { iceRenewalDelayMs } from '../rules/ice-renewal'
+import { callToResume } from '../rules/resume-call'
 import { diffPeers } from '../rules/peer-roster'
 import { peerRetryDelayMs } from '../rules/retry-delay'
 import { isMicSilenced } from '../rules/voice-effective'
 import { MAX_VOLUME, MIN_VOLUME, toGain, volumeOf } from '../rules/volume'
 
 /** The socket side of the call. `RealtimeService` fits it; specs pass a fake. */
-type VoiceRealtime = Pick<RealtimeService, 'joinRoom' | 'leaveRoom' | 'sendVoiceState' | 'on' | 'onStatusChange'>
+type VoiceRealtime = Pick<
+  RealtimeService,
+  'joinRoom' | 'leaveRoom' | 'sendVoiceState' | 'stopStream' | 'on' | 'onStatusChange'
+>
 
 type SpeakingWatcher = {
   watch(id: string, stream: MediaStream): void
@@ -25,6 +30,8 @@ type SpeakingWatcher = {
 type VoiceSessionDeps = {
   realtime: VoiceRealtime
   store: VoiceStateStore
+  /** The room of this tab, kept across a reload. */
+  memory: CallMemory
   getSelfId: () => string | undefined
   /** Devices chosen in the settings; `undefined` is the system default. */
   getPreferences: () => { inputDeviceId: string | undefined; outputDeviceId: string | undefined }
@@ -181,6 +188,11 @@ class VoiceSession {
       })
       if (this.active !== active) return
       store.setState({ status: 'connected' })
+      this.deps.memory.remember({ serverId, roomId })
+      // A seat taken back after a reload still says this tab was sharing, but that share died with the page.
+      if (participants.some((participant) => participant.userId === selfId && participant.streaming)) {
+        realtime.stopStream().catch(() => undefined)
+      }
       this.applyRoster(active, participants)
     } catch {
       if (this.active !== active) return
@@ -190,6 +202,17 @@ class VoiceSession {
       return
     }
     this.scheduleIceRenewal(active, iceFailed ? ICE_RETRY_MS : iceRenewalDelayMs(ice.ttlSeconds))
+  }
+
+  /** After a reload: goes back to the room this tab was in, while the API still holds the seat. */
+  async resume(now: number): Promise<void> {
+    if (this.active) return
+    const call = callToResume(this.deps.memory.read(), now)
+    if (!call) {
+      this.deps.memory.forget()
+      return
+    }
+    await this.join(call.serverId, call.roomId)
   }
 
   /**
@@ -205,7 +228,10 @@ class VoiceSession {
   /** Leaves the room. Safe to call when not in one. */
   async leave(): Promise<void> {
     const active = this.active
-    if (active) this.release(active, { leaveRoom: true })
+    if (active) {
+      this.release(active, { leaveRoom: true })
+      this.deps.memory.forget()
+    }
     this.reset(null)
   }
 
@@ -396,6 +422,7 @@ class VoiceSession {
   private finish(active: Active, notice: VoiceNotice | null) {
     if (this.active !== active) return
     this.release(active, { leaveRoom: false })
+    this.deps.memory.forget()
     this.reset(notice)
   }
 

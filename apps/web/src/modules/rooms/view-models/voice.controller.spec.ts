@@ -38,4 +38,22 @@ describe('voiceController', () => {
     voiceController.detach()
     expect(leave).toHaveBeenCalledTimes(1)
   })
+
+  it('goes back to the call of the tab once per page load, and not for a mount undone at once', () => {
+    vi.useFakeTimers()
+    const resume = vi.spyOn(VoiceSession.prototype, 'resume').mockResolvedValue()
+    vi.spyOn(VoiceSession.prototype, 'leave').mockResolvedValue()
+    // StrictMode mounts, unmounts and mounts again.
+    voiceController.attach(new QueryClient())
+    voiceController.detach()
+    voiceController.attach(new QueryClient())
+    vi.runAllTimers()
+    expect(resume).toHaveBeenCalledTimes(1)
+    voiceController.detach()
+    voiceController.attach(new QueryClient())
+    vi.runAllTimers()
+    expect(resume).toHaveBeenCalledTimes(1)
+    voiceController.detach()
+    vi.useRealTimers()
+  })
 })

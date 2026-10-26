@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { WebAudioEngine } from './audio-engine'
 import { FakeAudioContext, FakeAudioElement } from './test/fake-audio'
@@ -86,5 +86,50 @@ describe('WebAudioEngine', () => {
     expect(context.close).toHaveBeenCalled()
     engine.addStream('u3', fakeStream())
     expect(context.gains).toHaveLength(2)
+  })
+
+  describe('when the browser blocks the sound (no click yet)', () => {
+    const blockedEngine = () => {
+      const blockedContext = new FakeAudioContext()
+      const sink = new FakeAudioElement()
+      sink.play.mockRejectedValueOnce(new Error('NotAllowedError'))
+      const gesture = { handler: undefined as (() => void) | undefined, stop: vi.fn() }
+      const blocked = new WebAudioEngine({
+        createContext: () => blockedContext,
+        createElement: () => sink,
+        onUserGesture: (handler) => {
+          gesture.handler = handler
+          return gesture.stop
+        },
+      })
+      return { blocked, blockedContext, sink, gesture }
+    }
+
+    it('starts the sound on the next click', async () => {
+      const { blockedContext, sink, gesture } = blockedEngine()
+      await vi.waitFor(() => expect(gesture.handler).toBeDefined())
+      gesture.handler?.()
+      expect(blockedContext.resume).toHaveBeenCalledTimes(2)
+      expect(sink.play).toHaveBeenCalledTimes(2)
+    })
+
+    it('stops waiting for the click on dispose', async () => {
+      const { blocked, gesture } = blockedEngine()
+      await vi.waitFor(() => expect(gesture.handler).toBeDefined())
+      blocked.dispose()
+      expect(gesture.stop).toHaveBeenCalled()
+    })
+  })
+
+  it('does not wait for a click when the sound starts', async () => {
+    const onUserGesture = vi.fn(() => () => undefined)
+    new WebAudioEngine({
+      createContext: () => new FakeAudioContext(),
+      createElement: () => new FakeAudioElement(),
+      onUserGesture,
+    })
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(onUserGesture).not.toHaveBeenCalled()
   })
 })

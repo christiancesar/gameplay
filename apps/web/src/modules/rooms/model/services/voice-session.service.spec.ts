@@ -316,6 +316,53 @@ describe('VoiceSession', () => {
     })
   })
 
+  describe('reload', () => {
+    it('remembers the room once in it, and forgets it on leaving', async () => {
+      await join()
+      expect(ctx.memory.saved).toEqual({ serverId: 's1', roomId: 'r1', leftAt: null })
+      await ctx.session.leave()
+      expect(ctx.memory.saved).toBeNull()
+    })
+
+    it('forgets the room when the API refuses it', async () => {
+      ctx.realtime.joinError = new Error('ROOM_NOT_FOUND')
+      await join()
+      expect(ctx.memory.saved).toBeNull()
+    })
+
+    it('goes back to the room the page left a moment ago', async () => {
+      ctx.memory.saved = { serverId: 's1', roomId: 'r1', leftAt: 10_000 }
+      ctx.realtime.participants = withAna
+      await ctx.session.resume(15_000)
+      expect(ctx.realtime.joinRoom).toHaveBeenCalledWith(expect.objectContaining({ roomId: 'r1' }))
+      expect(ctx.store.state).toMatchObject({ connection: { serverId: 's1', roomId: 'r1' }, status: 'connected' })
+      expect(ctx.memory.saved).toEqual({ serverId: 's1', roomId: 'r1', leftAt: null })
+    })
+
+    it('keeps the room when leaving outside a call, so a pending reload still finds it', async () => {
+      ctx.memory.saved = { serverId: 's1', roomId: 'r1', leftAt: 10_000 }
+      await ctx.session.leave()
+      expect(ctx.memory.saved).not.toBeNull()
+    })
+
+    it('does not go back once the seat is gone', async () => {
+      ctx.memory.saved = { serverId: 's1', roomId: 'r1', leftAt: 10_000 }
+      await ctx.session.resume(60_000)
+      expect(ctx.realtime.joinRoom).not.toHaveBeenCalled()
+      expect(ctx.memory.saved).toBeNull()
+    })
+
+    it('ends the screen share the seat still had from before the reload', async () => {
+      await join([participant('u1', { streaming: '1080p60' }), participant('u2')])
+      expect(ctx.realtime.stopStream).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves a share alone when the seat has none', async () => {
+      await join()
+      expect(ctx.realtime.stopStream).not.toHaveBeenCalled()
+    })
+  })
+
   describe('switch and leave', () => {
     it('switching rooms releases the previous call and joins the new one', async () => {
       await join()

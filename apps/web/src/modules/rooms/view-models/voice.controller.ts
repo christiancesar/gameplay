@@ -2,6 +2,7 @@ import type { QueryClient } from '@tanstack/react-query'
 
 import { sessionQueryOptions } from '@/modules/auth/model/services/session.query'
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
+import { createCallMemory } from '@/modules/rooms/model/services/call-memory.service'
 import { VoiceSession } from '@/modules/rooms/model/services/voice-session.service'
 import type { CallMedia } from '@/shared/media/call-media'
 import { WebAudioEngine, createBrowserAudioFactories } from '@/shared/media/audio-engine'
@@ -18,12 +19,18 @@ import { useVoiceStore } from './stores/voice.store'
 let queryClient: QueryClient | undefined
 let session: VoiceSession | undefined
 let stopPreferences: (() => void) | undefined
+/** A reload goes back to the call the tab was in, once per page load. */
+let resumePending = true
+let resumeTimer: ReturnType<typeof setTimeout> | undefined
+
+const memory = createCallMemory(() => sessionStorage)
 
 /** Built on first use, so importing this module never touches the socket or the browser media APIs. */
 function getSession(): VoiceSession {
   session ??= new VoiceSession({
     realtime,
     store: useVoiceStore,
+    memory,
     getSelfId: () => queryClient?.getQueryData(sessionQueryOptions.queryKey)?.user.id,
     getPreferences: () => useAudioPreferencesStore.getState(),
     acquireMicrophone: (deviceId) => acquireMicrophone(deviceId),
@@ -63,9 +70,19 @@ const voiceController = {
       if (state.inputDeviceId !== previous.inputDeviceId) void getSession().setInputDevice(state.inputDeviceId)
       if (state.outputDeviceId !== previous.outputDeviceId) getSession().setOutputDevice(state.outputDeviceId)
     })
+    if (resumePending) {
+      // Deferred, so a mount undone at once (StrictMode) cancels it in `detach` instead of starting a call.
+      clearTimeout(resumeTimer)
+      resumeTimer = setTimeout(() => {
+        resumePending = false
+        window.addEventListener('pagehide', () => memory.markLeft(Date.now()))
+        void getSession().resume(Date.now())
+      })
+    }
   },
   /** The `_authed` layout went away (sign out): the call ends with it. */
   detach() {
+    clearTimeout(resumeTimer)
     stopPreferences?.()
     stopPreferences = undefined
     void getSession().leave()

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { iceRenewalDelayMs } from './ice-renewal'
 import { diffPeers } from './peer-roster'
+import { RESUME_WINDOW_MS, callToResume } from './resume-call'
 import { peerRetryDelayMs } from './retry-delay'
 import { isMicSilenced } from './voice-effective'
 import { toGain, volumeOf } from './volume'
@@ -40,5 +41,14 @@ describe('voice rules', () => {
     expect(isMicSilenced({ muted: false, deafened: false })).toBe(false)
     expect(isMicSilenced({ muted: true, deafened: false })).toBe(true)
     expect(isMicSilenced({ muted: false, deafened: true })).toBe(true)
+  })
+
+  it('resumes a call only when the page left it within the seat grace', () => {
+    const left = { serverId: 's1', roomId: 'r1', leftAt: 1_000 }
+    expect(callToResume(left, 1_000 + RESUME_WINDOW_MS)).toEqual({ serverId: 's1', roomId: 'r1' })
+    expect(callToResume(left, 1_001 + RESUME_WINDOW_MS)).toBeNull()
+    expect(callToResume(left, 999)).toBeNull()
+    expect(callToResume({ ...left, leftAt: null }, 1_000)).toBeNull()
+    expect(callToResume(null, 1_000)).toBeNull()
   })
 })

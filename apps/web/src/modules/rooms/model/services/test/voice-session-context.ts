@@ -5,6 +5,7 @@ import { fakeStream, fakeTrack } from '@/shared/media/test/media-fakes'
 
 import { VoiceSession } from '../voice-session.service'
 import { FakeAudioEngine } from './fake-audio-engine'
+import { FakeCallMemory } from './fake-call-memory'
 import { FakeMediaTransport } from './fake-media-transport'
 import { FakeSpeakingWatcher } from './fake-speaking-watcher'
 import { FakeVoiceRealtime } from './fake-voice-realtime'
@@ -21,6 +22,7 @@ function makeVoiceSessionContext() {
   const realtime = new FakeVoiceRealtime()
   realtime.participants = alone
   const store = new FakeVoiceStore()
+  const memory = new FakeCallMemory()
   const engines: FakeAudioEngine[] = []
   const transports: FakeMediaTransport[] = []
   const watchers: FakeSpeakingWatcher[] = []
@@ -46,6 +48,7 @@ function makeVoiceSessionContext() {
   const session = new VoiceSession({
     realtime,
     store,
+    memory,
     getSelfId: () => state.selfId,
     getPreferences: () => state.preferences,
     acquireMicrophone,
@@ -72,6 +75,7 @@ function makeVoiceSessionContext() {
     session,
     realtime,
     store,
+    memory,
     state,
     engines,
     transports,
