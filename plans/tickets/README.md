@@ -111,5 +111,6 @@ Base: BE-16 e FE-13. Branch `feature/observability`. Decisão do usuário em 202
 | [OBS-03 Métricas e logs do realtime na API](OBS-03-realtime-na-api.md) | 5 | 2 | pendente |
 | [OBS-04 Grafana Faro no web](OBS-04-faro.md) | 5 | 2 | pendente |
 | [OBS-05 Dashboards e alertas](OBS-05-dashboards-e-alertas.md) | 3 | 3 | pendente |
+| [OBS-06 Health detalhado](OBS-06-health-detalhado.md) | 3 | 1 | concluído |
 
-Total: 18 pontos.
+Total: 21 pontos.

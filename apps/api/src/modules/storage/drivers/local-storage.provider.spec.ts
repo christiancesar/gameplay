@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { StorageProvider } from '../storage.provider'
@@ -29,6 +29,19 @@ describe('LocalStorageProvider', () => {
 
   it('ignores deleting a missing file', async () => {
     await expect(storage.delete('avatars/u1/missing.webp')).resolves.toBeUndefined()
+  })
+
+  it('passes the check and leaves no probe file behind', async () => {
+    await storage.check()
+
+    await expect(readFile(join(directory, `.health/probe-${process.pid}`))).rejects.toThrow()
+  })
+
+  it('fails the check when the directory is not writable', async () => {
+    const blocked = new LocalStorageProvider(join(directory, 'file.txt', 'inside'), '/uploads')
+    await writeFile(join(directory, 'file.txt'), 'not a directory')
+
+    await expect(blocked.check()).rejects.toThrow()
   })
 
   it('refuses a key that leaves the directory', async () => {
