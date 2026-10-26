@@ -7,6 +7,7 @@ const live: ShareSnapshot = {
   ...idleShare,
   status: 'live',
   settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true },
+  audio: 'active',
   viewerIds: ['u2', 'u3', 'u4'],
   stats: {
     u2: { width: 1920, height: 1080, fps: 60, kbps: 8000, limitation: 'none' },
@@ -30,6 +31,7 @@ describe('share panel mapper', () => {
       isOnTarget: false,
       limitation: 'bandwidth',
       viewerCount: 3,
+      audio: 'active',
     })
   })
 

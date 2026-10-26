@@ -1,4 +1,4 @@
-import type { AudioOutput } from './audio-engine'
+import type { AudioEngine, AudioOutput } from './audio-engine'
 import type { MediaTransport } from './media-transport'
 
 /**
@@ -10,7 +10,8 @@ type CallMedia = {
   roomId: string
   selfId: string
   transport: MediaTransport
-  audio: AudioOutput
+  /** Plays what peers send; the meter also reads local streams (the audio of my own screen). */
+  audio: AudioOutput & Pick<AudioEngine, 'createMeter'>
 }
 
 export type { CallMedia }

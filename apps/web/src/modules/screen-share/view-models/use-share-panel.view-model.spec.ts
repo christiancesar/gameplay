@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('react-i18next', async () => (await import('@/shared/test/fake-i18n')).fakeI18nModule)
-vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn() }) }))
+vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), warning: vi.fn() }) }))
 vi.mock('./share.controller', async () => ({
   shareController: (await import('./test/fake-share-controller')).fakeShareController,
 }))
@@ -203,5 +203,12 @@ describe('useSharePanelViewModel', () => {
     setup()
     expect(toast.error).toHaveBeenCalledWith('share.notices.failed')
     expect(fakeShareController.dismissNotice).toHaveBeenCalledTimes(1)
+  })
+
+  it('warns, without an error, when the share runs without the audio it asked for', () => {
+    useShareStore.setState({ notice: 'no-audio' })
+    setup()
+    expect(toast.warning).toHaveBeenCalledWith('share.notices.no-audio')
+    expect(toast.error).not.toHaveBeenCalled()
   })
 })

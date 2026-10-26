@@ -8,7 +8,7 @@ type ViewerProfile = { name: string; avatarUrl?: string }
 function toSharePanelState(snapshot: ShareSnapshot): SharePanelModel {
   if (snapshot.status === 'idle') return { status: 'idle' }
   if (snapshot.status === 'picking') return { status: 'picking' }
-  const { settings, viewerIds, stats, source } = snapshot
+  const { settings, viewerIds, stats, source, audio } = snapshot
   const measured = viewerIds.flatMap((id) => (stats[id] ? [stats[id]] : []))
   const summary = summarizeQuality(measured, settings, source)
   return {
@@ -19,6 +19,7 @@ function toSharePanelState(snapshot: ShareSnapshot): SharePanelModel {
     isOnTarget: summary.isOnTarget,
     limitation: summary.limitation,
     viewerCount: viewerIds.length,
+    audio,
   }
 }
 

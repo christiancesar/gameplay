@@ -28,6 +28,7 @@ function makeShareSessionContext() {
     return { ok: true, capture }
   })
   const stopScreen = vi.fn()
+  const report = vi.fn()
   const session = new ShareSession({
     realtime,
     store,
@@ -35,6 +36,7 @@ function makeShareSessionContext() {
     acquireScreen,
     stopScreen,
     pollMs: 1000,
+    report,
   })
   session.attach()
 
@@ -47,6 +49,7 @@ function makeShareSessionContext() {
     captures,
     acquireScreen,
     stopScreen,
+    report,
     get capture() {
       return captures[captures.length - 1]
     },

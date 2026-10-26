@@ -1,5 +1,5 @@
 import type { QualityLimitation } from '../rules/quality-summary'
-import type { ShareFps, ShareResolution, ShareSource } from './share'
+import type { ShareAudio, ShareFps, ShareResolution, ShareSource } from './share'
 
 type DeliveredQuality = { width: number; height: number; fps: number; kbps: number }
 
@@ -15,6 +15,7 @@ type SharePanelModel =
       isOnTarget: boolean
       limitation: QualityLimitation
       viewerCount: number
+      audio: ShareAudio
     }
 
 /** One row of the details table. Same shape as the View's `ViewerQuality`. */

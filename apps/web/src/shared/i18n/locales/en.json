@@ -255,7 +255,14 @@
       "detailsTitle": "Stream quality",
       "detailsDescription": "Each viewer receives a separate copy of your stream, so quality can differ between them.",
       "viewer": "Viewer",
-      "noViewers": "Nobody is watching yet. Quality is measured once someone watches."
+      "noViewers": "Nobody is watching yet. Quality is measured once someone watches.",
+      "audio": "Audio",
+      "audioStates": {
+        "off": "Off",
+        "missing": "Didn't come",
+        "silent": "Silent",
+        "active": "With sound"
+      }
     },
     "stopShort": "Stop",
     "changeQuality": "Change quality",
@@ -265,8 +272,11 @@
       "unsupported": "This browser cannot share the screen.",
       "failed": "Could not start sharing the screen.",
       "start-failed": "Could not announce the screen share to the room.",
-      "not-in-call": "Join a voice room to share your screen."
-    }
+      "not-in-call": "Join a voice room to share your screen.",
+      "no-audio": "Sharing without audio: the browser gave no sound. Check the audio box in the picker, or use Chrome or Edge."
+    },
+    "receiving": "What reaches you",
+    "noStreamAudio": "This stream has no audio"
   },
   "image": {
     "choose": "Choose image",

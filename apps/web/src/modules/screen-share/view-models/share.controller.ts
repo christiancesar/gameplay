@@ -1,9 +1,11 @@
 import { browserEnvironment } from '@/modules/browser-support/model/services/browser-environment.service'
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
+import { toShareStartMeasurement } from '@/modules/screen-share/model/mappers/share-start.mapper'
 import { type CapturePlatform, detectCapturePlatform } from '@/modules/screen-share/model/rules/capture-platform'
 import { ShareSession } from '@/modules/screen-share/model/services/share-session.service'
 import { WatchSession } from '@/modules/screen-share/model/services/watch-session.service'
 import { voiceController } from '@/modules/rooms/view-models/voice.controller'
+import { monitoring } from '@/shared/lib/monitoring'
 import { acquireScreen, stopScreen } from '@/shared/media/screen-capture'
 
 import { useShareStore } from './stores/share.store'
@@ -28,6 +30,9 @@ function getShare(): ShareSession {
       subscribeMedia: voiceController.subscribeMedia,
       acquireScreen: (options) => acquireScreen(options),
       stopScreen,
+      report: monitoring.measuring
+        ? (start) => monitoring.measure(toShareStartMeasurement(start, getPlatform()))
+        : undefined,
     })
     share.attach()
   }

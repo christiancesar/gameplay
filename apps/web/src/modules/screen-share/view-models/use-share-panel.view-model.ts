@@ -35,7 +35,9 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   const { notice } = snapshot
   useEffect(() => {
     if (!notice) return
-    toast.error(t(`share.notices.${notice}`))
+    // Without audio the share still runs: a warning, not an error.
+    const show = notice === 'no-audio' ? toast.warning : toast.error
+    show(t(`share.notices.${notice}`))
     shareController.dismissNotice()
   }, [notice, t])
 
