@@ -28,14 +28,6 @@ RUN cd apps/api && NODE_ENV=production \
   DOCS_ENABLED=true \
   node dist/scripts/export-docs
 
-# One-shot job for self-hosting (infra/host): the builder stage already has the
-# Prisma CLI and the compiled seed script, the runner image has neither.
-# Built only on request: docker build --target migrator.
-FROM builder AS migrator
-WORKDIR /repo/apps/api
-ENV NODE_ENV=production
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/scripts/seed-admin"]
-
 FROM base AS runner
 ENV NODE_ENV=production
 COPY --from=pruner /repo/out/json/ .

@@ -1,6 +1,6 @@
 # Gameplay em casa (self-hosting)
 
-Roda o Gameplay no seu PC Linux e compartilha com amigos pela internet usando um Cloudflare Tunnel. Só o nginx fica atrás do túnel. Postgres e API não têm porta no host.
+Roda o Gameplay no seu PC Linux e compartilha com amigos pela internet usando um Cloudflare Tunnel. Só o nginx fica atrás do túnel. A API não tem porta no host, e o Postgres só tem uma em `127.0.0.1` (padrão 5433, `POSTGRES_HOST_PORT`), usada pelas migrations.
 
 ```
 navegador -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
@@ -11,6 +11,7 @@ O túnel carrega só HTTP e WebSocket. O áudio e a tela vão direto entre os na
 ## Pré-requisitos
 
 - Docker com Compose v2, `openssl` e `curl`.
+- Node e as dependências do repositório (`npm ci` na raiz): as migrations rodam do repositório, com o Prisma CLI, e não de uma imagem.
 - Conta na Cloudflare só para túnel nomeado e para o TURN. O modo rápido não precisa de conta.
 
 ## Início rápido (sem conta)
@@ -21,7 +22,7 @@ Na raiz do repositório:
 npm run host:start
 ```
 
-Na primeira vez o script cria `infra/host/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele sobe o banco e o túnel, lê a URL `https://*.trycloudflare.com` sorteada, builda as imagens, sobe tudo e espera `/api/health` responder pela URL pública. No fim imprime o link para compartilhar.
+Na primeira vez o script cria `infra/host/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele sobe o banco e o túnel, lê a URL `https://*.trycloudflare.com` sorteada, aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder pela URL pública. No fim imprime o link para compartilhar.
 
 A URL do modo rápido muda a cada reinício. As sessões da URL antiga deixam de valer e os amigos precisam do link novo.
 
@@ -88,7 +89,7 @@ git pull
 npm run host:start
 ```
 
-O script rebuilda as imagens, reaplica as migrations (job `migrate`) e o seed do admin, que é idempotente.
+O script reaplica as migrations a partir do repositório (`prisma migrate deploy` pela porta local do banco), rebuilda as imagens e roda o seed do admin dentro do container da API. O seed é idempotente.
 
 ## Documentação da API
 

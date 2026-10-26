@@ -3,6 +3,9 @@
 #
 #   browser -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
 #
+# Migrations run from the repository on this machine (start.sh), against the
+# database port bound to loopback: no image carries the Prisma CLI.
+#
 # Own project name and volumes: never touches infra/docker-compose.dev.yml.
 name: gameplay-host
 
@@ -40,9 +43,9 @@ services:
       POSTGRES_USER: gameplay
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
       POSTGRES_DB: gameplay
-    # No host port. Uncomment to reach it from the host (bound to loopback only):
-    # ports:
-    #   - '127.0.0.1:5433:5432'
+    # Loopback only, for the migrations start.sh runs from the repository.
+    ports:
+      - '127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql
     healthcheck:
@@ -50,23 +53,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-
-  # Applies the migrations and creates (or promotes) the platform admin. Safe to rerun.
-  migrate:
-    build:
-      context: ../..
-      dockerfile: apps/api/Dockerfile
-      target: migrator
-    image: gameplay-host-migrate
-    environment:
-      <<: *api-env
-      ADMIN_EMAIL: ${ADMIN_EMAIL:?set in .env}
-      ADMIN_USERNAME: ${ADMIN_USERNAME:?set in .env}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set in .env}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: 'no'
 
   api:
     build:
@@ -80,8 +66,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
 
   web:
     build:
