@@ -31,7 +31,10 @@ Um erro forçado no web do host chega ao Sentry com o arquivo e a linha do códi
 - `turbo.json`: `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` e `SENTRY_PROJECT` em `passThroughEnv` do `build` (o modo estrito do Turbo filtraria as variáveis; passThrough não entra no hash do cache).
 - Dockerfile do web: o token entra como build secret (`--mount=type=secret,id=sentry_auth_token`), nunca como `ARG`. Compose: secret `sentry_auth_token` vindo da variável de ambiente, `SENTRY_ORG`, `SENTRY_PROJECT`, ambiente do Sentry igual ao `OTEL_DEPLOYMENT_ENVIRONMENT` (`host`) e release = commit curto (`GAMEPLAY_RELEASE`, exportado pelo `start.sh`).
 - Conferido no host: "Successfully uploaded source maps to Sentry" no build, nenhum `.map` no nginx, DSN no bundle e o token ausente do `docker history` da imagem.
-- Falta conferir um erro real chegando ao Sentry com o código original (precisa do navegador).
+- Teste do usuário no Brave: o SDK capturou o erro, mas o envio para `*.ingest.sentry.io` foi bloqueado pelo Shields (`net::ERR_BLOCKED_BY_CLIENT`). Bloqueadores fazem o mesmo.
+- Tunnel: o SDK envia para `/monitoring/sentry` (`VITE_SENTRY_TUNNEL`) e o nginx repassa só para o envelope do nosso projeto. A URL de destino vem do DSN (`start.sh` exporta `GAMEPLAY_SENTRY_ENVELOPE_URL`). O `nginx.conf` virou template da imagem do nginx, com `NGINX_ENVSUBST_FILTER=^GAMEPLAY_` para não tocar nas variáveis do próprio nginx. Sem DSN, o caminho responde 404; só aceita POST; cookies e IP do cliente não são repassados. Conferido: um envelope de teste ("tunnel test (Claude, OBS-02)") foi aceito pelo Sentry pelo domínio.
+- Falta o usuário conferir um erro real do navegador chegando ao Sentry com o código original.
+- O IP do usuário não chega ao Sentry pelo tunnel (o Sentry vê o IP do servidor). *(suposição: é o desejado)*
 
 Suposições:
 - Release do Sentry = commit curto do git no momento do `host:start`. Mudanças não commitadas entram com o mesmo release do último commit. *(suposição)*

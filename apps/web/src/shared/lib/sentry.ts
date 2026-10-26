@@ -30,6 +30,8 @@ function initSentry(): boolean {
     dsn,
     environment: import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.MODE,
     release: import.meta.env.VITE_SENTRY_RELEASE || undefined,
+    // Same-origin path forwarded to Sentry, so ad blockers don't drop the events.
+    tunnel: import.meta.env.VITE_SENTRY_TUNNEL || undefined,
     // v11 has no sendDefaultPii option: personal data is off unless opted in, and scrubEvent strips the rest.
     integrations: [Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true })],
     replaysSessionSampleRate: 0,

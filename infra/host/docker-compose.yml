@@ -89,6 +89,8 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        # Same-origin path nginx forwards to Sentry (see nginx.conf).
+        VITE_SENTRY_TUNNEL: /monitoring/sentry
         VITE_SENTRY_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-host}
         # start.sh exports the git commit; Sentry groups errors by it.
         VITE_SENTRY_RELEASE: ${GAMEPLAY_RELEASE:-}
@@ -101,8 +103,11 @@ services:
     restart: unless-stopped
     ports:
       - '127.0.0.1:${WEB_PORT:-8080}:80'
+    environment:
+      NGINX_ENVSUBST_FILTER: '^GAMEPLAY_'
+      GAMEPLAY_SENTRY_ENVELOPE_URL: ${GAMEPLAY_SENTRY_ENVELOPE_URL:-}
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - uploads:/data/uploads:ro
     depends_on:
       api:
