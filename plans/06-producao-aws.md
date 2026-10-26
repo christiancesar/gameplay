@@ -113,13 +113,54 @@ Decisão do usuário em 2026-10-26: enquanto o projeto é pequeno, tudo sai dest
 
 **Quando mudar:** se outra pessoa passar a fazer deploy, ou se quisermos testes automáticos em cada PR, os mesmos scripts viram passos do GitHub Actions.
 
-## 8. Certificados
+## 8. Credenciais
+
+Levantamento de 2026-10-26. Nenhuma credencial foi criada ainda. Estado desta máquina: Terraform 1.16.2, `wrangler` 4.123 logado por OAuth na conta da Cloudflare (`20e7e533453b2614035e3d6cb0f11941`), Prisma CLI 7.10.1 no repositório (`npx prisma`), `gh` logado. Falta o AWS CLI.
+
+**A. Para o Terraform rodar daqui**
+
+| Credencial | Onde criar | Permissões |
+|---|---|---|
+| Usuário IAM `gameplay-terraform` com chave de acesso (perfil `gameplay` no `aws configure`) | Console da AWS, com MFA no usuário root e alerta de orçamento ligado antes | Lightsail, S3 e IAM (criar o bucket e o usuário da aplicação). Nunca a chave do root. |
+| Token de API da Cloudflare `gameplay-terraform` | Painel da Cloudflare, token customizado, só na zona `oikos.company` | Zone DNS (edit), Zone Settings (edit, modo SSL), SSL and Certificates (edit, Origin CA), Workers Scripts e Workers Routes (edit, domínio do web); se o SSH for pelo túnel, Cloudflare Tunnel e Access Apps (edit) |
+| ID da conta e ID da zona `oikos.company` | Painel da Cloudflare | Entram como variáveis, não são segredo |
+| Chave SSH ed25519 (`~/.ssh/gameplay-lightsail`) | Esta máquina (`ssh-keygen`) | A pública vai para o Lightsail pelo Terraform |
+| IP desta casa | `curl ifconfig.me` | Só se o SSH for liberado por IP |
+
+**B. Criadas à mão**
+
+| Credencial | Onde | Observação |
+|---|---|---|
+| Banco no Prisma Postgres (us-east-1, Starter) | Prisma Console | O CLI do Prisma 7 não cria banco de produção (só `postgres link` e o banco local do `prisma dev`). Copiar a `DATABASE_URL` de conexão direta. |
+| TURN da Cloudflare | Já existe (`CLOUDFLARE_TURN_KEY_ID` e `CLOUDFLARE_TURN_API_TOKEN` no `.env` do host) | Reaproveitar ou criar uma chave só de produção |
+| App do Realtime SFU (ID e token) | Painel da Cloudflare, Realtime | Só nos tickets SFU |
+
+**C. Geradas pelo Terraform (outputs para o `.env` do servidor)**
+
+IP estático do Lightsail, nome do bucket, chave de acesso do usuário IAM da aplicação (só no bucket), certificado e chave de origem da Cloudflare para o nginx.
+
+**D. Segredos da aplicação**
+
+- `BETTER_AUTH_SECRET` e `REGISTRATION_KEY_SECRET`: **se os dados do host forem migrados, manter os mesmos valores do `.env` do host.** O Better Auth usa o segredo para os dados de sessão e de 2FA, e as chaves de cadastro são assinadas com o outro; trocar invalida as sessões, o 2FA e as chaves não usadas.
+- `ADMIN_EMAIL`, `ADMIN_USERNAME` e `ADMIN_PASSWORD` para o seed, se o banco começar vazio.
+
+**E. Observabilidade (já existem no host, conferir para produção)**
+
+`OTEL_EXPORTER_OTLP_ENDPOINT` e `OTEL_EXPORTER_OTLP_HEADERS` (Grafana Cloud), `VITE_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` e `SENTRY_PROJECT`, e a URL do coletor do Faro. Sem o nginx na frente do web, o web fala direto com o Sentry e o Faro (sem os túneis `/monitoring/*`).
+
+**F. Onde cada uma fica**
+
+- Esta máquina: chave do IAM `gameplay-terraform` (perfil do AWS CLI), token da Cloudflare (variável `CLOUDFLARE_API_TOKEN`), login do `wrangler`, chave SSH, `terraform.tfstate` (fora do git, com backup) e o `.env` de produção usado pelo deploy.
+- Servidor: `.env` da API, com permissão 600, e o certificado de origem.
+- Nenhuma no git.
+
+## 9. Certificados
 
 - **Browser → Cloudflare:** SSL Universal da Cloudflare, grátis e renovado sozinho, para `oikos.company` e `*.oikos.company` (um nível de subdomínio). Cobre `gameplay.oikos.company`, `unlimited.oikos.company` e o domínio das imagens, se for de um nível.
 - **Cloudflare → Lightsail:** certificado de origem da Cloudflare (Origin CA, grátis, até 15 anos) instalado no nginx, com a zona em modo **Full (strict)**. Hoje o túnel faz esse papel; na AWS ele sai. O firewall do Lightsail aceita só os IPs da Cloudflare.
 - **Web no Workers, TURN, SFU e Prisma Postgres:** certificados dos próprios serviços, sem nada a configurar.
 
-## 9. SFU
+## 10. SFU
 
 O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele deixa de ser fase opcional e vira requisito:
 - O módulo `ice` da API vira `media`: credenciais do TURN, criação de sessões e tracks do SFU pela API da Cloudflare (o token fica só no servidor) e controle de orçamento.
@@ -128,7 +169,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 - Orçamento mensal de GB no módulo `limits`, abaixo da franquia; ao chegar no limite, transmissões novas voltam para mesh.
 - Decisões ainda em aberto no `media-transport-options.md`, seção 6: modo automático ou sempre SFU, limite de espectadores para trocar, e o seletor de qualidade do espectador.
 
-## 10. Riscos
+## 11. Riscos
 
 - **Franquia compartilhada:** SFU e TURN somam na mesma franquia de 1.000 GB. O orçamento no `limits` evita surpresa.
 - **Operações do Prisma:** no Free, 200 mil operações/mês podem não bastar por causa da sessão consultada a cada requisição. Começar no Starter ou ativar o cache de cookie de sessão do Better Auth.
@@ -136,7 +177,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 - **Região do Prisma Postgres:** confirmar que existe em us-east-1. Se não existir, escolher a região da AWS mais próxima da que ele oferece.
 - **Lightsail:** CPU com crédito (burstable). O `sharp` processando muitas imagens de uma vez pode gastar os créditos; para o tamanho atual é suficiente.
 
-## 11. Tickets propostos (só a lista, nada executado)
+## 12. Tickets propostos (só a lista, nada executado)
 
 | Ticket | Escopo |
 |---|---|
@@ -150,7 +191,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 | SFU-03 | Orçamento mensal no `limits` e troca entre mesh e SFU |
 | DESK-01 | Estudo do app desktop em Electron (captura de áudio por processo) |
 
-## 12. Antes de assinar, conferir na página oficial
+## 13. Antes de assinar, conferir na página oficial
 
 - Preço do Lightsail 2 GB e 4 GB em us-east-1.
 - Prisma Postgres: preço, operações incluídas, regiões e conexão direta com o adapter `pg`.
