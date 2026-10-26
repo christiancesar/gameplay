@@ -224,9 +224,11 @@
       },
       "audio": "Compartilhar áudio",
       "audioSupport": {
-        "supported": "Áudio de aba funciona em qualquer sistema.",
-        "windowsOnly": "Áudio da tela inteira só funciona no Windows.",
-        "unsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba."
+        "supported": "O browser oferece o áudio no seletor. Deixe a caixa de áudio marcada lá.",
+        "recentMac": "Áudio da tela precisa do macOS 14.2 ou mais novo. Deixe a caixa de áudio marcada no seletor.",
+        "windowMaybe": "Chrome e Edge 141 ou mais novos podem oferecer o áudio da própria janela. Se não vier, compartilhe a tela inteira ou uma aba.",
+        "tabOnly": "Neste sistema o browser só compartilha áudio de uma aba.",
+        "browserUnsupported": "Este browser não compartilha áudio da tela. Para mandar o som do jogo, use Chrome ou Edge."
       },
       "saveAsDefault": "Usar estas configurações da próxima vez",
       "start": "Escolher e compartilhar",

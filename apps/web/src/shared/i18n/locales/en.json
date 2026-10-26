@@ -224,9 +224,11 @@
       },
       "audio": "Share audio",
       "audioSupport": {
-        "supported": "Tab audio works on any system.",
-        "windowsOnly": "Screen audio only works on Windows.",
-        "unsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab."
+        "supported": "The browser offers the audio in its picker. Leave the audio box checked there.",
+        "recentMac": "Screen audio needs macOS 14.2 or newer. Leave the audio box checked in the picker.",
+        "windowMaybe": "Chrome and Edge 141 or newer may offer the window's own audio. If it doesn't come, share the entire screen or a tab.",
+        "tabOnly": "On this system the browser only shares audio from a tab.",
+        "browserUnsupported": "This browser doesn't share screen audio. To send the game sound, use Chrome or Edge."
       },
       "saveAsDefault": "Use these settings next time",
       "start": "Choose and share",

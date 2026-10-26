@@ -9,9 +9,11 @@ import {
   type ShareSettings,
 } from './share-setup-dialog.view'
 
-// Regra de exemplo só para a story; a real fica no Model e considera o sistema operacional.
-const audioSupportFor = (settings: ShareSettings): AudioSupport =>
-  settings.source === 'tab' ? 'supported' : settings.source === 'screen' ? 'windowsOnly' : 'unsupported'
+// Regra de exemplo só para a story (Chrome 141 no Windows); a real fica no Model e considera browser e sistema.
+const audioSupportFor = (settings: ShareSettings, base: AudioSupport): AudioSupport => {
+  if (base === 'browserUnsupported') return base
+  return settings.source === 'window' ? 'windowMaybe' : 'supported'
+}
 
 const meta = {
   title: 'ScreenShare/ShareSetupDialog',
@@ -20,7 +22,7 @@ const meta = {
     open: true,
     settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true },
     priority: 'smooth',
-    audioSupport: 'unsupported',
+    audioSupport: 'windowMaybe',
     saveAsDefault: true,
     onOpenChange: fn(),
     onChange: fn(),
@@ -40,7 +42,7 @@ const meta = {
           args.onPriorityChange(next)
           setPriority(next)
         }}
-        audioSupport={audioSupportFor(settings)}
+        audioSupport={audioSupportFor(settings, args.audioSupport)}
         onChange={(next) => {
           args.onChange(next)
           setSettings(next)
@@ -91,9 +93,19 @@ export const SharpPriority: Story = {
   },
 }
 
-export const WindowAudioUnavailable: Story = {
+export const WindowAudioMaybe: Story = {
   play: async () => {
-    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
+    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeEnabled()
+    await waitFor(() => expect(screen.getByText(/may offer the window's own audio/i)).toBeVisible())
+  },
+}
+
+/** Firefox e Safari não capturam áudio de tela: o aviso fica em âmbar, o switch continua ligado. */
+export const BrowserWithoutAudio: Story = {
+  args: { audioSupport: 'browserUnsupported' },
+  play: async () => {
+    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeEnabled()
+    await expect(screen.getByText(/use chrome or edge/i)).toHaveClass('text-amber-500')
   },
 }
 

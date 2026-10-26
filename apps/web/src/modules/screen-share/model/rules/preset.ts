@@ -60,6 +60,8 @@ function displayMediaOptions(settings: ShareSettings): DisplayMediaStreamOptions
       : false,
     selfBrowserSurface: 'exclude',
     systemAudio: settings.includeAudio ? 'include' : 'exclude',
+    // Chromium 141+: offer the window's own audio (a game) instead of none. Ignored elsewhere.
+    windowAudio: settings.includeAudio ? 'window' : 'exclude',
   } as DisplayMediaStreamOptions
 }
 

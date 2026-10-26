@@ -23,7 +23,10 @@ const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
 /** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
 type SharePriority = (typeof SHARE_PRIORITIES)[number]
 
-type AudioSupport = 'supported' | 'windowsOnly' | 'unsupported'
+type AudioSupport = 'supported' | 'recentMac' | 'windowMaybe' | 'tabOnly' | 'browserUnsupported'
+
+/** Asking for audio most likely brings none: the hint turns amber. The switch stays on, the share warns. */
+const UNLIKELY_AUDIO: readonly AudioSupport[] = ['tabOnly', 'browserUnsupported']
 
 type ShareSettings = {
   source: ShareSource
@@ -36,7 +39,7 @@ type ShareSetupDialogViewProps = {
   open: boolean
   settings: ShareSettings
   priority: SharePriority
-  /** Calculado pelo ViewModel a partir da fonte e do sistema operacional. */
+  /** Calculado pelo ViewModel a partir da fonte, do browser e do sistema operacional. */
   audioSupport: AudioSupport
   saveAsDefault: boolean
   /** `update`: changing resolution and frame rate of a share already running; the source and audio are fixed. */
@@ -187,15 +190,17 @@ function ShareSetupDialogView({
               <div className="flex flex-col gap-1">
                 <Label htmlFor="share-audio">{t('share.setup.audio')}</Label>
                 <p
-                  className={cn('text-xs', audioSupport === 'unsupported' ? 'text-amber-500' : 'text-muted-foreground')}
+                  className={cn(
+                    'text-xs',
+                    UNLIKELY_AUDIO.includes(audioSupport) ? 'text-amber-500' : 'text-muted-foreground',
+                  )}
                 >
                   {t(`share.setup.audioSupport.${audioSupport}`)}
                 </p>
               </div>
               <Switch
                 id="share-audio"
-                checked={settings.includeAudio && audioSupport !== 'unsupported'}
-                disabled={audioSupport === 'unsupported'}
+                checked={settings.includeAudio}
                 onCheckedChange={(includeAudio) => set({ includeAudio })}
               />
             </div>

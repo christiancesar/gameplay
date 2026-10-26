@@ -51,8 +51,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   }
 
   function start() {
-    const includeAudio = draft.includeAudio && audioSupportFor(draft.source) !== 'unsupported'
-    const settings = { ...draft, includeAudio }
+    const settings = draft
     const { save, clear } = useSharePreferencesStore.getState()
     if (saveAsDefault) save(settings, draftPriority)
     else clear()
@@ -81,7 +80,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
       mode: dialog === 'update' ? ('update' as const) : ('start' as const),
       settings: draft,
       priority: draftPriority,
-      audioSupport: audioSupportFor(draft.source),
+      audioSupport: audioSupportFor(draft.source, shareController.platform()),
       saveAsDefault,
       onOpenChange: (open: boolean) => {
         if (!open) setDialog('closed')
