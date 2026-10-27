@@ -37,7 +37,8 @@ x-api-env: &api-env
 
 services:
   postgres:
-    image: postgres:18-alpine
+    # Same major version as production (Prisma Postgres runs 17).
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: gameplay
@@ -47,7 +48,7 @@ services:
     ports:
       - '127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432'
     volumes:
-      - postgres-data:/var/lib/postgresql
+      - postgres-data-17:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U gameplay -d gameplay']
       interval: 5s
@@ -151,5 +152,7 @@ secrets:
     environment: SENTRY_AUTH_TOKEN
 
 volumes:
-  postgres-data:
+  # Postgres 17 data. The Postgres 18 volume (postgres-data) was left on disk
+  # untouched after its dump was restored here.
+  postgres-data-17:
   uploads:
