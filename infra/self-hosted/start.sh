@@ -98,6 +98,7 @@ wait_for_health() {
 }
 
 ensure_env
+migrate_env_names
 [ -n "$(get_var POSTGRES_HOST_PORT)" ] || set_var POSTGRES_HOST_PORT 5433
 
 MODE="${1:-$(get_var TUNNEL_MODE)}"
@@ -117,24 +118,24 @@ if [ "$MODE" = quick ]; then
   echo "Starting database and quick tunnel..."
   compose up -d --wait postgres
   compose --profile quick up -d cloudflared-quick
-  PUBLIC_URL="$(discover_quick_url)" || die "could not read the quick tunnel URL (run npm run host:logs)"
-  set_var PUBLIC_URL "$PUBLIC_URL"
+  APP_URL="$(discover_quick_url)" || die "could not read the quick tunnel URL (run npm run host:logs)"
+  set_var APP_URL "$APP_URL"
 else
-  PUBLIC_URL="$(get_var PUBLIC_URL)"
-  [ -n "$PUBLIC_URL" ] || die "PUBLIC_URL is empty in $ENV_FILE (your tunnel hostname, https://...)"
+  APP_URL="$(get_var APP_URL)"
+  [ -n "$APP_URL" ] || die "APP_URL is empty in $ENV_FILE (your tunnel hostname, https://...)"
   if [ "$MODE" = token ]; then
     [ -n "$(get_var CLOUDFLARE_TUNNEL_TOKEN)" ] || die "CLOUDFLARE_TUNNEL_TOKEN is empty in $ENV_FILE"
   else
     [ -n "$(get_var CLOUDFLARE_TUNNEL_ID)" ] || die "CLOUDFLARE_TUNNEL_ID is empty in $ENV_FILE"
     CREDENTIALS="$(get_var CLOUDFLARE_TUNNEL_CREDENTIALS)"
     [ -f "$CREDENTIALS" ] || die "CLOUDFLARE_TUNNEL_CREDENTIALS must be the path of the tunnel credentials JSON (got '$CREDENTIALS')"
-    HOSTNAME_ONLY="${PUBLIC_URL#https://}"
+    HOSTNAME_ONLY="${APP_URL#https://}"
     set_var PUBLIC_HOSTNAME "${HOSTNAME_ONLY%%/*}"
     set_var CLOUDFLARED_UID "$(id -u)"
   fi
 fi
-PUBLIC_URL="${PUBLIC_URL%/}"
-set_var PUBLIC_URL "$PUBLIC_URL"
+APP_URL="${APP_URL%/}"
+set_var APP_URL "$APP_URL"
 
 # Build inputs that are not plain .env interpolation: the commit names the
 # Sentry release, and the token goes in as a build secret (empty: no upload).
@@ -142,24 +143,25 @@ GAMEPLAY_RELEASE="$(git -C "$HOST_DIR" rev-parse --short HEAD 2>/dev/null || tru
 SENTRY_AUTH_TOKEN="$(get_var SENTRY_AUTH_TOKEN)"
 # Where nginx forwards the Sentry tunnel: https://KEY@HOST/PROJECT becomes
 # https://HOST/api/PROJECT/envelope/. Empty without a DSN (tunnel answers 404).
-GAMEPLAY_SENTRY_ENVELOPE_URL=""
+SENTRY_ENVELOPE_URL=""
 SENTRY_DSN="$(get_var VITE_SENTRY_DSN)"
 if [ -n "$SENTRY_DSN" ]; then
   DSN_HOST="${SENTRY_DSN#*@}"
-  GAMEPLAY_SENTRY_ENVELOPE_URL="https://${DSN_HOST%%/*}/api/${SENTRY_DSN##*/}/envelope/"
+  SENTRY_ENVELOPE_URL="https://${DSN_HOST%%/*}/api/${SENTRY_DSN##*/}/envelope/"
 fi
-export GAMEPLAY_RELEASE SENTRY_AUTH_TOKEN GAMEPLAY_SENTRY_ENVELOPE_URL
+export GAMEPLAY_RELEASE SENTRY_AUTH_TOKEN SENTRY_ENVELOPE_URL
 
 echo "Applying the database migrations..."
 compose up -d --wait postgres
+ensure_test_database
 migrate_database
 
-echo "Building and starting the stack for $PUBLIC_URL ..."
+echo "Building and starting the stack for $APP_URL ..."
 compose --profile "$MODE" up -d --build --remove-orphans --wait
 seed_admin
 
-echo "Waiting for $PUBLIC_URL/api/health ..."
-if ! wait_for_health "$PUBLIC_URL"; then
+echo "Waiting for $APP_URL/api/health ..."
+if ! wait_for_health "$APP_URL"; then
   compose ps || true
   die "the public URL did not answer; check 'npm run host:logs'"
 fi
@@ -169,7 +171,7 @@ cat <<MSG
 
 Gameplay is up.
 
-  Link to share:  $PUBLIC_URL
+  Link to share:  $APP_URL
   Local access:   http://127.0.0.1:$(get_var WEB_PORT)
 
 Admin account: $ADMIN_EMAIL (username $(get_var ADMIN_USERNAME))
@@ -182,8 +184,8 @@ fi
 cat <<MSG
 
 Inviting friends (sign-up needs a registration key):
-  1. Sign in as admin at $PUBLIC_URL and enable 2FA at $PUBLIC_URL/admin/setup.
-  2. Create keys at $PUBLIC_URL/admin/keys and send each friend the link plus a key.
+  1. Sign in as admin at $APP_URL and enable 2FA at $APP_URL/admin/setup.
+  2. Create keys at $APP_URL/admin/keys and send each friend the link plus a key.
 MSG
 if [ "$MODE" = quick ]; then
   cat <<MSG

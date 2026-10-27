@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Shared helpers for start.sh and stop.sh. Sourced, not executed.
+# Shared helpers for start.sh, db.sh and stop.sh. Sourced, not executed.
 
 HOST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$HOST_DIR/.env"
@@ -33,4 +33,29 @@ set_var() {
   [ "$found" -eq 1 ] || printf '%s=%s\n' "$key" "$value" >>"$tmp"
   chmod 600 "$tmp"
   mv "$tmp" "$ENV_FILE"
+}
+
+# rename_var OLD NEW: renames a key of .env, keeping its value (older .env files).
+rename_var() {
+  [ -n "$(grep -E "^$1=" "$ENV_FILE" || true)" ] || return 0
+  if [ -z "$(grep -E "^$2=" "$ENV_FILE" || true)" ] || [ -z "$(get_var "$2")" ]; then
+    set_var "$2" "$(get_var "$1")"
+  fi
+  local tmp
+  tmp="$(mktemp "$ENV_FILE.XXXXXX")"
+  grep -vE "^$1=" "$ENV_FILE" >"$tmp" || true
+  chmod 600 "$tmp"
+  mv "$tmp" "$ENV_FILE"
+}
+
+# Names shared with infra/production (PUBLIC_URL was the old name of APP_URL).
+migrate_env_names() {
+  rename_var PUBLIC_URL APP_URL
+}
+
+# Creates the api e2e database when missing (volumes older than the init script).
+ensure_test_database() {
+  local exists
+  exists="$(compose exec -T postgres psql -U gameplay -d gameplay -tAc "SELECT 1 FROM pg_database WHERE datname = 'gameplay_test'")"
+  [ "$exists" = 1 ] || compose exec -T postgres psql -U gameplay -d gameplay -qc 'CREATE DATABASE gameplay_test OWNER gameplay'
 }
