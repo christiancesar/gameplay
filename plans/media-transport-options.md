@@ -163,8 +163,10 @@ Os itens 1 a 5 só precisam ser decididos quando o SFU entrar.
 - **Áudio da tela:** segue o modo da transmissão, na mesma sessão do vídeo.
 - **Voz:** sempre mesh.
 - **Sem troca no meio da live.** Para mudar de modo, a pessoa para e compartilha de novo. O "make before break" da seção 2.4 sai do plano.
-- **Modos permitidos:** o admin da plataforma libera ou bloqueia cada modo de forma global, e owner e admin de cada servidor restringem dentro disso (SFU-04). Quem transmite escolhe entre os modos que sobram.
-- **Quando o SFU não está disponível** (sem credenciais, orçamento esgotado ou erro da Cloudflare), ele aparece desabilitado com o motivo. Se a publicação falhar ao começar e o Direto estiver permitido, a transmissão cai para Direto com um aviso. Se o servidor só permite SFU e ele está indisponível, ninguém transmite ali até ele voltar.
+- **Recursos no admin:** SFU, Mesh e TURN se ligam e desligam na aba Mídia do admin da plataforma, de forma global, com exceção por servidor no diálogo "Ajustar servidor" (o valor do servidor vale nos dois sentidos). Padrão: tudo ligado. Os dois modos podem ficar desligados; aí não há transmissão no servidor. Quem transmite escolhe entre os modos ligados (SFU-04).
+- **Desligar derruba:** lives no modo desligado param na hora, sem migrar; TURN desligado faz os clientes refazerem o ICE só com STUN. A confirmação permite avisar os afetados, os membros do servidor ou todo mundo (SFU-05).
+- **Provedores:** recurso e provedor ficam separados. Hoje Cloudflare para SFU e TURN; outros provedores entram depois, com as credenciais no `.env`.
+- **Quando o SFU não está disponível** (sem credenciais, orçamento esgotado ou erro da Cloudflare), ele aparece desabilitado com o motivo. Se a publicação falhar ao começar e o Direto estiver permitido, a transmissão cai para Direto com um aviso. Se o Mesh está desligado e o SFU indisponível, ninguém transmite ali até ele voltar.
 - **Fornecedor:** Cloudflare Realtime SFU, só a API de conexão. O RealtimeKit não é usado: ele traz salas, sinalização e interface próprias e cobra por minuto de participante.
 - **Credenciais:** um app só para desenvolvimento e produção (`CLOUDFLARE_SFU_APP_ID` e `CLOUDFLARE_SFU_APP_TOKEN`), decisão do usuário.
-- **Tickets:** SFU-01 (API), SFU-04 (modos permitidos), SFU-02 (web e seletor de modo) e SFU-03 (orçamento e qualidade de quem assiste), em `plans/tickets/`.
+- **Tickets:** SFU-01 (API), SFU-05 (aviso da plataforma), SFU-04 (aba Mídia e recursos por servidor), SFU-02 (web e seletor de modo) e SFU-03 (orçamento e qualidade de quem assiste), em `plans/tickets/`.

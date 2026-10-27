@@ -32,7 +32,7 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - 2026-10-27: branch `dev` criada; toda branch sai da `dev` e volta por PR para ela, e a `main` só recebe PR da `dev` (protegida no GitHub, só entra por PR).
 - 2026-10-27: tela pelo Cloudflare Realtime SFU por padrão, com o mesh como opção no diálogo de compartilhar; voz em mesh; sem RealtimeKit; um app do SFU só para desenvolvimento e produção. Desenho em `media-transport-options.md` seção 7.
 - Variáveis `CLOUDFLARE_SFU_APP_ID` e `CLOUDFLARE_SFU_APP_TOKEN` criadas nos `.env.example`, no schema da API, nos composes e no `deploy.sh` (branch `feature/sfu`). Os valores ficam com o usuário.
-- Tickets SFU-01 a SFU-04 escritos (`tickets/README.md`, seção SFU). Ordem: SFU-01, SFU-04, SFU-02, SFU-03. Nomes dos modos, explicações, modos permitidos na plataforma e por servidor, e queda para Direto aprovados pelo usuário em 2026-10-27. Próximo: SFU-01.
+- Tickets SFU-01 a SFU-05 escritos (`tickets/README.md`, seção SFU). Ordem: SFU-01, SFU-05, SFU-04, SFU-02, SFU-03. Aprovados pelo usuário em 2026-10-27: nomes e explicações dos modos, queda para Direto, aba Mídia com SFU, Mesh e TURN globais e por servidor, desligar derruba, aviso da plataforma, correção do campo numérico no SFU-04. SFU-01 em andamento.
 
 ## Frontend (`apps/web`), retomar daqui
 
