@@ -15,7 +15,8 @@ Hoje a tela vai pelas mesmas conexões da voz: `MediaTransport.addTrack(peerId)`
   - **Direto (Mesh)**: "Melhor para 1:1, com menor atraso. Seu upload é dividido entre quem assiste."
 - O diálogo mostra só os modos ligados no servidor (SFU-04). Abre em "Servidor (SFU)" quando ele está ligado e disponível *(suposição: não lembra a última escolha)*. Um modo ligado mas indisponível (SFU sem credenciais, sem orçamento ou com erro) aparece desabilitado, com o motivo. Com os dois modos desligados, o botão de compartilhar tela fica desabilitado com "Transmissão desativada neste servidor"; a voz continua.
 - Live encerrada pelo admin (SFU-04): quem transmitia e quem assistia veem "Transmissão encerrada pelo administrador".
-- TURN desligado durante a call (SFU-04): refazer o ICE só com STUN quando o socket mandar.
+- TURN desligado durante a call (SFU-04): refazer o ICE só com STUN quando chegar `media:changed` com `turnOff: true`.
+- O que o servidor oferece vem de `GET /api/servers/:serverId/media`, refeito a cada `media:changed`. O `/api/ice` passa a receber `serverId` da sala. A live encerrada pela API chega como `stream:ended` (`reason: 'disabled'`) para quem transmitia.
 - Se a publicação no SFU falhar ao começar e o Direto estiver ligado, a transmissão cai sozinha para Direto, com a mesma captura (sem abrir o seletor do browser de novo), e mostra um aviso. Se o Direto estiver desligado, a live não começa e o erro aparece (decisão do usuário em 2026-10-27).
 - Áudio:
   - **Voz** (microfone): continua sempre em mesh, nos dois modos. Nada muda.

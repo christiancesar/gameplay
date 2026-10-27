@@ -44,16 +44,34 @@ Diálogo de compartilhar e transporte (SFU-02). Orçamento e medição (SFU-03).
 - `plans/tickets/BE-06-limites-e-configuracoes.md`, `BE-13-notificacoes.md`, `BE-14-ice-e-ip.md`, `BE-15-admin-da-plataforma.md`, `FE-11-admin.md`, `OBS-06-health-detalhado.md`
 
 ## Checklist
-- [ ] Conferir se a API de TURN da Cloudflare permite revogar credenciais
-- [ ] Migração do Prisma para os recursos globais e por servidor
-- [ ] Regra dos recursos efetivos com testes
-- [ ] Rotas de recursos efetivos, estado dos provedores e contagem de afetados, com e2e
-- [ ] Recusa no `stream:start` e nas rotas do SFU; `/api/ice` por servidor
-- [ ] Derrubada de lives e de TURN ao desligar, e aviso pelo socket
-- [ ] Aba Mídia, diálogo "Ajustar servidor" e campo numérico corrigido, com stories
-- [ ] Confirmação ao desligar, usando o SFU-05
-- [ ] i18n e testes
-- [ ] Commit
+- [x] Conferir se a API de TURN da Cloudflare permite revogar credenciais
+- [x] Migração do Prisma para os recursos globais e por servidor
+- [x] Regra dos recursos efetivos com testes
+- [x] Rotas de recursos efetivos, estado dos provedores e contagem de afetados, com e2e
+- [x] Recusa no `stream:start` e nas rotas do SFU; `/api/ice` por servidor
+- [x] Derrubada de lives e de TURN ao desligar, e aviso pelo socket
+- [x] Aba Mídia, diálogo "Ajustar servidor" e campo numérico corrigido, com stories
+- [x] Confirmação ao desligar, usando o SFU-05
+- [x] i18n e testes
+- [x] Commit
 
 ## Critério de aceite
 Desligar o SFU na aba Mídia encerra as lives que estão no SFU e tira o modo do diálogo de compartilhar em todos os servidores sem exceção. Um servidor com exceção mantém o SFU ligado. Dar 20 membros a um servidor com o global em 10 é feito direto pelo campo numérico. Desligar o TURN faz quem depende dele perder a conexão, e os destinatários escolhidos recebem o aviso.
+
+## Notas da execução
+- **Onde mora o quê:** os interruptores ficam no módulo `limits` (colunas `sfuEnabled`, `meshEnabled` e `turnEnabled` em `platform_settings`, com padrão ligado, e as mesmas colunas, nulas, em `server`; migration `media_resources`). O `EffectiveMediaService` resolve o valor de um servidor (o dele, senão o global) e é lido em toda checagem, então a mudança vale na hora. O `realtime`, o `ice` e o `media` leem dele; quem orquestra a mudança é o `media`.
+- **Rotas do admin** (com 2FA): `GET /api/admin/media` (configuração global, provedores e exceções), `GET /api/admin/media/impact?serverId=` (quantas pessoas cada recurso derrubaria agora), `PUT /api/admin/media`, `GET` e `PUT /api/admin/servers/:serverId/media`. Os `PUT` aceitam `notice` (título, mensagem e destinatário) e respondem `{ notified }`. No global o destinatário é `affected` ou `everyone`; no servidor também `members`.
+- **Rota dos membros:** `GET /api/servers/:serverId/media` responde o que o servidor oferece agora (`sfu` com motivo `disabled` ou `not-configured`, `mesh`, `turn`). Quem não é membro recebe 404. É o que o SFU-02 vai ler.
+- **Quem é "afetado":** quem está em sala de voz de um servidor onde o recurso passou de ligado para desligado. No SFU e no Mesh, todos da sala onde há uma live naquele modo; no TURN, todos das salas daquele servidor. *(Suposição: quem está fora de sala não conta, porque não está usando nada naquele momento.)* A contagem da confirmação mostra o maior número entre os recursos que vão desligar, porque as pessoas podem se repetir *(suposição)*.
+- **Derrubar:** ao salvar, a API publica `media.changed`. O `realtime` para as lives no modo desligado (o seat fica sem `streaming`, quem transmitia recebe `stream:ended` com `reason: 'disabled'`, a sala é anunciada e o SFU fecha as tracks pelo `stream.changed`) e emite `media:changed` (`{ serverId, turnOff: false }`) para quem segue o servidor, ou para todos quando é global. Quem perdeu o TURN recebe também `media:changed` com `turnOff: true`, para refazer o ICE só com STUN. O `ice` revoga as credenciais TURN dessas pessoas na Cloudflare (`POST /v1/turn/keys/{keyId}/credentials/{username}/revoke`, conferido na documentação) e tira do cache. No coturn não há revogação; a credencial expira no TTL.
+- **`/api/ice?serverId=`:** com o TURN desligado naquele servidor (ou no global, sem `serverId`) responde só STUN. O web ainda não manda o `serverId`; isso entra no SFU-02.
+- **Recusas:** `stream:start` num modo desligado volta `STREAM_MODE_DISABLED`; criar sessão ou publicar no SFU desligado volta `SFU_DISABLED` (409).
+- **Provedores na aba:** SFU "cloudflare, configurado" ou "sem credenciais"; TURN pelo `IceHealthService` (que já existia para o health): pronto, falhou na última verificação, ou sem provedor quando é `stun-only`. O Mesh não tem provedor.
+- **Web:**
+  - Aba **Mídia** (`/admin/media`) com um bloco por recurso (interruptor, explicação e estado do provedor) e a lista **Exceções por servidor**. "Ajustar" abre `/admin/servers?edit=<id>`, que já abre o diálogo daquele servidor.
+  - O diálogo de servidor virou **Ajustar {nome}**, com os limites numéricos e uma escolha por recurso: "Padrão global (Ligado/Desligado)", "Ligado neste servidor" ou "Desligado neste servidor".
+  - **Campo numérico corrigido** (vale também para o limite por usuário): o número aparece sempre; com a caixa "Usar o padrão global (N)" marcada, o campo mostra o global e fica travado; desmarcando, dá para digitar o valor do servidor.
+  - **Confirmação** ao desligar (na aba ou no diálogo): quantas pessoas perdem o recurso agora, aviso com título e mensagem sugeridos e editáveis, destinatário, e os botões "Desligar e avisar" e "Desligar sem avisar". Ligar não pede confirmação. *(Suposição: religar não oferece aviso de volta; dá para mandar um pela aba Avisos.)*
+  - O espaço do orçamento no bloco do SFU fica para o SFU-03.
+- **Stories:** `Admin/AdminPanel` com `Media`, `MediaNoExceptions`, `MediaToggle`, `MediaOffConfirm`, `ServerLimitsOwnValue` (campo numérico e escolha de mídia) e `ServerLimitsValidation` atualizada.
+- **Testes:** API com 355+ unitários (regra de quem é cortado, mudanças, impacto, recusas, revogação, parada das lives) e e2e (`media-resources`: desligar o Mesh com uma live no ar derruba, avisa os afetados e recusa nova live; exceção por servidor nos dois sentidos; o que o membro vê; só admin muda). Web com 1218 testes (unitários e Storybook). O e2e rodou com Postgres temporário; o do S3 não rodou. Não abri o app no browser para conferir o visual.
