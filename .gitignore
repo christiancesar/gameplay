@@ -40,3 +40,6 @@ storybook-static
 *.tfvars
 !*.tfvars.example
 crash.log
+# Saved plans can hold secrets too.
+tfplan
+*.tfplan
