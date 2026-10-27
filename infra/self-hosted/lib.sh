@@ -34,3 +34,21 @@ set_var() {
   chmod 600 "$tmp"
   mv "$tmp" "$ENV_FILE"
 }
+
+# rename_var OLD NEW: renames a key of .env, keeping its value (older .env files).
+rename_var() {
+  [ -n "$(grep -E "^$1=" "$ENV_FILE" || true)" ] || return 0
+  if [ -z "$(grep -E "^$2=" "$ENV_FILE" || true)" ] || [ -z "$(get_var "$2")" ]; then
+    set_var "$2" "$(get_var "$1")"
+  fi
+  local tmp
+  tmp="$(mktemp "$ENV_FILE.XXXXXX")"
+  grep -vE "^$1=" "$ENV_FILE" >"$tmp" || true
+  chmod 600 "$tmp"
+  mv "$tmp" "$ENV_FILE"
+}
+
+# Names shared with infra/production (PUBLIC_URL was the old name of APP_URL).
+migrate_env_names() {
+  rename_var PUBLIC_URL APP_URL
+}

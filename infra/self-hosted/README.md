@@ -6,7 +6,9 @@ Roda o Gameplay no seu PC Linux e compartilha com amigos pela internet usando um
 navegador -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
 ```
 
-O túnel carrega só HTTP e WebSocket. O áudio e a tela vão direto entre os navegadores (WebRTC), com TURN da Cloudflare quando a conexão direta falha.
+O túnel carrega só HTTP e WebSocket. O áudio vai entre os navegadores (WebRTC), com TURN da Cloudflare quando a conexão direta falha. A tela vai pelo SFU da Cloudflare ou direto (Mesh), conforme a escolha de quem compartilha.
+
+Esta stack simula a produção (`infra/production`) com os mesmos nomes de variáveis, rotação de logs e healthchecks. Banco e uploads ficam locais. O desenvolvimento e os testes não usam esta stack: o banco de dev fica em `apps/api/docker-compose.yml`.
 
 ## Pré-requisitos
 
@@ -54,7 +56,7 @@ Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`bash infra/self-hoste
 1. Crie o túnel e a rota DNS: `cloudflared tunnel create gameplay` e `cloudflared tunnel route dns gameplay gameplay.seudominio.com`. Cuidado: se existir um `~/.cloudflared/config.yml` de outro túnel, passe `--config /dev/null` ou o comando mira o túnel errado.
 2. No `.env`:
    - `TUNNEL_MODE=named`
-   - `PUBLIC_URL=https://gameplay.seudominio.com`
+   - `APP_URL=https://gameplay.seudominio.com`
    - `CLOUDFLARE_TUNNEL_ID=<id do túnel>`
    - `CLOUDFLARE_TUNNEL_CREDENTIALS=/home/voce/.cloudflared/<id>.json`
 3. `npm run host:start`. O script deriva `PUBLIC_HOSTNAME` da URL e ajusta `CLOUDFLARED_UID` para o seu usuário, porque o arquivo de credenciais costuma ter modo 400. As regras de ingress (hostname para `http://web:80`, resto 404) ficam no bloco `configs` do compose, sem segredos. O arquivo de credenciais é montado somente leitura e nunca vai para o repositório.
@@ -63,15 +65,17 @@ Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`bash infra/self-hoste
 
 1. No painel Cloudflare Zero Trust: Networks > Tunnels > Create a tunnel (Cloudflared). Copie o token.
 2. Em Public Hostname, aponte seu hostname para `http://web:80`.
-3. No `.env`: `TUNNEL_MODE=token`, `PUBLIC_URL=https://seu-hostname`, `CLOUDFLARE_TUNNEL_TOKEN=<token>`.
+3. No `.env`: `TUNNEL_MODE=token`, `APP_URL=https://seu-hostname`, `CLOUDFLARE_TUNNEL_TOKEN=<token>`.
 
-## TURN da Cloudflare (recomendado)
+## TURN da Cloudflare (padrão)
 
-Muitos provedores brasileiros usam CGNAT e a conexão WebRTC direta falha neles. Com `ICE_PROVIDER=stun-only` (padrão) a voz pode não conectar entre algumas pessoas.
+Muitos provedores brasileiros usam CGNAT e a conexão WebRTC direta falha neles. Por isso o padrão é `ICE_PROVIDER=cloudflare`, como em produção.
 
 1. No painel da Cloudflare, abra Realtime > TURN Server e crie uma TURN key. Anote o Key ID e o API token.
-2. No `.env`: `ICE_PROVIDER=cloudflare`, `CLOUDFLARE_TURN_KEY_ID=...`, `CLOUDFLARE_TURN_API_TOKEN=...`.
+2. No `.env`: `CLOUDFLARE_TURN_KEY_ID=...`, `CLOUDFLARE_TURN_API_TOKEN=...`.
 3. Rode `npm run host:start` de novo (a API reinicia com a nova configuração).
+
+Sem TURN, use `ICE_PROVIDER=stun-only`. A voz pode não conectar entre algumas pessoas.
 
 ## Convidando amigos
 
@@ -93,7 +97,7 @@ O script reaplica as migrations a partir do repositório (`prisma migrate deploy
 
 ## Documentação da API
 
-A documentação fica pública em `<PUBLIC_URL>/api/docs`: REST, rotas de autenticação e eventos do Socket.IO. Os documentos são gerados no build da imagem. Para esconder, use `DOCS_ENABLED=false` no `.env`.
+A documentação fica pública em `<APP_URL>/api/docs`: REST, rotas de autenticação e eventos do Socket.IO. Os documentos são gerados no build da imagem. Para esconder, use `DOCS_ENABLED=false` no `.env`.
 
 ## Observabilidade (Grafana Cloud)
 

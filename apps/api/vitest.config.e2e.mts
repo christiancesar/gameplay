@@ -1,6 +1,19 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { parse } from 'dotenv'
 import { defineConfig } from 'vitest/config'
+
+// The e2e database: TEST_DATABASE_URL, or the server of DATABASE_URL in .env with the
+// gameplay_test database (the global setup creates it).
+function testDatabaseUrl(): string {
+  if (process.env.TEST_DATABASE_URL) return process.env.TEST_DATABASE_URL
+  const devUrl = existsSync('.env') ? parse(readFileSync('.env')).DATABASE_URL : undefined
+  if (!devUrl) return 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test'
+  const url = new URL(devUrl)
+  url.pathname = '/gameplay_test'
+  return url.toString()
+}
 
 export default defineConfig({
   resolve: { tsconfigPaths: true },
@@ -27,7 +40,7 @@ export default defineConfig({
       CLOUDFLARE_SFU_APP_TOKEN: '',
       CLOUDFLARE_ACCOUNT_ID: '',
       CLOUDFLARE_ANALYTICS_TOKEN: '',
-      DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test',
+      DATABASE_URL: testDatabaseUrl(),
     },
   },
 })

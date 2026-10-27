@@ -16,7 +16,6 @@
     "build-storybook": "turbo run build-storybook",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
-    "docker:api": "docker compose -f infra/docker-compose.dev.yml up -d --build --wait",
     "e2e": "turbo run e2e",
     "host:start": "bash infra/self-hosted/start.sh",
     "host:stop": "bash infra/self-hosted/stop.sh",

@@ -1,0 +1,26 @@
+# Postgres for local development only: `npm run db:up` in apps/api.
+# The api e2e tests create their own gameplay_test database on this server.
+# Separate from infra/self-hosted, which simulates production.
+name: gameplay-dev
+
+services:
+  postgres:
+    # Same major version as production (Prisma Postgres runs 17).
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gameplay
+      POSTGRES_PASSWORD: gameplay
+      POSTGRES_DB: gameplay
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U gameplay -d gameplay']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:

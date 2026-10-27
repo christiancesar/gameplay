@@ -107,14 +107,14 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - **Padrões dos módulos novos:** transação com trava de linha (`SELECT ... FOR UPDATE`) para limites e unicidade: `ServersRepository.createWithOwner` e `RoomsRepository` recebem um `guard` que roda dentro da transação; `MembershipsRepository.withServerLock()` entrega um `MembershipStore`. Testes unitários usam `makeServersContext()` (`servers/test/fakes.ts`) e `makeMembershipsContext()` (`memberships/test/fakes.ts`), com `FakeEventBus`.
 - **Suposições minhas a confirmar com o usuário:** username fora do perfil (fica no `/update-user`); `deviceMemory` arredondado em vez de recusado; ICE cai para STUN por 60 s se o provider falhar; `defaultRoomName` enviado pelo web na criação do servidor ("Room 1" se faltar); no sign-up só o convite vencido vira aviso. Detalhes nas notas de cada ticket.
 - **Produção:** `TRUST_PROXY_HOPS=1` atrás do nginx (BE-14).
-- Infra local para os testes: `docker compose -f infra/docker-compose.dev.yml up -d --wait postgres` (o e2e do driver S3 foi removido em 2026-10-27, a pedido do usuário). Se o `prisma migrate dev` travar sem saída, rodar com `< /dev/null`.
+- Infra local para os testes: `npm run db:up` em `apps/api` sobe o Postgres só de desenvolvimento (`apps/api/docker-compose.yml`, porta 5432), isolado da simulação de produção (`infra/self-hosted`). O e2e cria o próprio banco `gameplay_test` nesse servidor (`test/support/global-setup.ts`). O `infra/docker-compose.dev.yml` não existe mais (o e2e do driver S3 foi removido em 2026-10-27, a pedido do usuário). Se o `prisma migrate dev` travar sem saída, rodar com `< /dev/null`.
 - `apps/api/.env` precisa de `REGISTRATION_KEY_SECRET` (já adicionado no ambiente local; ver `.env.example`).
 - **Pendência do BE-04 resolvida:** todas as rotas `/api/auth/admin/*` desligadas (o painel do BE-15 usa rotas próprias com 2FA), além de fluxos de email, login social, exclusão de conta e OTP do 2FA. `change-password` e `update-user` ficam ligadas. Avatar só por upload: `update-user` recusa `image`, e o upload do BE-08 grava a URL em `user.image`. Detalhes em `tickets/BE-04-auth-better-auth.md`.
 - **Ajuste do Storybook feito no PR #3:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
 - Nos documentos, `platform_admin` virou "admin da plataforma" (`user.role = 'admin'`). Papéis dentro do servidor ficam em `Membership.role`.
 - Opcional sugerido: juntar as rotas do Better Auth no documento REST do Scalar (hoje é uma fonte separada no seletor).
 - Banco de dev local tem um admin de teste criado pelo seed: `admin@gameplay.local` / `admin-pass-123`.
-- Docker: `npm run docker:api` sobe a imagem de produção na porta 3334 ao lado do `npm run dev` (3333). Docs só na 3333.
+- Docker: a imagem de produção roda na stack self-hosted (`npm run host:start`), que simula a produção com os mesmos nomes de variáveis (`APP_URL`, `SENTRY_ENVELOPE_URL`), TURN da Cloudflare por padrão, rotação de logs e healthcheck do web. Banco e uploads ficam locais. (`npm run docker:api` foi removido em 2026-10-27.)
 
 ## Assets fornecidos pelo usuário
 
