@@ -10,6 +10,7 @@ import { Label } from '@/shared/ui/label'
 import { Switch } from '@/shared/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
+import { MediaUsageView } from './media-usage.view'
 import { SfuBudgetFormView } from './sfu-budget-form.view'
 
 type MediaTabViewProps = {
@@ -59,7 +60,13 @@ function MediaTabView({ data, isSaving, onToggle, onAdjustServer, isSavingBudget
                 </p>
                 <p className={cn('mt-2 text-xs', provider.tone)}>{provider.text}</p>
                 {resource === 'sfu' && data && (
-                  <SfuBudgetFormView {...data.sfuUsage} isSaving={isSavingBudget} onSave={onSaveBudget} />
+                  <SfuBudgetFormView
+                    month={data.usage.month}
+                    budgetGb={data.usage.budgetGb}
+                    usedBytes={Math.max(data.usage.sfu.reportedBytes, data.usage.sfu.cloudflareBytes ?? 0)}
+                    isSaving={isSavingBudget}
+                    onSave={onSaveBudget}
+                  />
                 )}
               </div>
               <Switch
@@ -72,6 +79,8 @@ function MediaTabView({ data, isSaving, onToggle, onAdjustServer, isSavingBudget
           )
         })}
       </ul>
+
+      {data && <MediaUsageView usage={data.usage} />}
 
       <section className="flex flex-col gap-2">
         <h2 className="text-sm font-medium">{t('admin.media.exceptions.title')}</h2>

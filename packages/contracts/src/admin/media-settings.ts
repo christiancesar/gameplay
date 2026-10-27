@@ -57,13 +57,30 @@ export const mediaProviderStatusSchema = z.object({
 })
 export type MediaProviderStatus = z.infer<typeof mediaProviderStatusSchema>
 
-// SFU traffic of the current month (UTC) against the budget the admin set.
-export const sfuUsageSchema = z.object({
+// Cloudflare bills SFU and TURN egress together: the first 1,000 GB of the
+// month are free for both.
+export const REALTIME_FREE_TIER_GB = 1000
+
+export const REALTIME_USAGE_SOURCE_STATES = ['ready', 'not-configured', 'failing'] as const
+
+// Traffic of the current month (UTC). Cloudflare's own numbers come from its
+// analytics API and lag a few minutes; the SFU also has what the viewers
+// report, live. The SFU budget counts the larger of the two.
+export const realtimeUsageSchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/),
-  usedBytes: z.number().int().min(0),
   budgetGb: z.number().int().min(0),
+  freeTierGb: z.number().int().min(0),
+  sfu: z.object({
+    reportedBytes: z.number().int().min(0),
+    cloudflareBytes: z.number().int().min(0).nullable(),
+  }),
+  turn: z.object({ cloudflareBytes: z.number().int().min(0).nullable() }),
+  cloudflare: z.object({
+    state: z.enum(REALTIME_USAGE_SOURCE_STATES),
+    checkedAt: z.iso.datetime().nullable(),
+  }),
 })
-export type SfuUsage = z.infer<typeof sfuUsageSchema>
+export type RealtimeUsage = z.infer<typeof realtimeUsageSchema>
 
 // Monthly SFU budget; 0 keeps the SFU off for new shares.
 export const updateSfuBudgetRequestSchema = z.object({ budgetGb: z.number().int().min(0).max(100_000) })
@@ -71,7 +88,7 @@ export type UpdateSfuBudgetRequest = z.infer<typeof updateSfuBudgetRequestSchema
 
 export const adminMediaResponseSchema = z.object({
   settings: mediaSettingsSchema,
-  sfuUsage: sfuUsageSchema,
+  usage: realtimeUsageSchema,
   providers: z.object({ sfu: mediaProviderStatusSchema, turn: mediaProviderStatusSchema }),
   // Servers that differ from the global settings.
   exceptions: z.array(

@@ -13,6 +13,10 @@ import { SfuUsageListener } from './listeners/sfu-usage.listener'
 import { MediaUsageRepository } from './repositories/media-usage.repository'
 import { PrismaMediaUsageRepository } from './repositories/prisma/prisma-media-usage.repository'
 import { SfuBudgetService } from './services/sfu-budget.service'
+import { RealtimeUsageService } from './services/realtime-usage.service'
+import { RealtimeUsageProvider } from './providers/realtime-usage/realtime-usage.provider'
+import { CloudflareRealtimeUsageProvider } from './providers/realtime-usage/cloudflare/cloudflare.realtime-usage.provider'
+import { NotConfiguredRealtimeUsageProvider } from './providers/realtime-usage/not-configured/not-configured.realtime-usage.provider'
 import { UpdateSfuBudgetUseCase } from './use-cases/update-sfu-budget.use-case'
 import { CloudflareSfuProvider } from './providers/sfu/cloudflare/cloudflare.sfu.provider'
 import { NotConfiguredSfuProvider } from './providers/sfu/not-configured/not-configured.sfu.provider'
@@ -40,6 +44,20 @@ export function createSfuProvider(env: EnvService): SfuProvider {
   return appId && appToken ? new CloudflareSfuProvider({ appId, appToken }) : new NotConfiguredSfuProvider()
 }
 
+// Cloudflare's analytics, when the account id and the token are set. The TURN
+// key only counts when the relay really is Cloudflare's.
+export function createRealtimeUsageProvider(env: EnvService): RealtimeUsageProvider {
+  const accountId = env.get('CLOUDFLARE_ACCOUNT_ID')
+  const apiToken = env.get('CLOUDFLARE_ANALYTICS_TOKEN')
+  if (!accountId || !apiToken) return new NotConfiguredRealtimeUsageProvider()
+  return new CloudflareRealtimeUsageProvider({
+    accountId,
+    apiToken,
+    sfuAppId: env.get('CLOUDFLARE_SFU_APP_ID') || undefined,
+    turnKeyId: env.get('ICE_PROVIDER') === 'cloudflare' ? env.get('CLOUDFLARE_TURN_KEY_ID') || undefined : undefined,
+  })
+}
+
 // Media servers behind the screen share: the Cloudflare Realtime SFU, its
 // sessions and tracks. Voice stays on mesh and does not come here. Also the
 // platform admin's switches for SFU, mesh and TURN, and their effects.
@@ -50,6 +68,8 @@ export function createSfuProvider(env: EnvService): SfuProvider {
     { provide: SfuProvider, inject: [EnvService], useFactory: createSfuProvider },
     { provide: MediaUsageRepository, useClass: PrismaMediaUsageRepository },
     SfuBudgetService,
+    { provide: RealtimeUsageProvider, inject: [EnvService], useFactory: createRealtimeUsageProvider },
+    RealtimeUsageService,
     SfuUsageListener,
     UpdateSfuBudgetUseCase,
     SfuAccessService,

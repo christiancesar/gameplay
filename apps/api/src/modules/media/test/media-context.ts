@@ -5,6 +5,8 @@ import { makeRealtimeContext } from '../../realtime/test/realtime-context'
 import { InMemoryMediaUsageRepository } from '../repositories/in-memory/in-memory-media-usage.repository'
 import { MediaChangeService } from '../services/media-change.service'
 import { SfuBudgetService } from '../services/sfu-budget.service'
+import { RealtimeUsageService } from '../services/realtime-usage.service'
+import { NotConfiguredRealtimeUsageProvider } from '../providers/realtime-usage/not-configured/not-configured.realtime-usage.provider'
 import { SfuUsageListener } from '../listeners/sfu-usage.listener'
 import { GetMediaImpactUseCase } from '../use-cases/get-media-impact.use-case'
 import { GetServerMediaUseCase } from '../use-cases/get-server-media.use-case'
@@ -34,7 +36,11 @@ export function makeMediaContext() {
   const announce = new SendAnnouncementUseCase(notifications, recipients, servers, events)
   const change = new MediaChangeService(mediaSettings, store, events, announce)
   const usage = new InMemoryMediaUsageRepository()
-  const budget = new SfuBudgetService(usage, mediaSettings)
+  const budget = new SfuBudgetService(
+    usage,
+    mediaSettings,
+    new RealtimeUsageService(new NotConfiguredRealtimeUsageProvider()),
+  )
   const provider = new FakeSfuProvider()
   const access = new SfuAccessService(store, sfuSessions)
 

@@ -54,7 +54,7 @@ describe('SFU use-cases', () => {
     const { usageListener, budget } = makeMediaContext()
     await usageListener.usageReported({ userId: 'bia', bytes: 2_000 })
     await usageListener.usageReported({ userId: 'caio', bytes: 3_000 })
-    expect((await budget.current()).usedBytes).toBe(5_000)
+    expect((await budget.current()).sfu.reportedBytes).toBe(5_000)
   })
 
   describe('sessions', () => {

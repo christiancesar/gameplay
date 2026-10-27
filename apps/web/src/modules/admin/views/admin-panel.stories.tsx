@@ -38,7 +38,7 @@ type Overlay =
   | 'newKey'
   | 'mediaOff'
 
-type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean }
+type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean; noCloudflare?: boolean }
 
 const actions = {
   onOpenDevice: fn(),
@@ -59,7 +59,14 @@ const actions = {
 
 const mediaData = {
   settings: { sfu: true, mesh: true, turn: true },
-  sfuUsage: { month: '2026-10', usedBytes: 690_000_000_000, budgetGb: 800 },
+  usage: {
+    month: '2026-10',
+    budgetGb: 800,
+    freeTierGb: 1000,
+    sfu: { reportedBytes: 670_000_000_000, cloudflareBytes: 690_000_000_000 },
+    turn: { cloudflareBytes: 85_000_000_000 },
+    cloudflare: { state: 'ready' as const, checkedAt: new Date(Date.now() - 3 * 60_000).toISOString() },
+  },
   providers: {
     sfu: { name: 'cloudflare', state: 'ready' as const },
     turn: { name: 'cloudflare', state: 'failing' as const },
@@ -67,7 +74,7 @@ const mediaData = {
   exceptions: [{ serverId: 's2', serverName: 'Clan Zero', overrides: { sfu: false, mesh: null, turn: true } }],
 }
 
-function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
+function Scenario({ initialTab, overlay, empty, noCloudflare = false }: ScenarioProps) {
   const [tab, setTab] = useState(initialTab)
   const [search, setSearch] = useState('')
   const [deviceId, setDeviceId] = useState<string>()
@@ -131,7 +138,18 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
     ),
     media: (
       <MediaTabView
-        data={empty ? { ...mediaData, exceptions: [] } : mediaData}
+        data={{
+          ...mediaData,
+          exceptions: empty ? [] : mediaData.exceptions,
+          usage: noCloudflare
+            ? {
+                ...mediaData.usage,
+                sfu: { ...mediaData.usage.sfu, cloudflareBytes: null },
+                turn: { cloudflareBytes: null },
+                cloudflare: { state: 'not-configured', checkedAt: null },
+              }
+            : mediaData.usage,
+        }}
         isSaving={false}
         onToggle={actions.onToggleMedia}
         onAdjustServer={actions.onAdjustServer}
@@ -474,5 +492,23 @@ export const MediaBudget: Story = {
     await userEvent.type(budget, '900')
     await userEvent.click(canvas.getByRole('button', { name: /save budget/i }))
     await expect(actions.onSaveBudget).toHaveBeenCalledWith(900)
+  },
+}
+
+/** Consumo do mês: SFU e TURN separados, e o total da Cloudflare contra a franquia de 1.000 GB. */
+export const MediaUsage: Story = {
+  args: { initialTab: 'media' },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/775 GB of 1000 GB free/i)).toBeVisible()
+    await expect(canvas.getByText(/viewers reported 670 GB/i)).toBeVisible()
+    await expect(canvas.getByText('85 GB')).toBeVisible()
+  },
+}
+
+/** Sem o token de analytics: só o que os espectadores informam, e o aviso de como ligar. */
+export const MediaUsageWithoutCloudflare: Story = {
+  args: { initialTab: 'media', noCloudflare: true },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/CLOUDFLARE_ANALYTICS_TOKEN/)).toBeVisible()
   },
 }

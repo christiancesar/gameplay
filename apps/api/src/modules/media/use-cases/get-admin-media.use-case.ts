@@ -19,7 +19,7 @@ export class GetAdminMediaUseCase {
   ) {}
 
   async execute(): Promise<AdminMediaResponse> {
-    const [settings, exceptions, turn, sfuUsage] = await Promise.all([
+    const [settings, exceptions, turn, usage] = await Promise.all([
       this.media.getGlobal(),
       this.media.listExceptions(),
       this.turnStatus(),
@@ -28,7 +28,7 @@ export class GetAdminMediaUseCase {
     const sfu: MediaProviderStatus = this.sfu.configured
       ? { name: this.sfu.name, state: 'ready' }
       : { name: null, state: 'not-configured' }
-    return { settings, sfuUsage, providers: { sfu, turn }, exceptions }
+    return { settings, usage, providers: { sfu, turn }, exceptions }
   }
 
   // The relay is checked by issuing credentials (cached a few minutes).

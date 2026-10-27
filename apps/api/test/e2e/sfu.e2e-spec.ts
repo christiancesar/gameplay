@@ -114,9 +114,12 @@ describe('Screen share through the SFU (e2e)', () => {
       await anaSocket.emitWithAck('media:usage', { streamerId: owner.user.id, bytes: 3_000_000, quality }),
     ).toEqual({ ok: true })
     expect(await received).toEqual({ viewerId: ana.user.id, quality })
-    expect((await admin.agent.get('/api/admin/media')).body.sfuUsage).toMatchObject({
-      usedBytes: 3_000_000,
+    expect((await admin.agent.get('/api/admin/media')).body.usage).toMatchObject({
+      sfu: { reportedBytes: 3_000_000, cloudflareBytes: null },
+      turn: { cloudflareBytes: null },
       budgetGb: 800,
+      freeTierGb: 1000,
+      cloudflare: { state: 'not-configured' },
     })
 
     expect((await admin.agent.put('/api/admin/media/budget').send({ budgetGb: 0 })).status).toBe(204)

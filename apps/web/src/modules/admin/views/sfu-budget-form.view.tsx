@@ -9,6 +9,7 @@ import { Input } from '@/shared/ui/input'
 
 type SfuBudgetFormViewProps = {
   month: string
+  /** O que conta para o orçamento: o maior entre o informado pelos espectadores e o número da Cloudflare. */
   usedBytes: number
   budgetGb: number
   isSaving: boolean

@@ -754,6 +754,15 @@
         "errors": {
           "invalid": "Use a whole number from 0 to 100000."
         }
+      },
+      "usage": {
+        "title": "Usage in {{month}}",
+        "reported": "viewers reported {{value}} GB",
+        "total": "Total billed by Cloudflare",
+        "ofFreeTier": "{{used}} GB of {{free}} GB free",
+        "notConfigured": "Cloudflare's numbers are off: set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_ANALYTICS_TOKEN on the server. Until then the SFU counts only what viewers report, and TURN is not measured.",
+        "failing": "Could not read the numbers from Cloudflare; showing the last ones.",
+        "checkedAt": "Cloudflare's numbers, checked {{when}}. They come a few minutes late."
       }
     }
   },
