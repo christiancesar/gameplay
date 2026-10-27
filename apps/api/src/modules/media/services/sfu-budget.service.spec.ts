@@ -12,6 +12,9 @@ class FixedUsageProvider extends RealtimeUsageProvider {
   async egress() {
     return { sfuBytes: this.sfuBytes, turnBytes: 400 }
   }
+  async series() {
+    return { sfu: null, turn: null }
+  }
 }
 
 const now = new Date('2026-10-27T10:00:00Z')

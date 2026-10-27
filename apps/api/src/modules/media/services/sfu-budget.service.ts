@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { REALTIME_FREE_TIER_GB, type RealtimeUsage } from '@gameplay/contracts'
 import { MediaSettingsRepository } from '../../limits/repositories/media-settings.repository'
 import { BYTES_PER_GB, usageMonth } from '../domain/usage-month'
+import { monthWindow } from '../domain/usage-window'
 import { MediaUsageRepository } from '../repositories/media-usage.repository'
 import { RealtimeUsageService } from './realtime-usage.service'
 
@@ -36,7 +37,7 @@ export class SfuBudgetService {
     const [reportedBytes, budgetGb, cloudflare] = await Promise.all([
       this.usage.sfuBytes(month),
       this.media.getSfuBudgetGb(),
-      this.cloudflare.current(month, now, { wait }),
+      this.cloudflare.current(monthWindow(month, now), now, { wait }),
     ])
     const last = cloudflare.state === 'not-configured' ? null : cloudflare.last
     return {

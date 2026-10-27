@@ -7,4 +7,8 @@ export class NotConfiguredRealtimeUsageProvider extends RealtimeUsageProvider {
   async egress(): Promise<never> {
     throw new Error('Cloudflare analytics is not configured')
   }
+
+  async series(): Promise<never> {
+    throw new Error('Cloudflare analytics is not configured')
+  }
 }

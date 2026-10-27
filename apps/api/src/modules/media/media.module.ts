@@ -27,6 +27,7 @@ import { ChangeSfuLayerUseCase } from './use-cases/change-sfu-layer.use-case'
 import { CloseSfuTracksUseCase } from './use-cases/close-sfu-tracks.use-case'
 import { CreateSfuSessionUseCase } from './use-cases/create-sfu-session.use-case'
 import { GetAdminMediaUseCase } from './use-cases/get-admin-media.use-case'
+import { GetRealtimeUsageUseCase } from './use-cases/get-realtime-usage.use-case'
 import { GetMediaImpactUseCase } from './use-cases/get-media-impact.use-case'
 import { GetServerMediaOverridesUseCase } from './use-cases/get-server-media-overrides.use-case'
 import { GetServerMediaUseCase } from './use-cases/get-server-media.use-case'
@@ -75,6 +76,7 @@ export function createRealtimeUsageProvider(env: EnvService): RealtimeUsageProvi
     SfuAccessService,
     MediaChangeService,
     GetAdminMediaUseCase,
+    GetRealtimeUsageUseCase,
     GetMediaImpactUseCase,
     UpdateMediaSettingsUseCase,
     GetServerMediaOverridesUseCase,

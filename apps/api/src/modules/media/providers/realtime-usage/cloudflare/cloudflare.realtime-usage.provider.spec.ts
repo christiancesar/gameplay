@@ -18,6 +18,9 @@ const accounts = (sfu: number[], turn: number[]) => ({
   errors: null,
 })
 
+const since = new Date('2026-10-01T00:00:00Z')
+const until = new Date('2026-10-27T10:00:00Z')
+
 describe('CloudflareRealtimeUsageProvider', () => {
   it('asks the analytics API for the SFU app and the TURN key in the period', async () => {
     const doFetch = fakeFetch(200, accounts([5_000], [700]))
@@ -29,7 +32,7 @@ describe('CloudflareRealtimeUsageProvider', () => {
       fetch: doFetch,
     })
 
-    expect(await sut.egress('2026-10-01', '2026-10-27')).toEqual({ sfuBytes: 5_000, turnBytes: 700 })
+    expect(await sut.egress(since, until)).toEqual({ sfuBytes: 5_000, turnBytes: 700 })
 
     const [url, init] = doFetch.mock.calls[0]
     expect(url).toBe('https://api.cloudflare.com/client/v4/graphql')
@@ -37,10 +40,10 @@ describe('CloudflareRealtimeUsageProvider', () => {
     const { query } = JSON.parse(init?.body as string) as { query: string }
     expect(query).toContain('accountTag: "acc-1"')
     expect(query).toContain(
-      'callsUsageAdaptiveGroups(limit: 1, filter: { date_geq: "2026-10-01", date_leq: "2026-10-27", appId: "app-1" })',
+      'callsUsageAdaptiveGroups(limit: 1, filter: { datetime_geq: "2026-10-01T00:00:00.000Z", datetime_lt: "2026-10-27T10:00:00.000Z", appId: "app-1" })',
     )
     expect(query).toContain(
-      'callsTurnUsageAdaptiveGroups(limit: 1, filter: { date_geq: "2026-10-01", date_leq: "2026-10-27", keyId: "key-1" })',
+      'callsTurnUsageAdaptiveGroups(limit: 1, filter: { datetime_geq: "2026-10-01T00:00:00.000Z", datetime_lt: "2026-10-27T10:00:00.000Z", keyId: "key-1" })',
     )
   })
 
@@ -48,7 +51,7 @@ describe('CloudflareRealtimeUsageProvider', () => {
     const doFetch = fakeFetch(200, accounts([], []))
     const sut = new CloudflareRealtimeUsageProvider({ accountId: 'a', apiToken: 't', sfuAppId: 'app', fetch: doFetch })
 
-    expect(await sut.egress('2026-10-01', '2026-10-27')).toEqual({ sfuBytes: 0, turnBytes: null })
+    expect(await sut.egress(since, until)).toEqual({ sfuBytes: 0, turnBytes: null })
     expect(JSON.parse(doFetch.mock.calls[0][1]?.body as string).query).not.toContain('callsTurnUsageAdaptiveGroups')
   })
 
@@ -60,7 +63,7 @@ describe('CloudflareRealtimeUsageProvider', () => {
       sfuAppId: 'app',
       fetch: withErrors,
     })
-    await expect(sut.egress('2026-10-01', '2026-10-27')).rejects.toThrow(/not authorized/)
+    await expect(sut.egress(since, until)).rejects.toThrow(/not authorized/)
 
     const refused = fakeFetch(403, { data: null, errors: [{ message: 'forbidden' }] })
     const other = new CloudflareRealtimeUsageProvider({
@@ -69,6 +72,38 @@ describe('CloudflareRealtimeUsageProvider', () => {
       sfuAppId: 'app',
       fetch: refused,
     })
-    await expect(other.egress('2026-10-01', '2026-10-27')).rejects.toThrow(/403/)
+    await expect(other.egress(since, until)).rejects.toThrow(/403/)
+  })
+
+  it('asks per bucket for the chart, with day rows as midnight UTC', async () => {
+    const doFetch = fakeFetch(200, {
+      data: {
+        viewer: {
+          accounts: [
+            {
+              sfu: [
+                { dimensions: { at: '2026-10-26' }, sum: { egressBytes: 900 } },
+                { dimensions: { at: '2026-10-27' }, sum: { egressBytes: 100 } },
+              ],
+            },
+          ],
+        },
+      },
+      errors: null,
+    })
+    const sut = new CloudflareRealtimeUsageProvider({ accountId: 'a', apiToken: 't', sfuAppId: 'app', fetch: doFetch })
+
+    const series = await sut.series(since, until, 'day')
+
+    expect(series.sfu).toEqual(
+      new Map([
+        ['2026-10-26T00:00:00.000Z', 900],
+        ['2026-10-27T00:00:00.000Z', 100],
+      ]),
+    )
+    expect(series.turn).toBeNull()
+    const { query } = JSON.parse(doFetch.mock.calls[0][1]?.body as string) as { query: string }
+    expect(query).toContain('callsUsageAdaptiveGroups(limit: 1000, orderBy: [date_ASC], filter:')
+    expect(query).toContain('dimensions { at: date } sum { egressBytes }')
   })
 })
