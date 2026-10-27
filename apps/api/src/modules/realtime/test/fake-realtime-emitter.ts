@@ -1,4 +1,11 @@
-import type { Participant, RoomLeft, ServerRemoved, SignalReceive, StreamQualityLevel } from '@gameplay/contracts'
+import type {
+  Announcement,
+  Participant,
+  RoomLeft,
+  ServerRemoved,
+  SignalReceive,
+  StreamQualityLevel,
+} from '@gameplay/contracts'
 import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
 
 type Emitted =
@@ -14,7 +21,7 @@ type Emitted =
   | { event: 'stream:unwatch'; socketId: string; viewerId: string }
   | { event: 'stream:quality'; socketId: string; viewerId: string; level: StreamQualityLevel }
   | { event: 'signal:receive'; socketId: string; signal: SignalReceive }
-  | { event: 'notification:new'; userId: string; notificationId: string }
+  | { event: 'notification:new'; userId: string; notificationId: string; announcement?: Announcement }
 
 // Keeps what would go to the sockets, in order.
 export class FakeRealtimeEmitter extends RealtimeEmitter {
@@ -68,8 +75,8 @@ export class FakeRealtimeEmitter extends RealtimeEmitter {
     this.emitted.push({ event: 'signal:receive', socketId, signal })
   }
 
-  notificationNew(userId: string, notificationId: string) {
-    this.emitted.push({ event: 'notification:new', userId, notificationId })
+  notificationNew(userId: string, notificationId: string, announcement?: Announcement) {
+    this.emitted.push({ event: 'notification:new', userId, notificationId, ...(announcement && { announcement }) })
   }
 
   // Only the events of one kind.

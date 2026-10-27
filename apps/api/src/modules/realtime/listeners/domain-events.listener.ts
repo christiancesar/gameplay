@@ -84,7 +84,7 @@ export class DomainEventsListener {
   }
 
   @OnDomainEvent('notification.created')
-  notificationCreated({ userId, notificationId }: DomainEvents['notification.created']) {
-    this.emitter.notificationNew(userId, notificationId)
+  notificationCreated({ userId, notificationId, announcement }: DomainEvents['notification.created']) {
+    this.emitter.notificationNew(userId, notificationId, announcement)
   }
 }

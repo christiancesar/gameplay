@@ -97,15 +97,29 @@ export {
 } from './account/registration-key.js'
 export { USERNAME_PATTERN, usernameSchema } from './account/username.js'
 export {
+  ANNOUNCEMENT_MESSAGE_MAX,
+  ANNOUNCEMENT_TITLE_MAX,
+  ANNOUNCEMENT_USERS_MAX,
   NOTIFICATION_TYPES,
+  SERVER_NOTIFICATION_TYPES,
+  announcementAudienceSchema,
+  announcementSchema,
   listNotificationsResponseSchema,
   notificationNewSchema,
   notificationSchema,
   notificationTypeSchema,
+  sendAnnouncementRequestSchema,
+  sendAnnouncementResponseSchema,
+  serverNotificationTypeSchema,
+  type Announcement,
+  type AnnouncementAudience,
   type ListNotificationsResponse,
   type Notification,
   type NotificationNew,
   type NotificationType,
+  type SendAnnouncementRequest,
+  type SendAnnouncementResponse,
+  type ServerNotificationType,
 } from './notifications/notification.js'
 export { errorResponseSchema, type ErrorBody, type ErrorResponse } from './http/error.js'
 export type { Ack, AckResponse } from './realtime/ack.js'

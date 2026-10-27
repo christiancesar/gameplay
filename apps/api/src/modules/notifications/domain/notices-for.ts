@@ -1,9 +1,9 @@
-import type { NotificationType } from '@gameplay/contracts'
+import type { ServerNotificationType } from '@gameplay/contracts'
 import type { DomainEvents } from '../../../common/events/domain-events'
 
 // Who gets which Hub notice for an event. serverName is missing when the
 // event does not carry it (the server still exists and has it).
-export type Notice = { userIds: string[]; type: NotificationType; serverId: string; serverName?: string }
+export type Notice = { userIds: string[]; type: ServerNotificationType; serverId: string; serverName?: string }
 
 type NoticeEvents = Pick<
   DomainEvents,

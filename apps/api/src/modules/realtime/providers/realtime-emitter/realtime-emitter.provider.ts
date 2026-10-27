@@ -1,4 +1,5 @@
 import {
+  type Announcement,
   type Participant,
   type RoomLeft,
   type ServerRemoved,
@@ -29,5 +30,5 @@ export abstract class RealtimeEmitter {
   abstract qualityRequested(socketId: string, viewerId: string, level: StreamQualityLevel): void
   abstract signal(socketId: string, signal: SignalReceive): void
   // To every tab of the user.
-  abstract notificationNew(userId: string, notificationId: string): void
+  abstract notificationNew(userId: string, notificationId: string, announcement?: Announcement): void
 }

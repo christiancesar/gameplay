@@ -53,8 +53,10 @@ function useRealtimeEventsViewModel() {
         await navigate({ to: '/sign-in', replace: true })
       }),
 
-      realtime.on('notification:new', () => {
+      realtime.on('notification:new', ({ announcement }) => {
         void queryClient.invalidateQueries({ queryKey: notificationsKeys.all })
+        // A platform announcement shows up wherever the person is; it also stays on the Hub.
+        if (announcement) toast.info(announcement.title, { description: announcement.message })
       }),
     ]
     return () => stops.forEach((stop) => stop())

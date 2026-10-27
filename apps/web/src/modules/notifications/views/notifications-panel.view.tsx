@@ -8,6 +8,7 @@ import {
   GaugeIcon,
   GlobeIcon,
   InfoIcon,
+  MegaphoneIcon,
   MonitorIcon,
   ShieldAlertIcon,
   TriangleAlertIcon,
@@ -152,6 +153,13 @@ function NotificationsPanelView({
           icon: InfoIcon,
           tone: 'info',
           title: t(`notifications.${notification.type}.title`, { server: notification.server.name }),
+        }
+      case 'platformAnnouncement':
+        return {
+          icon: MegaphoneIcon,
+          tone: 'info',
+          title: notification.announcement.title,
+          body: <span className="block whitespace-pre-line">{notification.announcement.message}</span>,
         }
     }
   }

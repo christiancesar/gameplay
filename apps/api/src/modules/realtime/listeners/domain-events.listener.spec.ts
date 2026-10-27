@@ -84,6 +84,15 @@ describe('DomainEventsListener', () => {
     expect(emitter.emitted).toEqual([{ event: 'notification:new', userId: 'bia', notificationId: 'n1' }])
   })
 
+  it('passes a platform announcement along with the notification', () => {
+    const { listener, emitter } = makeRealtimeContext()
+    const announcement = { title: 'Maintenance', message: 'Back in 10 minutes.' }
+
+    listener.notificationCreated({ userId: 'bia', notificationId: 'n1', announcement })
+
+    expect(emitter.emitted).toEqual([{ event: 'notification:new', userId: 'bia', notificationId: 'n1', announcement }])
+  })
+
   describe('voice seats', () => {
     it('clears a deleted room and tells who was in it', async () => {
       const { listener, emitter, join } = makeRealtimeContext()

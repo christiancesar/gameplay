@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import {
+  type Announcement,
   type Participant,
   REALTIME_EVENTS,
   type RoomLeft,
@@ -152,7 +153,7 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
     summary: 'A Hub notification was stored for you; refetch GET /api/me/notifications',
     message: { name: 'NotificationNew', payload: NotificationNewDto },
   })
-  notificationNew(userId: string, notificationId: string) {
-    this.server?.to(userRoom(userId)).emit(REALTIME_EVENTS.notificationNew, { id: notificationId })
+  notificationNew(userId: string, notificationId: string, announcement?: Announcement) {
+    this.server?.to(userRoom(userId)).emit(REALTIME_EVENTS.notificationNew, { id: notificationId, announcement })
   }
 }

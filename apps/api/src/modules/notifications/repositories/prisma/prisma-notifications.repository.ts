@@ -13,6 +13,7 @@ const TO_DB: Record<NotificationType, DbType> = {
   promoted: 'PROMOTED',
   demoted: 'DEMOTED',
   'invite-expired': 'INVITE_EXPIRED',
+  'platform-announcement': 'PLATFORM_ANNOUNCEMENT',
 }
 const FROM_DB = Object.fromEntries(Object.entries(TO_DB).map(([type, db]) => [db, type])) as Record<
   DbType,
@@ -20,19 +21,27 @@ const FROM_DB = Object.fromEntries(Object.entries(TO_DB).map(([type, db]) => [db
 >
 
 // What goes in the JSON column.
-type Payload = { serverId: string; serverName: string }
+type ServerPayload = { serverId: string; serverName: string }
+type AnnouncementPayload = { title: string; message: string }
 
 function toRecord(row: Row): NotificationRecord {
-  const { serverId, serverName } = row.payload as Payload
-  return {
-    id: row.id,
-    userId: row.userId,
-    type: FROM_DB[row.type],
-    serverId,
-    serverName,
-    createdAt: row.createdAt,
-    dismissedAt: row.dismissedAt,
+  const base = { id: row.id, userId: row.userId, createdAt: row.createdAt, dismissedAt: row.dismissedAt }
+  const type = FROM_DB[row.type]
+  if (type === 'platform-announcement') {
+    const { title, message } = row.payload as AnnouncementPayload
+    return { ...base, type, title, message }
   }
+  const { serverId, serverName } = row.payload as ServerPayload
+  return { ...base, type, serverId, serverName }
+}
+
+function toPayload(notification: NewNotification): ServerPayload | AnnouncementPayload {
+  if (notification.type === 'platform-announcement') {
+    const { title, message } = notification
+    return { title, message }
+  }
+  const { serverId, serverName } = notification
+  return { serverId, serverName }
 }
 
 @Injectable()
@@ -43,10 +52,10 @@ export class PrismaNotificationsRepository extends NotificationsRepository {
 
   async createMany(notifications: NewNotification[]): Promise<NotificationRecord[]> {
     const rows = await this.prisma.notification.createManyAndReturn({
-      data: notifications.map(({ userId, type, serverId, serverName }) => ({
-        userId,
-        type: TO_DB[type],
-        payload: { serverId, serverName } satisfies Payload,
+      data: notifications.map((notification) => ({
+        userId: notification.userId,
+        type: TO_DB[notification.type],
+        payload: toPayload(notification),
       })),
     })
     return rows.map(toRecord)

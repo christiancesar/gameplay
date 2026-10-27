@@ -1,5 +1,6 @@
 // Notices kept on the user's Hub until dismissed. Built from domain events;
-// payload holds ids and names only, the web writes the text with i18n.
+// payload holds ids and names only, the web writes the text with i18n. A
+// platform announcement holds the admin's title and message instead.
 enum NotificationType {
   JOIN_REQUEST_SENT
   JOIN_APPROVED
@@ -8,6 +9,7 @@ enum NotificationType {
   PROMOTED
   DEMOTED
   INVITE_EXPIRED
+  PLATFORM_ANNOUNCEMENT
 }
 
 model Notification {
