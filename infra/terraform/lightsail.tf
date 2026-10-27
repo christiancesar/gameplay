@@ -21,7 +21,8 @@ resource "aws_lightsail_instance" "api" {
 }
 
 resource "aws_lightsail_static_ip" "api" {
-  name = "gameplay-api"
+  # Lightsail names are unique across resource types, so not the instance's name.
+  name = "gameplay-api-ip"
 }
 
 resource "aws_lightsail_static_ip_attachment" "api" {
