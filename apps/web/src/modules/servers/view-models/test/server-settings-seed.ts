@@ -94,8 +94,8 @@ const olderJoinRequest: JoinRequest = {
 const lobbyOccupancy: RoomOccupancy = {
   roomId: 'r1',
   participants: [
-    { userId: 'u1', muted: false, deafened: false, streaming: null },
-    { userId: 'u2', muted: false, deafened: false, streaming: null },
+    { userId: 'u1', muted: false, deafened: false, streaming: null, streamMode: null },
+    { userId: 'u2', muted: false, deafened: false, streaming: null, streamMode: null },
   ],
 }
 

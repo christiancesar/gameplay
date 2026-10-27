@@ -30,7 +30,7 @@ export class ReleaseVoiceSeatsUseCase {
     for (const seat of await this.seatsOf(target)) {
       const removed = await this.store.remove(seat.userId)
       if (!removed) continue
-      this.voice.released(removed, reason)
+      await this.voice.released(removed, reason)
       rooms.set(removed.roomId, removed.serverId)
     }
     if (!announce) return

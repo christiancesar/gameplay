@@ -45,7 +45,7 @@ export class DisconnectSocketUseCase {
     const seat = await this.store.remove(userId, null)
     if (!seat) return
     this.logger.log({ userId, roomId: seat.roomId }, 'Voice seat expired without a reconnection')
-    this.voice.released(seat, null)
+    await this.voice.released(seat, null)
     await this.voice.announce(seat.serverId, seat.roomId)
   }
 }

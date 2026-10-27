@@ -1,8 +1,10 @@
+import { FakeEventBus } from '../../../common/test/fake-event-bus'
 import { makeServersContext } from '../../servers/test/servers-context'
 import { DomainEventsListener } from '../listeners/domain-events.listener'
 import { VoiceRoomsConfig, VoiceRoomsService } from '../services/voice-rooms.service'
 import { InMemoryPresenceStore } from '../stores/in-memory/in-memory-presence.store'
 import { InMemoryRoomStateStore } from '../stores/in-memory/in-memory-room-state.store'
+import { InMemorySfuSessionStore } from '../stores/in-memory/in-memory-sfu-session.store'
 import { ConnectSocketUseCase } from '../use-cases/connect-socket.use-case'
 import { DisconnectSocketUseCase } from '../use-cases/disconnect-socket.use-case'
 import { JoinRoomUseCase } from '../use-cases/join-room.use-case'
@@ -26,7 +28,9 @@ export function makeRealtimeContext() {
   const store = new InMemoryRoomStateStore()
   const emitter = new FakeRealtimeEmitter()
   const timers = new FakeTimers()
-  const voice = new VoiceRoomsService(store, emitter, timers)
+  const events = new FakeEventBus()
+  const sfuSessions = new InMemorySfuSessionStore()
+  const voice = new VoiceRoomsService(store, emitter, timers, events)
   const config = new VoiceRoomsConfig(30_000)
   const joinRoom = new JoinRoomUseCase(rooms, access, store, voice, emitter, timers)
   const releaseSeats = new ReleaseVoiceSeatsUseCase(store, voice)
@@ -37,6 +41,8 @@ export function makeRealtimeContext() {
     store,
     emitter,
     timers,
+    events,
+    sfuSessions,
     connect: new ConnectSocketUseCase(presence, servers, emitter),
     disconnect: new DisconnectSocketUseCase(presence, servers, emitter, store, voice, timers, config),
     subscribe: new SubscribeToServerUseCase(access, servers, presence, store),
@@ -45,7 +51,7 @@ export function makeRealtimeContext() {
     join: (userId: string, roomId: string, socketId = `${userId}-tab`) =>
       joinRoom.execute({ userId, socketId, roomId, muted: false, deafened: false }),
     leaveRoom: new LeaveRoomUseCase(store, voice),
-    updateVoiceState: new UpdateVoiceStateUseCase(store, voice),
+    updateVoiceState: new UpdateVoiceStateUseCase(store, voice, sfuSessions, events),
     relay: new RelayToPeerUseCase(store, voice, emitter),
     releaseSeats,
     listener: new DomainEventsListener(emitter, presence, releaseSeats),

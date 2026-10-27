@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { RoomLeft } from '@gameplay/contracts'
+import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { type Seat, toParticipant } from '../domain/seat'
 import { NotInRoomError } from '../errors/realtime.errors'
 import { RealtimeEmitter } from '../providers/realtime-emitter'
@@ -21,6 +22,7 @@ export class VoiceRoomsService {
     private readonly store: RoomStateStore,
     private readonly emitter: RealtimeEmitter,
     private readonly timers: Timers,
+    private readonly events: DomainEventBus,
   ) {}
 
   // The seat held by this socket; other tabs of the person cannot act on it.
@@ -37,10 +39,16 @@ export class VoiceRoomsService {
 
   // The seat must already be out of the store. Cancels a pending
   // reconnection wait; the socket hears why when reason is set.
-  released(seat: Seat, reason: RoomLeft['reason'] | null): void {
+  async released(seat: Seat, reason: RoomLeft['reason'] | null): Promise<void> {
     const { userId, serverId, roomId } = seat
     this.logger.log({ userId, serverId, roomId, reason: reason ?? 'left' }, 'Left voice room')
     this.timers.cancel(seat.userId)
     if (seat.socketId) this.emitter.seatReleased(seat.socketId, seat.roomId, reason)
+    await this.leftRoom(userId, roomId)
+  }
+
+  // The person is no longer in this room (also when moving to another one).
+  async leftRoom(userId: string, roomId: string): Promise<void> {
+    await this.events.publish('voice.left-room', { userId, roomId })
   }
 }

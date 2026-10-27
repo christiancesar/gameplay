@@ -9,6 +9,7 @@ const seat = (userId: string, roomId: string, socketId: string | null = `${userI
   muted: false,
   deafened: false,
   streaming: null,
+  streamMode: null,
 })
 
 describe('InMemoryRoomStateStore', () => {

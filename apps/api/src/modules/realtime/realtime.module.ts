@@ -14,6 +14,8 @@ import { InMemoryPresenceStore } from './stores/in-memory/in-memory-presence.sto
 import { InMemoryRoomStateStore } from './stores/in-memory/in-memory-room-state.store'
 import { PresenceStore } from './stores/presence.store'
 import { RoomStateStore } from './stores/room-state.store'
+import { InMemorySfuSessionStore } from './stores/in-memory/in-memory-sfu-session.store'
+import { SfuSessionStore } from './stores/sfu-session.store'
 import { ConnectSocketUseCase } from './use-cases/connect-socket.use-case'
 import { DisconnectSocketUseCase } from './use-cases/disconnect-socket.use-case'
 import { JoinRoomUseCase } from './use-cases/join-room.use-case'
@@ -26,7 +28,8 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
 // Socket.IO gateway: authenticated connection, presence, voice rooms with
 // WebRTC signaling, and the bridge from domain events to the sockets. Voice
 // state lives in memory only; nothing here writes to the database.
-// PresenceStore is exported for the platform admin panel (BE-15).
+// PresenceStore is exported for the platform admin panel (BE-15); RoomStateStore
+// and SfuSessionStore for the media module (SFU sessions of people in rooms).
 @Module({
   imports: [ServersModule],
   providers: [
@@ -37,6 +40,7 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
     { provide: SocketSessionResolver, useClass: BetterAuthSocketSessionResolver },
     { provide: PresenceStore, useClass: InMemoryPresenceStore },
     { provide: RoomStateStore, useClass: InMemoryRoomStateStore },
+    { provide: SfuSessionStore, useClass: InMemorySfuSessionStore },
     { provide: Timers, useClass: NodeTimers },
     {
       provide: RealtimeMetrics,
@@ -60,6 +64,6 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
     RelayToPeerUseCase,
     ReleaseVoiceSeatsUseCase,
   ],
-  exports: [PresenceStore],
+  exports: [PresenceStore, RoomStateStore, SfuSessionStore],
 })
 export class RealtimeModule {}

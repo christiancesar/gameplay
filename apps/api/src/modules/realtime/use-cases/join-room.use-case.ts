@@ -43,7 +43,10 @@ export class JoinRoomUseCase {
     if (previous?.socketId && (displaced || previous.roomId !== roomId)) {
       this.emitter.seatReleased(previous.socketId, previous.roomId, displaced ? 'other-tab' : null)
     }
-    if (previous && previous.roomId !== roomId) await this.voice.announce(previous.serverId, previous.roomId)
+    if (previous && previous.roomId !== roomId) {
+      await this.voice.leftRoom(userId, previous.roomId)
+      await this.voice.announce(previous.serverId, previous.roomId)
+    }
 
     this.logger.log(
       { userId, serverId: room.serverId, roomId, rejoined: previous?.roomId === roomId },

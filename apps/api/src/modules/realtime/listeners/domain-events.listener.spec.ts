@@ -115,7 +115,7 @@ describe('DomainEventsListener', () => {
           event: 'room:participants',
           serverId: 's1',
           roomId: 'r1',
-          participants: [{ userId: 'caio', muted: false, deafened: false, streaming: null }],
+          participants: [{ userId: 'caio', muted: false, deafened: false, streaming: null, streamMode: null }],
         },
       ])
     })

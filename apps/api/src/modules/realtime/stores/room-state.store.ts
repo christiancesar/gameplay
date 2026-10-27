@@ -1,6 +1,6 @@
 import type { Seat } from '../domain/seat'
 
-export type SeatChanges = Partial<Pick<Seat, 'muted' | 'deafened' | 'streaming'>>
+export type SeatChanges = Partial<Pick<Seat, 'muted' | 'deafened' | 'streaming' | 'streamMode'>>
 
 // Who is in which voice room, one seat per person. In memory for the single
 // MVP instance; async so Redis can replace it. Every method is atomic.

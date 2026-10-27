@@ -178,14 +178,14 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   @SubscribeMessage(REALTIME_EVENTS.streamStart)
   @AsyncApiReceive({
     channel: REALTIME_EVENTS.streamStart,
-    summary: 'Started sharing the screen with this preset (also to change the preset)',
+    summary: 'Started sharing the screen with this preset and mode (also to change them)',
     message: { name: 'StreamStart', payload: StreamStartDto },
   })
   async streamStart(
     @ConnectedSocket() socket: RealtimeSocket,
-    @MessageBody() { preset }: StreamStartDto,
+    @MessageBody() { preset, mode }: StreamStartDto,
   ): Promise<AckResponse> {
-    await this.updateVoiceState.execute({ ...this.who(socket), streaming: preset })
+    await this.updateVoiceState.execute({ ...this.who(socket), streaming: preset, streamMode: mode })
     return OK
   }
 

@@ -36,12 +36,20 @@ export const STREAM_PRESETS = ['720p30', '720p60', '1080p30', '1080p60'] as cons
 export const streamPresetSchema = z.enum(STREAM_PRESETS)
 export type StreamPreset = z.infer<typeof streamPresetSchema>
 
-// Someone in a voice room. streaming is the preset of their screen share.
+// How a screen share reaches the viewers: through the Cloudflare SFU, or
+// straight from the streamer to each viewer (mesh).
+export const STREAM_MODES = ['sfu', 'mesh'] as const
+export const streamModeSchema = z.enum(STREAM_MODES)
+export type StreamMode = z.infer<typeof streamModeSchema>
+
+// Someone in a voice room. streaming is the preset of their screen share and
+// streamMode how it is sent; both null when not sharing.
 export const participantSchema = z.object({
   userId: z.string(),
   muted: z.boolean(),
   deafened: z.boolean(),
   streaming: streamPresetSchema.nullable(),
+  streamMode: streamModeSchema.nullable(),
 })
 export type Participant = z.infer<typeof participantSchema>
 
@@ -111,8 +119,9 @@ export type RoomLeft = z.infer<typeof roomLeftSchema>
 export const voiceStateSchema = z.object({ muted: z.boolean(), deafened: z.boolean() })
 export type VoiceState = z.infer<typeof voiceStateSchema>
 
-export const streamStartSchema = z.object({ preset: streamPresetSchema })
-export type StreamStart = z.infer<typeof streamStartSchema>
+// With sfu, the screen must already be published through /api/media/sfu.
+export const streamStartSchema = z.object({ preset: streamPresetSchema, mode: streamModeSchema.default('mesh') })
+export type StreamStart = z.input<typeof streamStartSchema>
 
 // Viewer to streamer (same room). The streamer only sends the screen to
 // who asked to watch.

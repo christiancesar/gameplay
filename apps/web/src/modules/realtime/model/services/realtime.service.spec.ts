@@ -57,7 +57,7 @@ describe('realtime service', () => {
     })
 
     it('joins a room and resolves with the participants of the ack', async () => {
-      const participants = [{ userId: 'u1', muted: false, deafened: false, streaming: null }]
+      const participants = [{ userId: 'u1', muted: false, deafened: false, streaming: null, streamMode: null }]
       socket.ackReply = { ok: true, data: { participants } } as never
       await expect(service.joinRoom({ roomId: 'r1', muted: true, deafened: false })).resolves.toEqual(participants)
       expect(socket.emitted[0].event).toBe('room:join')

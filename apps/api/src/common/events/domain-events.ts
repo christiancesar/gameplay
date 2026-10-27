@@ -1,3 +1,5 @@
+import type { StreamMode } from '@gameplay/contracts'
+
 // Map of every domain event (name -> payload). Each feature adds its own
 // events here; publishing an event that is not listed is a type error.
 export interface DomainEvents {
@@ -27,6 +29,12 @@ export interface DomainEvents {
   'user.session-revoked': { userId: string; sessionId: string }
   // A Hub notification was stored; the gateway tells the user's tabs.
   'notification.created': { userId: string; notificationId: string }
+  // Published by the realtime gateway once the person's seat is out of the
+  // room (left, moved, removed or expired); the media module closes their
+  // SFU tracks there.
+  'voice.left-room': { userId: string; roomId: string }
+  // Screen share started, changed or stopped (mode null).
+  'stream.changed': { userId: string; roomId: string; mode: StreamMode | null }
 }
 
 export type DomainEventName = Extract<keyof DomainEvents, string>

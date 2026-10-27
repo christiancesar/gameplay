@@ -22,6 +22,16 @@ export class PeerNotInRoomError extends DomainError {
   }
 }
 
+// stream:start in sfu mode before the screen reached the SFU.
+export class ScreenNotPublishedError extends DomainError {
+  readonly code = 'SCREEN_NOT_PUBLISHED'
+  override readonly status = HttpStatus.CONFLICT
+
+  constructor() {
+    super('Publish the screen to the SFU before starting the stream.')
+  }
+}
+
 export class NotStreamingError extends DomainError {
   readonly code = 'NOT_STREAMING'
   override readonly status = HttpStatus.CONFLICT

@@ -15,6 +15,7 @@ const roster = (...live: string[]) => ({
     muted: false,
     deafened: false,
     streaming: live.includes(userId) ? ('1080p60' as const) : null,
+    streamMode: live.includes(userId) ? ('mesh' as const) : null,
   })),
 })
 

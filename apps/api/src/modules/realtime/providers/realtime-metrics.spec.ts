@@ -18,6 +18,7 @@ const seat = (userId: string, streaming: Seat['streaming'] = null): Seat => ({
   muted: false,
   deafened: false,
   streaming,
+  streamMode: streaming ? 'mesh' : null,
 })
 
 function pointsOf(result: CollectionResult, name: string) {

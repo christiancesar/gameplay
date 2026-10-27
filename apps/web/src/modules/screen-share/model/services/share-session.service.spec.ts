@@ -196,8 +196,8 @@ describe('ShareSession', () => {
         serverId: 's1',
         roomId: 'r1',
         participants: [
-          { userId: 'u1', muted: false, deafened: false, streaming: '1080p60' },
-          { userId: 'u3', muted: false, deafened: false, streaming: null },
+          { userId: 'u1', muted: false, deafened: false, streaming: '1080p60', streamMode: 'mesh' },
+          { userId: 'u3', muted: false, deafened: false, streaming: null, streamMode: null },
         ],
       })
       expect(ctx.store.state.viewerIds).toEqual(['u3'])
