@@ -31,6 +31,9 @@ class FakePeerConnection implements PeerConnectionLike {
   signalingState: RTCSignalingState = 'stable'
   connectionState: RTCPeerConnectionState = 'new'
   localDescription: { type: RTCSdpType; sdp: string } | null = null
+  /** Candidates are gathered at once unless a spec sets 'gathering'. */
+  iceGatheringState: RTCIceGatheringState = 'complete'
+  onicegatheringstatechange: (() => void) | null = null
   onnegotiationneeded: (() => void) | null = null
   onicecandidate: ((event: { candidate: IceCandidateLike | null }) => void) | null = null
   ontrack: ((event: TrackEventLike) => void) | null = null
@@ -58,6 +61,7 @@ class FakePeerConnection implements PeerConnectionLike {
   }
 
   async setLocalDescription() {
+    this.assignMids()
     if (this.signalingState === 'have-remote-offer') {
       this.localDescription = { type: 'answer', sdp: 'answer-sdp' }
       this.signalingState = 'stable'
@@ -80,9 +84,15 @@ class FakePeerConnection implements PeerConnectionLike {
     this.candidates.push(candidate)
   }
 
-  addTransceiver() {
-    const transceiver = { direction: 'sendrecv' as RTCRtpTransceiverDirection, sender: new FakeSender() }
-    this.senders.push(transceiver.sender)
+  addTransceiver(_kind?: 'audio' | 'video', init?: RTCRtpTransceiverInit) {
+    const sender = new FakeSender()
+    if (init?.sendEncodings) sender.parameters.encodings = init.sendEncodings
+    const transceiver: RtpTransceiverLike & { mid: string | null } = {
+      direction: init?.direction ?? 'sendrecv',
+      sender,
+      mid: null,
+    }
+    this.senders.push(sender)
     this.transceivers.push(transceiver)
     return transceiver
   }
@@ -105,6 +115,19 @@ class FakePeerConnection implements PeerConnectionLike {
     this.senders.push(sender)
     this.onnegotiationneeded?.()
     return sender
+  }
+
+  /** Like the browser: a transceiver gets its mid when a description first includes it. */
+  private assignMids() {
+    this.transceivers.forEach((transceiver, index) => {
+      const withMid = transceiver as RtpTransceiverLike & { mid?: string | null }
+      withMid.mid ??= String(index)
+    })
+  }
+
+  finishGathering() {
+    this.iceGatheringState = 'complete'
+    this.onicegatheringstatechange?.()
   }
 
   close() {

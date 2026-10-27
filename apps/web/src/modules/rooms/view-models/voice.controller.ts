@@ -9,7 +9,7 @@ import type { CallMedia } from '@/shared/media/call-media'
 import { WebAudioEngine, createBrowserAudioFactories } from '@/shared/media/audio-engine'
 import { createBrowserMediaStream, createBrowserPeerConnection } from '@/shared/media/browser-media'
 import { getIceConfig } from '@/shared/media/ice.service'
-import { iceConfigQueryOptions } from '@/shared/media/ice.query'
+import { serverIceConfigQueryOptions } from '@/shared/media/ice.query'
 import { MeshTransport } from '@/shared/media/mesh-transport'
 import { acquireMicrophone, stopMicrophone } from '@/shared/media/microphone'
 import { monitoring } from '@/shared/lib/monitoring'
@@ -37,10 +37,12 @@ function getSession(): VoiceSession {
     getPreferences: () => useAudioPreferencesStore.getState(),
     acquireMicrophone: (deviceId) => acquireMicrophone(deviceId),
     stopMicrophone,
-    loadIceConfig: (renewal) =>
-      queryClient
-        ? queryClient.fetchQuery(renewal ? { ...iceConfigQueryOptions, staleTime: 0 } : iceConfigQueryOptions)
-        : getIceConfig(),
+    loadIceConfig: (renewal, serverId) => {
+      const options = serverIceConfigQueryOptions(serverId)
+      return queryClient
+        ? queryClient.fetchQuery(renewal ? { ...options, staleTime: 0 } : options)
+        : getIceConfig(serverId)
+    },
     createEngine: () => new WebAudioEngine(createBrowserAudioFactories()),
     createTransport: ({ selfId, iceServers }) =>
       new MeshTransport({

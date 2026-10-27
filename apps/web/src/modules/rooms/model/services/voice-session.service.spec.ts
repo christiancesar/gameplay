@@ -58,7 +58,7 @@ describe('VoiceSession', () => {
 
     it('loads the ICE servers for the transport', async () => {
       await join()
-      expect(ctx.loadIceConfig).toHaveBeenCalledWith(false)
+      expect(ctx.loadIceConfig).toHaveBeenCalledWith(false, 's1')
     })
 
     it('still joins when the ICE config cannot be loaded, and asks again soon', async () => {
@@ -66,7 +66,7 @@ describe('VoiceSession', () => {
       await join()
       expect(ctx.store.state.status).toBe('connected')
       await vi.advanceTimersByTimeAsync(ICE_RETRY_MS)
-      expect(ctx.loadIceConfig).toHaveBeenLastCalledWith(true)
+      expect(ctx.loadIceConfig).toHaveBeenLastCalledWith(true, 's1')
       expect(ctx.transport.updateIceServers).toHaveBeenCalled()
     })
 
@@ -571,7 +571,7 @@ describe('VoiceSession', () => {
       await vi.advanceTimersByTimeAsync((3600 - 90) * 1000 - 1)
       expect(ctx.loadIceConfig).toHaveBeenCalledTimes(1)
       await vi.advanceTimersByTimeAsync(1)
-      expect(ctx.loadIceConfig).toHaveBeenLastCalledWith(true)
+      expect(ctx.loadIceConfig).toHaveBeenLastCalledWith(true, 's1')
       expect(ctx.transport.updateIceServers).toHaveBeenCalledWith(iceRenewed.iceServers)
       // and again for the next period
       await vi.advanceTimersByTimeAsync((3600 - 90) * 1000)
@@ -592,6 +592,20 @@ describe('VoiceSession', () => {
       expect(ctx.transport.updateIceServers).not.toHaveBeenCalled()
       await vi.advanceTimersByTimeAsync(ICE_RETRY_MS)
       expect(ctx.transport.updateIceServers).toHaveBeenCalledWith(iceRenewed.iceServers)
+    })
+
+    it('replaces the relay right away when the platform admin turns TURN off', async () => {
+      await join()
+      ctx.loadIceConfig.mockResolvedValue({ iceServers: [{ urls: ['stun:s'] }], ttlSeconds: 0, requestIp: null })
+      ctx.realtime.receive('media:changed', { serverId: 'other', turnOff: true })
+      ctx.realtime.receive('media:changed', { serverId: 's1', turnOff: false })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(ctx.loadIceConfig).toHaveBeenCalledTimes(1)
+
+      ctx.realtime.receive('media:changed', { serverId: 's1', turnOff: true })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(ctx.loadIceConfig).toHaveBeenLastCalledWith(true, 's1')
+      expect(ctx.transport.updateIceServers).toHaveBeenCalledWith([{ urls: ['stun:s'] }])
     })
 
     it('stops renewing when the call ends', async () => {
