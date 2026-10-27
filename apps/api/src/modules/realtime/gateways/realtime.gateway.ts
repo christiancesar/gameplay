@@ -47,7 +47,7 @@ export const UNAUTHENTICATED = 'UNAUTHENTICATED'
 
 // Socket.IO on /socket.io, same origin and session cookie as the REST API. The desktop app comes from its own
 // origin (CORS for the polling transport) and brings the session token in the handshake.
-@WebSocketGateway({ cors: { origin: [DESKTOP_APP_ORIGIN] } })
+@WebSocketGateway({ cors: { origin: [DESKTOP_APP_ORIGIN], credentials: true } })
 @UsePipes(ZodValidationPipe)
 @UseFilters(WsAckExceptionFilter)
 @UseInterceptors(RealtimeMetricsInterceptor)

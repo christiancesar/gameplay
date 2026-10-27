@@ -911,5 +911,19 @@
       "title": "You are no longer an admin of {{server}}"
     },
     "open": "Open"
+  },
+  "serverChoice": {
+    "title": "Choose your server",
+    "description": "Which Gameplay server is your account on?",
+    "label": "Server address",
+    "placeholder": "play.example.com",
+    "hint": "The address you were given. Use https, or localhost for a server on this machine.",
+    "submit": "Connect",
+    "errors": {
+      "required": "Enter the address of the server.",
+      "invalid": "Enter a valid address, such as play.example.com.",
+      "unreachable": "Could not reach this server. Check the address and your connection.",
+      "notGameplay": "This is not a Gameplay server."
+    }
   }
 }

@@ -12,6 +12,8 @@ type FakePlatformOptions = {
   baseUrl?: string
   /** The session token the host starts with: none by default, as on the web. */
   token?: string | null
+  /** Makes the host one where the user picks the server; `chosen` is the one picked so far. */
+  serverChoice?: { chosen: string | null }
 }
 
 /** A host that records what was asked of it. No test framework inside, so Storybook can use it too. */
@@ -20,7 +22,9 @@ class FakePlatform implements Platform {
   readonly capabilities: PlatformCapabilities
   readonly started: CaptureRequest[] = []
   token: string | null
-  private readonly baseUrl: string
+  chosen: string | null
+  readonly server: Platform['server']
+  private baseUrl: string
   private readonly sources: CaptureSource[]
   private readonly result: ScreenCaptureResult
 
@@ -31,6 +35,7 @@ class FakePlatform implements Platform {
     result,
     baseUrl = '',
     token = null,
+    serverChoice,
   }: FakePlatformOptions = {}) {
     this.kind = kind
     this.capabilities = {
@@ -42,8 +47,31 @@ class FakePlatform implements Platform {
     }
     this.sources = sources
     this.result = result ?? { ok: false, reason: 'unsupported' }
-    this.baseUrl = baseUrl
+    this.baseUrl = serverChoice?.chosen ?? baseUrl
     this.token = token
+    this.chosen = serverChoice?.chosen ?? null
+    this.server = {
+      baseUrl: () => this.baseUrl,
+      session: {
+        getToken: () => this.token,
+        setToken: (value) => {
+          this.token = value
+        },
+        clearToken: () => {
+          this.token = null
+        },
+      },
+      chooser:
+        serverChoice === undefined
+          ? undefined
+          : {
+              current: () => this.chosen,
+              choose: (origin) => {
+                this.chosen = origin
+                this.baseUrl = origin
+              },
+            },
+    }
   }
 
   readonly capture = {
@@ -51,19 +79,6 @@ class FakePlatform implements Platform {
     start: async (request: CaptureRequest) => {
       this.started.push(request)
       return this.result
-    },
-  }
-
-  readonly server = {
-    baseUrl: () => this.baseUrl,
-    session: {
-      getToken: () => this.token,
-      setToken: (token: string) => {
-        this.token = token
-      },
-      clearToken: () => {
-        this.token = null
-      },
     },
   }
 }

@@ -42,6 +42,14 @@ type PlatformServer = {
     setToken: (token: string) => void
     clearToken: () => void
   }
+  /**
+   * Present when the user picks the server the app talks to (the desktop app). The app asks for the address
+   * before anything else while `current` is null.
+   */
+  chooser?: {
+    current: () => string | null
+    choose: (origin: string) => void
+  }
 }
 
 /**

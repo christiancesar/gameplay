@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setCurrentPlatform } from '@/shared/platform/current-platform'
 import { FakePlatform } from '@/shared/platform/test/fake-platform'
 
-import { authClient } from './auth-client'
+import { authClient, placeholderBaseUrl } from './auth-client'
 
 const SIGN_IN_ANSWER = { redirect: false, token: 't', user: { id: 'u1', email: 'a@b.c', name: 'a' } }
 
@@ -69,5 +69,14 @@ describe('authClient', () => {
     await authClient.signOut()
 
     expect(platform.token).toBeNull()
+  })
+})
+
+describe('placeholderBaseUrl', () => {
+  it('leaves an http(s) page to the client, and stands in for any other origin', () => {
+    expect(placeholderBaseUrl('https://play.example.com')).toBeUndefined()
+    expect(placeholderBaseUrl('http://localhost:5173')).toBeUndefined()
+    expect(placeholderBaseUrl('app://gameplay')).toBe('https://server.invalid')
+    expect(placeholderBaseUrl('')).toBe('https://server.invalid')
   })
 })

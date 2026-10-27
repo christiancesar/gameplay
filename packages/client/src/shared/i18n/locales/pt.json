@@ -911,5 +911,19 @@
       "title": "Você não é mais admin de {{server}}"
     },
     "open": "Abrir"
+  },
+  "serverChoice": {
+    "title": "Escolha seu servidor",
+    "description": "Em qual servidor Gameplay a sua conta está?",
+    "label": "Endereço do servidor",
+    "placeholder": "play.exemplo.com",
+    "hint": "O endereço que você recebeu. Use https, ou localhost para um servidor nesta máquina.",
+    "submit": "Conectar",
+    "errors": {
+      "required": "Informe o endereço do servidor.",
+      "invalid": "Informe um endereço válido, como play.exemplo.com.",
+      "unreachable": "Não foi possível acessar este servidor. Confira o endereço e a conexão.",
+      "notGameplay": "Este não é um servidor Gameplay."
+    }
   }
 }

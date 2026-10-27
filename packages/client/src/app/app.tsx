@@ -1,7 +1,10 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { RouterProvider } from '@tanstack/react-router'
+import { useState } from 'react'
 import { Toaster } from 'sonner'
+
+import { ServerChoiceScreen } from '@/modules/server-choice/screens/server-choice.screen'
 
 import { TooltipProvider } from '@/shared/ui/tooltip'
 import { queryClient } from '@/shared/lib/query-client'
@@ -26,17 +29,27 @@ function startMonitoring(serverUrl: string) {
   initFaro(router, serverUrl)
 }
 
-/** The front-end of every host. The web and the desktop app each mount it with their own platform. */
+/**
+ * The front-end of every host. The web and the desktop app each mount it with their own platform. Where the
+ * user picks the server (the desktop), nothing talks to the API until one is chosen.
+ */
 export function App({ platform }: { platform: Platform }) {
   // The controllers outside React read it from here; it does not change while the app runs.
   setCurrentPlatform(platform)
-  startMonitoring(platform.server.baseUrl())
+  const { chooser } = platform.server
+  const [needsServer, setNeedsServer] = useState(() => chooser !== undefined && chooser.current() === null)
+  if (!needsServer) startMonitoring(platform.server.baseUrl())
+
   return (
     <PlatformProvider platform={platform}>
       <QueryClientProvider client={queryClient}>
         <ThemeSync />
         <TooltipProvider>
-          <RouterProvider router={router} />
+          {needsServer ? (
+            <ServerChoiceScreen onChosen={() => setNeedsServer(false)} />
+          ) : (
+            <RouterProvider router={router} />
+          )}
           <Toaster richColors />
         </TooltipProvider>
         {import.meta.env.DEV ? <ReactQueryDevtools initialIsOpen={false} /> : null}

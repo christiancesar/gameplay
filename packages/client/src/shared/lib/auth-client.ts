@@ -3,6 +3,14 @@ import { createAuthClient } from 'better-auth/react'
 
 import { currentPlatform } from '@/shared/platform/current-platform'
 
+/**
+ * O client lê a origem da página como a da API e recusa uma que não seja http(s), como `app://` no desktop. O endereço
+ * de verdade entra a cada chamada (`toServerUrl`), então fora do http(s) um endereço qualquer ocupa o lugar.
+ */
+function placeholderBaseUrl(pageOrigin: string): string | undefined {
+  return /^https?:\/\//.test(pageOrigin) ? undefined : 'https://server.invalid'
+}
+
 /** O mesmo caminho no servidor da plataforma: o client monta a URL no domínio da página, aqui ela troca de domínio. */
 function toServerUrl(input: Parameters<typeof fetch>[0]): Parameters<typeof fetch>[0] {
   const base = currentPlatform().server.baseUrl()
@@ -18,6 +26,7 @@ function toServerUrl(input: Parameters<typeof fetch>[0]): Parameters<typeof fetc
  * que o app monta.
  */
 const authClient = createAuthClient({
+  baseURL: placeholderBaseUrl(globalThis.location?.origin ?? ''),
   fetchOptions: {
     customFetchImpl: (input, init) => fetch(toServerUrl(input), init),
     auth: { type: 'Bearer', token: () => currentPlatform().server.session.getToken() ?? '' },
@@ -46,5 +55,5 @@ const authClient = createAuthClient({
 
 type AuthSession = typeof authClient.$Infer.Session
 
-export { authClient }
+export { authClient, placeholderBaseUrl }
 export type { AuthSession }
