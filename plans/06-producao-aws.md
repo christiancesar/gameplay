@@ -17,24 +17,23 @@ Decisões do usuário em 2026-10-26:
 | Peça | Escolha | Por quê |
 |---|---|---|
 | Região | **us-east-1** | Pergunta do usuário. A mídia (voz e live) passa pela Cloudflare, que é anycast e atende pelo PoP de São Paulo; os ~120 ms a mais só afetam API e socket (login, entrar na sala, eventos), não o áudio e o vídeo. Custa cerca de metade de São Paulo. O banco precisa ficar na mesma região da API. |
-| API | **Amazon Lightsail, 2 GB** | Preço fixo com IPv4 e 3 TB de tráfego inclusos. Docker com a API (Nest + sharp) e o nginx, como no host. EC2 sairia mais caro somando IPv4, disco e egress. |
+| API e web | **Amazon Lightsail, 2 GB** | Preço fixo com IPv4 e 3 TB de tráfego inclusos. Docker com a API (Nest + sharp) e o web (nginx com o build do Vite), como no self-hosted. EC2 sairia mais caro somando IPv4, disco e egress. |
 | Banco | **Prisma Postgres, plano Starter** | Escolha do usuário. Starter tem backup de 7 dias e 1M de operações. O Free (200 mil operações/mês, sem backup) serve para começar, mas o Better Auth consulta a sessão a cada requisição e pode estourar. |
-| Web | **Cloudflare Workers (static assets)** | Arquivos estáticos grátis e sem limite de requisições. Substitui a ideia antiga do Netlify. |
+| Web | **No Lightsail, mesma origem da API** | Decisão do usuário em 2026-10-27, no lugar do Cloudflare Workers: o web é leve, e com a mesma origem não precisa de CORS, `VITE_API_URL` nem cookie entre subdomínios. Os arquivos em `/assets/` têm hash e `Cache-Control: immutable`, então o proxy da Cloudflare faz o cache na borda do mesmo jeito. |
 | Uploads | **Amazon S3 (us-east-1)** | Decisão do usuário: nada de arquivo na máquina, que fica para processamento. O driver `s3` da API já existe. A API acessa com a chave de um usuário IAM restrito ao bucket (o Lightsail não usa papéis IAM). As imagens são servidas por um domínio da Cloudflare com cache, para não pagar a saída do S3. |
 | Voz | **Mesh + TURN da Cloudflare** | Como hoje. Voz é leve (~50 kbps por pessoa). |
 | Tela | **Cloudflare Realtime SFU com simulcast** | Quem transmite sobe uma vez; a Cloudflare entrega a cada espectador a camada que a rede dele aguenta. |
-| DNS, TLS, proxy | **Cloudflare Free** | Proxy laranja na API (TLS, WebSocket, proteção DDoS). O Lightsail aceita conexões só dos IPs da Cloudflare. |
+| DNS, TLS, proxy | **Cloudflare Free** | Proxy laranja no domínio do app (TLS, WebSocket, proteção DDoS). O Lightsail aceita conexões só dos IPs da Cloudflare. |
 | Observabilidade | **Grafana Cloud e Sentry (planos grátis)** | Como já configurado no OBS-01 a OBS-06. |
 
-Domínios: web em `gameplay.oikos.company`, API em `unlimited.oikos.company` (decisão do usuário). Os dois têm um nível só, então o SSL Universal grátis da Cloudflare cobre ambos; um nome como `api.gameplay.oikos.company` exigiria o Advanced Certificate Manager, pago. São o mesmo site (`oikos.company`), então o cookie de sessão do Better Auth, que fica na API, vai junto nas chamadas do web.
+Domínio: web e API em `gameplay.oikos.company` (decisão do usuário em 2026-10-27; antes a API ficaria em `unlimited.oikos.company` e o web no Workers). Tem um nível só, então o SSL Universal grátis da Cloudflare cobre; um nome como `api.gameplay.oikos.company` exigiria o Advanced Certificate Manager, pago.
 
 ## 3. Diagrama
 
 ```mermaid
 flowchart LR
-  B[Browser] -->|HTML, JS| W[Cloudflare Workers<br/>web estático]
-  B -->|REST e Socket.IO| P[Proxy Cloudflare<br/>unlimited.oikos.company]
-  P --> L[Lightsail us-east-1<br/>nginx + API Nest]
+  B[Browser] -->|HTML, JS, REST e Socket.IO| P[Proxy Cloudflare<br/>gameplay.oikos.company]
+  P --> L[Lightsail us-east-1<br/>web nginx + API Nest]
   L --> D[(Prisma Postgres<br/>us-east-1)]
   L -->|uploads| R[Amazon S3]
   B -->|avatares, ícones, com cache| CF[Cloudflare CDN] --> R
@@ -63,10 +62,9 @@ Franquia: 1.000 GB/mês grátis, **compartilhada entre SFU e TURN**, depois US$ 
 
 | Item | Serviço | US$/mês |
 |---|---|---|
-| API + nginx | Lightsail 2 GB (2 vCPU, 60 GB SSD, 3 TB, IPv4) | 12,00 |
+| API + web | Lightsail 2 GB (2 vCPU, 60 GB SSD, 3 TB, IPv4) | 12,00 |
 | Snapshot automático do disco | Lightsail | ~1 a 3 |
 | Banco | Prisma Postgres Starter | 10,00 (0 no Free) |
-| Web estático | Cloudflare Workers | 0 |
 | Uploads | Amazon S3, atrás do cache da Cloudflare | menos de 1 |
 | SFU + TURN | Cloudflare Realtime | 0 (até 1.000 GB) |
 | DNS, proxy, TLS | Cloudflare Free | 0 |
@@ -80,13 +78,12 @@ Para comparação, o mesmo desenho com EC2 t4g.small (~US$ 12) + IPv4 (US$ 3,65)
 
 ## 6. O que muda no código para produção (não implementado)
 
-- **Origens separadas:** `BETTER_AUTH_URL` aponta para a API e `WEB_ORIGIN` para o web; CORS com credenciais no REST e no Socket.IO; cookie do Better Auth no domínio `oikos.company`.
-- **Web:** `VITE_API_URL` e o Socket.IO conectando direto na API (hoje é mesma origem via nginx); build publicado no Workers com fallback de SPA para `index.html`.
+- **Mesma origem:** com o web no Lightsail (2026-10-27), `BETTER_AUTH_URL` e `WEB_ORIGIN` são o mesmo `APP_URL`, e o código do web não muda. Sem CORS, `VITE_API_URL` nem cookie entre subdomínios.
 - **Uploads:** `STORAGE_DRIVER=s3` com `S3_BUCKET`, `S3_REGION=us-east-1` e a chave IAM; `PUBLIC_UPLOADS_URL` absoluto, no domínio da Cloudflare que faz cache do bucket.
 - **IP real:** com o proxy da Cloudflare, ler `CF-Connecting-IP` e ajustar `TRUST_PROXY_HOPS`; `X-Forwarded-Proto` no nginx.
 - **Banco:** `DATABASE_URL` do Prisma Postgres; conferir a conexão TCP direta com o adapter `pg` do Prisma 7; `prisma migrate deploy` no deploy.
 - **Deploy:** scripts rodados desta máquina, sem pipeline no GitHub (ver seção 7).
-- **Telemetria:** `OTEL_*`, `VITE_SENTRY_DSN` e `VITE_FARO_URL` de produção; os túneis `/monitoring/*` do nginx do host deixam de ser necessários se o web falar direto com os coletores.
+- **Telemetria:** `OTEL_*`, `VITE_SENTRY_DSN` e o coletor do Faro de produção; os túneis `/monitoring/sentry` e `/monitoring/faro` continuam no nginx, como no self-hosted (o Brave bloqueia o sentry.io).
 
 ## 7. Deploy pela máquina local
 
@@ -101,7 +98,7 @@ Decisão do usuário em 2026-10-26: enquanto o projeto é pequeno, tudo sai dest
 4. No servidor: roda a migração (`prisma migrate deploy`) num container que sai ao terminar, sobe a API nova com `docker compose up -d --wait` e volta para a tag anterior se o healthcheck falhar.
 5. Cria uma tag no git (`deploy-api-<data>`) para registrar o que foi publicado.
 
-**Web** (`npm run deploy:web`, a escrever): build do Vite com as variáveis de produção, upload dos source maps para o Sentry e `wrangler deploy` para o Workers, com o login do `wrangler` desta máquina.
+**Web**: vai no mesmo deploy, como a imagem `gameplay-web` (nginx com o build do Vite e os source maps enviados ao Sentry no build), com a mesma tag da API. Os dois sobem juntos, então o web nunca fala com uma API de outra versão. Compose e nginx em `infra/production/`.
 
 **Acesso SSH** (decisão do usuário em 2026-10-26): porta 22 liberada só para o IPv4 desta casa (`TF_VAR_ssh_allowed_cidr`, /32). Produção não usa Cloudflare Tunnel; o túnel é só do `infra/self-hosted`. Se a operadora trocar o IP, atualizar a variável e rodar `terraform apply`.
 
@@ -156,9 +153,9 @@ IP estático do Lightsail, nome do bucket, chave de acesso do usuário IAM da ap
 
 ## 9. Certificados
 
-- **Browser → Cloudflare:** SSL Universal da Cloudflare, grátis e renovado sozinho, para `oikos.company` e `*.oikos.company` (um nível de subdomínio). Cobre `gameplay.oikos.company`, `unlimited.oikos.company` e o domínio das imagens, se for de um nível.
+- **Browser → Cloudflare:** SSL Universal da Cloudflare, grátis e renovado sozinho, para `oikos.company` e `*.oikos.company` (um nível de subdomínio). Cobre `gameplay.oikos.company` e o domínio das imagens, se for de um nível.
 - **Cloudflare → Lightsail:** certificado de origem da Cloudflare (Origin CA, grátis, até 15 anos) instalado no nginx, com a zona em modo **Full (strict)**. Hoje o túnel faz esse papel; na AWS ele sai. O firewall do Lightsail aceita só os IPs da Cloudflare.
-- **Web no Workers, TURN, SFU e Prisma Postgres:** certificados dos próprios serviços, sem nada a configurar.
+- **TURN, SFU e Prisma Postgres:** certificados dos próprios serviços, sem nada a configurar.
 
 ## 10. SFU
 
@@ -184,8 +181,8 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 | INF-01 | Conta AWS, Lightsail em us-east-1, firewall só com IPs da Cloudflare, DNS, proxy e certificado de origem |
 | INF-02 | Prisma Postgres, `DATABASE_URL`, migração dos dados do host |
 | INF-03 | Bucket S3, usuário IAM restrito, domínio com cache na Cloudflare e `STORAGE_DRIVER=s3` |
-| INF-04 | Web no Workers, `VITE_API_URL`, CORS e cookies entre web e API |
-| INF-05 | Scripts `deploy:api` e `deploy:web` desta máquina, e imagens da API e da migração otimizadas |
+| INF-04 | ~~Web no Workers, CORS e cookies entre web e API~~. Cancelado em 2026-10-27: web no Lightsail, mesma origem da API |
+| INF-05 | Script de deploy desta máquina (API e web juntos), e imagens da API e da migração otimizadas |
 | SFU-01 | Módulo `media` na API: sessões e tracks do Cloudflare Realtime SFU |
 | SFU-02 | `SfuTransport` no web com simulcast, troca de camada pelo espectador |
 | SFU-03 | Orçamento mensal no `limits` e troca entre mesh e SFU |
