@@ -3,7 +3,8 @@ import { adminEnvObject } from './admin.js'
 import { apiEnvObject } from './api.js'
 import { cloudflareTurnRule, requireKeys } from './rules.js'
 
-export const TUNNEL_MODES = ['quick', 'named', 'token'] as const
+// local: only this machine, no tunnel. The others publish the stack through Cloudflare.
+export const TUNNEL_MODES = ['local', 'quick', 'named', 'token'] as const
 export type TunnelMode = (typeof TUNNEL_MODES)[number]
 
 const port = (fallback: number) => z.coerce.number().int().min(1).max(65_535).default(fallback)
@@ -30,8 +31,8 @@ export const selfHostedEnvObject = apiEnvObject
   .extend({
     // As in production: Realtime TURN relays the calls behind CGNAT.
     ICE_PROVIDER: apiEnvObject.shape.ICE_PROVIDER.unwrap().default('cloudflare'),
-    TUNNEL_MODE: z.enum(TUNNEL_MODES).default('quick'),
-    // Public https URL. Quick mode: written by the CLI from the tunnel.
+    TUNNEL_MODE: z.enum(TUNNEL_MODES).default('local'),
+    // URL people open. local and quick modes: written by the CLI.
     APP_URL: z.url({ protocol: /^https?$/ }).optional(),
     CLOUDFLARE_TUNNEL_ID: z.string().optional(),
     CLOUDFLARE_TUNNEL_CREDENTIALS: z.string().optional(),

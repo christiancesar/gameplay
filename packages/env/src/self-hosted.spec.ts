@@ -10,12 +10,19 @@ describe('selfHostedEnvSchema', () => {
     const env = selfHostedEnvSchema.parse(QUICK_MODE_ENV)
 
     expect(env).toMatchObject({
+      TUNNEL_MODE: 'quick',
       ICE_PROVIDER: 'cloudflare',
       WEB_PORT: 8080,
       POSTGRES_HOST_PORT: 5433,
       CLOUDFLARED_METRICS_PORT: 20241,
       LOG_LEVEL: 'info',
     })
+  })
+
+  it('runs locally when no tunnel is chosen', () => {
+    const { TUNNEL_MODE: _, ...withoutMode } = QUICK_MODE_ENV
+
+    expect(selfHostedEnvSchema.parse(withoutMode).TUNNEL_MODE).toBe('local')
   })
 
   it('asks for the TURN key while ICE_PROVIDER is cloudflare', () => {

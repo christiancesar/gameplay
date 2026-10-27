@@ -50,7 +50,7 @@ export const ENV_SOURCES: Record<SelfHostedEnvKey, EnvSource> = {
   PUBLIC_HOSTNAME: { kind: 'derived', from: 'APP_URL (named mode)' },
   CLOUDFLARED_UID: { kind: 'derived', from: 'your user id (named mode)' },
 
-  // Derived from the tunnel in quick mode; your hostname in named and token modes.
+  // Written by the CLI in local and quick modes; your hostname in named and token modes.
   APP_URL: external('your tunnel hostname, https://...'),
   CLOUDFLARE_TUNNEL_ID: external(NAMED_TUNNEL),
   CLOUDFLARE_TUNNEL_CREDENTIALS: external(`${NAMED_TUNNEL}: path of the credentials JSON`),
