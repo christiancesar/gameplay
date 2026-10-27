@@ -41,9 +41,11 @@ export class InMemorySfuSessionStore extends SfuSessionStore {
     session.pulled = session.pulled.filter((track) => !mids.includes(track.mid))
   }
 
-  async removePullsOf(streamerId: string): Promise<void> {
+  async removePullsOf(streamerId: string, trackNames?: string[]): Promise<void> {
+    const pulledFrom = (track: PulledTrack) =>
+      track.streamerId === streamerId && (!trackNames || trackNames.includes(track.trackName))
     for (const session of this.sessions.values()) {
-      session.pulled = session.pulled.filter((track) => track.streamerId !== streamerId)
+      session.pulled = session.pulled.filter((track) => !pulledFrom(track))
     }
   }
 

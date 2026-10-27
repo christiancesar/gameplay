@@ -13,7 +13,7 @@ export abstract class SfuSessionStore {
   abstract addPulled(sessionId: string, tracks: PulledTrack[]): Promise<void>
   // Forgets these tracks, sent or received.
   abstract removeTracks(sessionId: string, mids: string[]): Promise<void>
-  // Forgets the tracks others pull from this streamer.
-  abstract removePullsOf(streamerId: string): Promise<void>
+  // Forgets the tracks others pull from this streamer (only these names when given).
+  abstract removePullsOf(streamerId: string, trackNames?: string[]): Promise<void>
   abstract remove(sessionId: string): Promise<void>
 }
