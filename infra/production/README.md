@@ -19,6 +19,27 @@ Web e API ficam na mesma origem, `gameplay.oikos.company`, como no self-hosted. 
 
 As imagens não são construídas no servidor. O deploy manda `gameplay-api` e `gameplay-web` por SSH e define `RELEASE` (o SHA do commit), a mesma tag nas duas. As migrações rodam desta máquina, pelo `DIRECT_URL`.
 
+## Deploy
+
+Desta máquina, com o código commitado:
+
+```bash
+npm run deploy                     # checks, build, envio, migração, subida, seed e tag
+npm run deploy -- --skip-checks    # sem typecheck, lint e testes
+```
+
+O script (`deploy.sh`) faz, em ordem:
+
+1. Recusa se houver mudança sem commit em `apps/`, `packages/` ou nos arquivos do npm e do turbo. As imagens saem do working tree.
+2. Typecheck, lint e testes.
+3. Build de `gameplay-api` e `gameplay-web` aqui, com a tag do commit. O web leva o DSN do Sentry, os túneis e envia os source maps.
+4. `docker save | gzip | ssh docker load`, as duas imagens num arquivo só.
+5. Escreve no servidor o `.env` só com as variáveis que ele usa (sem `DIRECT_URL`, senha do admin nem token do Sentry), o compose e o nginx.
+6. `prisma migrate deploy` daqui, pelo `DIRECT_URL`, antes de trocar os containers. Migração precisa funcionar com a versão anterior ainda no ar: adicionar, nunca remover ou renomear no mesmo deploy.
+7. `docker compose up -d --wait`. Se não ficar saudável, mostra os logs e volta para o `RELEASE` anterior.
+8. Seed do admin (idempotente), pelo stdin, sem a senha aparecer no `ps` do servidor.
+9. Confere `https://gameplay.oikos.company/api/health` pela Cloudflare, apaga imagens antigas (mantém a atual e a anterior) e cria a tag `deploy-AAAAMMDD-HHMM` no git local.
+
 ## IP real
 
 O firewall da Lightsail só deixa os IPs da Cloudflare chegarem na 443. Por isso o nginx confia no `CF-Connecting-IP`, grava esse valor no `X-Forwarded-For` e a API confia em um salto (`TRUST_PROXY_HOPS=1`).
