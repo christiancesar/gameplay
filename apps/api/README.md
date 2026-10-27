@@ -47,7 +47,7 @@ Com a API em dev: http://localhost:3333/api/docs (Scalar). O seletor no topo tro
 
 ## Variáveis de ambiente
 
-Validadas com zod na inicialização (`src/env/env.schema.ts`); a API não sobe com variável faltando ou inválida. Ver `.env.example`.
+Validadas com zod na inicialização; a API não sobe com variável faltando ou inválida. O schema fica no pacote `@gameplay/env` (`packages/env/src/api.ts`), compartilhado com o self-hosted. Ver `.env.example`.
 
 ## Uploads
 

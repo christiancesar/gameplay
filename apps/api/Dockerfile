@@ -43,6 +43,7 @@ RUN npm ci --omit=dev --omit=optional --ignore-scripts \
   && rm -rf /tmp/sharp \
   && npm cache clean --force
 COPY --from=builder /repo/packages/contracts/dist ./packages/contracts/dist
+COPY --from=builder /repo/packages/env/dist ./packages/env/dist
 COPY --from=builder /repo/apps/api/dist ./apps/api/dist
 # Mount point for uploads when a named volume is used (STORAGE_LOCAL_DIR=/data/uploads):
 # a new volume copies this owner, so the node user can write to it.
