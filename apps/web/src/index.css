@@ -1,4 +1,4 @@
-@import '@gameplay/client/styles.css';
+@import '../../../packages/client/src/styles/theme.css';
 
 /* The classes live in the client package; Tailwind only scans the project it runs in. */
 @source '../../../packages/client/src';
