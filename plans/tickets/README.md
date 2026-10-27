@@ -124,7 +124,8 @@ Base: `plans/media-transport-options.md` seção 7 e `plans/06-producao-aws.md` 
 | Ticket | Pontos | Onda | Status |
 |---|---|---|---|
 | [SFU-01 Módulo `media` na API](SFU-01-modulo-media-na-api.md) | 8 | 1 | pendente |
-| [SFU-02 Transmissão pelo SFU no web](SFU-02-transmissao-pelo-sfu-no-web.md) | 8 | 2 | pendente |
-| [SFU-03 Orçamento e qualidade de quem assiste](SFU-03-orcamento-e-qualidade.md) | 5 | 3 | pendente |
+| [SFU-04 Modos permitidos na plataforma e por servidor](SFU-04-modos-permitidos.md) | 5 | 2 | pendente |
+| [SFU-02 Transmissão pelo SFU no web](SFU-02-transmissao-pelo-sfu-no-web.md) | 8 | 3 | pendente |
+| [SFU-03 Orçamento e qualidade de quem assiste](SFU-03-orcamento-e-qualidade.md) | 5 | 4 | pendente |
 
-Total: 21 pontos.
+Total: 26 pontos.

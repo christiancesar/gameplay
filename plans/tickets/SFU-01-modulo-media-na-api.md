@@ -18,7 +18,8 @@ O SFU não precisa do RealtimeKit. Usamos só a API de conexão (`https://rtc.li
   - trocar a camada assinada (`tracks/update`);
   - renegociar e fechar tracks.
 - Registro em memória de quem é dono de cada sessão e de quais tracks cada streamer publicou. O espectador nunca recebe nem informa o `sessionId` de outra pessoa; a API resolve isso pelo `streamerId` *(suposição)*.
-- Contrato: `stream:start` passa a levar o modo (`sfu` ou `mesh`), e o participante na sala passa a dizer em que modo está transmitindo, para o espectador saber como assistir. Com `sfu`, a API só aceita o `stream:start` se a pessoa já publicou a tela no SFU.
+- Contrato: `stream:start` passa a levar o modo (`sfu` ou `mesh`), e o participante na sala passa a dizer em que modo está transmitindo, para o espectador saber como assistir. Com `sfu`, a API só aceita o `stream:start` se a pessoa já publicou a tela no SFU. A conferência dos modos permitidos entra no SFU-04.
+- A tela publica vídeo e, quando houver, o áudio da tela (FE-15) na mesma sessão. A voz não passa pelo SFU.
 - Ao parar a transmissão, sair da sala ou desconectar, a API fecha as tracks da pessoa na Cloudflare e limpa o registro.
 - Schema de env: as duas variáveis continuam opcionais. Sem elas, o SFU fica indisponível e o web oferece só o mesh.
 

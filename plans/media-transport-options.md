@@ -159,11 +159,12 @@ Os itens 1 a 5 só precisam ser decididos quando o SFU entrar.
 
 ## 7. Desenho decidido (2026-10-27)
 
-- **Tela:** Cloudflare Realtime SFU por padrão. Quem transmite pode escolher "Direto" (mesh) no diálogo antes de compartilhar. Não existe modo automático.
+- **Tela:** Cloudflare Realtime SFU por padrão. No diálogo antes de compartilhar, os modos aparecem como **Servidor (SFU)** e **Direto (Mesh)**, cada um com uma explicação curta: o Mesh é melhor para 1:1, o SFU para várias pessoas assistindo. Não existe modo automático por enquanto; detectar o melhor modo pelo número de espectadores fica para depois.
+- **Áudio da tela:** segue o modo da transmissão, na mesma sessão do vídeo.
 - **Voz:** sempre mesh.
 - **Sem troca no meio da live.** Para mudar de modo, a pessoa para e compartilha de novo. O "make before break" da seção 2.4 sai do plano.
-- **Quando o SFU não está disponível** (sem credenciais, orçamento esgotado ou erro da Cloudflare), o diálogo oferece só "Direto" e diz o motivo. Se a publicação falhar ao começar, a transmissão cai para Direto com um aviso *(suposição)*.
-- **Quem decide:** só quem transmite escolhe o modo. O admin da plataforma controla o orçamento mensal *(suposição: o modelo da seção 2.1 sem o override por servidor)*.
+- **Modos permitidos:** o admin da plataforma libera ou bloqueia cada modo de forma global, e owner e admin de cada servidor restringem dentro disso (SFU-04). Quem transmite escolhe entre os modos que sobram.
+- **Quando o SFU não está disponível** (sem credenciais, orçamento esgotado ou erro da Cloudflare), ele aparece desabilitado com o motivo. Se a publicação falhar ao começar e o Direto estiver permitido, a transmissão cai para Direto com um aviso. Se o servidor só permite SFU e ele está indisponível, ninguém transmite ali até ele voltar.
 - **Fornecedor:** Cloudflare Realtime SFU, só a API de conexão. O RealtimeKit não é usado: ele traz salas, sinalização e interface próprias e cobra por minuto de participante.
 - **Credenciais:** um app só para desenvolvimento e produção (`CLOUDFLARE_SFU_APP_ID` e `CLOUDFLARE_SFU_APP_TOKEN`), decisão do usuário.
-- **Tickets:** SFU-01 (API), SFU-02 (web e seletor de modo) e SFU-03 (orçamento e qualidade de quem assiste), em `plans/tickets/`.
+- **Tickets:** SFU-01 (API), SFU-04 (modos permitidos), SFU-02 (web e seletor de modo) e SFU-03 (orçamento e qualidade de quem assiste), em `plans/tickets/`.

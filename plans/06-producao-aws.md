@@ -186,6 +186,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 | SFU-01 | Módulo `media` na API: sessões e tracks do Cloudflare Realtime SFU |
 | SFU-02 | Transmissão pelo SFU no web com simulcast, mesh como opção no diálogo |
 | SFU-03 | Orçamento mensal no `limits` e qualidade escolhida por quem assiste |
+| SFU-04 | Modos permitidos (SFU e Mesh) na plataforma e por servidor |
 | DESK-01 | Estudo do app desktop em Electron (captura de áudio por processo) |
 
 ## 13. Antes de assinar, conferir na página oficial
