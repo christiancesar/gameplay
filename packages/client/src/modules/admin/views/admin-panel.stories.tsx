@@ -430,7 +430,8 @@ export const DeleteServer: Story = {
     const dialog = await screen.findByRole('alertdialog')
     await userEvent.type(within(dialog).getByLabelText(/type turbex/i), 'Turbex')
     await userEvent.click(within(dialog).getByRole('button', { name: /delete server/i }))
-    await expect(actions.onDeleteServer).toHaveBeenCalledWith('s1')
+    // The form submits asynchronously: under load the callback is not there on the same tick.
+    await waitFor(() => expect(actions.onDeleteServer).toHaveBeenCalledWith('s1'))
   },
 }
 

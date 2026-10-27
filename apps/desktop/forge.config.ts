@@ -14,7 +14,14 @@ const config: ForgeConfig = {
   // Linux only for now; the other systems and the signing come with the packaging ticket.
   makers: [
     new MakerZIP({}, ['linux']),
-    new MakerDeb({ options: { maintainer: 'Gameplay', homepage: 'https://gameplay.oikos.company' } }),
+    new MakerDeb({
+      options: {
+        name: 'gameplay',
+        bin: 'gameplay',
+        maintainer: 'Gameplay',
+        homepage: 'https://gameplay.oikos.company',
+      },
+    }),
   ],
   plugins: [
     new VitePlugin({
