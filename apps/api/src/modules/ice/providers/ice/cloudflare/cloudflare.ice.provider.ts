@@ -46,6 +46,20 @@ export class CloudflareIceProvider extends IceProvider {
       ttlSeconds,
     }
   }
+
+  // One call per TURN username; Cloudflare answers 204.
+  override async revoke(issued: IssuedIce): Promise<void> {
+    const { keyId, apiToken, fetch: doFetch = fetch } = this.options
+    const usernames = [...new Set(issued.iceServers.flatMap((server) => (server.username ? [server.username] : [])))]
+    for (const username of usernames) {
+      const response = await doFetch(`${API_URL}/${keyId}/credentials/${encodeURIComponent(username)}/revoke`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${apiToken}` },
+        signal: AbortSignal.timeout(5000),
+      })
+      if (!response.ok) throw new Error(`Cloudflare TURN revoke answered ${response.status}`)
+    }
+  }
 }
 
 // Browsers block port 53, and those URLs only time out (Cloudflare docs).

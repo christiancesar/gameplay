@@ -48,6 +48,10 @@ export class InMemoryRoomStateStore extends RoomStateStore {
     return [...this.seats.values()].filter((seat) => seat.serverId === serverId).map((seat) => ({ ...seat }))
   }
 
+  async listAll(): Promise<Seat[]> {
+    return [...this.seats.values()].map((seat) => ({ ...seat }))
+  }
+
   async stats(): Promise<{ seats: number; streaming: number }> {
     let streaming = 0
     for (const seat of this.seats.values()) if (seat.streaming) streaming += 1

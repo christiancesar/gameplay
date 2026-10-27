@@ -6,6 +6,10 @@ model PlatformSettings {
   maxMembersPerServer Int      @default(10)
   maxRoomsPerServer   Int      @default(2)
   minChromiumVersion  Int      @default(130)
+  // Media resources: screen share through the SFU, mesh, and the TURN relay.
+  sfuEnabled          Boolean  @default(true)
+  meshEnabled         Boolean  @default(true)
+  turnEnabled         Boolean  @default(true)
   updatedAt           DateTime @updatedAt
 
   @@map("platform_settings")

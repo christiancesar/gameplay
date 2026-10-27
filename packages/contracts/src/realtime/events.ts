@@ -25,6 +25,8 @@ export const REALTIME_EVENTS = {
   signalSend: 'signal:send',
   signalReceive: 'signal:receive',
   notificationNew: 'notification:new',
+  mediaChanged: 'media:changed',
+  streamEnded: 'stream:ended',
 } as const
 
 // Client asks to follow the server it has open. One server per socket:
@@ -125,6 +127,16 @@ export type StreamStart = z.input<typeof streamStartSchema>
 
 // Viewer to streamer (same room). The streamer only sends the screen to
 // who asked to watch.
+// The platform admin changed the media resources of a server (serverId) or of
+// the whole platform (null): refetch what the server offers.
+export const mediaChangedSchema = z.object({ serverId: z.string().nullable(), turnOff: z.boolean() })
+export type MediaChanged = z.infer<typeof mediaChangedSchema>
+
+// To the streamer whose share was stopped by the API, not by them.
+export const STREAM_ENDED_REASONS = ['disabled'] as const
+export const streamEndedSchema = z.object({ reason: z.enum(STREAM_ENDED_REASONS) })
+export type StreamEnded = z.infer<typeof streamEndedSchema>
+
 export const streamTargetSchema = z.object({ streamerId: z.string().min(1) })
 export type StreamTarget = z.infer<typeof streamTargetSchema>
 
@@ -184,4 +196,6 @@ export interface ServerToClientEvents {
   'stream:quality': (payload: StreamViewerQuality) => void
   'signal:receive': (payload: SignalReceive) => void
   'notification:new': (payload: NotificationNew) => void
+  'media:changed': (payload: MediaChanged) => void
+  'stream:ended': (payload: StreamEnded) => void
 }

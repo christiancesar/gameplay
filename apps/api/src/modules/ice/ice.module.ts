@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
 import { EnvService } from '../../env/env.service'
+import { LimitsModule } from '../limits/limits.module'
 import { IceController } from './controllers/ice.controller'
+import { TurnRevocationListener } from './listeners/turn-revocation.listener'
 import { IceProvider } from './providers/ice/ice.provider'
 import { CloudflareIceProvider } from './providers/ice/cloudflare/cloudflare.ice.provider'
 import { CoturnIceProvider } from './providers/ice/coturn/coturn.ice.provider'
@@ -32,6 +34,7 @@ export function createIceProvider(env: EnvService, stunOnly: StunOnlyIceProvider
 
 // ICE servers for WebRTC and the client IP seen over HTTP.
 @Module({
+  imports: [LimitsModule],
   controllers: [IceController],
   providers: [
     {
@@ -41,6 +44,7 @@ export function createIceProvider(env: EnvService, stunOnly: StunOnlyIceProvider
     },
     { provide: IceProvider, inject: [EnvService, StunOnlyIceProvider], useFactory: createIceProvider },
     GetIceConfigUseCase,
+    TurnRevocationListener,
     IceHealthService,
   ],
   exports: [IceHealthService],

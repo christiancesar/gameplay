@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import {
   type Announcement,
+  type MediaChanged,
+  type StreamEnded,
   type Participant,
   REALTIME_EVENTS,
   type RoomLeft,
@@ -13,6 +15,7 @@ import { serverRoom, sessionRoom, userRoom, voiceRoom } from '../../../domain/so
 import type { RealtimeServer } from '../../../domain/socket-data'
 import {
   NoPayloadDto,
+  MediaChangedDto,
   NotificationNewDto,
   PresenceUpdateDto,
   RoomLeftDto,
@@ -20,10 +23,11 @@ import {
   ServerChangedDto,
   ServerRemovedDto,
   SignalReceiveDto,
+  StreamEndedDto,
   StreamViewerDto,
   StreamViewerQualityDto,
 } from '../../../dtos/realtime.dto'
-import { RealtimeEmitter } from '../realtime-emitter.provider'
+import { type MediaAudience, RealtimeEmitter } from '../realtime-emitter.provider'
 
 // Socket.IO implementation; the gateway hands it the server on init. Before
 // that (or without a gateway) nothing is connected, so emits are skipped.
@@ -155,5 +159,26 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
   })
   notificationNew(userId: string, notificationId: string, announcement?: Announcement) {
     this.server?.to(userRoom(userId)).emit(REALTIME_EVENTS.notificationNew, { id: notificationId, announcement })
+  }
+
+  @AsyncApiSend({
+    channel: REALTIME_EVENTS.mediaChanged,
+    summary: 'The platform admin changed the media resources; refetch what the server offers',
+    message: { name: 'MediaChanged', payload: MediaChangedDto },
+  })
+  mediaChanged(to: MediaAudience, change: MediaChanged) {
+    if (!this.server) return
+    if (to === 'everyone') this.server.emit(REALTIME_EVENTS.mediaChanged, change)
+    else if ('serverId' in to) this.server.to(serverRoom(to.serverId)).emit(REALTIME_EVENTS.mediaChanged, change)
+    else if (to.userIds.length > 0) this.server.to(to.userIds.map(userRoom)).emit(REALTIME_EVENTS.mediaChanged, change)
+  }
+
+  @AsyncApiSend({
+    channel: REALTIME_EVENTS.streamEnded,
+    summary: 'Your screen share was stopped by the API (the mode was turned off)',
+    message: { name: 'StreamEnded', payload: StreamEndedDto },
+  })
+  streamEnded(socketId: string, ended: StreamEnded) {
+    this.server?.to(socketId).emit(REALTIME_EVENTS.streamEnded, ended)
   }
 }

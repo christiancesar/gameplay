@@ -25,6 +25,7 @@ const TIMEOUT_MS = 5000
 // Cloudflare Realtime SFU over its HTTPS API (Connection API, 2024-05-21).
 export class CloudflareSfuProvider extends SfuProvider {
   readonly configured = true
+  readonly name = 'cloudflare'
   private readonly logger = new Logger(CloudflareSfuProvider.name)
 
   constructor(private readonly options: Options) {

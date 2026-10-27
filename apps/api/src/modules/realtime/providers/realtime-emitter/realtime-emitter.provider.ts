@@ -1,11 +1,15 @@
 import {
   type Announcement,
+  type MediaChanged,
+  type StreamEnded,
   type Participant,
   type RoomLeft,
   type ServerRemoved,
   type SignalReceive,
   type StreamQualityLevel,
 } from '@gameplay/contracts'
+
+export type MediaAudience = { serverId: string } | { userIds: string[] } | 'everyone'
 
 // What the API tells connected clients without being asked. Use-cases and the
 // domain events listener talk to this; tests use a fake.
@@ -31,4 +35,8 @@ export abstract class RealtimeEmitter {
   abstract signal(socketId: string, signal: SignalReceive): void
   // To every tab of the user.
   abstract notificationNew(userId: string, notificationId: string, announcement?: Announcement): void
+  // To who follows the server, to some people, or to every socket.
+  abstract mediaChanged(to: MediaAudience, change: MediaChanged): void
+  // To the streamer's socket: the API stopped the share.
+  abstract streamEnded(socketId: string, ended: StreamEnded): void
 }

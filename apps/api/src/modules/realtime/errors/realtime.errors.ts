@@ -32,6 +32,16 @@ export class ScreenNotPublishedError extends DomainError {
   }
 }
 
+// The platform admin turned this way of sharing the screen off for the server.
+export class StreamModeDisabledError extends DomainError {
+  readonly code = 'STREAM_MODE_DISABLED'
+  override readonly status = HttpStatus.CONFLICT
+
+  constructor() {
+    super('This way of sharing the screen is turned off for this server.')
+  }
+}
+
 export class NotStreamingError extends DomainError {
   readonly code = 'NOT_STREAMING'
   override readonly status = HttpStatus.CONFLICT

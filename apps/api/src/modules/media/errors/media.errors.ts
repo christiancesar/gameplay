@@ -1,6 +1,16 @@
 import { HttpStatus } from '@nestjs/common'
 import { DomainError } from '../../../common/errors/domain-error'
 
+// The platform admin turned the SFU off for the person's server.
+export class SfuDisabledError extends DomainError {
+  readonly code = 'SFU_DISABLED'
+  override readonly status = HttpStatus.CONFLICT
+
+  constructor() {
+    super('Screen share through the server is turned off for this server.')
+  }
+}
+
 export class SfuNotConfiguredError extends DomainError {
   readonly code = 'SFU_NOT_CONFIGURED'
   override readonly status = HttpStatus.SERVICE_UNAVAILABLE

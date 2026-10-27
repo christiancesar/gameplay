@@ -5,6 +5,7 @@ import { SfuProvider } from '../sfu.provider'
 // stays on mesh.
 export class NotConfiguredSfuProvider extends SfuProvider {
   readonly configured = false
+  readonly name = null
 
   newSession(): never {
     throw new SfuNotConfiguredError()

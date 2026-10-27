@@ -30,5 +30,6 @@ import { SendAnnouncementUseCase } from './use-cases/send-announcement.use-case'
     DismissAllNotificationsUseCase,
     SendAnnouncementUseCase,
   ],
+  exports: [SendAnnouncementUseCase],
 })
 export class NotificationsModule {}

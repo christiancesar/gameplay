@@ -14,6 +14,10 @@ model Server {
   // Per-server limits set by the platform admin; null = global default.
   maxMembersOverride Int?
   maxRoomsOverride   Int?
+  // Media resources for this server; null = global setting.
+  sfuEnabled         Boolean?
+  meshEnabled        Boolean?
+  turnEnabled        Boolean?
   createdAt          DateTime       @default(now())
   members            ServerMember[]
   rooms              Room[]

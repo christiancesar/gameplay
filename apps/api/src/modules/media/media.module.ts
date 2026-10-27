@@ -1,16 +1,29 @@
 import { Module } from '@nestjs/common'
 import { EnvService } from '../../env/env.service'
+import { IceModule } from '../ice/ice.module'
+import { LimitsModule } from '../limits/limits.module'
+import { NotificationsModule } from '../notifications/notifications.module'
 import { RealtimeModule } from '../realtime/realtime.module'
+import { ServersModule } from '../servers/servers.module'
+import { AdminMediaController } from './controllers/admin-media.controller'
+import { ServerMediaController } from './controllers/server-media.controller'
 import { SfuController } from './controllers/sfu.controller'
 import { SfuCleanupListener } from './listeners/sfu-cleanup.listener'
 import { CloudflareSfuProvider } from './providers/sfu/cloudflare/cloudflare.sfu.provider'
 import { NotConfiguredSfuProvider } from './providers/sfu/not-configured/not-configured.sfu.provider'
+import { MediaChangeService } from './services/media-change.service'
 import { SfuAccessService } from './services/sfu-access.service'
 import { SfuProvider } from './providers/sfu/sfu.provider'
 import { ChangeSfuLayerUseCase } from './use-cases/change-sfu-layer.use-case'
 import { CloseSfuTracksUseCase } from './use-cases/close-sfu-tracks.use-case'
 import { CreateSfuSessionUseCase } from './use-cases/create-sfu-session.use-case'
+import { GetAdminMediaUseCase } from './use-cases/get-admin-media.use-case'
+import { GetMediaImpactUseCase } from './use-cases/get-media-impact.use-case'
+import { GetServerMediaOverridesUseCase } from './use-cases/get-server-media-overrides.use-case'
+import { GetServerMediaUseCase } from './use-cases/get-server-media.use-case'
 import { GetSfuStatusUseCase } from './use-cases/get-sfu-status.use-case'
+import { UpdateMediaSettingsUseCase } from './use-cases/update-media-settings.use-case'
+import { UpdateServerMediaUseCase } from './use-cases/update-server-media.use-case'
 import { PublishScreenUseCase } from './use-cases/publish-screen.use-case'
 import { RenegotiateSfuSessionUseCase } from './use-cases/renegotiate-sfu-session.use-case'
 import { WatchScreenUseCase } from './use-cases/watch-screen.use-case'
@@ -23,13 +36,21 @@ export function createSfuProvider(env: EnvService): SfuProvider {
 }
 
 // Media servers behind the screen share: the Cloudflare Realtime SFU, its
-// sessions and tracks. Voice stays on mesh and does not come here.
+// sessions and tracks. Voice stays on mesh and does not come here. Also the
+// platform admin's switches for SFU, mesh and TURN, and their effects.
 @Module({
-  imports: [RealtimeModule],
-  controllers: [SfuController],
+  imports: [RealtimeModule, LimitsModule, ServersModule, NotificationsModule, IceModule],
+  controllers: [SfuController, AdminMediaController, ServerMediaController],
   providers: [
     { provide: SfuProvider, inject: [EnvService], useFactory: createSfuProvider },
     SfuAccessService,
+    MediaChangeService,
+    GetAdminMediaUseCase,
+    GetMediaImpactUseCase,
+    UpdateMediaSettingsUseCase,
+    GetServerMediaOverridesUseCase,
+    UpdateServerMediaUseCase,
+    GetServerMediaUseCase,
     SfuCleanupListener,
     GetSfuStatusUseCase,
     CreateSfuSessionUseCase,

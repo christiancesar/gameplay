@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { SfuSessionStore } from '../../realtime/stores/sfu-session.store'
-import { SfuNotConfiguredError, SfuSessionLimitError } from '../errors/media.errors'
+import { EffectiveMediaService } from '../../limits/services/effective-media.service'
+import { SfuDisabledError, SfuNotConfiguredError, SfuSessionLimitError } from '../errors/media.errors'
 import { SfuAccessService } from '../services/sfu-access.service'
 import { SfuProvider } from '../providers/sfu/sfu.provider'
 
@@ -18,11 +19,13 @@ export class CreateSfuSessionUseCase {
     private readonly provider: SfuProvider,
     private readonly sessions: SfuSessionStore,
     private readonly access: SfuAccessService,
+    private readonly media: EffectiveMediaService,
   ) {}
 
   async execute({ userId }: Input): Promise<{ sessionId: string }> {
     if (!this.provider.configured) throw new SfuNotConfiguredError()
     const { serverId, roomId } = await this.access.seatOf(userId)
+    if (!(await this.media.isOn(serverId, 'sfu'))) throw new SfuDisabledError()
     if ((await this.sessions.listByUser(userId)).length >= MAX_SFU_SESSIONS_PER_USER) {
       throw new SfuSessionLimitError()
     }

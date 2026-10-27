@@ -1,0 +1,20 @@
+import {
+  adminMediaResponseSchema,
+  mediaChangeResponseSchema,
+  mediaImpactSchema,
+  serverMediaOverridesSchema,
+  serverMediaSchema,
+  updateMediaSettingsRequestSchema,
+  updateServerMediaRequestSchema,
+} from '@gameplay/contracts'
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
+
+export class AdminMediaResponseDto extends createZodDto(adminMediaResponseSchema) {}
+export class UpdateMediaSettingsRequestDto extends createZodDto(updateMediaSettingsRequestSchema) {}
+export class UpdateServerMediaRequestDto extends createZodDto(updateServerMediaRequestSchema) {}
+export class MediaChangeResponseDto extends createZodDto(mediaChangeResponseSchema) {}
+export class MediaImpactDto extends createZodDto(mediaImpactSchema) {}
+export class MediaImpactQueryDto extends createZodDto(z.object({ serverId: z.string().min(1).optional() })) {}
+export class ServerMediaOverridesDto extends createZodDto(serverMediaOverridesSchema) {}
+export class ServerMediaDto extends createZodDto(serverMediaSchema) {}

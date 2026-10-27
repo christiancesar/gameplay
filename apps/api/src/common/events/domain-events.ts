@@ -1,4 +1,4 @@
-import type { Announcement, StreamMode } from '@gameplay/contracts'
+import type { Announcement, MediaResource, StreamMode } from '@gameplay/contracts'
 
 // Map of every domain event (name -> payload). Each feature adds its own
 // events here; publishing an event that is not listed is a type error.
@@ -36,6 +36,10 @@ export interface DomainEvents {
   'voice.left-room': { userId: string; roomId: string }
   // Screen share started, changed or stopped (mode null).
   'stream.changed': { userId: string; roomId: string; mode: StreamMode | null }
+  // The platform admin changed the media resources of a server, or of the
+  // platform (serverId null). disabled lists what went off somewhere;
+  // turnCutUserIds are the people in voice rooms who lost the TURN relay.
+  'media.changed': { serverId: string | null; disabled: MediaResource[]; turnCutUserIds: string[] }
 }
 
 export type DomainEventName = Extract<keyof DomainEvents, string>

@@ -18,6 +18,8 @@ export type Negotiation = {
 export abstract class SfuProvider {
   // False when the env has no credentials; every call then fails.
   abstract readonly configured: boolean
+  // Who runs it (cloudflare); null when nobody is set up.
+  abstract readonly name: string | null
   abstract newSession(): Promise<string>
   abstract publish(sessionId: string, offer: SessionDescription, tracks: LocalTrack[]): Promise<Negotiation>
   abstract pull(sessionId: string, tracks: RemoteTrack[]): Promise<Negotiation>

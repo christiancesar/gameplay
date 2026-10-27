@@ -14,6 +14,7 @@ type Call =
 // next calls throw.
 export class FakeSfuProvider extends SfuProvider {
   configured = true
+  readonly name = 'fake'
   failing = false
   readonly calls: Call[] = []
   private sessions = 0

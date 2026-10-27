@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { metrics } from '@opentelemetry/api'
 import { EnvService } from '../../env/env.service'
+import { LimitsModule } from '../limits/limits.module'
 import { ServersModule } from '../servers/servers.module'
 import { RealtimeGateway } from './gateways/realtime.gateway'
 import { DomainEventsListener } from './listeners/domain-events.listener'
@@ -20,6 +21,7 @@ import { PresenceStore } from './stores/presence.store'
 import { RoomStateStore } from './stores/room-state.store'
 import { InMemorySfuSessionStore } from './stores/in-memory/in-memory-sfu-session.store'
 import { SfuSessionStore } from './stores/sfu-session.store'
+import { ApplyMediaChangeUseCase } from './use-cases/apply-media-change.use-case'
 import { ConnectSocketUseCase } from './use-cases/connect-socket.use-case'
 import { DisconnectSocketUseCase } from './use-cases/disconnect-socket.use-case'
 import { JoinRoomUseCase } from './use-cases/join-room.use-case'
@@ -35,7 +37,7 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
 // PresenceStore is exported for the platform admin panel (BE-15); RoomStateStore
 // and SfuSessionStore for the media module (SFU sessions of people in rooms).
 @Module({
-  imports: [ServersModule],
+  imports: [ServersModule, LimitsModule],
   providers: [
     RealtimeGateway,
     DomainEventsListener,
@@ -67,6 +69,7 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
     UpdateVoiceStateUseCase,
     RelayToPeerUseCase,
     ReleaseVoiceSeatsUseCase,
+    ApplyMediaChangeUseCase,
   ],
   exports: [PresenceStore, RoomStateStore, SfuSessionStore],
 })

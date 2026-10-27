@@ -72,4 +72,19 @@ describe('CloudflareIceProvider', () => {
 
     await expect(sut.issue()).rejects.toThrow(/401/)
   })
+
+  it('revokes each TURN username', async () => {
+    const doFetch = vi.fn<typeof fetch>(async () => new Response(null, { status: 204 }))
+    const sut = new CloudflareIceProvider({ keyId: 'key-1', apiToken: 'token-1', ttlSeconds: 60, fetch: doFetch })
+
+    await sut.revoke({
+      ttlSeconds: 60,
+      iceServers: [{ urls: ['stun:s'] }, { urls: ['turn:t'], username: 'abc', credential: 'x' }],
+    })
+
+    const [url, init] = doFetch.mock.calls[0]
+    expect(doFetch).toHaveBeenCalledTimes(1)
+    expect(url).toBe('https://rtc.live.cloudflare.com/v1/turn/keys/key-1/credentials/abc/revoke')
+    expect(init?.method).toBe('POST')
+  })
 })

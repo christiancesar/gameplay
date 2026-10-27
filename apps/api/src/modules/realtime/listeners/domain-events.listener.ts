@@ -3,6 +3,7 @@ import { OnDomainEvent } from '../../../common/events/domain-event-bus'
 import type { DomainEvents } from '../../../common/events/domain-events'
 import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
 import { PresenceStore } from '../stores/presence.store'
+import { ApplyMediaChangeUseCase } from '../use-cases/apply-media-change.use-case'
 import { ReleaseVoiceSeatsUseCase } from '../use-cases/release-voice-seats.use-case'
 
 const REMOVED_REASON = { kick: 'kicked', leave: 'left' } as const
@@ -15,6 +16,7 @@ export class DomainEventsListener {
     private readonly emitter: RealtimeEmitter,
     private readonly presence: PresenceStore,
     private readonly releaseSeats: ReleaseVoiceSeatsUseCase,
+    private readonly applyMediaChange: ApplyMediaChangeUseCase,
   ) {}
 
   @OnDomainEvent('server.updated')
@@ -86,5 +88,10 @@ export class DomainEventsListener {
   @OnDomainEvent('notification.created')
   notificationCreated({ userId, notificationId, announcement }: DomainEvents['notification.created']) {
     this.emitter.notificationNew(userId, notificationId, announcement)
+  }
+
+  @OnDomainEvent('media.changed')
+  async mediaChanged(change: DomainEvents['media.changed']) {
+    await this.applyMediaChange.execute(change)
   }
 }

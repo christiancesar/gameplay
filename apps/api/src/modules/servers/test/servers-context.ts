@@ -22,7 +22,7 @@ import { SEED_MEMBERS, SEED_SERVER } from './servers-seed'
 
 // Every servers use-case wired to in-memory fakes, with no server yet.
 export function makeServersContext() {
-  const { settings, userLimits, serverLimits, limits } = makeLimitsContext()
+  const { settings, userLimits, serverLimits, limits, mediaSettings, effectiveMedia } = makeLimitsContext()
   const rooms = new InMemoryRoomsRepository()
   const servers = new InMemoryServersRepository(rooms)
   const storage = new InMemoryStorageProvider()
@@ -37,6 +37,8 @@ export function makeServersContext() {
     userLimits,
     serverLimits,
     limits,
+    mediaSettings,
+    effectiveMedia,
     storage,
     events,
     images,

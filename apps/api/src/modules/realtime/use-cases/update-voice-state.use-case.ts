@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { StreamMode, StreamPreset } from '@gameplay/contracts'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
-import { NotInRoomError, ScreenNotPublishedError } from '../errors/realtime.errors'
+import { EffectiveMediaService } from '../../limits/services/effective-media.service'
+import { NotInRoomError, ScreenNotPublishedError, StreamModeDisabledError } from '../errors/realtime.errors'
 import { VoiceRoomsService } from '../services/voice-rooms.service'
 import { RoomStateStore, type SeatChanges } from '../stores/room-state.store'
 import { SfuSessionStore } from '../stores/sfu-session.store'
@@ -23,11 +24,16 @@ export class UpdateVoiceStateUseCase {
     private readonly voice: VoiceRoomsService,
     private readonly sfuSessions: SfuSessionStore,
     private readonly events: DomainEventBus,
+    private readonly media: EffectiveMediaService,
   ) {}
 
   async execute({ userId, socketId, ...input }: Input): Promise<void> {
     const changes: SeatChanges = 'streaming' in input ? streamChanges(input) : input
-    if (changes.streamMode === 'sfu') await this.requirePublishedScreen(userId, socketId)
+    if (changes.streamMode) {
+      const seat = await this.voice.seatOf(userId, socketId)
+      if (!(await this.media.isOn(seat.serverId, changes.streamMode))) throw new StreamModeDisabledError()
+      if (changes.streamMode === 'sfu') await this.requirePublishedScreen(userId, socketId)
+    }
 
     const seat = await this.store.update(userId, socketId, changes)
     if (!seat) throw new NotInRoomError()
