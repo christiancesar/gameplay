@@ -14,7 +14,7 @@ type BrowserPlatformDeps = {
 
 /**
  * The platform of any browser: the picker is the browser's own, so the app lists no sources, and what it can
- * share as audio follows the rules for the browser and system it runs on.
+ * share as audio follows the rules for the browser and system it runs on. The API is on the page's own origin.
  */
 function createBrowserPlatform({
   getDisplayMedia,
@@ -33,6 +33,11 @@ function createBrowserPlatform({
       listSources: async () => [],
       // A browser has no source to pick by id: `sourceId` is for hosts that list them.
       start: ({ options }) => acquireScreen(options, getDisplayMedia),
+    },
+    // The page and the API share an origin and the session is a cookie: no address, no token.
+    server: {
+      baseUrl: () => '',
+      session: { getToken: () => null, setToken: () => undefined, clearToken: () => undefined },
     },
   }
 }

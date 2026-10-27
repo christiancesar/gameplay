@@ -15,13 +15,22 @@ import { createRouter } from './router'
 import { createRouterContext } from './router-context'
 
 const router = createRouter(createRouterContext(queryClient))
-initSentry()
-initFaro(router)
+
+let monitoringStarted = false
+
+/** Needs the platform: the monitoring tunnels are paths of the server the app talks to. */
+function startMonitoring(serverUrl: string) {
+  if (monitoringStarted) return
+  monitoringStarted = true
+  initSentry(serverUrl)
+  initFaro(router, serverUrl)
+}
 
 /** The front-end of every host. The web and the desktop app each mount it with their own platform. */
 export function App({ platform }: { platform: Platform }) {
   // The controllers outside React read it from here; it does not change while the app runs.
   setCurrentPlatform(platform)
+  startMonitoring(platform.server.baseUrl())
   return (
     <PlatformProvider platform={platform}>
       <QueryClientProvider client={queryClient}>
