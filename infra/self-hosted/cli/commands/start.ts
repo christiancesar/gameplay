@@ -88,10 +88,12 @@ function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassw
     '',
     ...access,
     '',
-    `Admin account: ${config.ADMIN_EMAIL} (username ${config.ADMIN_USERNAME})`,
+    `Admin account: ${config.ADMIN_EMAIL}`,
     generatedAdminPassword
       ? `  Generated password (shown only now, also saved in ${ENV_FILE}): ${generatedAdminPassword}`
-      : `  Password: ADMIN_PASSWORD in ${ENV_FILE}`,
+      : `  Password: ADMIN_PASSWORD in ${ENV_FILE} if this start created the account.`,
+    // The seed only promotes an account that already exists: it never changes its credentials.
+    '  An account that already existed keeps its own username and password.',
     '',
     'Inviting people (sign-up needs a registration key):',
     `  1. Sign in as admin at ${appUrl} and enable 2FA at ${appUrl}/admin/setup.`,
