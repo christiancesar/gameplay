@@ -10,6 +10,9 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check"
   },
+  "dependencies": {
+    "@gameplay/env": "*"
+  },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "oxfmt": "^0.74.0",

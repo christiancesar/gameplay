@@ -1,8 +1,9 @@
 import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { prepareEnv } from './setup-env.ts'
+import { EnvFile } from './env-file.ts'
+import { prepareEnv, validateEnv } from './setup-env.ts'
 import { HostError } from './shell.ts'
-import { ENV_EXAMPLE, ENV_WITH_OLD_NAMES } from './test/env-seed.ts'
+import { ENV_EXAMPLE, ENV_WITH_OLD_NAMES, TURN_KEY } from './test/env-seed.ts'
 import { useTemporaryDir } from './test/temporary-dir.ts'
 
 describe('prepareEnv', () => {
@@ -18,7 +19,6 @@ describe('prepareEnv', () => {
     expect(env.get('POSTGRES_PASSWORD')).toMatch(/^[0-9a-f]{48}$/)
     expect(env.get('BETTER_AUTH_SECRET')).toMatch(/^[0-9a-f]{64}$/)
     expect(env.get('REGISTRATION_KEY_SECRET')).toMatch(/^[0-9a-f]{64}$/)
-    expect(env.get('POSTGRES_HOST_PORT')).toBe('5433')
     expect(generatedAdminPassword).toMatch(/^[0-9a-f]{24}$/)
     expect(env.get('ADMIN_PASSWORD')).toBe(generatedAdminPassword)
   })
@@ -42,10 +42,32 @@ describe('prepareEnv', () => {
     expect(env.has('PUBLIC_URL')).toBe(false)
     expect(env.get('APP_URL')).toBe('https://gameplay.example.com')
   })
+})
 
-  it('refuses an .env without the admin email', () => {
-    const envPath = temporary.file('.env', ENV_EXAMPLE.replace('ADMIN_EMAIL=admin@gameplay.local', 'ADMIN_EMAIL='))
+describe('validateEnv', () => {
+  const temporary = useTemporaryDir()
 
-    expect(() => prepareEnv(envPath, envPath)).toThrow(HostError)
+  it('returns the values typed, with the defaults', () => {
+    const env = new EnvFile(temporary.file('.env', `${ENV_EXAMPLE}${TURN_KEY}`))
+    prepareEnv(env.path, env.path)
+
+    expect(validateEnv(env)).toMatchObject({ TUNNEL_MODE: 'quick', ICE_PROVIDER: 'cloudflare', WEB_PORT: 8080 })
+  })
+
+  it('lists what is missing with where to get it', () => {
+    const env = new EnvFile(temporary.file('.env', ENV_EXAMPLE))
+    prepareEnv(env.path, env.path)
+
+    expect(() => validateEnv(env)).toThrow(HostError)
+    expect(() => validateEnv(env)).toThrow(
+      /CLOUDFLARE_TURN_KEY_ID: Required when ICE_PROVIDER is cloudflare \(Cloudflare dashboard > Realtime > TURN Server\)/,
+    )
+  })
+
+  it('treats empty values as unset', () => {
+    const env = new EnvFile(temporary.file('.env', `${ENV_EXAMPLE}${TURN_KEY}WEB_PORT=\n`))
+    prepareEnv(env.path, env.path)
+
+    expect(validateEnv(env).WEB_PORT).toBe(8080)
   })
 })

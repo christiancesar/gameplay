@@ -1,11 +1,12 @@
+import type { TunnelMode } from '@gameplay/env'
 import { ENV_FILE, HOST_DIR } from './paths.ts'
 import { output, run } from './shell.ts'
 
-export const TUNNEL_MODES = ['quick', 'named', 'token'] as const
-export type TunnelMode = (typeof TUNNEL_MODES)[number]
+// A type-only import: stop and logs run without building @gameplay/env.
+const TUNNEL_PROFILES = ['quick', 'named', 'token'] as const satisfies readonly TunnelMode[]
 
 /** Every tunnel profile, so a command also reaches the cloudflared containers. */
-export const ALL_PROFILES = TUNNEL_MODES.flatMap((mode) => ['--profile', mode])
+export const ALL_PROFILES = TUNNEL_PROFILES.flatMap((mode) => ['--profile', mode])
 
 function composeArgs(args: string[]): string[] {
   return [
