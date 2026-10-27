@@ -11,15 +11,14 @@ export function socketUrl(app: INestApplication): string {
   return `http://localhost:${port}`
 }
 
-// Connects with the given Cookie header, or with a session token in the handshake `auth` (what the desktop
-// app does); resolves once connected and rejects with the connect_error otherwise.
-export function connectSocket(app: INestApplication, cookie?: string, token?: string): Promise<TestSocket> {
+// Connects with the given Cookie header; resolves once connected and rejects
+// with the connect_error otherwise.
+export function connectSocket(app: INestApplication, cookie?: string): Promise<TestSocket> {
   const socket: TestSocket = io(socketUrl(app), {
     transports: ['websocket'],
     reconnection: false,
     forceNew: true,
     extraHeaders: cookie ? { cookie } : {},
-    auth: token ? { token } : {},
   })
   return new Promise((resolve, reject) => {
     socket.once('connect', () => resolve(socket))

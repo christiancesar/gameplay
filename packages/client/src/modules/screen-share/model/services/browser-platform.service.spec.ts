@@ -20,11 +20,10 @@ describe('createBrowserPlatform', () => {
     expect(await platform.capture.listSources()).toEqual([])
   })
 
-  it('talks to the page origin and keeps no token: the session is a cookie', () => {
+  it('talks to the page origin, with no server to pick', () => {
     const { server } = platformOf(CHROME_LINUX)
     expect(server.baseUrl()).toBe('')
-    server.session.setToken('ignored')
-    expect(server.session.getToken()).toBeNull()
+    expect(server.chooser).toBeUndefined()
   })
 
   it('reads the audio it can share from the browser and the system', () => {

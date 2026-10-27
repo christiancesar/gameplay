@@ -46,7 +46,7 @@ const OK: AckResponse = { ok: true, data: undefined }
 export const UNAUTHENTICATED = 'UNAUTHENTICATED'
 
 // Socket.IO on /socket.io, same origin and session cookie as the REST API. The desktop app comes from its own
-// origin (CORS for the polling transport) and brings the session token in the handshake.
+// origin: CORS with credentials for the polling transport, so the cookie goes with the handshake.
 @WebSocketGateway({ cors: { origin: [DESKTOP_APP_ORIGIN], credentials: true } })
 @UsePipes(ZodValidationPipe)
 @UseFilters(WsAckExceptionFilter)
@@ -73,7 +73,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   afterInit(server: RealtimeServer) {
     this.emitter.attach(server)
     server.use((socket, next) => {
-      this.sessions.resolve(socket.request.headers, socket.handshake.auth).then(
+      this.sessions.resolve(socket.request.headers).then(
         (resolved) => {
           if (!resolved) {
             this.metrics.handshakeRejected()

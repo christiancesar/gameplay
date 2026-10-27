@@ -28,20 +28,10 @@ type PlatformCapabilities = {
   globalHotkeys: boolean
 }
 
-/** Where the API is and who is signed in, as far as the host knows. */
+/** Where the API is, as far as the host knows. The session is a cookie on every host. */
 type PlatformServer = {
   /** Origin of the API, with no trailing slash. Empty on the web, where the page and the API share an origin. */
   baseUrl: () => string
-  /**
-   * The session token of a host with no session cookie of its own (the desktop app). Synchronous: the request
-   * code asks for it on every call, so a host that stores it elsewhere keeps a copy in memory. The web has no
-   * token: its session is a cookie.
-   */
-  session: {
-    getToken: () => string | null
-    setToken: (token: string) => void
-    clearToken: () => void
-  }
   /**
    * Present when the user picks the server the app talks to (the desktop app). The app asks for the address
    * before anything else while `current` is null.

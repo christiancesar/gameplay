@@ -10,8 +10,6 @@ type FakePlatformOptions = {
   result?: ScreenCaptureResult
   /** Origin of the API: empty (same origin) by default, as on the web. */
   baseUrl?: string
-  /** The session token the host starts with: none by default, as on the web. */
-  token?: string | null
   /** Makes the host one where the user picks the server; `chosen` is the one picked so far. */
   serverChoice?: { chosen: string | null }
 }
@@ -21,7 +19,6 @@ class FakePlatform implements Platform {
   readonly kind: Platform['kind']
   readonly capabilities: PlatformCapabilities
   readonly started: CaptureRequest[] = []
-  token: string | null
   chosen: string | null
   readonly server: Platform['server']
   private baseUrl: string
@@ -34,7 +31,6 @@ class FakePlatform implements Platform {
     sources = [],
     result,
     baseUrl = '',
-    token = null,
     serverChoice,
   }: FakePlatformOptions = {}) {
     this.kind = kind
@@ -48,19 +44,9 @@ class FakePlatform implements Platform {
     this.sources = sources
     this.result = result ?? { ok: false, reason: 'unsupported' }
     this.baseUrl = serverChoice?.chosen ?? baseUrl
-    this.token = token
     this.chosen = serverChoice?.chosen ?? null
     this.server = {
       baseUrl: () => this.baseUrl,
-      session: {
-        getToken: () => this.token,
-        setToken: (value) => {
-          this.token = value
-        },
-        clearToken: () => {
-          this.token = null
-        },
-      },
       chooser:
         serverChoice === undefined
           ? undefined

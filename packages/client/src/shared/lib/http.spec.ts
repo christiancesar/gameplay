@@ -27,26 +27,26 @@ describe('http', () => {
     http.defaults.adapter = originalAdapter
   })
 
-  it('calls /api on the page origin, with no token, on the web', async () => {
+  it('calls /api on the page origin on the web', async () => {
     const sent = captureRequests()
 
     await http.get('/servers')
 
     expect(sent[0].baseURL).toBe('/api')
-    expect(sent[0].headers.get('Authorization')).toBeFalsy()
+    expect(sent[0].withCredentials).toBe(true)
   })
 
-  it('calls the server the platform points to, with the session token, on the desktop', async () => {
-    const platform = new FakePlatform({ kind: 'desktop', baseUrl: 'https://play.example.com', token: 'token-1' })
+  it('calls the server the platform points to on the desktop, reading it on every call', async () => {
+    const platform = new FakePlatform({ kind: 'desktop', serverChoice: { chosen: null } })
     setCurrentPlatform(platform)
     const sent = captureRequests()
 
+    platform.server.chooser?.choose('https://play.example.com')
     await http.get('/servers')
-    platform.token = 'token-2'
+    platform.server.chooser?.choose('https://other.example.com')
     await http.get('/servers')
 
     expect(sent[0].baseURL).toBe('https://play.example.com/api')
-    expect(sent[0].headers.get('Authorization')).toBe('Bearer token-1')
-    expect(sent[1].headers.get('Authorization')).toBe('Bearer token-2')
+    expect(sent[1].baseURL).toBe('https://other.example.com/api')
   })
 })

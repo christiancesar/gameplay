@@ -20,22 +20,14 @@ function toServerUrl(input: Parameters<typeof fetch>[0]): Parameters<typeof fetc
 }
 
 /**
- * Client do Better Auth. As rotas ficam em /api/auth. No web é o mesmo domínio e a sessão é um cookie (padrão do
- * client). No desktop as chamadas vão ao servidor escolhido com o token no header Authorization: o login devolve o
- * token no header `set-auth-token`, o logout o apaga. A plataforma é lida a cada chamada, porque só existe depois
- * que o app monta.
+ * Client do Better Auth. As rotas ficam em /api/auth e a sessão é um cookie. No web é o mesmo domínio (padrão do client);
+ * no desktop as chamadas vão ao servidor escolhido. A plataforma é lida a cada chamada, porque só existe depois que o
+ * app monta.
  */
 const authClient = createAuthClient({
   baseURL: placeholderBaseUrl(globalThis.location?.origin ?? ''),
   fetchOptions: {
     customFetchImpl: (input, init) => fetch(toServerUrl(input), init),
-    auth: { type: 'Bearer', token: () => currentPlatform().server.session.getToken() ?? '' },
-    onSuccess: ({ response }) => {
-      const { session } = currentPlatform().server
-      if (response.url.endsWith('/sign-out')) return session.clearToken()
-      const token = response.headers.get('set-auth-token')
-      if (token) session.setToken(token)
-    },
   },
   plugins: [
     usernameClient(),

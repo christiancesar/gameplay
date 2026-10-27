@@ -12,8 +12,8 @@ function readServer(): string | null {
 }
 
 /**
- * The desktop host: the browser's capture and rules (Chromium), a server the user picks, and the session in a
- * cookie, as on the web: the main process makes the cookie of the server travel between sites.
+ * The desktop host: the browser's capture and rules (Chromium) and a server the user picks. The session is a cookie,
+ * as on the web: the main process makes the cookie of the server travel between sites.
  */
 function createDesktopPlatform(): Platform {
   const browser = createBrowserPlatform()
@@ -23,7 +23,6 @@ function createDesktopPlatform(): Platform {
     kind: 'desktop',
     server: {
       baseUrl: () => server ?? '',
-      session: browser.server.session,
       chooser: {
         current: () => server,
         choose: (origin) => {

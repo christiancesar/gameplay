@@ -34,11 +34,8 @@ function createBrowserPlatform({
       // A browser has no source to pick by id: `sourceId` is for hosts that list them.
       start: ({ options }) => acquireScreen(options, getDisplayMedia),
     },
-    // The page and the API share an origin and the session is a cookie: no address, no token.
-    server: {
-      baseUrl: () => '',
-      session: { getToken: () => null, setToken: () => undefined, clearToken: () => undefined },
-    },
+    // The page and the API share an origin: no address to pick.
+    server: { baseUrl: () => '' },
   }
 }
 
