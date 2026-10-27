@@ -5,7 +5,7 @@ import { RoomStateStore } from '../../realtime/stores/room-state.store'
 import { SfuSessionStore } from '../../realtime/stores/sfu-session.store'
 import { SfuFailedError } from '../errors/media.errors'
 import { SfuAccessService } from '../services/sfu-access.service'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 type Input = { userId: string; sessionId: string; streamerId: string; layer: SfuLayer }
 

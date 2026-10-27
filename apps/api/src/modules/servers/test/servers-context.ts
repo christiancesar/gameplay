@@ -1,6 +1,6 @@
 import { FakeEventBus } from '../../../common/test/fake-event-bus'
 import { makeLimitsContext } from '../../limits/test/limits-context'
-import { InMemoryStorageProvider } from '../../storage/drivers/in-memory-storage.provider'
+import { InMemoryStorageProvider } from '../../storage/providers/storage/in-memory/in-memory.storage.provider'
 import { ImageProcessor } from '../../storage/images/image-processor'
 import { InMemoryRoomsRepository } from '../repositories/in-memory/in-memory-rooms.repository'
 import { InMemoryServersRepository } from '../repositories/in-memory/in-memory-servers.repository'

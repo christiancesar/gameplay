@@ -4,8 +4,8 @@ import { RoomNotFoundError, ServerNotFoundError } from '../../servers/errors/ser
 import { RoomsRepository } from '../../servers/repositories/rooms.repository'
 import { ServerAccessService } from '../../servers/services/server-access.service'
 import { displacedSocket, seatAfterJoin, toParticipant } from '../domain/seat'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
-import { Timers } from '../providers/timers'
+import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
+import { Timers } from '../providers/timers/timers.provider'
 import { VoiceRoomsService } from '../services/voice-rooms.service'
 import { RoomStateStore } from '../stores/room-state.store'
 

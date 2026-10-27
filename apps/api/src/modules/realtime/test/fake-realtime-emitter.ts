@@ -1,5 +1,5 @@
 import type { Participant, RoomLeft, ServerRemoved, SignalReceive, StreamQualityLevel } from '@gameplay/contracts'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
+import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
 
 type Emitted =
   | { event: 'presence:update'; serverIds: string[]; userId: string; online: boolean }

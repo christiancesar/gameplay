@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { type ComponentReport, probe } from '../../../common/health/probe'
-import { IceProvider } from '../ice.provider'
-import { StunOnlyIceProvider } from '../providers/stun-only.ice-provider'
+import { IceProvider } from '../providers/ice/ice.provider'
+import { StunOnlyIceProvider } from '../providers/ice/stun-only/stun-only.ice.provider'
 
 // Credentials are issued for this id, never handed to anyone.
 const PROBE_USER_ID = 'health-check'

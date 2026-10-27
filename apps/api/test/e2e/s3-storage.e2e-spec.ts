@@ -1,5 +1,5 @@
 import { CreateBucketCommand, GetObjectCommand, NoSuchKey, S3Client } from '@aws-sdk/client-s3'
-import { S3StorageProvider } from '../../src/modules/storage/drivers/s3-storage.provider'
+import { S3StorageProvider } from '../../src/modules/storage/providers/storage/s3/s3.storage.provider'
 
 // Runs against the S3 mock (adobe/s3mock) from infra/docker-compose.dev.yml.
 const endpoint = process.env.S3_TEST_ENDPOINT as string

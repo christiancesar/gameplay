@@ -1,6 +1,6 @@
 import type { SessionDescription, SfuLayer } from '@gameplay/contracts'
 import { SfuFailedError } from '../errors/media.errors'
-import { type LocalTrack, type Negotiation, type RemoteTrack, SfuProvider } from '../sfu.provider'
+import { type LocalTrack, type Negotiation, type RemoteTrack, SfuProvider } from '../providers/sfu/sfu.provider'
 
 type Call =
   | { op: 'publish'; sessionId: string; tracks: LocalTrack[] }

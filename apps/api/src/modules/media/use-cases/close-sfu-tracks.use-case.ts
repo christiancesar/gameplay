@@ -3,7 +3,7 @@ import type { SessionDescription } from '@gameplay/contracts'
 import { SfuSessionStore } from '../../realtime/stores/sfu-session.store'
 import { SfuTrackNotFoundError } from '../errors/media.errors'
 import { SfuAccessService } from '../services/sfu-access.service'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 type Input = { userId: string; sessionId: string; mids: string[]; offer?: SessionDescription }
 

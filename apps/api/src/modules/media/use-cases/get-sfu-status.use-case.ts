@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { SfuStatusResponse } from '@gameplay/contracts'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 // Whether the web may offer screen share through the server.
 @Injectable()

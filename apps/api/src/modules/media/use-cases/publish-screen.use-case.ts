@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import type { SessionDescription, SfuTrack, SfuTracksResponse } from '@gameplay/contracts'
 import { SfuSessionStore } from '../../realtime/stores/sfu-session.store'
 import { SfuAccessService } from '../services/sfu-access.service'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 type Input = { userId: string; sessionId: string; offer: SessionDescription; tracks: SfuTrack[] }
 

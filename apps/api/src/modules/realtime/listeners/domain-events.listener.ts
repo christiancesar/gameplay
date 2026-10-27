@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { OnDomainEvent } from '../../../common/events/domain-event-bus'
 import type { DomainEvents } from '../../../common/events/domain-events'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
+import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
 import { PresenceStore } from '../stores/presence.store'
 import { ReleaseVoiceSeatsUseCase } from '../use-cases/release-voice-seats.use-case'
 

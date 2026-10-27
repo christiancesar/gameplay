@@ -3,8 +3,8 @@ import type { RoomLeft } from '@gameplay/contracts'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { type Seat, toParticipant } from '../domain/seat'
 import { NotInRoomError } from '../errors/realtime.errors'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
-import { Timers } from '../providers/timers'
+import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
+import { Timers } from '../providers/timers/timers.provider'
 import { RoomStateStore } from '../stores/room-state.store'
 
 // Settings of the voice rooms, from the env.

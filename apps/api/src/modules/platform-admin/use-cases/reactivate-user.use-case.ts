@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { AuthAccounts } from '../providers/auth-accounts'
+import { AuthAccounts } from '../providers/auth-accounts/auth-accounts.provider'
 import { AdminUsersService } from '../services/admin-users.service'
 
 // The person can sign in again; nothing else changes.

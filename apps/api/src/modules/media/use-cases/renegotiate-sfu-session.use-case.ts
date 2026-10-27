@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import type { SessionDescription } from '@gameplay/contracts'
 import { SfuAccessService } from '../services/sfu-access.service'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 type Input = { userId: string; sessionId: string; answer: SessionDescription }
 

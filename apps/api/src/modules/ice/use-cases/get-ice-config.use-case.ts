@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { IceProvider, type IssuedIce } from '../ice.provider'
-import { StunOnlyIceProvider } from '../providers/stun-only.ice-provider'
+import { IceProvider, type IssuedIce } from '../providers/ice/ice.provider'
+import { StunOnlyIceProvider } from '../providers/ice/stun-only/stun-only.ice.provider'
 
 type Cached = { issued: IssuedIce; expiresAt: number }
 

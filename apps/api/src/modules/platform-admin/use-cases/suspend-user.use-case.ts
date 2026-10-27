@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { CannotSuspendSelfError } from '../errors/platform-admin.errors'
-import { AuthAccounts } from '../providers/auth-accounts'
+import { AuthAccounts } from '../providers/auth-accounts/auth-accounts.provider'
 import { AdminUsersService } from '../services/admin-users.service'
 
 type Input = { adminId: string; userId: string }

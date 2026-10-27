@@ -27,9 +27,9 @@ import {
   VoiceStateDto,
 } from '../dtos/realtime.dto'
 import { RealtimeMetricsInterceptor } from '../interceptors/realtime-metrics.interceptor'
-import { SocketIoRealtimeEmitter } from '../providers/realtime-emitter'
-import { RealtimeMetrics } from '../providers/realtime-metrics'
-import { SocketSessionResolver } from '../providers/socket-session-resolver'
+import { SocketIoRealtimeEmitter } from '../providers/realtime-emitter/socket-io/socket-io.realtime-emitter.provider'
+import { RealtimeMetrics } from '../providers/realtime-metrics/realtime-metrics.provider'
+import { SocketSessionResolver } from '../providers/socket-session-resolver/socket-session-resolver.provider'
 import { ConnectSocketUseCase } from '../use-cases/connect-socket.use-case'
 import { DisconnectSocketUseCase } from '../use-cases/disconnect-socket.use-case'
 import { JoinRoomUseCase } from '../use-cases/join-room.use-case'

@@ -1,9 +1,9 @@
 import type { EnvService } from '../../env/env.service'
 import { type Env, validateEnv } from '../../env/env.schema'
 import { createIceProvider } from './ice.module'
-import { CloudflareIceProvider } from './providers/cloudflare.ice-provider'
-import { CoturnIceProvider } from './providers/coturn.ice-provider'
-import { StunOnlyIceProvider } from './providers/stun-only.ice-provider'
+import { CloudflareIceProvider } from './providers/ice/cloudflare/cloudflare.ice.provider'
+import { CoturnIceProvider } from './providers/ice/coturn/coturn.ice.provider'
+import { StunOnlyIceProvider } from './providers/ice/stun-only/stun-only.ice.provider'
 
 function envWith(overrides: Record<string, string>): EnvService {
   const env = validateEnv({

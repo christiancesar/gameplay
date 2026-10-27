@@ -3,7 +3,7 @@ import { OnDomainEvent } from '../../../common/events/domain-event-bus'
 import type { DomainEvents } from '../../../common/events/domain-events'
 import type { SfuSession } from '../../realtime/domain/sfu-session'
 import { SfuSessionStore } from '../../realtime/stores/sfu-session.store'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 // Closes on the SFU what nobody may use anymore: the sessions of a room the
 // person left, and the published screen once the share stops or moves to

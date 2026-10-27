@@ -17,7 +17,7 @@ import {
 import { createZodDto } from 'nestjs-zod'
 import { toServerMemberDto } from '../../memberships/dtos/membership.dto'
 import type { AdminDeviceRecord } from '../domain/admin-records'
-import type { AccountSession } from '../providers/auth-accounts'
+import type { AccountSession } from '../providers/auth-accounts/auth-accounts.provider'
 import type { AdminServerView } from '../services/admin-server-views.service'
 import type { AdminServerDetailView } from '../use-cases/get-server-detail.use-case'
 import type { AdminUserListItem } from '../use-cases/list-users.use-case'

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { SfuSessionStore } from '../../realtime/stores/sfu-session.store'
 import { SfuNotConfiguredError, SfuSessionLimitError } from '../errors/media.errors'
 import { SfuAccessService } from '../services/sfu-access.service'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 // One to publish and one to watch per tab is the normal case.
 export const MAX_SFU_SESSIONS_PER_USER = 4

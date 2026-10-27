@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import type { StorageProvider } from '../../storage/storage.provider'
+import type { StorageProvider } from '../../storage/providers/storage/storage.provider'
 import { SERVER_IMAGES, type ServerImageKind } from '../domain/server-images'
 import type { ServerRecord } from '../domain/server'
 

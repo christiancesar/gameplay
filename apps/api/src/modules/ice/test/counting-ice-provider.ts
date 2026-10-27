@@ -1,4 +1,4 @@
-import { IceProvider, type IssuedIce } from '../ice.provider'
+import { IceProvider, type IssuedIce } from '../providers/ice/ice.provider'
 
 // Counts the issued credentials; `failing` makes it throw.
 export class CountingIceProvider extends IceProvider {

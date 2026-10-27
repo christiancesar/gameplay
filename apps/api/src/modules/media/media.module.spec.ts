@@ -1,7 +1,7 @@
 import type { EnvService } from '../../env/env.service'
 import { createSfuProvider } from './media.module'
-import { CloudflareSfuProvider } from './providers/cloudflare.sfu-provider'
-import { NotConfiguredSfuProvider } from './providers/not-configured.sfu-provider'
+import { CloudflareSfuProvider } from './providers/sfu/cloudflare/cloudflare.sfu.provider'
+import { NotConfiguredSfuProvider } from './providers/sfu/not-configured/not-configured.sfu.provider'
 
 function env(values: Record<string, string | undefined>) {
   return { get: (key: string) => values[key] } as unknown as EnvService

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import type { SfuLayer } from '@gameplay/contracts'
 import { SfuTrackNotFoundError } from '../errors/media.errors'
 import { SfuAccessService } from '../services/sfu-access.service'
-import { SfuProvider } from '../sfu.provider'
+import { SfuProvider } from '../providers/sfu/sfu.provider'
 
 type Input = { userId: string; sessionId: string; mid: string; layer: SfuLayer }
 

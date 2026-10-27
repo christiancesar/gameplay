@@ -1,7 +1,7 @@
 import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { PrismaService } from '../../src/lib/prisma'
-import { SfuProvider } from '../../src/modules/media/sfu.provider'
+import { SfuProvider } from '../../src/modules/media/providers/sfu/sfu.provider'
 import { FakeSfuProvider } from '../../src/modules/media/test/fake-sfu-provider'
 import { createServerWithMembers } from '../factories/server.factory'
 import { createTestApp } from '../support/create-test-app'
