@@ -4,12 +4,12 @@ import { join } from 'node:path'
 import { parse } from 'dotenv'
 import { defineConfig } from 'vitest/config'
 
-// The e2e database: TEST_DATABASE_URL, or the dev database of .env renamed to gameplay_test
-// (the self-hosted Postgres creates both).
+// The e2e database: TEST_DATABASE_URL, or the server of DATABASE_URL in .env with the
+// gameplay_test database (the global setup creates it).
 function testDatabaseUrl(): string {
   if (process.env.TEST_DATABASE_URL) return process.env.TEST_DATABASE_URL
   const devUrl = existsSync('.env') ? parse(readFileSync('.env')).DATABASE_URL : undefined
-  if (!devUrl) return 'postgresql://gameplay:gameplay@127.0.0.1:5433/gameplay_test'
+  if (!devUrl) return 'postgresql://gameplay:gameplay@localhost:5432/gameplay_test'
   const url = new URL(devUrl)
   url.pathname = '/gameplay_test'
   return url.toString()

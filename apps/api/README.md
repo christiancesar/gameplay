@@ -5,11 +5,9 @@ Backend do Gameplay: NestJS 11 com Express, Prisma 7 e Postgres.
 ## Rodando local
 
 ```bash
-# na raiz do repo: Postgres do self-hosted em 127.0.0.1:5433 (cria também o banco gameplay_test)
-npm run host:db
-
 # em apps/api
-cp .env.example .env      # só na primeira vez; senha do DATABASE_URL = POSTGRES_PASSWORD de infra/self-hosted/.env
+npm run db:up             # Postgres só de desenvolvimento (docker-compose.yml), porta 5432
+cp .env.example .env      # só na primeira vez
 npm run db:migrate        # aplica as migrations no banco de dev
 npm run dev               # http://localhost:3333/api/health
 ```
@@ -27,6 +25,7 @@ A imagem de produção da API (`apps/api/Dockerfile`, contexto na raiz) roda na 
 | `typecheck`, `lint`, `format`, `format:check` | checagens                                                                                                                                             |
 | `test`                                        | testes unitários (`src/**/*.spec.ts`)                                                                                                                 |
 | `test:e2e`                                    | testes e2e (`test/e2e`) contra o banco `gameplay_test` do servidor do `DATABASE_URL`; aplica as migrations antes. Outro endereço: `TEST_DATABASE_URL` |
+| `db:up` / `db:down`                           | sobe ou para o Postgres de desenvolvimento (`docker-compose.yml`)                                                                                     |
 | `db:generate`                                 | gera o Prisma Client em `src/generated/prisma` (roda também no `postinstall`)                                                                         |
 | `db:migrate`                                  | cria e aplica migrations em dev                                                                                                                       |
 | `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                                                            |

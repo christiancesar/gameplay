@@ -6,10 +6,8 @@
 # Migrations run from the repository on this machine (start.sh), against the
 # database port bound to loopback: no image carries the Prisma CLI.
 #
-# Also the database of local development: `npm run host:db` starts only Postgres
-# (with the gameplay_test database for the api e2e tests).
-#
-# Variable names follow infra/production; storage and database stay local.
+# Simulates production (infra/production) with the same variable names; storage
+# and database stay local. Development uses apps/api/docker-compose.yml.
 name: gameplay-host
 
 # Same rotation as production: Docker keeps logs forever by default.
@@ -64,8 +62,6 @@ services:
       - '127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432'
     volumes:
       - postgres-data-17:/var/lib/postgresql/data
-      # Creates gameplay_test on a fresh volume; lib.sh creates it on older ones.
-      - ../postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U gameplay -d gameplay']
       interval: 5s

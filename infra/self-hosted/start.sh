@@ -153,7 +153,6 @@ export GAMEPLAY_RELEASE SENTRY_AUTH_TOKEN SENTRY_ENVELOPE_URL
 
 echo "Applying the database migrations..."
 compose up -d --wait postgres
-ensure_test_database
 migrate_database
 
 echo "Building and starting the stack for $APP_URL ..."

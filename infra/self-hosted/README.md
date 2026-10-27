@@ -8,17 +8,7 @@ navegador -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
 
 O túnel carrega só HTTP e WebSocket. O áudio vai entre os navegadores (WebRTC), com TURN da Cloudflare quando a conexão direta falha. A tela vai pelo SFU da Cloudflare ou direto (Mesh), conforme a escolha de quem compartilha.
 
-Esta stack simula a produção (`infra/production`) com os mesmos nomes de variáveis, rotação de logs e healthchecks. Banco e uploads ficam locais. O Postgres dela também serve o desenvolvimento e os testes (veja abaixo).
-
-## Banco para desenvolvimento e testes
-
-```bash
-npm run host:db
-```
-
-Sobe só o Postgres da stack, em `127.0.0.1:5433`, com os bancos `gameplay` (dev) e `gameplay_test` (e2e da API). No `apps/api/.env`, use `DATABASE_URL=postgresql://gameplay:<POSTGRES_PASSWORD deste .env>@127.0.0.1:5433/gameplay`. O e2e (`npm run test:e2e` em `apps/api`) usa o mesmo servidor com o banco `gameplay_test`, a menos que `TEST_DATABASE_URL` diga outro. O Cypress lê o `DATABASE_URL` do `apps/api/.env`.
-
-O `.env` deste diretório precisa existir: rode `npm run host:start` uma vez, ou copie o `.env.example` e preencha `POSTGRES_PASSWORD`.
+Esta stack simula a produção (`infra/production`) com os mesmos nomes de variáveis, rotação de logs e healthchecks. Banco e uploads ficam locais. O desenvolvimento e os testes não usam esta stack: o banco de dev fica em `apps/api/docker-compose.yml`.
 
 ## Pré-requisitos
 

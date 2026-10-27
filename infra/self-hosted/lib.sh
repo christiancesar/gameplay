@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Shared helpers for start.sh, db.sh and stop.sh. Sourced, not executed.
+# Shared helpers for start.sh and stop.sh. Sourced, not executed.
 
 HOST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$HOST_DIR/.env"
@@ -51,11 +51,4 @@ rename_var() {
 # Names shared with infra/production (PUBLIC_URL was the old name of APP_URL).
 migrate_env_names() {
   rename_var PUBLIC_URL APP_URL
-}
-
-# Creates the api e2e database when missing (volumes older than the init script).
-ensure_test_database() {
-  local exists
-  exists="$(compose exec -T postgres psql -U gameplay -d gameplay -tAc "SELECT 1 FROM pg_database WHERE datname = 'gameplay_test'")"
-  [ "$exists" = 1 ] || compose exec -T postgres psql -U gameplay -d gameplay -qc 'CREATE DATABASE gameplay_test OWNER gameplay'
 }
