@@ -52,6 +52,19 @@ function fixedTunnelUrl(config: SelfHostedEnv, env: EnvFile): string {
   return appUrl
 }
 
+/** Where people open the app: this machine, or the URL of the chosen tunnel. */
+async function appUrlFor(config: SelfHostedEnv, env: EnvFile): Promise<string> {
+  switch (config.TUNNEL_MODE) {
+    // localhost is a secure context, so voice and screen share work over plain http.
+    case 'local':
+      return `http://localhost:${config.WEB_PORT}`
+    case 'quick':
+      return quickTunnelUrl(config)
+    default:
+      return fixedTunnelUrl(config, env)
+  }
+}
+
 /**
  * Build inputs that are not plain .env interpolation: the commit names the
  * Sentry release, and the token goes in as a build secret (empty: no upload).
@@ -65,19 +78,24 @@ function buildEnv(config: SelfHostedEnv): Record<string, string> {
 }
 
 function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassword: string | null): void {
+  const access =
+    config.TUNNEL_MODE === 'local'
+      ? [`  Open:  ${appUrl}  (this machine only; use a tunnel mode to share it)`]
+      : [`  Link to share:  ${appUrl}`, `  Local access:   http://127.0.0.1:${config.WEB_PORT}`]
   const lines = [
     '',
     'Gameplay is up.',
     '',
-    `  Link to share:  ${appUrl}`,
-    `  Local access:   http://127.0.0.1:${config.WEB_PORT}`,
+    ...access,
     '',
-    `Admin account: ${config.ADMIN_EMAIL} (username ${config.ADMIN_USERNAME})`,
+    `Admin account: ${config.ADMIN_EMAIL}`,
     generatedAdminPassword
       ? `  Generated password (shown only now, also saved in ${ENV_FILE}): ${generatedAdminPassword}`
-      : `  Password: ADMIN_PASSWORD in ${ENV_FILE}`,
+      : `  Password: ADMIN_PASSWORD in ${ENV_FILE} if this start created the account.`,
+    // The seed only promotes an account that already exists: it never changes its credentials.
+    '  An account that already existed keeps its own username and password.',
     '',
-    'Inviting friends (sign-up needs a registration key):',
+    'Inviting people (sign-up needs a registration key):',
     `  1. Sign in as admin at ${appUrl} and enable 2FA at ${appUrl}/admin/setup.`,
     `  2. Create keys at ${appUrl}/admin/keys and send each friend the link plus a key.`,
   ]
@@ -94,7 +112,8 @@ function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassw
 
 /**
  * Starts the stack and prints the link to share.
- *   npm run host:start              mode from .env (TUNNEL_MODE, quick by default)
+ *   npm run host:start              mode from .env (TUNNEL_MODE, local by default)
+ *   npm run host:start -- local     this machine only, http://localhost, no tunnel
  *   npm run host:start -- quick     temporary *.trycloudflare.com URL, no account
  *   npm run host:start -- named     fixed hostname, tunnel credentials file
  *   npm run host:start -- token     fixed hostname, tunnel token from the dashboard
@@ -107,13 +126,12 @@ export async function start(requestedMode: string | undefined): Promise<void> {
   const config = validateEnv(env)
   env.set('TUNNEL_MODE', config.TUNNEL_MODE)
 
-  // Only one tunnel at a time: drop the other modes' containers if they are around.
-  for (const other of TUNNEL_MODES.filter((mode) => mode !== config.TUNNEL_MODE)) {
+  // At most one tunnel: drop the other modes' containers if they are around.
+  for (const other of TUNNEL_MODES.filter((mode) => mode !== config.TUNNEL_MODE && mode !== 'local')) {
     composeOutput(['--profile', other, 'rm', '-sf', `cloudflared-${other}`])
   }
 
-  const tunnelUrl = config.TUNNEL_MODE === 'quick' ? await quickTunnelUrl(config) : fixedTunnelUrl(config, env)
-  const appUrl = tunnelUrl.replace(/\/+$/, '')
+  const appUrl = (await appUrlFor(config, env)).replace(/\/+$/, '')
   env.set('APP_URL', appUrl)
 
   console.log('Applying the database migrations...')
@@ -121,9 +139,9 @@ export async function start(requestedMode: string | undefined): Promise<void> {
   migrateDatabase(config)
 
   console.log(`Building and starting the stack for ${appUrl} ...`)
-  compose(['--profile', config.TUNNEL_MODE, 'up', '-d', '--build', '--remove-orphans', '--wait'], {
-    env: buildEnv(config),
-  })
+  // local has no tunnel container, so no profile.
+  const profile = config.TUNNEL_MODE === 'local' ? [] : ['--profile', config.TUNNEL_MODE]
+  compose([...profile, 'up', '-d', '--build', '--remove-orphans', '--wait'], { env: buildEnv(config) })
   seedAdmin(config)
 
   console.log(`Waiting for ${appUrl}/api/health ...`)

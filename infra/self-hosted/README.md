@@ -1,6 +1,6 @@
 # Gameplay em casa (self-hosting)
 
-Roda o Gameplay no seu PC Linux e compartilha com amigos pela internet usando um Cloudflare Tunnel. Só o nginx fica atrás do túnel. A API não tem porta no host, e o Postgres só tem uma em `127.0.0.1` (padrão 5433, `POSTGRES_HOST_PORT`), usada pelas migrations.
+Roda o Gameplay no seu PC Linux. Por padrão fica só na sua máquina, em `http://localhost:8080`. Para compartilhar com amigos pela internet, use um dos modos de Cloudflare Tunnel. Só o nginx fica atrás do túnel. A API não tem porta no host, e o Postgres só tem uma em `127.0.0.1` (padrão 5433, `POSTGRES_HOST_PORT`), usada pelas migrations.
 
 ```
 navegador -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
@@ -16,7 +16,7 @@ Esta stack simula a produção (`infra/production`) com os mesmos nomes de vari�
 - Node 24 e as dependências do repositório (`npm ci` na raiz): as migrations rodam do repositório, com o Prisma CLI, e não de uma imagem.
 - Conta na Cloudflare só para túnel nomeado e para o TURN. O modo rápido não precisa de conta.
 
-## Início rápido (sem conta)
+## Início rápido (só na sua máquina)
 
 Na raiz do repositório:
 
@@ -24,9 +24,17 @@ Na raiz do repositório:
 npm run host:start
 ```
 
-Na primeira vez o script cria `infra/self-hosted/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele sobe o banco e o túnel, lê a URL `https://*.trycloudflare.com` sorteada, aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder pela URL pública. No fim imprime o link para compartilhar.
+Na primeira vez o script cria `infra/self-hosted/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder. No fim imprime o endereço, `http://localhost:8080`.
 
-A URL do modo rápido muda a cada reinício. As sessões da URL antiga deixam de valer e os amigos precisam do link novo.
+Nesse modo (`local`) nada vai para a internet e só esta máquina acessa. Microfone e compartilhamento de tela funcionam porque o navegador trata `localhost` como seguro. Outros aparelhos da rede não conseguem usar voz nem tela por `http://<ip>`, porque o navegador exige HTTPS fora do `localhost`.
+
+Para compartilhar com amigos sem conta na Cloudflare, use o modo rápido:
+
+```bash
+npm run host:start -- quick
+```
+
+Ele sobe um túnel com uma URL `https://*.trycloudflare.com` sorteada. Essa URL muda a cada reinício: as sessões da URL antiga deixam de valer e os amigos precisam do link novo.
 
 Outros comandos:
 
@@ -64,11 +72,12 @@ Este diretório é um workspace (`@gameplay/self-hosted`), então `npm run typec
 
 Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`npm run host:start -- named`).
 
-| Modo    | Endereço                      | Precisa de                                                            |
-| ------- | ----------------------------- | --------------------------------------------------------------------- |
-| `quick` | aleatório, muda a cada início | nada                                                                  |
-| `named` | fixo                          | túnel criado com `cloudflared tunnel create` (arquivo de credenciais) |
-| `token` | fixo                          | túnel criado no painel da Cloudflare (token)                          |
+| Modo    | Endereço                                 | Precisa de                                                            |
+| ------- | ---------------------------------------- | --------------------------------------------------------------------- |
+| `local` | `http://localhost:8080`, só esta máquina | nada (padrão)                                                         |
+| `quick` | aleatório, muda a cada início            | nada                                                                  |
+| `named` | fixo                                     | túnel criado com `cloudflared tunnel create` (arquivo de credenciais) |
+| `token` | fixo                                     | túnel criado no painel da Cloudflare (token)                          |
 
 ### Túnel nomeado com arquivo de credenciais (`named`)
 
