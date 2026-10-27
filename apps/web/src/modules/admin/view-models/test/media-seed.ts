@@ -1,4 +1,4 @@
-import type { AdminMediaResponse, MediaImpact, ServerMediaOverrides } from '@gameplay/contracts'
+import type { AdminMediaResponse, MediaImpact, RealtimeUsagePeriod, ServerMediaOverrides } from '@gameplay/contracts'
 
 const adminMedia: AdminMediaResponse = {
   settings: { sfu: true, mesh: true, turn: true },
@@ -14,8 +14,18 @@ const adminMedia: AdminMediaResponse = {
   exceptions: [{ serverId: 'sv1', serverName: 'Turbex', overrides: { sfu: false, mesh: null, turn: null } }],
 }
 
+const mediaUsage: RealtimeUsagePeriod = {
+  from: '2026-10-26T10:00:00.000Z',
+  to: '2026-10-27T10:00:00.000Z',
+  bucket: 'fifteen-minutes',
+  sfu: { cloudflareBytes: 500 },
+  turn: { cloudflareBytes: null },
+  points: [{ at: '2026-10-26T10:00:00.000Z', sfuBytes: 500, turnBytes: null }],
+  cloudflare: { state: 'ready', checkedAt: '2026-10-27T10:00:00.000Z' },
+}
+
 const mediaImpact: MediaImpact = { sfu: 2, mesh: 0, turn: 4 }
 
 const serverMediaOverrides: ServerMediaOverrides = { sfu: null, mesh: null, turn: null }
 
-export { adminMedia, mediaImpact, serverMediaOverrides }
+export { adminMedia, mediaImpact, mediaUsage, serverMediaOverrides }

@@ -9,14 +9,16 @@ import { adminMediaQueryOptions } from '@/modules/admin/model/services/admin.que
 import { updateMediaSettings, updateSfuBudget } from '@/modules/admin/model/services/admin.service'
 import { useAdminErrorToast } from '@/modules/admin/view-models/use-admin-error-toast'
 import { useMediaOffConfirm } from '@/modules/admin/view-models/use-media-off-confirm'
+import { useMediaUsage } from '@/modules/admin/view-models/use-media-usage'
 
-/** `/admin/media`: SFU, Mesh and TURN for the whole platform, who delivers them, and the servers that differ. */
+/** `/admin/media`: SFU, Mesh and TURN for the whole platform, who delivers them, their usage, and the servers that differ. */
 function useAdminMediaViewModel() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const onError = useAdminErrorToast()
   const { data } = useQuery(adminMediaQueryOptions)
+  const usage = useMediaUsage()
 
   const save = useMutation({
     mutationFn: updateMediaSettings,
@@ -56,6 +58,7 @@ function useAdminMediaViewModel() {
       onAdjustServer: (serverId: string) => void navigate({ to: '/admin/servers', search: { edit: serverId } }),
       isSavingBudget: saveBudget.isPending,
       onSaveBudget: (budgetGb: number) => saveBudget.mutate({ budgetGb }),
+      usage,
     },
     confirmDialog: confirm.dialog,
   }

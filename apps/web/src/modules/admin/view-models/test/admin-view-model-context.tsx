@@ -23,6 +23,7 @@ function createAdminViewModelContext(responses: Partial<AdminResponses> = {}) {
     if (url.startsWith('/admin/servers/')) return { data: api.serverDetail }
     if (url === '/admin/media') return { data: api.media }
     if (url === '/admin/media/impact') return { data: api.impact }
+    if (url === '/admin/media/usage') return { data: api.mediaUsage }
     if (url === '/admin/hardware/summary') return { data: api.summary }
     if (url === '/admin/settings') return { data: api.settings }
     if (url === '/admin/registration-invites') return { data: { invites: api.invites } }

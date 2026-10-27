@@ -12,7 +12,7 @@ import { fakeHttp } from '@/shared/test/fake-http'
 import { navigate } from '@/shared/test/fake-router'
 
 import { createAdminViewModelContext } from './test/admin-view-model-context'
-import { adminMedia } from './test/media-seed'
+import { adminMedia, mediaUsage } from './test/media-seed'
 import { useAdminMediaViewModel } from './use-admin-media.view-model'
 
 const setup = async () => {
@@ -72,5 +72,32 @@ describe('useAdminMediaViewModel', () => {
     act(() => result.current.mediaTab.onSaveBudget(900))
     await waitFor(() => expect(fakeHttp.put).toHaveBeenCalledWith('/admin/media/budget', { budgetGb: 900 }))
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('admin.media.budget.saved'))
+  })
+
+  it('shows the usage of the last 24 hours first, and asks again when the period changes', async () => {
+    const { result } = await setup()
+    await waitFor(() => expect(result.current.mediaTab.usage.data).toEqual(mediaUsage))
+    expect(fakeHttp.get).toHaveBeenCalledWith('/admin/media/usage', { params: { period: '24h' } })
+
+    act(() => result.current.mediaTab.usage.onPeriodChange('7d'))
+    await waitFor(() => expect(fakeHttp.get).toHaveBeenCalledWith('/admin/media/usage', { params: { period: '7d' } }))
+  })
+
+  it('a custom range starts on the last 7 days and asks for the days applied', async () => {
+    const { result } = await setup()
+    act(() => result.current.mediaTab.usage.onPeriodChange('custom'))
+    expect(result.current.mediaTab.usage.period).toBe('custom')
+    const { from, to } = result.current.mediaTab.usage.range
+    await waitFor(() =>
+      expect(fakeHttp.get).toHaveBeenCalledWith('/admin/media/usage', { params: { period: 'custom', from, to } }),
+    )
+
+    act(() => result.current.mediaTab.usage.onApplyRange({ from: '2026-10-02', to: '2026-10-05' }))
+    expect(result.current.mediaTab.usage.range).toEqual({ from: '2026-10-02', to: '2026-10-05' })
+    await waitFor(() =>
+      expect(fakeHttp.get).toHaveBeenCalledWith('/admin/media/usage', {
+        params: { period: 'custom', from: '2026-10-02', to: '2026-10-05' },
+      }),
+    )
   })
 })

@@ -10,7 +10,7 @@ import { Label } from '@/shared/ui/label'
 import { Switch } from '@/shared/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
-import { MediaUsageView } from './media-usage.view'
+import { MediaUsageView, type MediaUsageViewProps } from './media-usage.view'
 import { SfuBudgetFormView } from './sfu-budget-form.view'
 
 type MediaTabViewProps = {
@@ -21,6 +21,8 @@ type MediaTabViewProps = {
   onAdjustServer: (serverId: string) => void
   isSavingBudget: boolean
   onSaveBudget: (budgetGb: number) => void
+  /** Consumo do período escolhido; o mês vem de `data`. */
+  usage: Omit<MediaUsageViewProps, 'month'>
 }
 
 const STATE_TONE = { ready: 'text-emerald-500', 'not-configured': 'text-muted-foreground', failing: 'text-red-500' }
@@ -31,7 +33,15 @@ const STATE_KEY = {
 } as const
 
 /** Recursos de mídia da plataforma: SFU, Mesh e TURN, quem entrega cada um e as exceções por servidor. */
-function MediaTabView({ data, isSaving, onToggle, onAdjustServer, isSavingBudget, onSaveBudget }: MediaTabViewProps) {
+function MediaTabView({
+  data,
+  isSaving,
+  onToggle,
+  onAdjustServer,
+  isSavingBudget,
+  onSaveBudget,
+  usage,
+}: MediaTabViewProps) {
   const { t } = useTranslation()
 
   const providerLine = (resource: MediaResource, status?: MediaProviderStatus) => {
@@ -80,7 +90,7 @@ function MediaTabView({ data, isSaving, onToggle, onAdjustServer, isSavingBudget
         })}
       </ul>
 
-      {data && <MediaUsageView usage={data.usage} />}
+      <MediaUsageView {...usage} month={data?.usage} />
 
       <section className="flex flex-col gap-2">
         <h2 className="text-sm font-medium">{t('admin.media.exceptions.title')}</h2>
