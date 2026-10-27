@@ -125,6 +125,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
       open: detailsOpen && live,
       target: { resolution: snapshot.settings.resolution, fps: snapshot.settings.fps },
       viewers: toViewerQualities(snapshot, profiles),
+      mode: snapshot.mode ?? 'mesh',
       onOpenChange: setDetailsOpen,
     },
     onStart: openSetup,

@@ -263,7 +263,8 @@
         "silent": "Em silêncio",
         "active": "Com som"
       },
-      "mode": "Transmitindo por"
+      "mode": "Transmitindo por",
+      "detailsDescriptionSfu": "Você envia uma vez para o servidor, que entrega a cada espectador a camada que a rede dele aguenta. O que chega para cada um, como eles informam:"
     },
     "stopShort": "Parar",
     "changeQuality": "Mudar qualidade",

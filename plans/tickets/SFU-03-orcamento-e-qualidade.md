@@ -22,13 +22,23 @@ Orçamento por servidor. Alerta de billing na conta da Cloudflare (configuraçã
 - Cloudflare: [Pricing](https://developers.cloudflare.com/realtime/sfu/platform/pricing/)
 
 ## Checklist
-- [ ] Orçamento no `limits` e no painel do admin
-- [ ] Relato de bytes pelo socket e soma mensal na API
-- [ ] SFU indisponível ao estourar o orçamento
-- [ ] Seletor de qualidade nos dois modos
-- [ ] Qualidade por espectador no monitor em SFU
-- [ ] Stories, i18n e testes
-- [ ] Commit
+- [x] Orçamento no `limits` e no painel do admin
+- [x] Relato de bytes pelo socket e soma mensal na API
+- [x] SFU indisponível ao estourar o orçamento
+- [x] Seletor de qualidade nos dois modos
+- [x] Qualidade por espectador no monitor em SFU
+- [x] Stories, i18n e testes
+- [x] Commit
 
 ## Critério de aceite
 Com o orçamento baixado para perto do consumo, a próxima live só oferece "Direto (Mesh)". Quem assiste escolhe "Baixa" e o bitrate recebido cai, nos dois modos.
+
+## Notas da execução
+- **Orçamento:** coluna `sfuBudgetGb` em `platform_settings` (padrão 800) e tabela `media_usage` (bytes do SFU por mês UTC, `"2026-10"`), migration `sfu_budget`. GB conta como 1.000.000.000 bytes. A aba Mídia mostra "X GB de Y GB usados em 2026-10", com uma barra que fica âmbar a partir de 80% e vermelha no limite, e o campo para mudar o orçamento (`PUT /api/admin/media/budget`, de 0 a 100000; 0 tira o SFU das transmissões novas).
+- **Medição:** quem assiste pelo SFU manda `media:usage` pelo socket a cada 10 s, com os bytes recebidos desde o último relato (vídeo e áudio, limitado a 25 MB por relato) e a qualidade que está chegando. A API confere que quem transmite está na mesma sala e no modo SFU (no Direto não conta, porque não custa), soma os bytes do mês num incremento atômico e repassa a qualidade para quem transmite (`stream:received`). *(Suposição: conferir depois com os números da Cloudflare; o que acontece nos últimos segundos antes de parar de assistir não é relatado.)*
+- **Estourou o orçamento:** o `GET /api/media/sfu` e o que o servidor oferece passam a dizer `budget-exhausted`, e publicar no SFU volta `SFU_BUDGET_EXHAUSTED`. O diálogo de compartilhar mostra "A cota de transmissão pelo servidor deste mês acabou" e abre no Direto. Quem já está no SFU continua, e quem chega para assistir uma live em andamento ainda consegue.
+- **Qualidade de quem assiste:** seletor no player com Auto, Alta, Média e Baixa, guardado para a próxima live como o volume. No SFU troca a camada sem renegociar (Auto e Alta: `f`, Média: `h`, Baixa: `q`); Auto deixa o SFU descer quando a rede não aguenta. No Direto, quem transmite reduz só a conexão daquela pessoa (Média: metade da resolução e 35% do bitrate; Baixa: um quarto, 10% e até 15 fps), usando o `stream:quality` que a API já repassava.
+- **Monitor no SFU:** "Detalhes" mostra a qualidade de cada espectador pelo que eles informam, com o texto explicando que no SFU cada um recebe a camada que a rede aguenta.
+- **Teste com a Cloudflare de verdade** (mesmo script headless do SFU-02): quem assistia recebia 720p · 29 fps; escolher Baixa trocou a camada (`PUT .../layer` 204) e passou a chegar 180p · 14 fps; o consumo do mês apareceu em `GET /api/admin/media`; os Detalhes de quem transmitia mostraram a qualidade de quem assistia.
+- **Stories:** `StreamViewer/ChooseQuality`, `ShareDetailsDialog/ThroughServer`, `Admin/AdminPanel/MediaBudget`.
+- **Testes:** API (orçamento, relato e repasse, recusa ao estourar, e2e com relato pelo socket e orçamento zerado) e web (camada e qualidade no Direto, relato de bytes, qualidade por espectador, ViewModels). O e2e rodou com Postgres temporário; o do S3 não rodou.

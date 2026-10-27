@@ -23,11 +23,13 @@ type ShareDetailsDialogViewProps = {
   open: boolean
   target: { resolution: ShareResolution; fps: ShareFps }
   viewers: readonly ViewerQuality[]
+  /** Servidor (SFU): o que cada um recebe é medido do lado de quem assiste. */
+  mode?: 'sfu' | 'mesh'
   onOpenChange: (open: boolean) => void
 }
 
-/** Em mesh, cada espectador recebe um encode separado: a qualidade é medida por espectador. */
-function ShareDetailsDialogView({ open, target, viewers, onOpenChange }: ShareDetailsDialogViewProps) {
+/** A qualidade de cada espectador: em mesh medida no envio, no SFU informada por quem assiste. */
+function ShareDetailsDialogView({ open, target, viewers, mode = 'mesh', onOpenChange }: ShareDetailsDialogViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -36,7 +38,8 @@ function ShareDetailsDialogView({ open, target, viewers, onOpenChange }: ShareDe
         <DialogHeader>
           <DialogTitle>{t('share.monitor.detailsTitle')}</DialogTitle>
           <DialogDescription>
-            {t('share.monitor.target')}: {target.resolution} · {target.fps} fps. {t('share.monitor.detailsDescription')}
+            {t('share.monitor.target')}: {target.resolution} · {target.fps} fps.{' '}
+            {mode === 'sfu' ? t('share.monitor.detailsDescriptionSfu') : t('share.monitor.detailsDescription')}
           </DialogDescription>
         </DialogHeader>
         <div className="rounded-md border">

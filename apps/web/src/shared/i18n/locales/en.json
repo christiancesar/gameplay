@@ -263,7 +263,8 @@
         "silent": "Silent",
         "active": "With sound"
       },
-      "mode": "Sent through"
+      "mode": "Sent through",
+      "detailsDescriptionSfu": "You send once to the server, which hands each viewer the layer their network carries. What reaches each one, as they report it:"
     },
     "stopShort": "Stop",
     "changeQuality": "Change quality",
