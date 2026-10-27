@@ -12,8 +12,8 @@ Esta stack simula a produção (`infra/production`) com os mesmos nomes de vari�
 
 ## Pré-requisitos
 
-- Docker com Compose v2, `openssl` e `curl`.
-- Node e as dependências do repositório (`npm ci` na raiz): as migrations rodam do repositório, com o Prisma CLI, e não de uma imagem.
+- Docker com Compose v2.
+- Node 24 e as dependências do repositório (`npm ci` na raiz): as migrations rodam do repositório, com o Prisma CLI, e não de uma imagem.
 - Conta na Cloudflare só para túnel nomeado e para o TURN. O modo rápido não precisa de conta.
 
 ## Início rápido (sem conta)
@@ -41,15 +41,31 @@ Para apagar tudo, inclusive banco e uploads:
 docker compose --project-directory infra/self-hosted --profile quick --profile named --profile token down -v
 ```
 
+## Como os comandos funcionam
+
+Os comandos `host:*` chamam um pequeno CLI em TypeScript (`cli/`), que o Node 24 roda direto, sem build. Ele faz o que o `docker compose` sozinho não faz: cria o `.env`, descobre a URL do túnel, aplica as migrations, roda o seed do admin e espera a URL pública responder.
+
+| Arquivo            | O que faz                                                              |
+| ------------------ | ---------------------------------------------------------------------- |
+| `cli/main.ts`      | recebe o comando (`start`, `stop`, `logs`) e mostra os erros           |
+| `cli/commands/`    | um arquivo por comando, com o fluxo em ordem                           |
+| `cli/env-file.ts`  | lê e grava o `.env` (sempre com modo 600)                              |
+| `cli/setup-env.ts` | cria o `.env` na primeira vez, gera segredos e renomeia chaves antigas |
+| `cli/compose.ts`   | chama o `docker compose` deste diretório                               |
+| `cli/tunnel.ts`    | descobre a URL do modo rápido                                          |
+| `cli/database.ts`  | migrations e seed do admin                                             |
+
+Este diretório é um workspace (`@gameplay/self-hosted`), então `npm run typecheck`, `lint`, `test` e `format:check` na raiz também cobrem o CLI.
+
 ## Modos de túnel
 
-Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`bash infra/self-hosted/start.sh named`).
+Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`npm run host:start -- named`).
 
-| Modo | Endereço | Precisa de |
-|---|---|---|
-| `quick` | aleatório, muda a cada início | nada |
-| `named` | fixo | túnel criado com `cloudflared tunnel create` (arquivo de credenciais) |
-| `token` | fixo | túnel criado no painel da Cloudflare (token) |
+| Modo    | Endereço                      | Precisa de                                                            |
+| ------- | ----------------------------- | --------------------------------------------------------------------- |
+| `quick` | aleatório, muda a cada início | nada                                                                  |
+| `named` | fixo                          | túnel criado com `cloudflared tunnel create` (arquivo de credenciais) |
+| `token` | fixo                          | túnel criado no painel da Cloudflare (token)                          |
 
 ### Túnel nomeado com arquivo de credenciais (`named`)
 

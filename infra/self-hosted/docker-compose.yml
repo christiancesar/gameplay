@@ -1,9 +1,9 @@
 # Self-hosting stack: Gameplay on your own PC, shared through a Cloudflare Tunnel.
-# Use ./start.sh (it creates .env and, in quick mode, discovers the public URL).
+# Use npm run host:start (cli/, it creates .env and, in quick mode, discovers the public URL).
 #
 #   browser -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
 #
-# Migrations run from the repository on this machine (start.sh), against the
+# Migrations run from the repository on this machine (npm run host:start), against the
 # database port bound to loopback: no image carries the Prisma CLI.
 #
 # Simulates production (infra/production) with the same variable names; storage
@@ -57,7 +57,7 @@ services:
       POSTGRES_USER: gameplay
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
       POSTGRES_DB: gameplay
-    # Loopback only, for the migrations start.sh runs from the repository.
+    # Loopback only, for the migrations the host CLI runs from the repository.
     ports:
       - '127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432'
     volumes:
@@ -93,7 +93,7 @@ services:
         # Faro on only with a collector; the browser talks to the nginx tunnel.
         VITE_FARO_URL: ${FARO_COLLECTOR_URL:+/monitoring/faro}
         VITE_SENTRY_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-host}
-        # start.sh exports the git commit; Sentry groups errors by it.
+        # The host CLI exports the git commit; Sentry groups errors by it.
         VITE_SENTRY_RELEASE: ${GAMEPLAY_RELEASE:-}
         SENTRY_ORG: ${SENTRY_ORG:-}
         SENTRY_PROJECT: ${SENTRY_PROJECT:-}
@@ -122,7 +122,7 @@ services:
         condition: service_healthy
 
   # Quick tunnel: no account, random https://*.trycloudflare.com URL on every start.
-  # The metrics endpoint (loopback only) tells start.sh which URL was assigned.
+  # The metrics endpoint (loopback only) tells the host CLI which URL was assigned.
   cloudflared-quick:
     profiles: [quick]
     image: cloudflare/cloudflared:2026.10.3
