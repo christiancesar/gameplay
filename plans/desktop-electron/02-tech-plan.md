@@ -175,11 +175,13 @@ gameplay/
 │       ├── src/
 │       │   ├── main/
 │       │   │   ├── main.ts        janela, protocolo app://, CSP, trava de navegação
-│       │   │   ├── ipc.ts         registra os canais do desktop-bridge com validação zod
-│       │   │   ├── capture.ts     desktopCapturer e setDisplayMediaRequestHandler
-│       │   │   ├── audio/         adaptadores de áudio por sistema (loopback, módulo nativo)
-│       │   │   ├── server-url.ts  endereço do servidor escolhido
-│       │   │   └── session-token.ts  token no safeStorage
+│       │   │   ├── ipc.ts         registra os canais de cada módulo com validação zod
+│       │   │   └── modules/       um diretório por recurso do sistema
+│       │   │       ├── auth/      token da sessão no safeStorage (o Better Auth client fica no renderer)
+│       │   │       ├── server/    endereço do servidor escolhido
+│       │   │       ├── capture/   fase 2: desktopCapturer, portal e setDisplayMediaRequestHandler
+│       │   │       ├── audio/     fase 2: áudio por aplicativo (venmic no Linux, WASAPI no Windows)
+│       │   │       └── hardware/  futuro: CPU, GPU, RAM, aceleração por hardware
 │       │   ├── preload/
 │       │   │   └── preload.ts     contextBridge com o contrato
 │       │   └── renderer/
@@ -218,6 +220,14 @@ gameplay/
 │       └── package.json           "@gameplay/desktop-bridge"
 └── infra/
 ```
+
+Módulos do main (`src/main/modules/<módulo>/`), no mesmo espírito dos módulos da API:
+- `<módulo>.handlers.ts` traduz cada canal do IPC para o service, sem regra.
+- `services/` guarda a lógica e depende de portas, não do Electron nem do sistema, para ser testado com fakes no Vitest.
+- `providers/` implementa as portas por sistema ou tecnologia (por exemplo `audio/providers/venmic` e `audio/providers/wasapi`). O `main.ts` escolhe o provider pelo sistema e injeta pelo construtor, sem framework de DI.
+- `test/` com fakes, seed e contexto em arquivos separados, como na API.
+- Um módulo não importa outro; o que for comum chega por injeção no `main.ts`.
+- Na fase 1 existem só `auth` e `server`. Os outros aparecem com os tickets deles.
 
 Regras de dependência:
 - `packages/client` não importa nada de `electron` nem de `apps/*`. Do `desktop-bridge`, só tipos.
