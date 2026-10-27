@@ -48,7 +48,7 @@ MVVM is the architecture of the whole frontend, not just state management.
 
 From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`.
 
-Local API for manual testing: `docker compose -f infra/docker-compose.dev.yml up -d --wait postgres s3mock`, then `npm run dev` (API on 3333). Seeded admin: `admin@gameplay.local` / `admin-pass-123`. If `prisma migrate dev` hangs with no output, run it with `< /dev/null`.
+Local API for manual testing: `docker compose -f infra/docker-compose.dev.yml up -d --wait postgres`, then `npm run dev` (API on 3333). Seeded admin: `admin@gameplay.local` / `admin-pass-123`. If `prisma migrate dev` hangs with no output, run it with `< /dev/null`.
 
 Before using a library API from memory (TanStack Router/Query, Better Auth, zod, Socket.IO), check its current docs.
 
