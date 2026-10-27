@@ -222,4 +222,55 @@ describe('WatchSession', () => {
       expect(ctx.store.state).toMatchObject({ failed: true, streamerId: null })
     })
   })
+
+  describe('quality I ask for', () => {
+    beforeEach(() => vi.useFakeTimers())
+
+    it('asks a Direct streamer for less, now and for the next stream', async () => {
+      ctx.session.setLevel('low')
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      expect(ctx.realtime.sendStreamQuality).toHaveBeenCalledWith('u2', 'low')
+
+      ctx.session.setLevel('auto')
+      expect(ctx.realtime.sendStreamQuality).toHaveBeenLastCalledWith('u2', 'auto')
+      ctx.session.stop()
+      expect(ctx.store.state.level).toBe('auto')
+    })
+
+    it('switches the SFU layer, and starts on the layer chosen before', async () => {
+      ctx.modes.u2 = 'sfu'
+      ctx.session.setLevel('medium')
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      expect(ctx.watchFromSfu).toHaveBeenCalledWith('u2', 'h', expect.any(Function))
+
+      ctx.session.setLevel('low')
+      expect(ctx.sfu.setLayer).toHaveBeenCalledWith('q')
+      expect(ctx.realtime.sendStreamQuality).not.toHaveBeenCalled()
+    })
+
+    it('reports the bytes received from the SFU since the last report, with the quality', async () => {
+      ctx.modes.u2 = 'sfu'
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      ctx.sfu.stats = [
+        inbound({ bytesReceived: 4_000_000 }),
+        { type: 'inbound-rtp', kind: 'audio', bytesReceived: 100_000 },
+      ]
+      await vi.advanceTimersByTimeAsync(10_000)
+      ctx.sfu.stats = [
+        inbound({ bytesReceived: 9_000_000 }),
+        { type: 'inbound-rtp', kind: 'audio', bytesReceived: 200_000 },
+      ]
+      await vi.advanceTimersByTimeAsync(10_000)
+
+      expect(ctx.realtime.reportMediaUsage.mock.calls.map(([usage]) => (usage as { bytes: number }).bytes)).toEqual([
+        4_100_000, 5_100_000,
+      ])
+      ctx.session.stop()
+      await vi.advanceTimersByTimeAsync(10_000)
+      expect(ctx.realtime.reportMediaUsage).toHaveBeenCalledTimes(2)
+    })
+  })
 })

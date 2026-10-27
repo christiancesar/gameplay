@@ -10,12 +10,16 @@ import { Label } from '@/shared/ui/label'
 import { Switch } from '@/shared/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
+import { SfuBudgetFormView } from './sfu-budget-form.view'
+
 type MediaTabViewProps = {
   /** undefined enquanto carrega. */
   data?: MediaTabData
   isSaving: boolean
   onToggle: (resource: MediaResource, on: boolean) => void
   onAdjustServer: (serverId: string) => void
+  isSavingBudget: boolean
+  onSaveBudget: (budgetGb: number) => void
 }
 
 const STATE_TONE = { ready: 'text-emerald-500', 'not-configured': 'text-muted-foreground', failing: 'text-red-500' }
@@ -26,7 +30,7 @@ const STATE_KEY = {
 } as const
 
 /** Recursos de mídia da plataforma: SFU, Mesh e TURN, quem entrega cada um e as exceções por servidor. */
-function MediaTabView({ data, isSaving, onToggle, onAdjustServer }: MediaTabViewProps) {
+function MediaTabView({ data, isSaving, onToggle, onAdjustServer, isSavingBudget, onSaveBudget }: MediaTabViewProps) {
   const { t } = useTranslation()
 
   const providerLine = (resource: MediaResource, status?: MediaProviderStatus) => {
@@ -54,6 +58,9 @@ function MediaTabView({ data, isSaving, onToggle, onAdjustServer }: MediaTabView
                   {t(`admin.media.resources.${resource}.description`)}
                 </p>
                 <p className={cn('mt-2 text-xs', provider.tone)}>{provider.text}</p>
+                {resource === 'sfu' && data && (
+                  <SfuBudgetFormView {...data.sfuUsage} isSaving={isSavingBudget} onSave={onSaveBudget} />
+                )}
               </div>
               <Switch
                 id={`media-switch-${resource}`}

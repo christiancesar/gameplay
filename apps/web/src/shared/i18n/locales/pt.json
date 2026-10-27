@@ -299,7 +299,16 @@
       },
       "none": "O compartilhamento de tela está desligado neste servidor."
     },
-    "uplink": "Enviado para o servidor"
+    "uplink": "Enviado para o servidor",
+    "quality": {
+      "label": "Qualidade",
+      "levels": {
+        "auto": "Auto",
+        "high": "Alta",
+        "medium": "Média",
+        "low": "Baixa"
+      }
+    }
   },
   "image": {
     "choose": "Escolher imagem",
@@ -735,7 +744,16 @@
         "notify": "Desligar e avisar",
         "silent": "Desligar sem avisar"
       },
-      "saved": "Configurações de mídia salvas."
+      "saved": "Configurações de mídia salvas.",
+      "budget": {
+        "usage": "{{used}} GB de {{budget}} GB usados em {{month}}. Passando do orçamento, as novas transmissões vão pelo Direto (Mesh).",
+        "label": "Orçamento mensal (GB)",
+        "save": "Salvar orçamento",
+        "saved": "Orçamento salvo.",
+        "errors": {
+          "invalid": "Use um número inteiro de 0 a 100000."
+        }
+      }
     }
   },
   "hardware": {

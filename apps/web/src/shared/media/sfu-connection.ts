@@ -8,6 +8,7 @@ type SfuSignaling = {
   publish(sessionId: string, offer: SessionDescription, tracks: SfuTrack[]): Promise<SfuTracksResponse>
   watch(sessionId: string, streamerId: string, layer: SfuLayer): Promise<SfuTracksResponse>
   renegotiate(sessionId: string, answer: SessionDescription): Promise<void>
+  setLayer(sessionId: string, mid: string, layer: SfuLayer): Promise<void>
   close(sessionId: string, mids: string[]): Promise<void>
 }
 
@@ -61,6 +62,8 @@ class SfuConnection {
   readonly sessionId: string
   private readonly mids: string[]
   private readonly senders: Map<MediaStreamTrack, RtpSenderLike>
+  /** The video received when watching; null when publishing. */
+  private readonly videoMid: string | null
 
   private constructor(
     pc: PeerConnectionLike,
@@ -68,7 +71,9 @@ class SfuConnection {
     sessionId: string,
     mids: string[],
     senders: Map<MediaStreamTrack, RtpSenderLike>,
+    videoMid: string | null = null,
   ) {
+    this.videoMid = videoMid
     this.pc = pc
     this.signaling = signaling
     this.sessionId = sessionId
@@ -127,12 +132,14 @@ class SfuConnection {
       if (response.requiresImmediateRenegotiation) {
         await deps.signaling.renegotiate(sessionId, localDescriptionOf(pc))
       }
+      const videoMid = response.tracks.find((track) => track.kind === 'video')?.mid ?? null
       return new SfuConnection(
         pc,
         deps.signaling,
         sessionId,
         response.tracks.map((track) => track.mid),
         new Map(),
+        videoMid,
       )
     } catch (error) {
       pc.close()
@@ -143,6 +150,11 @@ class SfuConnection {
   /** The sender of a published track, to change its encodings. */
   senderOf(track: MediaStreamTrack): RtpSenderLike | undefined {
     return this.senders.get(track)
+  }
+
+  /** Watching: another simulcast layer of the screen, without renegotiating. */
+  async setLayer(layer: SfuLayer): Promise<void> {
+    if (this.videoMid !== null && !this.closed) await this.signaling.setLayer(this.sessionId, this.videoMid, layer)
   }
 
   getStats(): ReturnType<PeerConnectionLike['getStats']> {

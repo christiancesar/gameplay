@@ -83,6 +83,9 @@ describe('SfuConnection', () => {
     expect(signaling.renegotiate).toHaveBeenCalledWith('sfu-1', { type: 'answer', sdp: 'answer-sdp' })
     expect(tracks).toHaveLength(1)
 
+    await connection.setLayer('q')
+    expect(signaling.setLayer).toHaveBeenCalledWith('sfu-1', '0', 'q')
+
     connection.close()
     connection.close()
     expect(pcs[0].closed).toBe(true)

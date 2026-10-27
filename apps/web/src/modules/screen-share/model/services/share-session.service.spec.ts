@@ -459,4 +459,29 @@ describe('ShareSession', () => {
       expect(ctx.realtime.stopStream).not.toHaveBeenCalled()
     })
   })
+
+  describe('quality each viewer asks for', () => {
+    it('lightens only the connection of a Direct viewer who asked for less', async () => {
+      await goLive()
+      await viewerAsks('u2')
+      await viewerAsks('u3')
+      ctx.realtime.receive('stream:quality', { viewerId: 'u2', level: 'low' })
+      await vi.advanceTimersByTimeAsync(0)
+
+      const calls = media.transport.setVideoEncoding.mock.calls.filter(([viewerId]) => viewerId === 'u2')
+      expect(calls.at(-1)?.[2]).toMatchObject({ scaleResolutionDownBy: 4, maxFramerate: 15, maxBitrate: 800_000 })
+      const other = media.transport.setVideoEncoding.mock.calls.filter(([viewerId]) => viewerId === 'u3')
+      expect(other.at(-1)?.[2]).toMatchObject({ maxBitrate: 8_000_000 })
+    })
+
+    it('through the SFU, shows what each viewer reports', async () => {
+      await ctx.session.start(gameSettings, 'smooth', { mode: 'sfu', fallbackToMesh: true })
+      await viewerAsks('u2')
+      const quality = { width: 1280, height: 720, fps: 30, kbps: 2500 }
+      ctx.realtime.receive('stream:received', { viewerId: 'u2', quality })
+      ctx.realtime.receive('stream:received', { viewerId: 'u9', quality })
+
+      expect(ctx.store.state.stats).toEqual({ u2: { ...quality, limitation: 'none' } })
+    })
+  })
 })

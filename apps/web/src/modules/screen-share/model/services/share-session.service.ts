@@ -1,4 +1,4 @@
-import type { StreamMode, StreamPreset } from '@gameplay/contracts'
+import type { StreamMode, StreamPreset, StreamQualityLevel } from '@gameplay/contracts'
 
 import type { RealtimeService } from '@/modules/realtime/model/services/realtime.service'
 import type { CallMedia } from '@/shared/media/call-media'
@@ -25,6 +25,7 @@ import {
   simulcastEncodings,
   toPreset,
   videoEncoding,
+  viewerEncoding,
 } from '../rules/preset'
 
 type ShareRealtime = Pick<RealtimeService, 'startStream' | 'stopStream' | 'on'>
@@ -82,6 +83,8 @@ type Live = {
   /** The screen on the SFU; null in Mesh. */
   sfu: SfuPublication | null
   uplink: OutboundSample | undefined
+  /** What each Direct viewer asked for; missing is Auto. */
+  levels: Map<string, StreamQualityLevel>
 }
 
 /**
@@ -162,11 +165,26 @@ class ShareSession {
       mode,
       sfu: null,
       uplink: undefined,
+      levels: new Map(),
     }
     this.live = live
     live.stops.push(
       this.deps.realtime.on('stream:watch-request', ({ viewerId }) => void this.addViewer(live, viewerId)),
       this.deps.realtime.on('stream:unwatch', ({ viewerId }) => this.removeViewer(live, viewerId)),
+      // A Direct viewer wants less (or Auto again): only their connection changes.
+      this.deps.realtime.on('stream:quality', ({ viewerId, level }) => {
+        if (this.live !== live || live.sfu) return
+        live.levels.set(viewerId, level)
+        if (!this.deps.store.getState().viewerIds.includes(viewerId)) return
+        void live.media.transport.setVideoEncoding(viewerId, live.capture.video, this.encodingFor(live, viewerId))
+      }),
+      // Through the SFU, each viewer tells what reaches them.
+      this.deps.realtime.on('stream:received', ({ viewerId, quality }) => {
+        if (this.live !== live || !live.sfu) return
+        const { stats, viewerIds } = this.deps.store.getState()
+        if (!viewerIds.includes(viewerId)) return
+        this.deps.store.setState({ stats: { ...stats, [viewerId]: { ...quality, limitation: 'none' } } })
+      }),
       // The platform admin turned this mode off: the API already stopped the share.
       this.deps.realtime.on('stream:ended', () => {
         if (this.live !== live) return
@@ -280,7 +298,7 @@ class ShareSession {
         this.deps.store
           .getState()
           .viewerIds.map((viewerId) =>
-            live.media.transport.setVideoEncoding(viewerId, live.capture.video, videoEncoding(preset, priority)),
+            live.media.transport.setVideoEncoding(viewerId, live.capture.video, this.encodingFor(live, viewerId)),
           ),
       )
     if (presetChanged) this.deps.realtime.startStream(preset, live.mode).catch(() => undefined)
@@ -316,7 +334,11 @@ class ShareSession {
     if (live.sfu) return
     transport.addTrack(viewerId, video, stream)
     if (audio) transport.addTrack(viewerId, audio, stream)
-    await transport.setVideoEncoding(viewerId, video, videoEncoding(live.preset, live.priority))
+    await transport.setVideoEncoding(viewerId, video, this.encodingFor(live, viewerId))
+  }
+
+  private encodingFor(live: Live, viewerId: string) {
+    return viewerEncoding(live.preset, live.priority, live.levels.get(viewerId) ?? 'auto')
   }
 
   private removeViewer(live: Live, viewerId: string) {
@@ -328,6 +350,7 @@ class ShareSession {
       if (live.capture.audio) live.media.transport.removeTrack(viewerId, live.capture.audio)
     }
     live.samples.delete(viewerId)
+    live.levels.delete(viewerId)
     const { [viewerId]: _gone, ...stats } = store.getState().stats
     store.setState({ viewerIds: store.getState().viewerIds.filter((id) => id !== viewerId), stats })
   }

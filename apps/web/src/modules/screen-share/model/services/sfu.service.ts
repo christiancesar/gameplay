@@ -23,6 +23,9 @@ const sfuSignaling: SfuSignaling = {
   renegotiate: async (sessionId, answer) => {
     await http.put(`/media/sfu/sessions/${sessionId}/renegotiate`, { sessionDescription: answer })
   },
+  setLayer: async (sessionId, mid, layer) => {
+    await http.put(`/media/sfu/sessions/${sessionId}/layer`, { mid, layer })
+  },
   close: async (sessionId, mids) => {
     if (mids.length === 0) return
     sfuCloseResponseSchema.parse((await http.put(`/media/sfu/sessions/${sessionId}/close`, { mids })).data)

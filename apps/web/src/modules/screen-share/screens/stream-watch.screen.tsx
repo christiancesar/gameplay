@@ -4,11 +4,20 @@ import { StreamViewerView, type StreamViewerViewProps } from '@/modules/screen-s
 
 type StreamWatchScreenProps = Omit<
   StreamViewerViewProps,
-  'video' | 'streamVolume' | 'onStreamVolumeChange' | 'immersive' | 'onImmersiveChange' | 'received' | 'hasAudio'
+  | 'video'
+  | 'streamVolume'
+  | 'onStreamVolumeChange'
+  | 'immersive'
+  | 'onImmersiveChange'
+  | 'received'
+  | 'hasAudio'
+  | 'qualityLevel'
+  | 'onQualityLevelChange'
 >
 
 export function StreamWatchScreen(props: StreamWatchScreenProps) {
-  const { stream, volume, received, hasAudio, immersive, onVolumeChange, onImmersiveChange } = useStreamWatchViewModel()
+  const { stream, volume, received, hasAudio, immersive, level, onVolumeChange, onLevelChange, onImmersiveChange } =
+    useStreamWatchViewModel()
 
   return (
     <StreamViewerView
@@ -18,6 +27,8 @@ export function StreamWatchScreen(props: StreamWatchScreenProps) {
       received={received}
       hasAudio={hasAudio}
       onStreamVolumeChange={onVolumeChange}
+      qualityLevel={level}
+      onQualityLevelChange={onLevelChange}
       immersive={immersive}
       onImmersiveChange={onImmersiveChange}
     />

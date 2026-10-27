@@ -66,4 +66,11 @@ describe('useAdminMediaViewModel', () => {
     result.current.mediaTab.onAdjustServer('sv1')
     expect(navigate).toHaveBeenCalledWith({ to: '/admin/servers', search: { edit: 'sv1' } })
   })
+
+  it('saves the monthly SFU budget', async () => {
+    const { result } = await setup()
+    act(() => result.current.mediaTab.onSaveBudget(900))
+    await waitFor(() => expect(fakeHttp.put).toHaveBeenCalledWith('/admin/media/budget', { budgetGb: 900 }))
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('admin.media.budget.saved'))
+  })
 })

@@ -25,6 +25,7 @@ function createFakeSfuSignaling() {
       ],
     })),
     renegotiate: vi.fn<SfuSignaling['renegotiate']>(async () => undefined),
+    setLayer: vi.fn<SfuSignaling['setLayer']>(async () => undefined),
     close: vi.fn<SfuSignaling['close']>(async () => undefined),
   }
   return signaling

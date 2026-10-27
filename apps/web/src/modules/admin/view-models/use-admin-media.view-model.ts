@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 
 import { adminKeys } from '@/modules/admin/model/services/admin.keys'
 import { adminMediaQueryOptions } from '@/modules/admin/model/services/admin.query'
-import { updateMediaSettings } from '@/modules/admin/model/services/admin.service'
+import { updateMediaSettings, updateSfuBudget } from '@/modules/admin/model/services/admin.service'
 import { useAdminErrorToast } from '@/modules/admin/view-models/use-admin-error-toast'
 import { useMediaOffConfirm } from '@/modules/admin/view-models/use-media-off-confirm'
 
@@ -29,6 +29,14 @@ function useAdminMediaViewModel() {
     onError,
   })
   const confirm = useMediaOffConfirm(null, save.isPending)
+  const saveBudget = useMutation({
+    mutationFn: updateSfuBudget,
+    onSuccess: async () => {
+      toast.success(t('admin.media.budget.saved'))
+      await queryClient.invalidateQueries({ queryKey: adminKeys.media() })
+    },
+    onError,
+  })
 
   return {
     mediaTab: {
@@ -46,6 +54,8 @@ function useAdminMediaViewModel() {
         )
       },
       onAdjustServer: (serverId: string) => void navigate({ to: '/admin/servers', search: { edit: serverId } }),
+      isSavingBudget: saveBudget.isPending,
+      onSaveBudget: (budgetGb: number) => saveBudget.mutate({ budgetGb }),
     },
     confirmDialog: confirm.dialog,
   }

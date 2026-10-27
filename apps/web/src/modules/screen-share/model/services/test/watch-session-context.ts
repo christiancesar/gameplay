@@ -21,6 +21,7 @@ function makeWatchSessionContext() {
     failing: false,
     stats: [] as StatsRecord[],
     close: vi.fn(),
+    setLayer: vi.fn(async (_layer: string) => undefined),
     /** Delivers a track as the SFU connection would. */
     deliver: (_event: TrackEventLike) => undefined as void,
   }
@@ -29,6 +30,7 @@ function makeWatchSessionContext() {
     sfu.deliver = onTrack
     return {
       close: sfu.close,
+      setLayer: sfu.setLayer,
       getStats: async () => ({ forEach: (callback: (stats: StatsRecord) => void) => sfu.stats.forEach(callback) }),
     }
   })
@@ -40,6 +42,7 @@ function makeWatchSessionContext() {
     watchFromSfu,
     createMediaStream: (tracks) => fakeStream(tracks),
     pollMs: 1000,
+    usageMs: 10_000,
   })
   session.attach()
   return { session, realtime, store, source, modes, sfu, watchFromSfu }

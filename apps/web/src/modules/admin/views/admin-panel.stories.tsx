@@ -54,10 +54,12 @@ const actions = {
   onToggleMedia: fn(),
   onAdjustServer: fn(),
   onConfirmMediaOff: fn(),
+  onSaveBudget: fn(),
 }
 
 const mediaData = {
   settings: { sfu: true, mesh: true, turn: true },
+  sfuUsage: { month: '2026-10', usedBytes: 690_000_000_000, budgetGb: 800 },
   providers: {
     sfu: { name: 'cloudflare', state: 'ready' as const },
     turn: { name: 'cloudflare', state: 'failing' as const },
@@ -133,6 +135,8 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
         isSaving={false}
         onToggle={actions.onToggleMedia}
         onAdjustServer={actions.onAdjustServer}
+        isSavingBudget={false}
+        onSaveBudget={actions.onSaveBudget}
       />
     ),
     announcements: (
@@ -457,5 +461,18 @@ export const MediaOffConfirm: Story = {
         audience: 'affected',
       }),
     )
+  },
+}
+
+/** Consumo do mês contra o orçamento; mudar o orçamento chega ao ViewModel. */
+export const MediaBudget: Story = {
+  args: { initialTab: 'media' },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByText(/690 GB of 800 GB used in 2026-10/i)).toBeVisible()
+    const budget = canvas.getByLabelText(/monthly budget/i)
+    await userEvent.clear(budget)
+    await userEvent.type(budget, '900')
+    await userEvent.click(canvas.getByRole('button', { name: /save budget/i }))
+    await expect(actions.onSaveBudget).toHaveBeenCalledWith(900)
   },
 }

@@ -1,3 +1,5 @@
+import type { StreamQualityLevel } from '@gameplay/contracts'
+
 import { browserEnvironment } from '@/modules/browser-support/model/services/browser-environment.service'
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
 import { toShareStartMeasurement } from '@/modules/screen-share/model/mappers/share-start.mapper'
@@ -80,6 +82,7 @@ const shareController = {
   watch: (streamerId: string) => getWatch().watch(streamerId),
   stopWatching: () => getWatch().stop(),
   setStreamVolume: (volume: number) => getWatch().setVolume(volume),
+  setStreamQuality: (level: StreamQualityLevel) => getWatch().setLevel(level),
   dismissWatchFailure: () => getWatch().dismissFailure(),
 }
 

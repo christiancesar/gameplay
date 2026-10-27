@@ -33,6 +33,7 @@ import {
   type ServerMediaOverrides,
   type UpdateMediaSettingsRequest,
   type UpdateServerMediaRequest,
+  type UpdateSfuBudgetRequest,
   type ServerLimits,
   type UserLimits,
 } from '@gameplay/contracts'
@@ -167,6 +168,10 @@ async function updateServerMedia(serverId: string, request: UpdateServerMediaReq
   return mediaChangeResponseSchema.parse(data).notified
 }
 
+async function updateSfuBudget(request: UpdateSfuBudgetRequest): Promise<void> {
+  await http.put('/admin/media/budget', request)
+}
+
 export {
   deleteAdminServer,
   generateRegistrationInvite,
@@ -194,4 +199,5 @@ export {
   updateMediaSettings,
   updatePlatformSettings,
   updateServerMedia,
+  updateSfuBudget,
 }

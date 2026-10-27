@@ -1,4 +1,4 @@
-import type { SfuLayer, StreamMode } from '@gameplay/contracts'
+import { MEDIA_USAGE_MAX_BYTES, type SfuLayer, type StreamMode, type StreamQualityLevel } from '@gameplay/contracts'
 
 import type { RealtimeService } from '@/modules/realtime/model/services/realtime.service'
 import type { MediaStreamFactory, TrackEventLike } from '@/shared/media/browser-media'
@@ -7,9 +7,13 @@ import type { StatsRecord } from '@/shared/media/media-transport'
 
 import { idleWatch, type WatchStateStore } from '../entities/watch'
 import { type InboundSample, toInboundSample, toReceivedQuality } from '../mappers/inbound-stats.mapper'
+import { layerFor } from '../rules/preset'
 import { screenAudioKey, toScreenGain } from '../rules/screen-audio'
 
-type WatchRealtime = Pick<RealtimeService, 'watchStream' | 'unwatchStream' | 'on'>
+type WatchRealtime = Pick<
+  RealtimeService,
+  'watchStream' | 'unwatchStream' | 'sendStreamQuality' | 'reportMediaUsage' | 'on'
+>
 
 type WatchSessionDeps = {
   realtime: WatchRealtime
@@ -25,15 +29,19 @@ type WatchSessionDeps = {
   createMediaStream: MediaStreamFactory
   /** How often what reaches me is measured. */
   pollMs?: number
+  /** How often what I received through the SFU is reported (it counts against the monthly budget). */
+  usageMs?: number
 }
 
 /** Someone's screen received from the SFU. */
 type SfuSubscription = {
   getStats(): Promise<{ forEach(callback: (stats: StatsRecord) => void): void }>
+  setLayer(layer: SfuLayer): Promise<void>
   close(): void
 }
 
 const POLL_MS = 1000
+const USAGE_MS = 10_000
 
 /** The video being measured: its track, the last sample and the timer. */
 type Measuring = { trackId: string; previous: InboundSample | undefined; timer: ReturnType<typeof setInterval> }
@@ -46,6 +54,8 @@ type Bound = {
   measuring: Measuring | null
   /** The screen watched through the SFU; null in Mesh. */
   sfu: SfuSubscription | null
+  /** Reports what came from the SFU; the bytes counted so far. */
+  usage: { timer: ReturnType<typeof setInterval>; reported: number } | null
 }
 
 /**
@@ -83,18 +93,40 @@ class WatchSession {
     if (current === streamerId) return
     if (current) this.release(bound, { announce: true })
     store.setState({ streamerId, status: 'waiting', stream: null, failed: false })
-    if (this.deps.streamModeOf(streamerId) === 'sfu') void this.watchSfu(bound, streamerId)
-    realtime.watchStream(streamerId).catch(() => {
-      if (store.getState().streamerId !== streamerId) return
-      this.release(bound, { announce: false })
-      store.setState({ failed: true })
-    })
+    const throughSfu = this.deps.streamModeOf(streamerId) === 'sfu'
+    if (throughSfu) void this.watchSfu(bound, streamerId)
+    realtime
+      .watchStream(streamerId)
+      .then(() => {
+        // A Direct streamer sends full quality until asked otherwise.
+        const { level } = store.getState()
+        if (!throughSfu && level !== 'auto') realtime.sendStreamQuality(streamerId, level).catch(() => undefined)
+      })
+      .catch(() => {
+        if (store.getState().streamerId !== streamerId) return
+        this.release(bound, { announce: false })
+        store.setState({ failed: true })
+      })
+  }
+
+  /** The quality I want: another SFU layer, or a lighter Direct connection. Kept for the next stream. */
+  setLevel(level: StreamQualityLevel): void {
+    const { store, realtime } = this.deps
+    store.setState({ level })
+    const { streamerId } = store.getState()
+    const bound = this.bound
+    if (!streamerId || !bound) return
+    if (this.deps.streamModeOf(streamerId) === 'sfu') bound.sfu?.setLayer(layerFor(level)).catch(() => undefined)
+    else realtime.sendStreamQuality(streamerId, level).catch(() => undefined)
   }
 
   /** Stops watching and closes the view. */
   stop(): void {
     if (this.bound) this.release(this.bound, { announce: true })
-    else this.deps.store.setState({ ...idleWatch, volume: this.deps.store.getState().volume })
+    else {
+      const { volume, level } = this.deps.store.getState()
+      this.deps.store.setState({ ...idleWatch, volume, level })
+    }
   }
 
   setVolume(volume: number): void {
@@ -119,7 +151,7 @@ class WatchSession {
     this.bound = null
     if (!media) return
 
-    const bound: Bound = { media, stops: [], streamerDown: false, measuring: null, sfu: null }
+    const bound: Bound = { media, stops: [], streamerDown: false, measuring: null, sfu: null, usage: null }
     this.bound = bound
     bound.stops.push(
       media.transport.onRemoteTrack((peerId, track, stream, source) =>
@@ -141,7 +173,7 @@ class WatchSession {
     const { store } = this.deps
     const current = () => this.bound === bound && store.getState().streamerId === streamerId
     try {
-      const sfu = await this.deps.watchFromSfu(streamerId, 'f', ({ track, streams }) => {
+      const sfu = await this.deps.watchFromSfu(streamerId, layerFor(store.getState().level), ({ track, streams }) => {
         if (!current()) return
         this.onTrack(bound, streamerId, track, streams[0] ?? this.deps.createMediaStream([track]), 'screen')
       })
@@ -150,6 +182,10 @@ class WatchSession {
         return
       }
       bound.sfu = sfu
+      bound.usage = {
+        reported: 0,
+        timer: setInterval(() => void this.reportUsage(bound, streamerId), this.deps.usageMs ?? USAGE_MS),
+      }
     } catch {
       if (!current()) return
       this.release(bound, { announce: true })
@@ -188,6 +224,26 @@ class WatchSession {
     bound.measuring = measuring
   }
 
+  /** Bytes received from the SFU since the last report, and the quality that reaches me now. */
+  private async reportUsage(bound: Bound, streamerId: string) {
+    const usage = bound.usage
+    if (!bound.sfu || !usage) return
+    const total = (await this.statsOf(bound, streamerId))
+      .filter((record) => record.type === 'inbound-rtp')
+      .reduce((sum, record) => sum + (typeof record.bytesReceived === 'number' ? record.bytesReceived : 0), 0)
+    if (bound.usage !== usage) return
+    const bytes = Math.min(Math.max(0, total - usage.reported), MEDIA_USAGE_MAX_BYTES)
+    usage.reported = total
+    const quality = this.deps.store.getState().quality
+    this.deps.realtime
+      .reportMediaUsage({
+        streamerId,
+        bytes,
+        quality: quality && { ...quality, width: Math.round(quality.width), height: Math.round(quality.height) },
+      })
+      .catch(() => undefined)
+  }
+
   /** The SFU connection when watching through it, else the call's connection with the streamer. */
   private async statsOf(bound: Bound, streamerId: string): Promise<StatsRecord[]> {
     if (!bound.sfu) return bound.media.transport.getConnectionStats(streamerId)
@@ -216,7 +272,7 @@ class WatchSession {
 
   private release(bound: Bound, { announce }: { announce: boolean }) {
     const { store, realtime } = this.deps
-    const { streamerId, volume } = store.getState()
+    const { streamerId, volume, level } = store.getState()
     if (streamerId) {
       bound.media.audio.removeStream(screenAudioKey(streamerId))
       if (announce) realtime.unwatchStream(streamerId).catch(() => undefined)
@@ -224,8 +280,10 @@ class WatchSession {
     bound.streamerDown = false
     bound.sfu?.close()
     bound.sfu = null
+    if (bound.usage) clearInterval(bound.usage.timer)
+    bound.usage = null
     this.stopMeasuring(bound)
-    store.setState({ ...idleWatch, volume })
+    store.setState({ ...idleWatch, volume, level })
   }
 }
 

@@ -299,7 +299,16 @@
       },
       "none": "Screen sharing is turned off for this server."
     },
-    "uplink": "Sent to the server"
+    "uplink": "Sent to the server",
+    "quality": {
+      "label": "Quality",
+      "levels": {
+        "auto": "Auto",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    }
   },
   "image": {
     "choose": "Choose image",
@@ -735,7 +744,16 @@
         "notify": "Turn off and notify",
         "silent": "Turn off without notifying"
       },
-      "saved": "Media settings saved."
+      "saved": "Media settings saved.",
+      "budget": {
+        "usage": "{{used}} GB of {{budget}} GB used in {{month}}. Past the budget, new shares go Direct (Mesh).",
+        "label": "Monthly budget (GB)",
+        "save": "Save budget",
+        "saved": "Budget saved.",
+        "errors": {
+          "invalid": "Use a whole number from 0 to 100000."
+        }
+      }
     }
   },
   "hardware": {
