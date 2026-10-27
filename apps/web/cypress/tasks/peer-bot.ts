@@ -113,6 +113,17 @@ class PeerBot {
     return this.page.url()
   }
 
+  /** Polls the page URL until it does (or does not) contain `text`; cy.task results are not retried. */
+  async waitForUrl({ text, present, timeoutMs = 10_000 }: { text: string; present: boolean; timeoutMs?: number }) {
+    const deadline = Date.now() + timeoutMs
+    while (this.page.url().includes(text) !== present) {
+      if (Date.now() > deadline)
+        throw new Error(`Bot URL ${this.page.url()} ${present ? 'lacks' : 'still has'} ${text}`)
+      await this.page.waitForTimeout(250)
+    }
+    return this.page.url()
+  }
+
   async close() {
     await this.browser.close()
   }
@@ -143,6 +154,7 @@ function createBotTasks() {
     'bot:stats': () => activeBot().stats(),
     'bot:waitForMedia': (wait: MediaWait) => activeBot().waitForMedia(wait),
     'bot:url': () => activeBot().url(),
+    'bot:waitForUrl': (wait: { text: string; present: boolean; timeoutMs?: number }) => activeBot().waitForUrl(wait),
     'bot:stop': async () => (await stopBot(), null),
   }
 }
