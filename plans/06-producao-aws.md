@@ -188,7 +188,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 | SFU-03 | Orçamento mensal no `limits` e qualidade escolhida por quem assiste |
 | SFU-04 | Aba Mídia no admin: SFU, Mesh e TURN globais e por servidor |
 | SFU-05 | Aviso da plataforma para os usuários |
-| DESK-01 | Estudo do app desktop em Electron (captura de áudio por processo) |
+| DESK-01 | Estudo do app desktop em Electron (captura de áudio por processo). Plano em `08-desktop-electron.md`, com DESK-02 a DESK-10 |
 
 ## 13. Antes de assinar, conferir na página oficial
 
