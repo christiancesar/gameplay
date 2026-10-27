@@ -2,6 +2,7 @@
 
 > Criado em 2026-10-24. Proposta em discussão, nada aqui foi implementado.
 > Decisões do usuário: custo zero como padrão, com as duas opções disponíveis. **MVP só com mesh; SFU fica para a fase seguinte** (2026-10-24).
+> **Atualizado em 2026-10-27:** o SFU passa a ser o padrão da tela, com o mesh como opção. O desenho que vale está na seção 7; as seções 2.2, 2.4 e 6 ficam como histórico.
 > Itens marcados como **(suposição)** são propostas minhas e precisam de confirmação.
 
 ## 0. Escopo do MVP
@@ -155,3 +156,17 @@ Os itens 1 a 5 só precisam ser decididos quando o SFU entrar.
 - [Cloudflare Realtime SFU pricing](https://developers.cloudflare.com/realtime/sfu/pricing)
 - [Cloudflare Realtime pricing](https://developers.cloudflare.com/realtime/pricing/)
 - [LiveKit pricing 2026 (trtc.io)](https://trtc.io/blog/details/livekit-pricing-2026)
+
+## 7. Desenho decidido (2026-10-27)
+
+- **Tela:** Cloudflare Realtime SFU por padrão. No diálogo antes de compartilhar, os modos aparecem como **Servidor (SFU)** e **Direto (Mesh)**, cada um com uma explicação curta: o Mesh é melhor para 1:1, o SFU para várias pessoas assistindo. Não existe modo automático por enquanto; detectar o melhor modo pelo número de espectadores fica para depois.
+- **Áudio da tela:** segue o modo da transmissão, na mesma sessão do vídeo.
+- **Voz:** sempre mesh.
+- **Sem troca no meio da live.** Para mudar de modo, a pessoa para e compartilha de novo. O "make before break" da seção 2.4 sai do plano.
+- **Recursos no admin:** SFU, Mesh e TURN se ligam e desligam na aba Mídia do admin da plataforma, de forma global, com exceção por servidor no diálogo "Ajustar servidor" (o valor do servidor vale nos dois sentidos). Padrão: tudo ligado. Os dois modos podem ficar desligados; aí não há transmissão no servidor. Quem transmite escolhe entre os modos ligados (SFU-04).
+- **Desligar derruba:** lives no modo desligado param na hora, sem migrar; TURN desligado faz os clientes refazerem o ICE só com STUN. A confirmação permite avisar os afetados, os membros do servidor ou todo mundo (SFU-05).
+- **Provedores:** recurso e provedor ficam separados. Hoje Cloudflare para SFU e TURN; outros provedores entram depois, com as credenciais no `.env`.
+- **Quando o SFU não está disponível** (sem credenciais, orçamento esgotado ou erro da Cloudflare), ele aparece desabilitado com o motivo. Se a publicação falhar ao começar e o Direto estiver permitido, a transmissão cai para Direto com um aviso. Se o Mesh está desligado e o SFU indisponível, ninguém transmite ali até ele voltar.
+- **Fornecedor:** Cloudflare Realtime SFU, só a API de conexão. O RealtimeKit não é usado: ele traz salas, sinalização e interface próprias e cobra por minuto de participante.
+- **Credenciais:** um app só para desenvolvimento e produção (`CLOUDFLARE_SFU_APP_ID` e `CLOUDFLARE_SFU_APP_TOKEN`), decisão do usuário.
+- **Tickets:** SFU-01 (API), SFU-05 (aviso da plataforma), SFU-04 (aba Mídia e recursos por servidor), SFU-02 (web e seletor de modo) e SFU-03 (orçamento e qualidade de quem assiste), em `plans/tickets/`.

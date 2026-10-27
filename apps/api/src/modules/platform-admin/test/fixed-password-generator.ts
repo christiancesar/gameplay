@@ -1,4 +1,4 @@
-import { PasswordGenerator } from '../providers/password-generator'
+import { PasswordGenerator } from '../providers/password-generator/password-generator.provider'
 
 export const GENERATED_PASSWORD = 'generated-pass-123'
 

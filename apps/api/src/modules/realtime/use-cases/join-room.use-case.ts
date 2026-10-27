@@ -4,8 +4,8 @@ import { RoomNotFoundError, ServerNotFoundError } from '../../servers/errors/ser
 import { RoomsRepository } from '../../servers/repositories/rooms.repository'
 import { ServerAccessService } from '../../servers/services/server-access.service'
 import { displacedSocket, seatAfterJoin, toParticipant } from '../domain/seat'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
-import { Timers } from '../providers/timers'
+import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
+import { Timers } from '../providers/timers/timers.provider'
 import { VoiceRoomsService } from '../services/voice-rooms.service'
 import { RoomStateStore } from '../stores/room-state.store'
 
@@ -43,7 +43,10 @@ export class JoinRoomUseCase {
     if (previous?.socketId && (displaced || previous.roomId !== roomId)) {
       this.emitter.seatReleased(previous.socketId, previous.roomId, displaced ? 'other-tab' : null)
     }
-    if (previous && previous.roomId !== roomId) await this.voice.announce(previous.serverId, previous.roomId)
+    if (previous && previous.roomId !== roomId) {
+      await this.voice.leftRoom(userId, previous.roomId)
+      await this.voice.announce(previous.serverId, previous.roomId)
+    }
 
     this.logger.log(
       { userId, serverId: room.serverId, roomId, rejoined: previous?.roomId === roomId },

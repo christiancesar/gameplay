@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { SessionNotFoundError } from '../errors/platform-admin.errors'
-import { AuthAccounts } from '../providers/auth-accounts'
+import { AuthAccounts } from '../providers/auth-accounts/auth-accounts.provider'
 import { AdminUsersService } from '../services/admin-users.service'
 
 // Signs the user out of one device; the tabs of that session close too.

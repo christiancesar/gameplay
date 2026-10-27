@@ -9,6 +9,7 @@ const participant = (userId: string, extra = {}) => ({
   muted: false,
   deafened: false,
   streaming: null,
+  streamMode: null,
   ...extra,
 })
 

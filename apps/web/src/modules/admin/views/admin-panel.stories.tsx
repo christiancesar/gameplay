@@ -13,11 +13,14 @@ import {
 } from '@/fixtures/admin'
 
 import { AdminLayoutView, type AdminTab } from './admin-layout.view'
+import { AnnouncementsTabView } from './announcements-tab.view'
 import { DeviceHardwareDialogView } from './device-hardware-dialog.view'
 import { HardwareTabView } from './hardware-tab.view'
 import { KeysTabView } from './keys-tab.view'
 import { LimitDialogView } from './limit-dialog.view'
 import { LimitsTabView } from './limits-tab.view'
+import { MediaOffConfirmDialogView } from './media-off-confirm-dialog.view'
+import { MediaTabView } from './media-tab.view'
 import { ResetPasswordDialogView } from './reset-password-dialog.view'
 import { ServerMembersDialogView } from './server-members-dialog.view'
 import { ServersTabView } from './servers-tab.view'
@@ -33,8 +36,9 @@ type Overlay =
   | 'serverMembers'
   | 'userHardware'
   | 'newKey'
+  | 'mediaOff'
 
-type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean }
+type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean; noCloudflare?: boolean }
 
 const actions = {
   onOpenDevice: fn(),
@@ -46,9 +50,31 @@ const actions = {
   onSaveLimits: fn(),
   onResetPassword: fn(),
   onSaveOverrides: fn(),
+  onSendAnnouncement: fn(),
+  onToggleMedia: fn(),
+  onAdjustServer: fn(),
+  onConfirmMediaOff: fn(),
+  onSaveBudget: fn(),
 }
 
-function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
+const mediaData = {
+  settings: { sfu: true, mesh: true, turn: true },
+  usage: {
+    month: '2026-10',
+    budgetGb: 800,
+    freeTierGb: 1000,
+    sfu: { reportedBytes: 670_000_000_000, cloudflareBytes: 690_000_000_000 },
+    turn: { cloudflareBytes: 85_000_000_000 },
+    cloudflare: { state: 'ready' as const, checkedAt: new Date(Date.now() - 3 * 60_000).toISOString() },
+  },
+  providers: {
+    sfu: { name: 'cloudflare', state: 'ready' as const },
+    turn: { name: 'cloudflare', state: 'failing' as const },
+  },
+  exceptions: [{ serverId: 's2', serverName: 'Clan Zero', overrides: { sfu: false, mesh: null, turn: true } }],
+}
+
+function Scenario({ initialTab, overlay, empty, noCloudflare = false }: ScenarioProps) {
   const [tab, setTab] = useState(initialTab)
   const [search, setSearch] = useState('')
   const [deviceId, setDeviceId] = useState<string>()
@@ -108,6 +134,34 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
         onCopyNewKey={fn()}
         onCloseNewKey={fn()}
         onRevoke={fn()}
+      />
+    ),
+    media: (
+      <MediaTabView
+        data={{
+          ...mediaData,
+          exceptions: empty ? [] : mediaData.exceptions,
+          usage: noCloudflare
+            ? {
+                ...mediaData.usage,
+                sfu: { ...mediaData.usage.sfu, cloudflareBytes: null },
+                turn: { cloudflareBytes: null },
+                cloudflare: { state: 'not-configured', checkedAt: null },
+              }
+            : mediaData.usage,
+        }}
+        isSaving={false}
+        onToggle={actions.onToggleMedia}
+        onAdjustServer={actions.onAdjustServer}
+        isSavingBudget={false}
+        onSaveBudget={actions.onSaveBudget}
+      />
+    ),
+    announcements: (
+      <AnnouncementsTabView
+        servers={empty ? [] : adminServers.map(({ id, name }) => ({ id, name }))}
+        isSending={false}
+        onSend={actions.onSendAnnouncement}
       />
     ),
   }[tab]
@@ -172,9 +226,19 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
           { id: 'members', label: 'Members per server', defaultValue: 10, override: 20 },
           { id: 'rooms', label: 'Rooms per server', defaultValue: 2 },
         ]}
+        media={{ globals: mediaData.settings, choices: { sfu: 'off', mesh: 'global', turn: 'global' } }}
         isSaving={false}
         onOpenChange={fn()}
         onSave={actions.onSaveOverrides}
+      />
+      <MediaOffConfirmDialogView
+        open={overlay === 'mediaOff'}
+        resources={['sfu']}
+        scope="server"
+        impact={3}
+        isSaving={false}
+        onConfirm={actions.onConfirmMediaOff}
+        onCancel={fn()}
       />
     </>
   )
@@ -186,7 +250,10 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: { initialTab: 'users', overlay: 'none', empty: false },
   argTypes: {
-    initialTab: { control: 'inline-radio', options: ['users', 'servers', 'hardware', 'limits', 'keys'] },
+    initialTab: {
+      control: 'inline-radio',
+      options: ['users', 'servers', 'hardware', 'limits', 'media', 'keys', 'announcements'],
+    },
     overlay: {
       control: 'select',
       options: [
@@ -198,6 +265,7 @@ const meta = {
         'serverMembers',
         'userHardware',
         'newKey',
+        'mediaOff',
       ],
     },
   },
@@ -241,7 +309,32 @@ export const ServerLimitsValidation: Story = {
 
     await userEvent.type(members, '25')
     await userEvent.click(screen.getByRole('button', { name: /save/i }))
-    await expect(actions.onSaveOverrides).toHaveBeenCalledWith({ members: 25, rooms: undefined }, expect.anything())
+    await expect(actions.onSaveOverrides).toHaveBeenCalledWith(
+      { members: 25, rooms: undefined },
+      { sfu: 'off', mesh: 'global', turn: 'global' },
+    )
+  },
+}
+
+/** O global aparece no campo, travado; desmarcar "Use the global default" libera o número do servidor. */
+export const ServerLimitsOwnValue: Story = {
+  args: { initialTab: 'servers', overlay: 'serverLimits' },
+  play: async ({ userEvent }) => {
+    const rooms = await screen.findByLabelText(/^rooms per server$/i)
+    await expect(rooms).toBeDisabled()
+    await expect(rooms).toHaveValue(2)
+    await userEvent.click(screen.getByRole('checkbox', { name: /use the global default \(2\)/i }))
+    const editable = screen.getByLabelText(/^rooms per server$/i)
+    await expect(editable).toBeEnabled()
+    await userEvent.clear(editable)
+    await userEvent.type(editable, '5')
+    await userEvent.click(screen.getByRole('combobox', { name: /server \(sfu\)/i }))
+    await userEvent.click(await screen.findByRole('option', { name: /global default \(on\)/i }))
+    await userEvent.click(screen.getByRole('button', { name: /save/i }))
+    await expect(actions.onSaveOverrides).toHaveBeenCalledWith(
+      { members: 20, rooms: 5 },
+      { sfu: 'global', mesh: 'global', turn: 'global' },
+    )
   },
 }
 
@@ -317,3 +410,105 @@ export const GlobalLimitsValidation: Story = {
 
 export const SignUpKeys: Story = { args: { initialTab: 'keys' } }
 export const NewSignUpKey: Story = { args: { initialTab: 'keys', overlay: 'newKey' } }
+
+export const Announcements: Story = { args: { initialTab: 'announcements' } }
+
+/** Sem título e sem servidor escolhido não envia; com tudo preenchido, entrega os valores ao ViewModel. */
+export const SendAnnouncement: Story = {
+  args: { initialTab: 'announcements' },
+  play: async ({ canvas, userEvent }) => {
+    const send = canvas.getByRole('button', { name: /send announcement/i })
+    await userEvent.click(send)
+    await expect(await canvas.findAllByText(/fill this in/i)).toHaveLength(2)
+
+    await userEvent.type(canvas.getByLabelText(/title/i), 'Maintenance at 10 pm')
+    await userEvent.type(canvas.getByLabelText(/message/i), 'The app will be down for about 10 minutes.')
+    await userEvent.click(canvas.getByRole('combobox', { name: /send to/i }))
+    await userEvent.click(await screen.findByRole('option', { name: /members of a server/i }))
+    await userEvent.click(send)
+    await expect(await canvas.findByText(/pick a server\./i)).toBeVisible()
+    await expect(actions.onSendAnnouncement).not.toHaveBeenCalled()
+
+    await userEvent.click(canvas.getByRole('combobox', { name: /^server$/i }))
+    await userEvent.click(await screen.findByRole('option', { name: 'Turbex' }))
+    await userEvent.click(send)
+    await waitFor(() =>
+      expect(actions.onSendAnnouncement).toHaveBeenCalledWith(
+        {
+          title: 'Maintenance at 10 pm',
+          message: 'The app will be down for about 10 minutes.',
+          audience: 'server',
+          serverId: expect.any(String),
+        },
+        expect.anything(),
+      ),
+    )
+  },
+}
+
+export const Media: Story = { args: { initialTab: 'media' } }
+export const MediaNoExceptions: Story = { args: { initialTab: 'media', empty: true } }
+
+/** Desligar um recurso passa pelo ViewModel; a exceção abre o "Ajustar servidor". */
+export const MediaToggle: Story = {
+  args: { initialTab: 'media' },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('switch', { name: /relay \(turn\)/i }))
+    await expect(actions.onToggleMedia).toHaveBeenCalledWith('turn', false)
+    await userEvent.click(canvas.getByRole('button', { name: /adjust/i }))
+    await expect(actions.onAdjustServer).toHaveBeenCalledWith('s2')
+  },
+}
+
+/** Confirmação: avisar manda o texto sugerido (editável); desligar sem avisar não manda nada. */
+export const MediaOffConfirm: Story = {
+  args: { initialTab: 'servers', overlay: 'mediaOff' },
+  play: async ({ userEvent }) => {
+    await waitFor(() => expect(screen.getByText(/3 people in voice rooms/i)).toBeVisible())
+    await userEvent.click(screen.getByRole('button', { name: /turn off without notifying/i }))
+    await expect(actions.onConfirmMediaOff).toHaveBeenLastCalledWith()
+
+    const title = screen.getByLabelText(/notice title/i)
+    await userEvent.clear(title)
+    await userEvent.type(title, 'SFU down')
+    await userEvent.click(screen.getByRole('button', { name: /turn off and notify/i }))
+    await waitFor(() =>
+      expect(actions.onConfirmMediaOff).toHaveBeenLastCalledWith({
+        title: 'SFU down',
+        message: 'The platform admin turned off Server (SFU) for now.',
+        audience: 'affected',
+      }),
+    )
+  },
+}
+
+/** Consumo do mês contra o orçamento; mudar o orçamento chega ao ViewModel. */
+export const MediaBudget: Story = {
+  args: { initialTab: 'media' },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByText(/690 GB of 800 GB used in 2026-10/i)).toBeVisible()
+    const budget = canvas.getByLabelText(/monthly budget/i)
+    await userEvent.clear(budget)
+    await userEvent.type(budget, '900')
+    await userEvent.click(canvas.getByRole('button', { name: /save budget/i }))
+    await expect(actions.onSaveBudget).toHaveBeenCalledWith(900)
+  },
+}
+
+/** Consumo do mês: SFU e TURN separados, e o total da Cloudflare contra a franquia de 1.000 GB. */
+export const MediaUsage: Story = {
+  args: { initialTab: 'media' },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/775 GB of 1000 GB free/i)).toBeVisible()
+    await expect(canvas.getByText(/viewers reported 670 GB/i)).toBeVisible()
+    await expect(canvas.getByText('85 GB')).toBeVisible()
+  },
+}
+
+/** Sem o token de analytics: só o que os espectadores informam, e o aviso de como ligar. */
+export const MediaUsageWithoutCloudflare: Story = {
+  args: { initialTab: 'media', noCloudflare: true },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/CLOUDFLARE_ANALYTICS_TOKEN/)).toBeVisible()
+  },
+}

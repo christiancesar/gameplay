@@ -7,11 +7,16 @@ import type { StageParticipant } from '@/modules/rooms/model/entities/stage-part
 import { ParticipantStripView } from '@/modules/rooms/views/participant-strip.view'
 import { formatKbps } from '@/shared/ui/format-kbps'
 import { IconButton } from '@/shared/ui/icon-button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Slider } from '@/shared/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 /** Medido no lado de quem assiste: pode ser menor do que o streamer envia. */
 type ReceivedQuality = { width: number; height: number; fps: number; kbps: number }
+
+const QUALITY_LEVELS = ['auto', 'high', 'medium', 'low'] as const
+/** Quanto quem assiste quer baixar. Auto deixa a rede decidir. */
+type QualityLevel = (typeof QUALITY_LEVELS)[number]
 
 type StreamViewerViewProps = {
   streamerName: string
@@ -24,6 +29,9 @@ type StreamViewerViewProps = {
   liveStreams: readonly { id: string; name: string }[]
   currentStreamId: string
   streamVolume: number
+  /** Sem o callback, o seletor de qualidade não aparece. */
+  qualityLevel?: QualityLevel
+  onQualityLevelChange?: (level: QualityLevel) => void
   participants: readonly StageParticipant[]
   /** The video over the whole screen with the controls on top. The ViewModel decides when (button, phone sideways). */
   immersive?: boolean
@@ -52,6 +60,8 @@ function StreamViewerView({
   liveStreams,
   currentStreamId,
   streamVolume,
+  qualityLevel = 'auto',
+  onQualityLevelChange,
   participants,
   immersive = false,
   onImmersiveChange,
@@ -140,6 +150,20 @@ function StreamViewerView({
         )}
 
         <div className="ml-auto flex items-center gap-2">
+          {onQualityLevelChange && (
+            <Select value={qualityLevel} onValueChange={(value) => onQualityLevelChange(value as QualityLevel)}>
+              <SelectTrigger size="sm" aria-label={t('share.quality.label')} className="w-28">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {QUALITY_LEVELS.map((level) => (
+                  <SelectItem key={level} value={level}>
+                    {t(`share.quality.levels.${level}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           {hasAudio ? (
             <Volume2Icon className={cn('size-4', !immersive && 'text-muted-foreground')} aria-hidden />
           ) : (

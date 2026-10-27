@@ -1,6 +1,6 @@
 import type { Seat } from '../domain/seat'
 
-export type SeatChanges = Partial<Pick<Seat, 'muted' | 'deafened' | 'streaming'>>
+export type SeatChanges = Partial<Pick<Seat, 'muted' | 'deafened' | 'streaming' | 'streamMode'>>
 
 // Who is in which voice room, one seat per person. In memory for the single
 // MVP instance; async so Redis can replace it. Every method is atomic.
@@ -19,6 +19,7 @@ export abstract class RoomStateStore {
   // In join order.
   abstract listRoom(roomId: string): Promise<Seat[]>
   abstract listServer(serverId: string): Promise<Seat[]>
+  abstract listAll(): Promise<Seat[]>
   // Totals for the metrics: seats in every room, and how many of them share a screen.
   abstract stats(): Promise<{ seats: number; streaming: number }>
 }

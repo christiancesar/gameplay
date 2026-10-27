@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import type { StorageProvider } from '../../storage/storage.provider'
+import type { StorageProvider } from '../../storage/providers/storage/storage.provider'
 
 const logger = new Logger('Avatar')
 

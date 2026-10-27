@@ -15,7 +15,10 @@
 - `repositories/`: `abstract class` como token de DI, com implementação `prisma/` e `in-memory/`. Os testes unitários usam a in-memory.
 - `errors/`: erros de domínio que estendem `DomainError`. Um filtro global converte para HTTP (e para ack com erro no socket).
 - `services/` (`*.service.ts`, classe `XxxService`): lógica compartilhada por vários use-cases que não é uma ação por si só, como checar o acesso a um servidor (`ServerAccessService`), montar a resposta dele (`ServerViewsService`) ou resolver o limite efetivo (`EffectiveLimitsService`). Nenhum controller chama um service direto; a dependência é sempre use-case para service, nunca o contrário. *(Decidido em 2026-10-24.)*
-- `providers/` (`*.provider.ts` ou o nome da peça): detalhe técnico trocável atrás de uma `abstract class`, para o teste usar um fake: aleatoriedade, hash, API de terceiros (`TokenGenerator`, `InviteCodeGenerator`, `IceProvider`).
+- `providers/`: detalhe técnico trocável atrás de uma `abstract class`, para o teste usar um fake: aleatoriedade, hash, API de terceiros (`TokenGenerator`, `InviteCodeGenerator`, `IceProvider`, `SfuProvider`). Organizado primeiro pelo recurso e depois pela implementação *(decidido em 2026-10-27)*:
+  - `providers/<recurso>/<recurso>.provider.ts`: o contrato (`abstract class`) e os tipos dele;
+  - `providers/<recurso>/<implementação>/<implementação>.<recurso>.provider.ts`: cada implementação na própria pasta, com o spec e os arquivos só dela (por exemplo `cloudflare-sfu.schemas.ts`). Exemplos: `ice/providers/ice/cloudflare/`, `media/providers/sfu/not-configured/`, `storage/providers/storage/s3/`, `realtime/providers/timers/node/`;
+  - fakes de teste continuam em `test/` do módulo.
 - `domain/`: tipos, constantes e regras puras, sem I/O (`ServerPermissions`, `serverInviteStatus`).
 
 **Contrato compartilhado.** `packages/contracts` é a fonte da verdade dos formatos: schemas zod de DTOs, payloads de eventos e os tipos `ClientToServerEvents` e `ServerToClientEvents`. Compilado com `tsc` para `dist/` em ESM com `.d.ts` **(suposição)**. A API, em CommonJS no Nest 11, consome via `require(esm)` do Node 24. O web consome direto.

@@ -1,6 +1,6 @@
 import type { Participant, PresenceSnapshot } from '@gameplay/contracts'
 
-const participantAna: Participant = { userId: 'u1', muted: false, deafened: false, streaming: null }
+const participantAna: Participant = { userId: 'u1', muted: false, deafened: false, streaming: null, streamMode: null }
 
 const snapshotS1: PresenceSnapshot = {
   serverId: 's1',

@@ -21,20 +21,22 @@ import {
   RoomJoinResultDto,
   ServerSubscribeDto,
   SignalSendDto,
+  MediaUsageDto,
   StreamQualityDto,
   StreamStartDto,
   StreamTargetDto,
   VoiceStateDto,
 } from '../dtos/realtime.dto'
 import { RealtimeMetricsInterceptor } from '../interceptors/realtime-metrics.interceptor'
-import { SocketIoRealtimeEmitter } from '../providers/realtime-emitter'
-import { RealtimeMetrics } from '../providers/realtime-metrics'
-import { SocketSessionResolver } from '../providers/socket-session-resolver'
+import { SocketIoRealtimeEmitter } from '../providers/realtime-emitter/socket-io/socket-io.realtime-emitter.provider'
+import { RealtimeMetrics } from '../providers/realtime-metrics/realtime-metrics.provider'
+import { SocketSessionResolver } from '../providers/socket-session-resolver/socket-session-resolver.provider'
 import { ConnectSocketUseCase } from '../use-cases/connect-socket.use-case'
 import { DisconnectSocketUseCase } from '../use-cases/disconnect-socket.use-case'
 import { JoinRoomUseCase } from '../use-cases/join-room.use-case'
 import { LeaveRoomUseCase } from '../use-cases/leave-room.use-case'
 import { RelayToPeerUseCase } from '../use-cases/relay-to-peer.use-case'
+import { ReportMediaUsageUseCase } from '../use-cases/report-media-usage.use-case'
 import { SubscribeToServerUseCase } from '../use-cases/subscribe-to-server.use-case'
 import { UpdateVoiceStateUseCase } from '../use-cases/update-voice-state.use-case'
 
@@ -62,6 +64,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     private readonly leaveRoom: LeaveRoomUseCase,
     private readonly updateVoiceState: UpdateVoiceStateUseCase,
     private readonly relayToPeer: RelayToPeerUseCase,
+    private readonly reportMediaUsage: ReportMediaUsageUseCase,
   ) {}
 
   // The handshake is the gate: a socket without a session never connects,
@@ -178,14 +181,14 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   @SubscribeMessage(REALTIME_EVENTS.streamStart)
   @AsyncApiReceive({
     channel: REALTIME_EVENTS.streamStart,
-    summary: 'Started sharing the screen with this preset (also to change the preset)',
+    summary: 'Started sharing the screen with this preset and mode (also to change them)',
     message: { name: 'StreamStart', payload: StreamStartDto },
   })
   async streamStart(
     @ConnectedSocket() socket: RealtimeSocket,
-    @MessageBody() { preset }: StreamStartDto,
+    @MessageBody() { preset, mode }: StreamStartDto,
   ): Promise<AckResponse> {
-    await this.updateVoiceState.execute({ ...this.who(socket), streaming: preset })
+    await this.updateVoiceState.execute({ ...this.who(socket), streaming: preset, streamMode: mode })
     return OK
   }
 
@@ -239,6 +242,20 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @MessageBody() { streamerId, level }: StreamQualityDto,
   ): Promise<AckResponse> {
     await this.relayToPeer.execute({ ...this.who(socket), message: { type: 'quality', streamerId, level } })
+    return OK
+  }
+
+  @SubscribeMessage(REALTIME_EVENTS.mediaUsage)
+  @AsyncApiReceive({
+    channel: REALTIME_EVENTS.mediaUsage,
+    summary: 'Watching through the SFU: bytes received since the last report and the quality that arrives',
+    message: { name: 'MediaUsage', payload: MediaUsageDto },
+  })
+  async mediaUsage(
+    @ConnectedSocket() socket: RealtimeSocket,
+    @MessageBody() { streamerId, bytes, quality }: MediaUsageDto,
+  ): Promise<AckResponse> {
+    await this.reportMediaUsage.execute({ ...this.who(socket), streamerId, bytes, quality })
     return OK
   }
 

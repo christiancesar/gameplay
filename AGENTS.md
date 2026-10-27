@@ -15,7 +15,9 @@ Planning docs are in Portuguese, in `plans/`. Write code, comments and commits i
 
 ## Git
 
-- Never commit or push straight to `main`. Work on a branch (`feature/...`, `fix/...`, `docs/...`) and open a PR into `main`.
+- Two long-lived branches: `dev` (integration) and `main` (release). Never commit or push straight to either.
+- Every branch (`feature/...`, `fix/...`, `chore/...`, `docs/...`) starts from an up-to-date `dev` and goes back through a PR into `dev`.
+- `main` only receives PRs from `dev`, when the user decides to release.
 - Commit at every green step (typecheck, lint and tests passing), not one big commit at the end.
 - Conventional commit messages (`feat(web): ...`, `fix(api): ...`, `docs(plans): ...`).
 

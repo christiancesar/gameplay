@@ -1,8 +1,14 @@
 import { RoomNotFoundError } from '../../servers/errors/servers.errors'
-import { NotInRoomError, NotStreamingError, PeerNotInRoomError } from '../errors/realtime.errors'
+import {
+  NotInRoomError,
+  NotStreamingError,
+  PeerNotInRoomError,
+  ScreenNotPublishedError,
+  StreamModeDisabledError,
+} from '../errors/realtime.errors'
 import { makeRealtimeContext } from '../test/realtime-context'
 
-const idle = (userId: string) => ({ userId, muted: false, deafened: false, streaming: null })
+const idle = (userId: string) => ({ userId, muted: false, deafened: false, streaming: null, streamMode: null })
 
 describe('voice room use-cases', () => {
   describe('joining', () => {
@@ -136,14 +142,147 @@ describe('voice room use-cases', () => {
     await join('ana', 'r1')
 
     await updateVoiceState.execute({ userId: 'ana', socketId: 'ana-tab', muted: true, deafened: false })
-    await updateVoiceState.execute({ userId: 'ana', socketId: 'ana-tab', streaming: '1080p30' })
+    await updateVoiceState.execute({ userId: 'ana', socketId: 'ana-tab', streaming: '1080p30', streamMode: 'mesh' })
 
     expect(emitter.of('room:participants').at(-1)?.participants).toEqual([
-      { ...idle('ana'), muted: true, streaming: '1080p30' },
+      { ...idle('ana'), muted: true, streaming: '1080p30', streamMode: 'mesh' },
     ])
     await expect(
       updateVoiceState.execute({ userId: 'ana', socketId: 'other', streaming: null }),
     ).rejects.toBeInstanceOf(NotInRoomError)
+  })
+
+  describe('screen share through the SFU', () => {
+    const video = { mid: '0', kind: 'video' as const, trackName: 'screen-video-0' }
+    const sfuSession = (sessionId: string, roomId: string) => ({
+      sessionId,
+      userId: 'ana',
+      serverId: 's1',
+      roomId,
+      published: [],
+      pulled: [],
+    })
+
+    it('needs the screen published to the SFU from the same room', async () => {
+      const { join, updateVoiceState, sfuSessions } = makeRealtimeContext()
+      await join('ana', 'r1')
+      const start = () =>
+        updateVoiceState.execute({ userId: 'ana', socketId: 'ana-tab', streaming: '1080p60', streamMode: 'sfu' })
+
+      await expect(start()).rejects.toBeInstanceOf(ScreenNotPublishedError)
+
+      await sfuSessions.add(sfuSession('other-room', 'r2'))
+      await sfuSessions.addPublished('other-room', [video])
+      await expect(start()).rejects.toBeInstanceOf(ScreenNotPublishedError)
+
+      await sfuSessions.add(sfuSession('here', 'r1'))
+      await sfuSessions.addPublished('here', [video])
+      await expect(start()).resolves.toBeUndefined()
+    })
+
+    it('tells the media module when the share changes and when the person leaves', async () => {
+      const { join, updateVoiceState, leaveRoom, events } = makeRealtimeContext()
+      await join('ana', 'r1')
+
+      await updateVoiceState.execute({ userId: 'ana', socketId: 'ana-tab', streaming: '720p30', streamMode: 'mesh' })
+      await updateVoiceState.execute({ userId: 'ana', socketId: 'ana-tab', streaming: null })
+      await join('ana', 'r2')
+      await leaveRoom.execute({ userId: 'ana', socketId: 'ana-tab' })
+
+      expect(events.published).toEqual([
+        { name: 'stream.changed', payload: { userId: 'ana', roomId: 'r1', mode: 'mesh' } },
+        { name: 'stream.changed', payload: { userId: 'ana', roomId: 'r1', mode: null } },
+        { name: 'voice.left-room', payload: { userId: 'ana', roomId: 'r1' } },
+        { name: 'voice.left-room', payload: { userId: 'ana', roomId: 'r2' } },
+      ])
+    })
+  })
+
+  describe('media resources turned off', () => {
+    it('refuses a share in a mode the server has off', async () => {
+      const { join, updateVoiceState, mediaSettings } = makeRealtimeContext()
+      await join('ana', 'r1')
+      mediaSettings.addServer('s1')
+      await mediaSettings.setServer('s1', { sfu: null, mesh: false, turn: null })
+
+      await expect(
+        updateVoiceState.execute({ userId: 'ana', socketId: 'ana-tab', streaming: '720p30', streamMode: 'mesh' }),
+      ).rejects.toBeInstanceOf(StreamModeDisabledError)
+    })
+
+    it('stops the shares in a mode that went off and tells everyone to refetch', async () => {
+      const { join, updateVoiceState, mediaSettings, applyMediaChange, emitter, events } = makeRealtimeContext()
+      await join('ana', 'r1')
+      await join('bia', 'r1')
+      await join('caio', 'r2')
+      await updateVoiceState.execute({ userId: 'bia', socketId: 'bia-tab', streaming: '720p30', streamMode: 'mesh' })
+      await updateVoiceState.execute({ userId: 'caio', socketId: 'caio-tab', streaming: '720p30', streamMode: 'mesh' })
+      // r2 is in s1 too; caio keeps mesh only if the server overrides it, so turn it off globally.
+      await mediaSettings.setGlobal({ sfu: true, mesh: false, turn: false })
+      emitter.emitted.length = 0
+      events.published.length = 0
+
+      await applyMediaChange.execute({ serverId: null, disabled: ['mesh', 'turn'], turnCutUserIds: ['ana', 'bia'] })
+
+      expect(emitter.of('stream:ended')).toEqual([
+        { event: 'stream:ended', socketId: 'bia-tab', ended: { reason: 'disabled' } },
+        { event: 'stream:ended', socketId: 'caio-tab', ended: { reason: 'disabled' } },
+      ])
+      expect(events.published.map((e) => e.name)).toEqual(['stream.changed', 'stream.changed'])
+      expect(emitter.of('room:participants').at(-1)?.participants).toEqual([idle('caio')])
+      expect(emitter.of('media:changed')).toEqual([
+        { event: 'media:changed', to: 'everyone', change: { serverId: null, turnOff: false } },
+        { event: 'media:changed', to: { userIds: ['ana', 'bia'] }, change: { serverId: null, turnOff: true } },
+      ])
+    })
+
+    it('keeps the shares of a server that overrides the global setting', async () => {
+      const { join, updateVoiceState, mediaSettings, applyMediaChange, emitter } = makeRealtimeContext()
+      await join('bia', 'r1')
+      await updateVoiceState.execute({ userId: 'bia', socketId: 'bia-tab', streaming: '720p30', streamMode: 'mesh' })
+      mediaSettings.addServer('s1')
+      await mediaSettings.setServer('s1', { sfu: null, mesh: true, turn: null })
+      await mediaSettings.setGlobal({ sfu: true, mesh: false, turn: true })
+
+      await applyMediaChange.execute({ serverId: null, disabled: ['mesh'], turnCutUserIds: [] })
+
+      expect(emitter.of('stream:ended')).toEqual([])
+    })
+  })
+
+  describe('usage reports from viewers', () => {
+    const quality = { width: 1280, height: 720, fps: 30, kbps: 2500 }
+
+    it('relays the quality to the streamer and counts the bytes, through the SFU only', async () => {
+      const { join, store, reportUsage, emitter, events } = makeRealtimeContext()
+      await join('ana', 'r1')
+      await join('bia', 'r1')
+      await store.update('ana', 'ana-tab', { streaming: '720p30', streamMode: 'sfu' })
+      emitter.emitted.length = 0
+
+      await reportUsage.execute({ userId: 'bia', socketId: 'bia-tab', streamerId: 'ana', bytes: 1000, quality })
+
+      expect(emitter.emitted).toEqual([
+        { event: 'stream:received', socketId: 'ana-tab', received: { viewerId: 'bia', quality } },
+      ])
+      expect(events.published).toContainEqual({ name: 'media.usage-reported', payload: { userId: 'bia', bytes: 1000 } })
+
+      await store.update('ana', 'ana-tab', { streaming: '720p30', streamMode: 'mesh' })
+      await expect(
+        reportUsage.execute({ userId: 'bia', socketId: 'bia-tab', streamerId: 'ana', bytes: 1000, quality }),
+      ).rejects.toBeInstanceOf(NotStreamingError)
+    })
+
+    it('only from someone in the same room', async () => {
+      const { join, store, reportUsage } = makeRealtimeContext()
+      await join('ana', 'r1')
+      await join('caio', 'r2')
+      await store.update('ana', 'ana-tab', { streaming: '720p30', streamMode: 'sfu' })
+
+      await expect(
+        reportUsage.execute({ userId: 'caio', socketId: 'caio-tab', streamerId: 'ana', bytes: 1, quality: null }),
+      ).rejects.toBeInstanceOf(PeerNotInRoomError)
+    })
   })
 
   describe('relaying', () => {

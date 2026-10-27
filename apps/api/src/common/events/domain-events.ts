@@ -1,3 +1,5 @@
+import type { Announcement, MediaResource, StreamMode } from '@gameplay/contracts'
+
 // Map of every domain event (name -> payload). Each feature adds its own
 // events here; publishing an event that is not listed is a type error.
 export interface DomainEvents {
@@ -25,8 +27,21 @@ export interface DomainEvents {
   'user.sessions-revoked': { userId: string }
   // One session ended; the gateway closes the sockets of that session only.
   'user.session-revoked': { userId: string; sessionId: string }
-  // A Hub notification was stored; the gateway tells the user's tabs.
-  'notification.created': { userId: string; notificationId: string }
+  // A Hub notification was stored; the gateway tells the user's tabs. A
+  // platform announcement comes along so they can show it right away.
+  'notification.created': { userId: string; notificationId: string; announcement?: Announcement }
+  // Published by the realtime gateway once the person's seat is out of the
+  // room (left, moved, removed or expired); the media module closes their
+  // SFU tracks there.
+  'voice.left-room': { userId: string; roomId: string }
+  // Screen share started, changed or stopped (mode null).
+  'stream.changed': { userId: string; roomId: string; mode: StreamMode | null }
+  // The platform admin changed the media resources of a server, or of the
+  // platform (serverId null). disabled lists what went off somewhere;
+  // turnCutUserIds are the people in voice rooms who lost the TURN relay.
+  'media.changed': { serverId: string | null; disabled: MediaResource[]; turnCutUserIds: string[] }
+  // A viewer received this many bytes from the SFU since their last report.
+  'media.usage-reported': { userId: string; bytes: number }
 }
 
 export type DomainEventName = Extract<keyof DomainEvents, string>

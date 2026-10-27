@@ -1,4 +1,4 @@
-import { TokenHasher } from '../providers/token-hasher'
+import { TokenHasher } from '../providers/token-hasher/token-hasher.provider'
 
 // "hmac:<key>", so tests can tell the stored value from the key.
 export class FakeTokenHasher extends TokenHasher {

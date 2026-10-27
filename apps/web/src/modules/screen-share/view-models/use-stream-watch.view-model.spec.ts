@@ -58,6 +58,13 @@ describe('useStreamWatchViewModel', () => {
     expect(fakeShareController.setStreamVolume).toHaveBeenCalledWith(35)
   })
 
+  it('hands over the quality I asked for and sends a new one to the session', () => {
+    const { result } = renderHook(() => useStreamWatchViewModel())
+    expect(result.current.level).toBe('auto')
+    act(() => result.current.onLevelChange('medium'))
+    expect(fakeShareController.setStreamQuality).toHaveBeenCalledWith('medium')
+  })
+
   it('goes immersive when asked, with real fullscreen where the browser has it, and back', () => {
     const { result } = renderHook(() => useStreamWatchViewModel())
     expect(result.current.immersive).toBe(false)

@@ -1,5 +1,5 @@
 import { makeLimitsContext } from '../../limits/test/limits-context'
-import { InMemoryStorageProvider } from '../../storage/drivers/in-memory-storage.provider'
+import { InMemoryStorageProvider } from '../../storage/providers/storage/in-memory/in-memory.storage.provider'
 import type { AdminServerRecord } from '../domain/admin-records'
 import { AdminServerViewsService } from './admin-server-views.service'
 

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { REGISTRATION_INVITE_SUFFIX_LENGTH, type RegistrationInviteValidity } from '@gameplay/contracts'
 import type { RegistrationInviteRecord } from '../domain/registration-invite'
-import { TokenGenerator } from '../providers/token-generator'
-import { TokenHasher } from '../providers/token-hasher'
+import { TokenGenerator } from '../providers/token-generator/token-generator.provider'
+import { TokenHasher } from '../providers/token-hasher/token-hasher.provider'
 import { RegistrationInvitesRepository } from '../repositories/registration-invites.repository'
 
 const DAY_MS = 24 * 60 * 60 * 1000

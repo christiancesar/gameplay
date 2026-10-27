@@ -11,3 +11,6 @@ export const SEED_SERVER: ServerRecord = {
   ownerId: 'ana',
   createdAt: new Date(0),
 }
+
+// Accounts that exist, for the platform announcements.
+export const SEED_USER_IDS = ['ana', 'bia', 'caio']

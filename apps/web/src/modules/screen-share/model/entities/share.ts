@@ -1,3 +1,5 @@
+import type { StreamMode } from '@gameplay/contracts'
+
 const SHARE_SOURCES = ['screen', 'window', 'tab'] as const
 /** Kind of surface; becomes the `displaySurface` hint. The exact choice happens in the browser's picker. */
 type ShareSource = (typeof SHARE_SOURCES)[number]
@@ -16,8 +18,12 @@ type SharePriority = 'smooth' | 'sharp'
 
 type ShareStatus = 'idle' | 'picking' | 'live'
 
-/** Why a share did not start, for a toast. `no-audio`: it started, but the browser gave no audio. */
-type ShareNotice = 'unsupported' | 'failed' | 'start-failed' | 'not-in-call' | 'no-audio'
+/**
+ * Why a share did not start or changed, for a toast. `no-audio`: it started, but the browser gave no audio.
+ * `fell-back`: the SFU failed and the share went Direct (Mesh). `disabled`: the platform admin turned the
+ * mode off and the API stopped the share.
+ */
+type ShareNotice = 'unsupported' | 'failed' | 'start-failed' | 'not-in-call' | 'no-audio' | 'fell-back' | 'disabled'
 
 /**
  * The audio of the running share. `off`: not asked. `missing`: asked, the browser gave none.
@@ -47,6 +53,10 @@ type ShareSnapshot = {
   /** The running capture; null unless live. */
   preview: SharePreview | null
   audio: ShareAudio
+  /** How the running share reaches the viewers; null unless live. */
+  mode: StreamMode | null
+  /** What goes up to the SFU (its largest layer); null in Mesh, or until two samples. */
+  uplink: ViewerStat | null
   notice: ShareNotice | null
 }
 
@@ -72,6 +82,8 @@ const idleShare: ShareSnapshot = {
   source: null,
   preview: null,
   audio: 'off',
+  mode: null,
+  uplink: null,
   notice: null,
 }
 

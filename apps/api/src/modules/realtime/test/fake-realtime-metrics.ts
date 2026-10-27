@@ -1,4 +1,4 @@
-import { type HandlerOutcome, RealtimeMetrics } from '../providers/realtime-metrics'
+import { type HandlerOutcome, RealtimeMetrics } from '../providers/realtime-metrics/realtime-metrics.provider'
 
 // Records each call, in order.
 export class FakeRealtimeMetrics extends RealtimeMetrics {

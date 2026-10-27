@@ -164,7 +164,7 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 - No web, um `SfuTransport` só para a tela. A voz continua no `MeshTransport`.
 - Quem transmite publica com simulcast (por exemplo 1080p60, 720p30, 360p15); cada espectador assina e recebe a camada da sua rede.
 - Orçamento mensal de GB no módulo `limits`, abaixo da franquia; ao chegar no limite, transmissões novas voltam para mesh.
-- Decisões ainda em aberto no `media-transport-options.md`, seção 6: modo automático ou sempre SFU, limite de espectadores para trocar, e o seletor de qualidade do espectador.
+- Desenho fechado em 2026-10-27 (`media-transport-options.md`, seção 7): SFU por padrão, mesh como opção ao compartilhar, sem modo automático.
 
 ## 11. Riscos
 
@@ -184,8 +184,10 @@ O desenho detalhado já está em `plans/media-transport-options.md`; aqui ele de
 | INF-04 | ~~Web no Workers, CORS e cookies entre web e API~~. Cancelado em 2026-10-27: web no Lightsail, mesma origem da API |
 | INF-05 | Script de deploy desta máquina (API e web juntos), e imagens da API e da migração otimizadas |
 | SFU-01 | Módulo `media` na API: sessões e tracks do Cloudflare Realtime SFU |
-| SFU-02 | `SfuTransport` no web com simulcast, troca de camada pelo espectador |
-| SFU-03 | Orçamento mensal no `limits` e troca entre mesh e SFU |
+| SFU-02 | Transmissão pelo SFU no web com simulcast, mesh como opção no diálogo |
+| SFU-03 | Orçamento mensal no `limits` e qualidade escolhida por quem assiste |
+| SFU-04 | Aba Mídia no admin: SFU, Mesh e TURN globais e por servidor |
+| SFU-05 | Aviso da plataforma para os usuários |
 | DESK-01 | Estudo do app desktop em Electron (captura de áudio por processo) |
 
 ## 13. Antes de assinar, conferir na página oficial

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ServersRepository } from '../../servers/repositories/servers.repository'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
-import { Timers } from '../providers/timers'
+import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
+import { Timers } from '../providers/timers/timers.provider'
 import { VoiceRoomsConfig, VoiceRoomsService } from '../services/voice-rooms.service'
 import { PresenceStore } from '../stores/presence.store'
 import { RoomStateStore } from '../stores/room-state.store'
@@ -45,7 +45,7 @@ export class DisconnectSocketUseCase {
     const seat = await this.store.remove(userId, null)
     if (!seat) return
     this.logger.log({ userId, roomId: seat.roomId }, 'Voice seat expired without a reconnection')
-    this.voice.released(seat, null)
+    await this.voice.released(seat, null)
     await this.voice.announce(seat.serverId, seat.roomId)
   }
 }

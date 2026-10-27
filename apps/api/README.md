@@ -5,7 +5,7 @@ Backend do Gameplay: NestJS 11 com Express, Prisma 7 e Postgres.
 ## Rodando local
 
 ```bash
-# na raiz do repo: Postgres (cria também o banco gameplay_test) e o mock de S3 dos testes
+# na raiz do repo: Postgres (cria também o banco gameplay_test)
 docker compose -f infra/docker-compose.dev.yml up -d --wait postgres
 
 # em apps/api

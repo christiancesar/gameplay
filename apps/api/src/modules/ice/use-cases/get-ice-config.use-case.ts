@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { IceProvider, type IssuedIce } from '../ice.provider'
-import { StunOnlyIceProvider } from '../providers/stun-only.ice-provider'
+import { EffectiveMediaService } from '../../limits/services/effective-media.service'
+import { MediaSettingsRepository } from '../../limits/repositories/media-settings.repository'
+import { IceProvider, type IssuedIce } from '../providers/ice/ice.provider'
+import { StunOnlyIceProvider } from '../providers/ice/stun-only/stun-only.ice.provider'
 
 type Cached = { issued: IssuedIce; expiresAt: number }
 
@@ -9,6 +11,8 @@ const FALLBACK_TTL_SECONDS = 60
 
 // ICE servers for a user. Credentials are reused while more than half of
 // their lifetime is left, so entering rooms doesn't call Cloudflare each time.
+// Where the platform admin turned TURN off (for the server of the room, or
+// for the platform when no server is given) only STUN is handed out.
 @Injectable()
 export class GetIceConfigUseCase {
   private readonly logger = new Logger(GetIceConfigUseCase.name)
@@ -17,9 +21,13 @@ export class GetIceConfigUseCase {
   constructor(
     private readonly provider: IceProvider,
     private readonly fallback: StunOnlyIceProvider,
+    private readonly media: EffectiveMediaService,
+    private readonly mediaSettings: MediaSettingsRepository,
   ) {}
 
-  async execute(userId: string): Promise<IssuedIce> {
+  async execute(userId: string, serverId?: string): Promise<IssuedIce> {
+    if (!(await this.turnOn(serverId))) return this.fallback.issue()
+
     const now = Date.now()
     const cached = this.cache.get(userId)
     if (cached && cached.expiresAt - now > (cached.issued.ttlSeconds * 1000) / 2) {
@@ -38,6 +46,24 @@ export class GetIceConfigUseCase {
       this.cache.set(userId, { issued, expiresAt: now + issued.ttlSeconds * 1000 })
     }
     return issued
+  }
+
+  // The relay went off for these people: their credentials stop working now.
+  async revokeFor(userIds: string[]): Promise<void> {
+    for (const userId of userIds) {
+      const cached = this.cache.get(userId)
+      if (!cached) continue
+      this.cache.delete(userId)
+      try {
+        await this.provider.revoke(cached.issued)
+      } catch (error) {
+        this.logger.warn({ err: error, userId }, 'Could not revoke TURN credentials')
+      }
+    }
+  }
+
+  private async turnOn(serverId?: string): Promise<boolean> {
+    return serverId ? this.media.isOn(serverId, 'turn') : (await this.mediaSettings.getGlobal()).turn
   }
 
   private prune(now: number) {

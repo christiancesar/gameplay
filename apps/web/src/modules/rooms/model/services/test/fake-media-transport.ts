@@ -1,7 +1,13 @@
 import type { IceServer } from '@gameplay/contracts'
 import { vi } from 'vitest'
 
-import type { MediaTransport, PeerStatus, StatsRecord, TrackSource } from '@/shared/media/media-transport'
+import type {
+  MediaTransport,
+  PeerStatus,
+  StatsRecord,
+  TrackSource,
+  VideoEncoding,
+} from '@/shared/media/media-transport'
 
 class FakeMediaTransport implements MediaTransport {
   readonly peers = new Set<string>()
@@ -11,7 +17,9 @@ class FakeMediaTransport implements MediaTransport {
   readonly setVoiceTrack = vi.fn(async () => undefined)
   readonly addTrack = vi.fn()
   readonly removeTrack = vi.fn()
-  readonly setVideoEncoding = vi.fn(async () => undefined)
+  readonly setVideoEncoding = vi.fn(
+    async (_peerId: string, _track: MediaStreamTrack, _encoding: VideoEncoding) => undefined,
+  )
   /** What `getSenderStats` answers, per `peerId`. */
   stats: Record<string, StatsRecord[]> = {}
   readonly getSenderStats = vi.fn(async (peerId: string) => this.stats[peerId] ?? [])

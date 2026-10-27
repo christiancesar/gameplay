@@ -1,4 +1,4 @@
-import { TokenGenerator } from '../providers/token-generator'
+import { TokenGenerator } from '../providers/token-generator/token-generator.provider'
 
 // Hands out the given keys in order.
 export class FakeTokenGenerator extends TokenGenerator {

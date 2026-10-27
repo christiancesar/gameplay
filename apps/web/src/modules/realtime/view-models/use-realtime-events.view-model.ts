@@ -8,6 +8,7 @@ import { notificationsKeys } from '@/modules/notifications/model/services/notifi
 import { findServerName, removalNoticeKey } from '@/modules/realtime/model/mappers/server-removed.mapper'
 import { isOnServerPath } from '@/modules/realtime/model/rules/server-path'
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
+import { serverMediaKeys } from '@/modules/screen-share/model/services/server-media.query'
 import { serversKeys } from '@/modules/servers/model/services/servers.keys'
 
 /**
@@ -53,8 +54,15 @@ function useRealtimeEventsViewModel() {
         await navigate({ to: '/sign-in', replace: true })
       }),
 
-      realtime.on('notification:new', () => {
+      // The platform admin changed SFU, Mesh or TURN: what the share dialog offers comes again.
+      realtime.on('media:changed', () => {
+        void queryClient.invalidateQueries({ queryKey: serverMediaKeys.all })
+      }),
+
+      realtime.on('notification:new', ({ announcement }) => {
         void queryClient.invalidateQueries({ queryKey: notificationsKeys.all })
+        // A platform announcement shows up wherever the person is; it also stays on the Hub.
+        if (announcement) toast.info(announcement.title, { description: announcement.message })
       }),
     ]
     return () => stops.forEach((stop) => stop())

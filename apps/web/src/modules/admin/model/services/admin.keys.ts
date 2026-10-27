@@ -15,6 +15,9 @@ const adminKeys = {
   hardwareSummary: () => [...adminKeys.all, 'hardware-summary'] as const,
   settings: () => [...adminKeys.all, 'settings'] as const,
   registrationInvites: () => [...adminKeys.all, 'registration-invites'] as const,
+  media: () => [...adminKeys.all, 'media'] as const,
+  mediaImpact: (serverId: string | null) => [...adminKeys.all, 'media-impact', serverId] as const,
+  serverMedia: (serverId: string) => [...adminKeys.all, 'server-media', serverId] as const,
 }
 
 export { adminKeys }

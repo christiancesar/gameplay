@@ -84,7 +84,7 @@ describe('useServerScreenViewModel', () => {
         rooms: [
           {
             roomId: 'r1',
-            participants: [{ userId: 'u2', muted: true, deafened: false, streaming: null }],
+            participants: [{ userId: 'u2', muted: true, deafened: false, streaming: null, streamMode: null }],
           },
         ],
       }),
@@ -276,8 +276,8 @@ describe('useServerScreenViewModel', () => {
           connection: { serverId: 's1', roomId: 'r2' },
           micDenied: true,
           participants: [
-            { userId: 'u1', muted: false, deafened: false, streaming: null },
-            { userId: 'u2', muted: true, deafened: false, streaming: null },
+            { userId: 'u1', muted: false, deafened: false, streaming: null, streamMode: null },
+            { userId: 'u2', muted: true, deafened: false, streaming: null, streamMode: null },
           ],
           peers: { u2: 'connected' },
           speaking: { u2: true },
@@ -320,7 +320,7 @@ describe('useServerScreenViewModel', () => {
           rooms: [
             {
               roomId: 'r1',
-              participants: [{ userId: 'u2', muted: false, deafened: false, streaming: null }],
+              participants: [{ userId: 'u2', muted: false, deafened: false, streaming: null, streamMode: null }],
             },
           ],
         })
@@ -336,9 +336,21 @@ describe('useServerScreenViewModel', () => {
         connection: { serverId: 's1', roomId: 'r2' },
         status: 'connected',
         participants: [
-          { userId: 'u1', muted: false, deafened: false, streaming: null },
-          { userId: 'u2', muted: false, deafened: false, streaming: streaming ? '1080p60' : null },
-          { userId: 'u4', muted: false, deafened: false, streaming: streaming ? '720p30' : null },
+          { userId: 'u1', muted: false, deafened: false, streaming: null, streamMode: null },
+          {
+            userId: 'u2',
+            muted: false,
+            deafened: false,
+            streaming: streaming ? '1080p60' : null,
+            streamMode: streaming ? 'mesh' : null,
+          },
+          {
+            userId: 'u4',
+            muted: false,
+            deafened: false,
+            streaming: streaming ? '720p30' : null,
+            streamMode: streaming ? 'mesh' : null,
+          },
         ],
       })
     const session = { user: { id: 'u1', name: 'Turbex', email: 't@x.io', image: null } }

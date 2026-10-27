@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { ImageProcessor, imageKey } from '../../storage/images/image-processor'
-import { StorageProvider } from '../../storage/storage.provider'
+import { StorageProvider } from '../../storage/providers/storage/storage.provider'
 import { ServersRepository } from '../repositories/servers.repository'
 import { ServerAccessService } from '../services/server-access.service'
 import { SERVER_IMAGES, type ServerImageKind } from '../domain/server-images'
