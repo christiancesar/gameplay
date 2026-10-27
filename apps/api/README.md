@@ -5,8 +5,8 @@ Backend do Gameplay: NestJS 11 com Express, Prisma 7 e Postgres.
 ## Rodando local
 
 ```bash
-# na raiz do repo: Postgres (cria também o banco gameplay_test) e o mock de S3 dos testes
-docker compose -f infra/docker-compose.dev.yml up -d --wait postgres s3mock
+# na raiz do repo: Postgres (cria também o banco gameplay_test)
+docker compose -f infra/docker-compose.dev.yml up -d --wait postgres
 
 # em apps/api
 cp .env.example .env      # só na primeira vez
@@ -31,17 +31,17 @@ Os dois usam o mesmo banco de dev. As migrations ainda não rodam dentro do cont
 
 ## Scripts
 
-| Script                                        | O que faz                                                                                                                                                               |
-| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dev`                                         | sobe a API em modo watch                                                                                                                                                |
-| `build` / `start`                             | compila para `dist/` e roda o build                                                                                                                                     |
-| `typecheck`, `lint`, `format`, `format:check` | checagens                                                                                                                                                               |
-| `test`                                        | testes unitários (`src/**/*.spec.ts`)                                                                                                                                   |
-| `test:e2e`                                    | testes e2e (`test/e2e`) contra o banco `gameplay_test` e o `s3mock` (porta 9090); aplica as migrations antes. Outros endereços: `TEST_DATABASE_URL`, `S3_TEST_ENDPOINT` |
-| `db:generate`                                 | gera o Prisma Client em `src/generated/prisma` (roda também no `postinstall`)                                                                                           |
-| `db:migrate`                                  | cria e aplica migrations em dev                                                                                                                                         |
-| `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                                                                              |
-| `db:studio`                                   | abre o Prisma Studio                                                                                                                                                    |
+| Script                                        | O que faz                                                                                                               |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `dev`                                         | sobe a API em modo watch                                                                                                |
+| `build` / `start`                             | compila para `dist/` e roda o build                                                                                     |
+| `typecheck`, `lint`, `format`, `format:check` | checagens                                                                                                               |
+| `test`                                        | testes unitários (`src/**/*.spec.ts`)                                                                                   |
+| `test:e2e`                                    | testes e2e (`test/e2e`) contra o banco `gameplay_test`; aplica as migrations antes. Outro endereço: `TEST_DATABASE_URL` |
+| `db:generate`                                 | gera o Prisma Client em `src/generated/prisma` (roda também no `postinstall`)                                           |
+| `db:migrate`                                  | cria e aplica migrations em dev                                                                                         |
+| `db:deploy`                                   | aplica migrations pendentes (CI, produção)                                                                              |
+| `db:studio`                                   | abre o Prisma Studio                                                                                                    |
 
 ## Autenticação
 
