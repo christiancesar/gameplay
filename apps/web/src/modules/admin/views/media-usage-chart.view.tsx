@@ -24,7 +24,7 @@ const TICK_FORMAT: Record<UsageBucket, Intl.DateTimeFormatOptions> = {
   day: { day: '2-digit', month: 'short' },
 }
 
-/** SFU (verde) e TURN (âmbar) cobrados pela Cloudflare em cada intervalo do período, empilhados: o topo é o total. */
+/** SFU (verde) e TURN (âmbar) cobrados pela Cloudflare em cada intervalo do período, cada um a partir do zero. */
 function MediaUsageChartView({ points, bucket }: MediaUsageChartViewProps) {
   const { t, i18n } = useTranslation()
   const config = {
@@ -36,7 +36,7 @@ function MediaUsageChartView({ points, bucket }: MediaUsageChartViewProps) {
 
   return (
     <ChartContainer config={config} className="aspect-auto h-56 w-full">
-      <AreaChart data={points} margin={{ left: 12, right: 12 }}>
+      <AreaChart data={points} margin={{ top: 12, left: 12, right: 12 }}>
         <defs>
           {series.map((key) => (
             <linearGradient key={key} id={`fill-${key}`} x1="0" y1="0" x2="0" y2="1">
@@ -82,7 +82,6 @@ function MediaUsageChartView({ points, bucket }: MediaUsageChartViewProps) {
             key={key}
             dataKey={key}
             type="monotone"
-            stackId="egress"
             fill={`url(#fill-${key})`}
             stroke={`var(--color-${key})`}
             isAnimationActive={false}
