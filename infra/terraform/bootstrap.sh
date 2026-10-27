@@ -7,6 +7,7 @@ set -eux
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
+apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold full-upgrade
 apt-get install -y docker.io docker-compose-v2
 systemctl enable --now docker
 usermod -aG docker ubuntu
@@ -21,3 +22,8 @@ if [ ! -f /swapfile ]; then
 fi
 
 install -d -o ubuntu -g ubuntu -m 750 /opt/gameplay
+
+# Load the upgraded kernel. User data runs once per instance, so this does not loop.
+if [ -f /var/run/reboot-required ]; then
+  reboot
+fi
