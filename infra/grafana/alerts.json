@@ -1,0 +1,228 @@
+{
+  "rules": [
+    {
+      "uid": "gameplay-api-silent",
+      "title": "API stopped sending telemetry",
+      "ruleGroup": "gameplay-host",
+      "folderUID": "gameplay",
+      "condition": "C",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "refId": "A",
+            "expr": "count(target_info{deployment_environment_name=\"host\", service_name=\"gameplay-api\"})",
+            "instant": true
+          }
+        },
+        {
+          "refId": "C",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "datasourceUid": "__expr__",
+          "model": {
+            "refId": "C",
+            "type": "threshold",
+            "expression": "A",
+            "conditions": [
+              {
+                "evaluator": {
+                  "type": "lt",
+                  "params": [
+                    1
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "noDataState": "Alerting",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {
+        "app": "gameplay",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "gameplay-api on the host sent no telemetry for 5 minutes",
+        "description": "The API process is down, restarting in a loop, or cannot reach Grafana Cloud. Check `npm run host:logs`."
+      }
+    },
+    {
+      "uid": "gameplay-api-5xx",
+      "title": "API 5xx above 5%",
+      "ruleGroup": "gameplay-host",
+      "folderUID": "gameplay",
+      "condition": "C",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "refId": "A",
+            "expr": "sum(rate(http_server_request_duration_seconds_count{deployment_environment_name=\"host\", service_name=\"gameplay-api\", http_response_status_code=~\"5..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count{deployment_environment_name=\"host\", service_name=\"gameplay-api\"}[5m]))",
+            "instant": true
+          }
+        },
+        {
+          "refId": "C",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "datasourceUid": "__expr__",
+          "model": {
+            "refId": "C",
+            "type": "threshold",
+            "expression": "A",
+            "conditions": [
+              {
+                "evaluator": {
+                  "type": "gt",
+                  "params": [
+                    0.05
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "noDataState": "OK",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {
+        "app": "gameplay",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "More than 5% of API requests fail with a server error",
+        "description": "See the Gameplay \u00b7 API dashboard, panel Errors by route, and the error logs."
+      }
+    },
+    {
+      "uid": "gameplay-api-event-loop",
+      "title": "API event loop stalling",
+      "ruleGroup": "gameplay-host",
+      "folderUID": "gameplay",
+      "condition": "C",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "refId": "A",
+            "expr": "max(nodejs_eventloop_delay_p99_seconds{deployment_environment_name=\"host\", service_name=\"gameplay-api\"})",
+            "instant": true
+          }
+        },
+        {
+          "refId": "C",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "datasourceUid": "__expr__",
+          "model": {
+            "refId": "C",
+            "type": "threshold",
+            "expression": "A",
+            "conditions": [
+              {
+                "evaluator": {
+                  "type": "gt",
+                  "params": [
+                    0.2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "noDataState": "OK",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {
+        "app": "gameplay",
+        "severity": "warning"
+      },
+      "annotations": {
+        "summary": "Event loop p99 above 200 ms for 5 minutes",
+        "description": "Requests and socket events wait in line. Look for slow handlers or heavy image processing."
+      }
+    },
+    {
+      "uid": "gameplay-realtime-drops",
+      "title": "Many dropped sockets",
+      "ruleGroup": "gameplay-host",
+      "folderUID": "gameplay",
+      "condition": "C",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "refId": "A",
+            "expr": "sum(increase(gameplay_realtime_disconnections_total{deployment_environment_name=\"host\", service_name=\"gameplay-api\", socket_io_disconnect_reason=~\"ping timeout|transport close|transport error\"}[5m]))",
+            "instant": true
+          }
+        },
+        {
+          "refId": "C",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "datasourceUid": "__expr__",
+          "model": {
+            "refId": "C",
+            "type": "threshold",
+            "expression": "A",
+            "conditions": [
+              {
+                "evaluator": {
+                  "type": "gt",
+                  "params": [
+                    10
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "noDataState": "OK",
+      "execErrState": "Error",
+      "for": "0s",
+      "labels": {
+        "app": "gameplay",
+        "severity": "warning"
+      },
+      "annotations": {
+        "summary": "More than 10 sockets dropped in 5 minutes",
+        "description": "Network trouble between users and the server (tunnel, ISP). Voice calls may be cutting out."
+      }
+    }
+  ]
+}

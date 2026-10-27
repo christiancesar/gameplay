@@ -9,9 +9,13 @@ import {
   type ShareSettings,
 } from './share-setup-dialog.view'
 
-// Regra de exemplo só para a story; a real fica no Model e considera o sistema operacional.
-const audioSupportFor = (settings: ShareSettings): AudioSupport =>
-  settings.source === 'tab' ? 'supported' : settings.source === 'screen' ? 'windowsOnly' : 'unsupported'
+// Regra de exemplo só para a story (Chrome no Windows, ou no Linux com `tabOnly`); a real fica no Model e considera browser e sistema.
+const audioSupportFor = (settings: ShareSettings, base: AudioSupport): AudioSupport => {
+  if (base === 'browserUnsupported') return base
+  if (settings.source === 'tab') return 'supported'
+  if (settings.source === 'window') return 'windowUnsupported'
+  return base === 'tabOnly' ? 'tabOnly' : 'supported'
+}
 
 const meta = {
   title: 'ScreenShare/ShareSetupDialog',
@@ -20,7 +24,7 @@ const meta = {
     open: true,
     settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true },
     priority: 'smooth',
-    audioSupport: 'unsupported',
+    audioSupport: 'windowUnsupported',
     saveAsDefault: true,
     onOpenChange: fn(),
     onChange: fn(),
@@ -40,7 +44,7 @@ const meta = {
           args.onPriorityChange(next)
           setPriority(next)
         }}
-        audioSupport={audioSupportFor(settings)}
+        audioSupport={audioSupportFor(settings, args.audioSupport)}
         onChange={(next) => {
           args.onChange(next)
           setSettings(next)
@@ -91,9 +95,30 @@ export const SharpPriority: Story = {
   },
 }
 
+/** Janela ou jogo: o browser não captura o áudio de uma janela só. Switch travado, só o microfone vai. */
 export const WindowAudioUnavailable: Story = {
   play: async () => {
     await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
+    await expect(screen.getByRole('switch', { name: /share audio/i })).not.toBeChecked()
+    await waitFor(() => expect(screen.getByText(/only your microphone/i)).toBeVisible())
+  },
+}
+
+/** Tela inteira no Linux: o browser só tem áudio de aba. Switch travado, só o microfone vai. */
+export const ScreenAudioUnavailable: Story = {
+  args: { audioSupport: 'tabOnly', settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true } },
+  play: async () => {
+    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
+    await expect(screen.getByText(/entire screen/i, { selector: 'p' })).toHaveClass('text-amber-500')
+  },
+}
+
+/** Firefox e Safari não capturam áudio de tela. */
+export const BrowserWithoutAudio: Story = {
+  args: { audioSupport: 'browserUnsupported' },
+  play: async () => {
+    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
+    await expect(screen.getByText(/use chrome or edge/i)).toHaveClass('text-amber-500')
   },
 }
 

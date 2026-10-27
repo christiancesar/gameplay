@@ -1,5 +1,8 @@
 type WatchStatus = 'idle' | 'waiting' | 'playing'
 
+/** What reaches me, measured on my side: it can be lower than what the streamer sends. */
+type ReceivedQuality = { width: number; height: number; fps: number; kbps: number }
+
 type WatchSnapshot = {
   /** Who I asked to watch. */
   streamerId: string | null
@@ -9,6 +12,10 @@ type WatchSnapshot = {
   stream: MediaStream | null
   /** Volume of the stream's audio for me, 0 to 100. */
   volume: number
+  /** Null until two measures of the video arrived. */
+  quality: ReceivedQuality | null
+  /** The stream carries audio (the streamer shared it and the browser gave it). */
+  hasAudio: boolean
   failed: boolean
 }
 
@@ -17,7 +24,15 @@ type WatchStateStore = {
   setState(partial: Partial<WatchSnapshot>): void
 }
 
-const idleWatch: WatchSnapshot = { streamerId: null, status: 'idle', stream: null, volume: 100, failed: false }
+const idleWatch: WatchSnapshot = {
+  streamerId: null,
+  status: 'idle',
+  stream: null,
+  volume: 100,
+  quality: null,
+  hasAudio: false,
+  failed: false,
+}
 
 export { idleWatch }
-export type { WatchSnapshot, WatchStateStore, WatchStatus }
+export type { ReceivedQuality, WatchSnapshot, WatchStateStore, WatchStatus }

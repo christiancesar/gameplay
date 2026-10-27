@@ -17,14 +17,16 @@ RUN npm ci --ignore-scripts
 COPY --from=pruner /repo/out/full/ .
 RUN npm run db:generate --workspace api \
   && npx turbo run build --filter=api
-
-# One-shot job for self-hosting (infra/host): the builder stage already has the
-# Prisma CLI and the compiled seed script, the runner image has neither.
-# Built only on request: docker build --target migrator.
-FROM builder AS migrator
-WORKDIR /repo/apps/api
-ENV NODE_ENV=production
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/scripts/seed-admin"]
+# API docs as JSON, next to dist/docs: the generators are dev dependencies the
+# runner doesn't have. The app is created but never started, so placeholder
+# env values are enough.
+RUN cd apps/api && NODE_ENV=production \
+  DATABASE_URL=postgresql://docs@localhost/docs \
+  BETTER_AUTH_URL=http://localhost \
+  BETTER_AUTH_SECRET=docs-export-placeholder-secret-000000 \
+  REGISTRATION_KEY_SECRET=docs-export-placeholder-secret-000000 \
+  DOCS_ENABLED=true \
+  node dist/scripts/export-docs
 
 FROM base AS runner
 ENV NODE_ENV=production

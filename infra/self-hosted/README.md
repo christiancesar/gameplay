@@ -1,6 +1,6 @@
 # Gameplay em casa (self-hosting)
 
-Roda o Gameplay no seu PC Linux e compartilha com amigos pela internet usando um Cloudflare Tunnel. Só o nginx fica atrás do túnel. Postgres e API não têm porta no host.
+Roda o Gameplay no seu PC Linux e compartilha com amigos pela internet usando um Cloudflare Tunnel. Só o nginx fica atrás do túnel. A API não tem porta no host, e o Postgres só tem uma em `127.0.0.1` (padrão 5433, `POSTGRES_HOST_PORT`), usada pelas migrations.
 
 ```
 navegador -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
@@ -11,6 +11,7 @@ O túnel carrega só HTTP e WebSocket. O áudio e a tela vão direto entre os na
 ## Pré-requisitos
 
 - Docker com Compose v2, `openssl` e `curl`.
+- Node e as dependências do repositório (`npm ci` na raiz): as migrations rodam do repositório, com o Prisma CLI, e não de uma imagem.
 - Conta na Cloudflare só para túnel nomeado e para o TURN. O modo rápido não precisa de conta.
 
 ## Início rápido (sem conta)
@@ -21,7 +22,7 @@ Na raiz do repositório:
 npm run host:start
 ```
 
-Na primeira vez o script cria `infra/host/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele sobe o banco e o túnel, lê a URL `https://*.trycloudflare.com` sorteada, builda as imagens, sobe tudo e espera `/api/health` responder pela URL pública. No fim imprime o link para compartilhar.
+Na primeira vez o script cria `infra/self-hosted/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele sobe o banco e o túnel, lê a URL `https://*.trycloudflare.com` sorteada, aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder pela URL pública. No fim imprime o link para compartilhar.
 
 A URL do modo rápido muda a cada reinício. As sessões da URL antiga deixam de valer e os amigos precisam do link novo.
 
@@ -35,12 +36,12 @@ npm run host:stop    # para a stack e o túnel, mantém os dados
 Para apagar tudo, inclusive banco e uploads:
 
 ```bash
-docker compose --project-directory infra/host --profile quick --profile named --profile token down -v
+docker compose --project-directory infra/self-hosted --profile quick --profile named --profile token down -v
 ```
 
 ## Modos de túnel
 
-Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`bash infra/host/start.sh named`).
+Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`bash infra/self-hosted/start.sh named`).
 
 | Modo | Endereço | Precisa de |
 |---|---|---|
@@ -88,7 +89,21 @@ git pull
 npm run host:start
 ```
 
-O script rebuilda as imagens, reaplica as migrations (job `migrate`) e o seed do admin, que é idempotente.
+O script reaplica as migrations a partir do repositório (`prisma migrate deploy` pela porta local do banco), rebuilda as imagens e roda o seed do admin dentro do container da API. O seed é idempotente.
+
+## Documentação da API
+
+A documentação fica pública em `<PUBLIC_URL>/api/docs`: REST, rotas de autenticação e eventos do Socket.IO. Os documentos são gerados no build da imagem. Para esconder, use `DOCS_ENABLED=false` no `.env`.
+
+## Observabilidade (Grafana Cloud)
+
+A API manda traces, métricas e logs por OTLP quando `OTEL_EXPORTER_OTLP_ENDPOINT` está preenchido. Sem ele a telemetria fica desligada.
+
+1. No Grafana Cloud, abra o stack > OpenTelemetry > Configure e gere um token. Copie o endpoint e o header `Authorization=Basic ...`.
+2. No `.env`: `OTEL_EXPORTER_OTLP_ENDPOINT` e `OTEL_EXPORTER_OTLP_HEADERS`. Os mesmos valores do `apps/api/.env` servem.
+3. `npm run host:start` de novo.
+
+No Grafana, os dados deste servidor vêm com `deployment.environment.name=host` (`OTEL_DEPLOYMENT_ENVIRONMENT`), separados do dev.
 
 ## Backup
 
@@ -96,18 +111,18 @@ Os dados ficam em dois volumes: `gameplay-host_postgres-data` e `gameplay-host_u
 
 ```bash
 # banco
-docker compose --project-directory infra/host exec -T postgres pg_dump -U gameplay gameplay > gameplay.sql
+docker compose --project-directory infra/self-hosted exec -T postgres pg_dump -U gameplay gameplay > gameplay.sql
 
 # uploads
 docker run --rm -v gameplay-host_uploads:/data:ro -v "$PWD":/backup alpine tar czf /backup/uploads.tgz -C /data .
 ```
 
-Para restaurar o banco: `docker compose --project-directory infra/host exec -T postgres psql -U gameplay gameplay < gameplay.sql`.
+Para restaurar o banco: `docker compose --project-directory infra/self-hosted exec -T postgres psql -U gameplay gameplay < gameplay.sql`.
 
 ## Segurança
 
 - Só o nginx fica exposto, e apenas em `127.0.0.1:8080` no host. O acesso externo é pelo túnel. Postgres e API não publicam porta.
-- Mantenha o 2FA do admin ligado e guarde o `infra/host/.env` (está no `.gitignore`). Ele tem os segredos, a senha do admin e o token do túnel.
+- Mantenha o 2FA do admin ligado e guarde o `infra/self-hosted/.env` (está no `.gitignore`). Ele tem os segredos, a senha do admin e o token do túnel.
 - Trocar `BETTER_AUTH_SECRET` desloga todo mundo. Trocar `REGISTRATION_KEY_SECRET` invalida as chaves ainda não usadas.
 - O nginx repassa o IP real do cliente (`CF-Connecting-IP`) e a API confia em um único salto.
 - Quando não estiver testando, rode `npm run host:stop`: sem a stack o link público deixa de funcionar.

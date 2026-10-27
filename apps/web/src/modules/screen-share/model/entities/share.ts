@@ -16,8 +16,14 @@ type SharePriority = 'smooth' | 'sharp'
 
 type ShareStatus = 'idle' | 'picking' | 'live'
 
-/** Why a share did not start, for a toast. */
-type ShareNotice = 'unsupported' | 'failed' | 'start-failed' | 'not-in-call'
+/** Why a share did not start, for a toast. `no-audio`: it started, but the browser gave no audio. */
+type ShareNotice = 'unsupported' | 'failed' | 'start-failed' | 'not-in-call' | 'no-audio'
+
+/**
+ * The audio of the running share. `off`: not asked. `missing`: asked, the browser gave none.
+ * `silent` / `active`: there is a track, quiet or with sound right now.
+ */
+type ShareAudio = 'off' | 'missing' | 'silent' | 'active'
 
 /** What one viewer receives, measured on the sender. */
 type ViewerStat = {
@@ -40,6 +46,7 @@ type ShareSnapshot = {
   source: { height: number; fps: number } | null
   /** The running capture; null unless live. */
   preview: SharePreview | null
+  audio: ShareAudio
   notice: ShareNotice | null
 }
 
@@ -64,11 +71,13 @@ const idleShare: ShareSnapshot = {
   stats: {},
   source: null,
   preview: null,
+  audio: 'off',
   notice: null,
 }
 
 export { SHARE_SOURCES, defaultShareSettings, idleShare }
 export type {
+  ShareAudio,
   ShareFps,
   SharePriority,
   ShareNotice,

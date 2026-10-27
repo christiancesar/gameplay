@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common'
+import { metrics } from '@opentelemetry/api'
 import { EnvService } from '../../env/env.service'
 import { ServersModule } from '../servers/servers.module'
 import { RealtimeGateway } from './gateways/realtime.gateway'
 import { DomainEventsListener } from './listeners/domain-events.listener'
+import { RealtimeMetricsInterceptor } from './interceptors/realtime-metrics.interceptor'
 import { RealtimeEmitter, SocketIoRealtimeEmitter } from './providers/realtime-emitter'
+import { OtelRealtimeMetrics, RealtimeMetrics } from './providers/realtime-metrics'
 import { BetterAuthSocketSessionResolver, SocketSessionResolver } from './providers/socket-session-resolver'
 import { NodeTimers, Timers } from './providers/timers'
 import { VoiceRoomsConfig, VoiceRoomsService } from './services/voice-rooms.service'
@@ -35,6 +38,13 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
     { provide: PresenceStore, useClass: InMemoryPresenceStore },
     { provide: RoomStateStore, useClass: InMemoryRoomStateStore },
     { provide: Timers, useClass: NodeTimers },
+    {
+      provide: RealtimeMetrics,
+      inject: [PresenceStore, RoomStateStore],
+      useFactory: (presence: PresenceStore, rooms: RoomStateStore) =>
+        new OtelRealtimeMetrics(metrics.getMeter('gameplay-realtime'), presence, rooms),
+    },
+    RealtimeMetricsInterceptor,
     {
       provide: VoiceRoomsConfig,
       inject: [EnvService],

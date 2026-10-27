@@ -76,7 +76,11 @@ export const liveOnTarget: SharePanelState = {
   isOnTarget: true,
   limitation: 'none',
   viewerCount: 2,
+  audio: 'active',
 }
+
+/** Áudio pedido que o browser não entregou (Firefox, por exemplo). */
+export const liveWithoutAudio: SharePanelState = { ...liveOnTarget, audio: 'missing' }
 
 export const liveLimitedByNetwork: SharePanelState = {
   ...liveOnTarget,
@@ -101,6 +105,7 @@ export const liveNoViewers: SharePanelState = {
   isOnTarget: true,
   limitation: 'none',
   viewerCount: 0,
+  audio: 'off',
 }
 
 export const viewerQualities: ViewerQuality[] = [

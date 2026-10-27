@@ -14,7 +14,7 @@ die() {
   exit 1
 }
 
-for tool in docker openssl curl; do
+for tool in docker openssl curl node npx; do
   command -v "$tool" >/dev/null || die "$tool is required"
 done
 docker compose version >/dev/null 2>&1 || die "docker compose v2 is required"
@@ -63,6 +63,29 @@ discover_quick_url() {
   return 1
 }
 
+REPO_DIR="$(cd "$HOST_DIR/../.." && pwd)"
+
+# Applies the Prisma migrations from the repository, through the database port
+# bound to loopback. Needs `npm ci` at the repository root (the Prisma CLI is a
+# dev dependency of the api).
+migrate_database() {
+  [ -x "$REPO_DIR/node_modules/.bin/prisma" ] || die "the Prisma CLI is missing: run 'npm ci' at the repository root"
+  local password url
+  password="$(node -p 'encodeURIComponent(process.argv[1])' "$(get_var POSTGRES_PASSWORD)")"
+  url="postgresql://gameplay:$password@127.0.0.1:$(get_var POSTGRES_HOST_PORT)/gameplay"
+  (cd "$REPO_DIR/apps/api" && DATABASE_URL="$url" npx prisma migrate deploy) || die "the migrations failed"
+}
+
+# Creates (or promotes) the platform admin inside the running api container,
+# which already has the compiled seed script. Safe to rerun.
+seed_admin() {
+  compose exec -T \
+    -e ADMIN_EMAIL="$(get_var ADMIN_EMAIL)" \
+    -e ADMIN_USERNAME="$(get_var ADMIN_USERNAME)" \
+    -e ADMIN_PASSWORD="$(get_var ADMIN_PASSWORD)" \
+    api node apps/api/dist/scripts/seed-admin || die "the admin seed failed"
+}
+
 wait_for_health() {
   local url="$1" i
   for ((i = 0; i < 90; i++)); do
@@ -75,6 +98,7 @@ wait_for_health() {
 }
 
 ensure_env
+[ -n "$(get_var POSTGRES_HOST_PORT)" ] || set_var POSTGRES_HOST_PORT 5433
 
 MODE="${1:-$(get_var TUNNEL_MODE)}"
 MODE="${MODE:-quick}"
@@ -112,8 +136,27 @@ fi
 PUBLIC_URL="${PUBLIC_URL%/}"
 set_var PUBLIC_URL "$PUBLIC_URL"
 
+# Build inputs that are not plain .env interpolation: the commit names the
+# Sentry release, and the token goes in as a build secret (empty: no upload).
+GAMEPLAY_RELEASE="$(git -C "$HOST_DIR" rev-parse --short HEAD 2>/dev/null || true)"
+SENTRY_AUTH_TOKEN="$(get_var SENTRY_AUTH_TOKEN)"
+# Where nginx forwards the Sentry tunnel: https://KEY@HOST/PROJECT becomes
+# https://HOST/api/PROJECT/envelope/. Empty without a DSN (tunnel answers 404).
+GAMEPLAY_SENTRY_ENVELOPE_URL=""
+SENTRY_DSN="$(get_var VITE_SENTRY_DSN)"
+if [ -n "$SENTRY_DSN" ]; then
+  DSN_HOST="${SENTRY_DSN#*@}"
+  GAMEPLAY_SENTRY_ENVELOPE_URL="https://${DSN_HOST%%/*}/api/${SENTRY_DSN##*/}/envelope/"
+fi
+export GAMEPLAY_RELEASE SENTRY_AUTH_TOKEN GAMEPLAY_SENTRY_ENVELOPE_URL
+
+echo "Applying the database migrations..."
+compose up -d --wait postgres
+migrate_database
+
 echo "Building and starting the stack for $PUBLIC_URL ..."
-compose --profile "$MODE" up -d --build
+compose --profile "$MODE" up -d --build --remove-orphans --wait
+seed_admin
 
 echo "Waiting for $PUBLIC_URL/api/health ..."
 if ! wait_for_health "$PUBLIC_URL"; then

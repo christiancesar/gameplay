@@ -1,13 +1,29 @@
 import type { ShareSource } from '../entities/share'
+import type { CapturePlatform } from './capture-platform'
 
-type AudioSupport = 'supported' | 'windowsOnly' | 'unsupported'
+/**
+ * What the browser can capture as screen audio here.
+ * `supported`: it works. `recentMac`: needs macOS 14.2 or newer. `windowUnsupported`: never the audio of a
+ * single window. `tabOnly`: only a tab has audio on this system. `browserUnsupported`: no screen audio.
+ */
+type AudioSupport = 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
 
-/** Tabs share audio everywhere, the whole screen only on Windows, a single window never. */
-function audioSupportFor(source: ShareSource): AudioSupport {
+/** First Chromium with system audio on macOS. */
+const CHROMIUM_WITH_MAC_AUDIO = 141
+
+function audioSupportFor(source: ShareSource, platform: CapturePlatform): AudioSupport {
+  if (platform.engine !== 'chromium') return 'browserUnsupported'
   if (source === 'tab') return 'supported'
-  if (source === 'screen') return 'windowsOnly'
-  return 'unsupported'
+  if (source === 'window') return 'windowUnsupported'
+  if (platform.os === 'windows' || platform.os === 'chromeos') return 'supported'
+  if (platform.os === 'mac' && platform.chromiumMajor >= CHROMIUM_WITH_MAC_AUDIO) return 'recentMac'
+  return 'tabOnly'
 }
 
-export { audioSupportFor }
+/** Where the browser gives no screen audio the switch is locked: only the microphone goes. */
+function canShareAudio(support: AudioSupport): boolean {
+  return support === 'supported' || support === 'recentMac'
+}
+
+export { CHROMIUM_WITH_MAC_AUDIO, audioSupportFor, canShareAudio }
 export type { AudioSupport }

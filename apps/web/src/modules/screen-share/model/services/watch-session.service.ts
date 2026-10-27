@@ -2,6 +2,7 @@ import type { RealtimeService } from '@/modules/realtime/model/services/realtime
 import type { CallMedia } from '@/shared/media/call-media'
 
 import { idleWatch, type WatchStateStore } from '../entities/watch'
+import { type InboundSample, toInboundSample, toReceivedQuality } from '../mappers/inbound-stats.mapper'
 import { screenAudioKey, toScreenGain } from '../rules/screen-audio'
 
 type WatchRealtime = Pick<RealtimeService, 'watchStream' | 'unwatchStream' | 'on'>
@@ -10,10 +11,17 @@ type WatchSessionDeps = {
   realtime: WatchRealtime
   store: WatchStateStore
   subscribeMedia: (handler: (media: CallMedia | null) => void) => () => void
+  /** How often what reaches me is measured. */
+  pollMs?: number
 }
 
+const POLL_MS = 1000
+
+/** The video being measured: its track, the last sample and the timer. */
+type Measuring = { trackId: string; previous: InboundSample | undefined; timer: ReturnType<typeof setInterval> }
+
 /** Everything tied to the media of one call, released when the call goes. */
-type Bound = { media: CallMedia; stops: (() => void)[]; streamerDown: boolean }
+type Bound = { media: CallMedia; stops: (() => void)[]; streamerDown: boolean; measuring: Measuring | null }
 
 /**
  * Watching one screen at a time (a stream costs the streamer one encode per viewer). Nothing is received
@@ -83,7 +91,7 @@ class WatchSession {
     this.bound = null
     if (!media) return
 
-    const bound: Bound = { media, stops: [], streamerDown: false }
+    const bound: Bound = { media, stops: [], streamerDown: false, measuring: null }
     this.bound = bound
     bound.stops.push(
       media.transport.onRemoteTrack((peerId, track, stream, source) =>
@@ -105,12 +113,36 @@ class WatchSession {
     const { store } = this.deps
     if (source !== 'screen' || store.getState().streamerId !== peerId) return
     if (track.kind === 'video') {
-      store.setState({ stream, status: 'playing' })
+      store.setState({ stream, status: 'playing', quality: null, hasAudio: stream.getAudioTracks().length > 0 })
+      this.measure(bound, peerId, track.id)
       return
     }
+    store.setState({ hasAudio: true })
     const key = screenAudioKey(peerId)
     bound.media.audio.setVolume(key, toScreenGain(store.getState().volume))
     bound.media.audio.addStream(key, stream)
+  }
+
+  /** Reads what reaches me from the stats of the connection with the streamer, once per `pollMs`. */
+  private measure(bound: Bound, streamerId: string, trackId: string) {
+    this.stopMeasuring(bound)
+    const measuring: Measuring = {
+      trackId,
+      previous: undefined,
+      timer: setInterval(async () => {
+        const sample = toInboundSample(await bound.media.transport.getConnectionStats(streamerId), trackId)
+        if (bound.measuring !== measuring || !sample) return
+        const quality = toReceivedQuality(sample, measuring.previous)
+        measuring.previous = sample
+        if (quality) this.deps.store.setState({ quality })
+      }, this.deps.pollMs ?? POLL_MS),
+    }
+    bound.measuring = measuring
+  }
+
+  private stopMeasuring(bound: Bound) {
+    if (bound.measuring) clearInterval(bound.measuring.timer)
+    bound.measuring = null
   }
 
   /** The streamer's connection was rebuilt after a drop: the new one does not carry the video, ask again. */
@@ -134,9 +166,10 @@ class WatchSession {
       if (announce) realtime.unwatchStream(streamerId).catch(() => undefined)
     }
     bound.streamerDown = false
+    this.stopMeasuring(bound)
     store.setState({ ...idleWatch, volume })
   }
 }
 
-export { WatchSession }
+export { POLL_MS, WatchSession }
 export type { WatchRealtime, WatchSessionDeps }

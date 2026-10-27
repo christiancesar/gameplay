@@ -3,6 +3,9 @@
 #
 #   browser -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
 #
+# Migrations run from the repository on this machine (start.sh), against the
+# database port bound to loopback: no image carries the Prisma CLI.
+#
 # Own project name and volumes: never touches infra/docker-compose.dev.yml.
 name: gameplay-host
 
@@ -15,7 +18,8 @@ x-api-env: &api-env
   REGISTRATION_KEY_SECRET: ${REGISTRATION_KEY_SECRET:?set in .env}
   BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:8080}
   WEB_ORIGIN: ${PUBLIC_URL:-http://localhost:8080}
-  DOCS_ENABLED: 'false'
+  # Public API docs at /api/docs (REST, auth and Socket.IO events).
+  DOCS_ENABLED: ${DOCS_ENABLED:-true}
   STORAGE_DRIVER: local
   STORAGE_LOCAL_DIR: /data/uploads
   PUBLIC_UPLOADS_URL: /uploads
@@ -29,42 +33,27 @@ x-api-env: &api-env
   OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
   OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
   OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-gameplay-api}
+  OTEL_DEPLOYMENT_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-host}
 
 services:
   postgres:
-    image: postgres:18-alpine
+    # Same major version as production (Prisma Postgres runs 17).
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: gameplay
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
       POSTGRES_DB: gameplay
-    # No host port. Uncomment to reach it from the host (bound to loopback only):
-    # ports:
-    #   - '127.0.0.1:5433:5432'
+    # Loopback only, for the migrations start.sh runs from the repository.
+    ports:
+      - '127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432'
     volumes:
-      - postgres-data:/var/lib/postgresql
+      - postgres-data-17:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U gameplay -d gameplay']
       interval: 5s
       timeout: 3s
       retries: 10
-
-  # Applies the migrations and creates (or promotes) the platform admin. Safe to rerun.
-  migrate:
-    build:
-      context: ../..
-      dockerfile: apps/api/Dockerfile
-      target: migrator
-    image: gameplay-host-migrate
-    environment:
-      <<: *api-env
-      ADMIN_EMAIL: ${ADMIN_EMAIL:?set in .env}
-      ADMIN_USERNAME: ${ADMIN_USERNAME:?set in .env}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set in .env}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: 'no'
 
   api:
     build:
@@ -78,8 +67,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
 
   web:
     build:
@@ -87,12 +74,28 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        # Same-origin path nginx forwards to Sentry (see nginx.conf).
+        VITE_SENTRY_TUNNEL: /monitoring/sentry
+        # Faro on only with a collector; the browser talks to the nginx tunnel.
+        VITE_FARO_URL: ${FARO_COLLECTOR_URL:+/monitoring/faro}
+        VITE_SENTRY_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-host}
+        # start.sh exports the git commit; Sentry groups errors by it.
+        VITE_SENTRY_RELEASE: ${GAMEPLAY_RELEASE:-}
+        SENTRY_ORG: ${SENTRY_ORG:-}
+        SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+      # Uploads the source maps; a secret, so it never lands in an image layer.
+      secrets:
+        - sentry_auth_token
     image: gameplay-host-web
     restart: unless-stopped
     ports:
       - '127.0.0.1:${WEB_PORT:-8080}:80'
+    environment:
+      NGINX_ENVSUBST_FILTER: '^GAMEPLAY_'
+      GAMEPLAY_SENTRY_ENVELOPE_URL: ${GAMEPLAY_SENTRY_ENVELOPE_URL:-}
+      GAMEPLAY_FARO_COLLECTOR_URL: ${FARO_COLLECTOR_URL:-}
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - uploads:/data/uploads:ro
     depends_on:
       api:
@@ -144,6 +147,12 @@ configs:
           service: http://web:80
         - service: http_status:404
 
+secrets:
+  sentry_auth_token:
+    environment: SENTRY_AUTH_TOKEN
+
 volumes:
-  postgres-data:
+  # Postgres 17 data. The Postgres 18 volume (postgres-data) was left on disk
+  # untouched after its dump was restored here.
+  postgres-data-17:
   uploads:

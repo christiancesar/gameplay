@@ -21,6 +21,16 @@ type StreamQuality = { width: number; height: number; fps: number; kbps: number 
 /** Vem do `qualityLimitationReason` das estatísticas do WebRTC. */
 type QualityLimitation = 'none' | 'bandwidth' | 'cpu' | 'other'
 
+/** `missing`: o áudio foi pedido e o browser não entregou. `silent` e `active`: há faixa, sem som ou com som agora. */
+type ShareAudioState = 'off' | 'missing' | 'silent' | 'active'
+
+const AUDIO_TONE: Record<ShareAudioState, string> = {
+  off: 'text-muted-foreground',
+  missing: 'text-amber-500',
+  silent: 'text-muted-foreground',
+  active: 'text-emerald-500',
+}
+
 type SharePanelState =
   | { status: 'idle' }
   | { status: 'picking' }
@@ -33,6 +43,7 @@ type SharePanelState =
       isOnTarget: boolean
       limitation: QualityLimitation
       viewerCount: number
+      audio: ShareAudioState
     }
 
 type SharePanelViewProps = {
@@ -71,7 +82,7 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
     )
   }
 
-  const { source, target, delivering, isOnTarget, limitation, viewerCount } = state
+  const { source, target, delivering, isOnTarget, limitation, viewerCount, audio } = state
   const below = Boolean(delivering) && !isOnTarget
   const targetHeight = TARGET_HEIGHT[target.resolution]
 
@@ -107,6 +118,11 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
           )}
         >
           {delivering ? `${delivering.height}p · ${Math.round(delivering.fps)} fps` : '–'}
+        </dd>
+        <dt className="text-muted-foreground">{t('share.monitor.audio')}</dt>
+        <dd className={cn('flex items-center justify-end gap-1', AUDIO_TONE[audio])}>
+          {audio === 'missing' && <TriangleAlertIcon className="size-3.5" aria-hidden />}
+          {t(`share.monitor.audioStates.${audio}`)}
         </dd>
       </dl>
 
@@ -155,4 +171,4 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
 }
 
 export { SharePanelView }
-export type { QualityLimitation, SharePanelState, SharePanelViewProps, StreamQuality }
+export type { QualityLimitation, ShareAudioState, SharePanelState, SharePanelViewProps, StreamQuality }

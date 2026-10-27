@@ -5,6 +5,7 @@ import { IceProvider } from './ice.provider'
 import { CloudflareIceProvider } from './providers/cloudflare.ice-provider'
 import { CoturnIceProvider } from './providers/coturn.ice-provider'
 import { StunOnlyIceProvider } from './providers/stun-only.ice-provider'
+import { IceHealthService } from './services/ice-health.service'
 import { GetIceConfigUseCase } from './use-cases/get-ice-config.use-case'
 
 // The env schema requires each provider's variables when it is picked.
@@ -40,6 +41,8 @@ export function createIceProvider(env: EnvService, stunOnly: StunOnlyIceProvider
     },
     { provide: IceProvider, inject: [EnvService, StunOnlyIceProvider], useFactory: createIceProvider },
     GetIceConfigUseCase,
+    IceHealthService,
   ],
+  exports: [IceHealthService],
 })
 export class IceModule {}

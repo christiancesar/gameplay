@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fireEvent, fn } from 'storybook/test'
+import { expect, fn } from 'storybook/test'
 
 import { images } from '@/fixtures'
 import { stageLongNames, stageWithLive } from '@/fixtures/server'
@@ -20,7 +20,7 @@ const meta = {
     participants: stageWithLive,
     onSwitchStream: fn(),
     onStopWatching: fn(),
-    onFullscreen: fn(),
+    onImmersiveChange: fn(),
     onStreamVolumeChange: fn(),
     onWatch: fn(),
     onVolumeChange: fn(),
@@ -30,20 +30,69 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Watching: Story = {}
+/** Mostra o que chega para quem assiste, medido no próprio browser. */
+export const Watching: Story = {
+  args: { received: { width: 1920, height: 1080, fps: 59.6, kbps: 7800 } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByLabelText('What reaches you: 1080p, 60 fps, 7.8 Mbps')).toBeVisible()
+  },
+}
 
-/** Sideways phone: the bar and the people float over the video, and a tap on the video hides them. */
-export const PhoneLandscape: Story = {
-  args: { sidebarTrigger: <button type="button">Sidebar</button> },
-  globals: { viewport: { value: 'mobile1', isRotated: true } },
-  play: async ({ canvasElement }) => {
-    const root = canvasElement.querySelector('[data-controls]')
+/** A transmissão não tem áudio: aviso no lugar do ícone e volume desligado. */
+export const WithoutAudio: Story = {
+  args: { hasAudio: false, received: { width: 1280, height: 720, fps: 42, kbps: 2100 } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText('This stream has no audio')).toBeVisible()
+    await expect(canvas.getByRole('slider', { name: /stream volume/i })).toHaveAttribute('data-disabled')
+  },
+}
+
+/** O vídeo ocupa a tela toda, com os controles por cima. Botão volta para o layout normal. */
+export const Immersive: Story = {
+  args: { immersive: true, received: { width: 1920, height: 1080, fps: 59.6, kbps: 7800 } },
+  play: async ({ args, canvasElement, canvas, userEvent }) => {
+    const root = canvasElement.querySelector('[data-stream-stage]')
+    await expect(root).toHaveAttribute('data-immersive', 'true')
     await expect(root).toHaveAttribute('data-controls', 'shown')
-    // Only shown on a sideways phone; the test runner's viewport may not be one, so the click goes straight in.
-    const toggle = canvasElement.querySelector('button[aria-label="Show or hide controls"]')
-    await expect(toggle).not.toBeNull()
-    await fireEvent.click(toggle as HTMLButtonElement)
+    await expect(canvas.getByRole('slider', { name: /stream volume/i })).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: /exit fullscreen/i }))
+    await expect(args.onImmersiveChange).toHaveBeenCalledWith(false)
+  },
+}
+
+/** Um toque no vídeo esconde e mostra os controles. */
+export const ImmersiveControlsHidden: Story = {
+  args: { immersive: true },
+  play: async ({ canvasElement, canvas, userEvent }) => {
+    const root = canvasElement.querySelector('[data-stream-stage]')
+    await userEvent.click(canvas.getByRole('button', { name: /show or hide controls/i }))
     await expect(root).toHaveAttribute('data-controls', 'hidden')
+    await userEvent.click(canvas.getByRole('button', { name: /show or hide controls/i }))
+    await expect(root).toHaveAttribute('data-controls', 'shown')
+  },
+}
+
+/** As pessoas abrem numa coluna por cima do vídeo. */
+export const ImmersivePeople: Story = {
+  args: { immersive: true },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.queryByRole('button', { name: /volume for/i })).not.toBeInTheDocument()
+    await userEvent.click(canvas.getByRole('button', { name: /^people$/i }))
+    await expect(canvas.getAllByRole('button', { name: /volume for/i }).length).toBeGreaterThan(0)
+  },
+}
+
+/** Celular deitado: o ViewModel liga o modo imersivo sozinho. */
+export const PhoneLandscape: Story = {
+  args: { immersive: true, sidebarTrigger: <button type="button">Sidebar</button> },
+  globals: { viewport: { value: 'mobile1', isRotated: true } },
+}
+
+/** Botão de tela cheia pede o modo imersivo. */
+export const EnterFullscreen: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: /^fullscreen$/i }))
+    await expect(args.onImmersiveChange).toHaveBeenCalledWith(true)
   },
 }
 

@@ -224,9 +224,11 @@
       },
       "audio": "Compartilhar áudio",
       "audioSupport": {
-        "supported": "Áudio de aba funciona em qualquer sistema.",
-        "windowsOnly": "Áudio da tela inteira só funciona no Windows.",
-        "unsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba."
+        "supported": "O browser oferece o áudio no seletor. Deixe a caixa de áudio marcada lá.",
+        "recentMac": "Áudio da tela precisa do macOS 14.2 ou mais novo. Deixe a caixa de áudio marcada no seletor.",
+        "windowUnsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba. Só o áudio do microfone será compartilhado.",
+        "tabOnly": "Neste sistema o browser não captura o áudio da tela inteira. Compartilhe uma aba para levar o som. Só o áudio do microfone será compartilhado.",
+        "browserUnsupported": "Este browser não compartilha áudio da tela. Para mandar o som do jogo, use Chrome ou Edge. Só o áudio do microfone será compartilhado."
       },
       "saveAsDefault": "Usar estas configurações da próxima vez",
       "start": "Escolher e compartilhar",
@@ -253,7 +255,14 @@
       "detailsTitle": "Qualidade da transmissão",
       "detailsDescription": "Cada espectador recebe uma cópia separada da sua transmissão, então a qualidade pode variar entre eles.",
       "viewer": "Espectador",
-      "noViewers": "Ninguém assistindo ainda. A qualidade é medida quando alguém assiste."
+      "noViewers": "Ninguém assistindo ainda. A qualidade é medida quando alguém assiste.",
+      "audio": "Áudio",
+      "audioStates": {
+        "off": "Desligado",
+        "missing": "Não veio",
+        "silent": "Em silêncio",
+        "active": "Com som"
+      }
     },
     "stopShort": "Parar",
     "changeQuality": "Mudar qualidade",
@@ -263,8 +272,13 @@
       "unsupported": "Este navegador não consegue compartilhar a tela.",
       "failed": "Não foi possível iniciar o compartilhamento.",
       "start-failed": "Não foi possível avisar a sala sobre o compartilhamento.",
-      "not-in-call": "Entre em uma sala de voz para compartilhar a tela."
-    }
+      "not-in-call": "Entre em uma sala de voz para compartilhar a tela.",
+      "no-audio": "Transmitindo sem áudio: o browser não entregou o som. Marque a caixa de áudio no seletor ou use Chrome ou Edge."
+    },
+    "receiving": "O que chega para você",
+    "noStreamAudio": "Esta transmissão está sem áudio",
+    "people": "Pessoas",
+    "exitFullscreen": "Sair da tela cheia"
   },
   "image": {
     "choose": "Escolher imagem",

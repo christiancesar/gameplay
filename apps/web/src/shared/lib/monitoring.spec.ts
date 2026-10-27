@@ -30,6 +30,22 @@ describe('monitoring', () => {
     expect(sdk.captureException).toHaveBeenCalledWith(error, undefined)
   })
 
+  it('sends measurements and the user id to Faro, and skips them without it', () => {
+    const metrics = { measure: vi.fn(), setUser: vi.fn() }
+    const monitoring = createMonitoring(null, metrics)
+    const measurement = { type: 'webrtc', values: { rtt_ms: 40 }, context: { connection: 'relay' } }
+
+    monitoring.measure(measurement)
+    monitoring.setUser({ id: 'u1', email: 'a@b.c' } as { id: string })
+    monitoring.clearUser()
+
+    expect(monitoring.measuring).toBe(true)
+    expect(metrics.measure).toHaveBeenCalledWith(measurement)
+    expect(metrics.setUser).toHaveBeenNthCalledWith(1, { id: 'u1' })
+    expect(metrics.setUser).toHaveBeenNthCalledWith(2, null)
+    expect(createMonitoring(null).measuring).toBe(false)
+  })
+
   it('sets only the user id and clears it on sign-out', () => {
     const sdk = fakeSdk()
     const monitoring = createMonitoring(sdk)

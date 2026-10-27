@@ -12,7 +12,7 @@ import {
   toViewerQualities,
   type ViewerProfile,
 } from '@/modules/screen-share/model/mappers/share-panel.mapper'
-import { audioSupportFor } from '@/modules/screen-share/model/rules/audio-support'
+import { audioSupportFor, canShareAudio } from '@/modules/screen-share/model/rules/audio-support'
 
 import { useSharePreferencesStore } from './stores/share-preferences.store'
 import { useShareStore } from './stores/share.store'
@@ -35,7 +35,9 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   const { notice } = snapshot
   useEffect(() => {
     if (!notice) return
-    toast.error(t(`share.notices.${notice}`))
+    // Without audio the share still runs: a warning, not an error.
+    const show = notice === 'no-audio' ? toast.warning : toast.error
+    show(t(`share.notices.${notice}`))
     shareController.dismissNotice()
   }, [notice, t])
 
@@ -51,8 +53,11 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   }
 
   function start() {
-    const includeAudio = draft.includeAudio && audioSupportFor(draft.source) !== 'unsupported'
-    const settings = { ...draft, includeAudio }
+    // A locked switch keeps its saved value; the share asks for no audio the browser cannot give.
+    const settings = {
+      ...draft,
+      includeAudio: draft.includeAudio && canShareAudio(audioSupportFor(draft.source, shareController.platform())),
+    }
     const { save, clear } = useSharePreferencesStore.getState()
     if (saveAsDefault) save(settings, draftPriority)
     else clear()
@@ -81,7 +86,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
       mode: dialog === 'update' ? ('update' as const) : ('start' as const),
       settings: draft,
       priority: draftPriority,
-      audioSupport: audioSupportFor(draft.source),
+      audioSupport: audioSupportFor(draft.source, shareController.platform()),
       saveAsDefault,
       onOpenChange: (open: boolean) => {
         if (!open) setDialog('closed')

@@ -1,0 +1,81 @@
+# Production stack on the Lightsail instance (plans/06-producao-aws.md).
+#
+#   browser -> Cloudflare (proxy, Full strict) -> web (nginx) :443 -> api
+#
+# Web and API share one origin (gameplay.oikos.company), as in self-hosting:
+# no CORS, the session cookie stays first party. Lives in /opt/gameplay on the
+# server, next to its .env (mode 600) and the origin certificate in certs/.
+# Nothing is built here: the deploy ships both images over SSH and sets RELEASE
+# (the commit). The database is Prisma Postgres and the uploads go to S3, so
+# there are no volumes. Migrations run from the repository on the deploy
+# machine (DIRECT_URL).
+name: gameplay
+
+# The disk is 60 GB: rotate the container logs (the api logs also go to Grafana).
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "5"
+
+services:
+  api:
+    image: gameplay-api:${RELEASE:?set by the deploy}
+    restart: unless-stopped
+    logging: *logging
+    # Only the variables the api reads: the .env may hold more.
+    environment:
+      NODE_ENV: production
+      PORT: 3333
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL: ${DATABASE_URL:?set in .env}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set in .env}
+      BETTER_AUTH_URL: ${APP_URL:?set in .env}
+      REGISTRATION_KEY_SECRET: ${REGISTRATION_KEY_SECRET:?set in .env}
+      WEB_ORIGIN: ${APP_URL:?set in .env}
+      DOCS_ENABLED: ${DOCS_ENABLED:-true}
+      STORAGE_DRIVER: s3
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_BUCKET: ${S3_BUCKET:?set in .env}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?set in .env}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?set in .env}
+      PUBLIC_UPLOADS_URL: ${PUBLIC_UPLOADS_URL:?set in .env}
+      # nginx overwrites X-Forwarded-For with CF-Connecting-IP: one trusted hop.
+      TRUST_PROXY_HOPS: 1
+      ICE_PROVIDER: ${ICE_PROVIDER:-cloudflare}
+      CLOUDFLARE_TURN_KEY_ID: ${CLOUDFLARE_TURN_KEY_ID:-}
+      CLOUDFLARE_TURN_API_TOKEN: ${CLOUDFLARE_TURN_API_TOKEN:-}
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-gameplay-api}
+      OTEL_DEPLOYMENT_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-production}
+
+  # The web image (apps/web/Dockerfile): nginx with the built SPA. It also
+  # terminates TLS and proxies the api, Socket.IO and the monitoring tunnels.
+  web:
+    image: gameplay-web:${RELEASE:?set by the deploy}
+    restart: unless-stopped
+    logging: *logging
+    # The Lightsail firewall opens 443 to Cloudflare's ranges only.
+    ports:
+      - "443:443"
+    environment:
+      NGINX_ENVSUBST_FILTER: "^GAMEPLAY_"
+      GAMEPLAY_SENTRY_ENVELOPE_URL: ${SENTRY_ENVELOPE_URL:-}
+      GAMEPLAY_FARO_COLLECTOR_URL: ${FARO_COLLECTOR_URL:-}
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./certs:/etc/nginx/certs:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- --no-check-certificate https://127.0.0.1/api/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      api:
+        condition: service_healthy

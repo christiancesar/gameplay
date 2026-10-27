@@ -224,9 +224,11 @@
       },
       "audio": "Share audio",
       "audioSupport": {
-        "supported": "Tab audio works on any system.",
-        "windowsOnly": "Screen audio only works on Windows.",
-        "unsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab."
+        "supported": "The browser offers the audio in its picker. Leave the audio box checked there.",
+        "recentMac": "Screen audio needs macOS 14.2 or newer. Leave the audio box checked in the picker.",
+        "windowUnsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab. Only your microphone will be shared.",
+        "tabOnly": "On this system the browser doesn't capture the audio of the entire screen. Share a tab to send its sound. Only your microphone will be shared.",
+        "browserUnsupported": "This browser doesn't share screen audio. To send the game sound, use Chrome or Edge. Only your microphone will be shared."
       },
       "saveAsDefault": "Use these settings next time",
       "start": "Choose and share",
@@ -253,7 +255,14 @@
       "detailsTitle": "Stream quality",
       "detailsDescription": "Each viewer receives a separate copy of your stream, so quality can differ between them.",
       "viewer": "Viewer",
-      "noViewers": "Nobody is watching yet. Quality is measured once someone watches."
+      "noViewers": "Nobody is watching yet. Quality is measured once someone watches.",
+      "audio": "Audio",
+      "audioStates": {
+        "off": "Off",
+        "missing": "Didn't come",
+        "silent": "Silent",
+        "active": "With sound"
+      }
     },
     "stopShort": "Stop",
     "changeQuality": "Change quality",
@@ -263,8 +272,13 @@
       "unsupported": "This browser cannot share the screen.",
       "failed": "Could not start sharing the screen.",
       "start-failed": "Could not announce the screen share to the room.",
-      "not-in-call": "Join a voice room to share your screen."
-    }
+      "not-in-call": "Join a voice room to share your screen.",
+      "no-audio": "Sharing without audio: the browser gave no sound. Check the audio box in the picker, or use Chrome or Edge."
+    },
+    "receiving": "What reaches you",
+    "noStreamAudio": "This stream has no audio",
+    "people": "People",
+    "exitFullscreen": "Exit fullscreen"
   },
   "image": {
     "choose": "Choose image",

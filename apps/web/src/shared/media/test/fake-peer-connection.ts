@@ -41,6 +41,11 @@ class FakePeerConnection implements PeerConnectionLike {
   readonly candidates: RTCIceCandidateInit[] = []
   readonly transceivers: RtpTransceiverLike[] = []
   readonly senders: FakeSender[] = []
+  /** Entries the connection's `getStats()` yields. */
+  stats: Record<string, unknown>[] = []
+  readonly getStats = vi.fn(async () => ({
+    forEach: (callback: (stats: Record<string, unknown>) => void) => this.stats.forEach(callback),
+  }))
   closed = false
   private offers = 0
 

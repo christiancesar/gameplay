@@ -78,8 +78,10 @@ Base: `plans/05-web-plan.md`. Branch `feature/web-routing`. Commit a cada passo 
 | [FE-10 Compartilhar e assistir tela](FE-10-transmissao.md) | 8 | 6 | concluído |
 | [FE-14a E2E com Cypress, fluxos atuais](FE-14-e2e-cypress.md) | 3 | 5 | concluído |
 | [FE-14b E2E de voz e transmissão com peer bot](FE-14-e2e-cypress.md) | 3 | 6 | concluído |
+| [FE-15 Áudio da transmissão e qualidade para quem assiste](FE-15-audio-e-qualidade-da-transmissao.md) | 5 | 7 | concluído |
+| [FE-16 Player imersivo da live e tela cheia no celular](FE-16-player-imersivo.md) | 5 | 7 | concluído |
 
-Total: 76 pontos.
+Total: 86 pontos.
 
 ```mermaid
 graph LR
@@ -99,3 +101,18 @@ graph LR
   FE09 --> FE10[FE-10 Transmissão]
   FE09 --> FE14[FE-14 E2E]
 ```
+
+## Observabilidade
+
+Base: BE-16 e FE-13. Branch `feature/observability`. Decisão do usuário em 2026-10-26: Sentry só para erros do web, Grafana Cloud para API e realtime, Faro para desempenho, traces do browser e qualidade de mídia.
+
+| Ticket | Pontos | Onda | Status |
+|---|---|---|---|
+| [OBS-01 Grafana Cloud no host](OBS-01-grafana-no-host.md) | 2 | 1 | concluído |
+| [OBS-02 Sentry para erros do web](OBS-02-sentry-erros.md) | 3 | 1 | concluído (falta conferir um erro no Sentry) |
+| [OBS-03 Métricas e logs do realtime na API](OBS-03-realtime-na-api.md) | 5 | 2 | concluído |
+| [OBS-04 Grafana Faro no web](OBS-04-faro.md) | 5 | 2 | concluído (falta conferir uma call real) |
+| [OBS-05 Dashboards e alertas](OBS-05-dashboards-e-alertas.md) | 3 | 3 | em andamento (falta canal de notificação e synthetic check) |
+| [OBS-06 Health detalhado](OBS-06-health-detalhado.md) | 3 | 1 | concluído |
+
+Total: 21 pontos.

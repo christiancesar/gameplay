@@ -4,8 +4,11 @@
 HOST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$HOST_DIR/.env"
 
+# Builds on the local Docker engine ("default" builder), whatever builder is
+# selected for other projects: a docker-container builder skipped the native
+# optional packages (rolldown, sharp) of the alpine images.
 compose() {
-  docker compose --project-directory "$HOST_DIR" -f "$HOST_DIR/docker-compose.yml" --env-file "$ENV_FILE" "$@"
+  BUILDX_BUILDER="${BUILDX_BUILDER:-default}" docker compose --project-directory "$HOST_DIR" -f "$HOST_DIR/docker-compose.yml" --env-file "$ENV_FILE" "$@"
 }
 
 # get_var KEY: value of KEY in .env (empty when unset).

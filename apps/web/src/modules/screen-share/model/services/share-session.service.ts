@@ -3,13 +3,29 @@ import type { StreamPreset } from '@gameplay/contracts'
 import type { RealtimeService } from '@/modules/realtime/model/services/realtime.service'
 import type { CallMedia } from '@/shared/media/call-media'
 import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
+import { SpeakingDetector } from '@/shared/media/speaking-detector'
 
-import { idleShare, type SharePriority, type ShareSettings, type ShareStateStore } from '../entities/share'
+import {
+  idleShare,
+  type SharePriority,
+  type ShareSettings,
+  type ShareSource,
+  type ShareStateStore,
+  type ShareSurface,
+} from '../entities/share'
 import { toOutboundSample, toViewerStat, type OutboundSample } from '../mappers/outbound-stats.mapper'
 import { toSurface } from '../rules/surface'
 import { contentHintOf, displayMediaOptions, liveVideoConstraints, toPreset, videoEncoding } from '../rules/preset'
 
 type ShareRealtime = Pick<RealtimeService, 'startStream' | 'stopStream' | 'on'>
+
+/** What the browser gave when a share started, for the reports. */
+type ShareStartReport = {
+  source: ShareSource
+  surface: ShareSurface
+  audioRequested: boolean
+  audioReceived: boolean
+}
 
 type ShareSessionDeps = {
   realtime: ShareRealtime
@@ -20,9 +36,15 @@ type ShareSessionDeps = {
   stopScreen: (capture: ScreenCaptureHandle) => void
   /** How often the viewers are measured. */
   pollMs?: number
+  /** Told once per share that goes live. */
+  report?: (start: ShareStartReport) => void
 }
 
 const POLL_MS = 1000
+/** Game audio is quieter than a voice in front of the microphone, and has longer pauses. */
+const AUDIO_THRESHOLD = 0.005
+const AUDIO_HOLD_MS = 2000
+const AUDIO_POLL_MS = 250
 
 /** One running share: the capture, who gets it, and what stops it. */
 type Live = {
@@ -33,6 +55,8 @@ type Live = {
   samples: Map<string, OutboundSample>
   stops: (() => void)[]
   poll: ReturnType<typeof setInterval> | undefined
+  /** Reads whether the captured audio has sound; missing without an audio track. */
+  audioLevel: SpeakingDetector | undefined
 }
 
 /**
@@ -96,7 +120,16 @@ class ShareSession {
     // The browser's own "stop sharing" button ends the track.
     capture.video.onended = () => void this.stop()
     const captured = capture.video.getSettings?.()
-    const live: Live = { media, capture, preset, priority, samples: new Map(), stops: [], poll: undefined }
+    const live: Live = {
+      media,
+      capture,
+      preset,
+      priority,
+      samples: new Map(),
+      stops: [],
+      poll: undefined,
+      audioLevel: undefined,
+    }
     this.live = live
     live.stops.push(
       this.deps.realtime.on('stream:watch-request', ({ viewerId }) => void this.addViewer(live, viewerId)),
@@ -109,10 +142,22 @@ class ShareSession {
         }
       }),
     )
+    const surface = toSurface(captured?.displaySurface)
+    // Browsers without screen audio (Firefox, Safari) or a source without it give no track and no error.
+    const missingAudio = settings.includeAudio && !capture.audio
     store.setState({
       status: 'live',
       source: captured?.height ? { height: captured.height, fps: captured.frameRate ?? settings.fps } : null,
-      preview: { stream: capture.stream, surface: toSurface(captured?.displaySurface) },
+      preview: { stream: capture.stream, surface },
+      audio: capture.audio ? 'silent' : missingAudio ? 'missing' : 'off',
+      notice: missingAudio ? 'no-audio' : null,
+    })
+    if (capture.audio) live.audioLevel = this.watchAudioLevel(live)
+    this.deps.report?.({
+      source: settings.source,
+      surface,
+      audioRequested: settings.includeAudio,
+      audioReceived: capture.audio !== null,
     })
     try {
       await this.deps.realtime.startStream(preset)
@@ -155,6 +200,20 @@ class ShareSession {
 
   dismissNotice(): void {
     this.deps.store.setState({ notice: null })
+  }
+
+  private watchAudioLevel(live: Live): SpeakingDetector {
+    const detector = new SpeakingDetector({
+      createMeter: (stream) => live.media.audio.createMeter(stream),
+      onChange: (loud) => {
+        if (this.live === live) this.deps.store.setState({ audio: loud.length > 0 ? 'active' : 'silent' })
+      },
+      threshold: AUDIO_THRESHOLD,
+      holdMs: AUDIO_HOLD_MS,
+      intervalMs: AUDIO_POLL_MS,
+    })
+    detector.watch('screen', live.capture.stream)
+    return detector
   }
 
   private async addViewer(live: Live, viewerId: string) {
@@ -206,6 +265,7 @@ class ShareSession {
     if (!live) return
     this.live = null
     clearInterval(live.poll)
+    live.audioLevel?.dispose()
     for (const stop of live.stops) stop()
     live.capture.video.onended = null
     for (const viewerId of this.deps.store.getState().viewerIds) {
@@ -219,5 +279,5 @@ class ShareSession {
   }
 }
 
-export { POLL_MS, ShareSession }
-export type { ShareRealtime, ShareSessionDeps }
+export { AUDIO_HOLD_MS, AUDIO_POLL_MS, POLL_MS, ShareSession }
+export type { ShareRealtime, ShareSessionDeps, ShareStartReport }

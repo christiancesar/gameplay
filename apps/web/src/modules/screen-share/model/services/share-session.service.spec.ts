@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { AUDIO_HOLD_MS, AUDIO_POLL_MS } from './share-session.service'
 import { makeShareSessionContext } from './test/share-session-context'
 import { gameSettings, makeCallMedia, outbound, tabSettings } from './test/screen-seed'
 
@@ -70,6 +71,43 @@ describe('ShareSession', () => {
       ctx.picker.answer = 'fail'
       await goLive()
       expect(ctx.store.state.notice).toBe('failed')
+    })
+
+    it('warns when audio was asked and the browser gave none, and reports it', async () => {
+      ctx.picker.withAudio = false
+      await goLive()
+      expect(ctx.store.state).toMatchObject({ status: 'live', audio: 'missing', notice: 'no-audio' })
+      expect(ctx.report).toHaveBeenCalledWith({
+        source: 'window',
+        surface: 'unknown',
+        audioRequested: true,
+        audioReceived: false,
+      })
+    })
+
+    it('says nothing about audio that was not asked', async () => {
+      ctx.picker.withAudio = false
+      await goLive(tabSettings)
+      expect(ctx.store.state).toMatchObject({ status: 'live', audio: 'off', notice: null })
+      expect(ctx.report).toHaveBeenCalledWith(expect.objectContaining({ audioRequested: false, audioReceived: false }))
+    })
+
+    it('follows whether the captured audio has sound, and stops reading it with the share', async () => {
+      const level = { value: 0 }
+      const dispose = vi.fn()
+      media.audio.createMeter.mockReturnValue({ read: () => level.value, dispose })
+      await goLive()
+      expect(media.audio.createMeter).toHaveBeenCalledWith(ctx.capture.stream)
+      expect(ctx.store.state.audio).toBe('silent')
+      level.value = 0.1
+      await vi.advanceTimersByTimeAsync(AUDIO_POLL_MS)
+      expect(ctx.store.state.audio).toBe('active')
+      level.value = 0
+      await vi.advanceTimersByTimeAsync(AUDIO_HOLD_MS + AUDIO_POLL_MS)
+      expect(ctx.store.state.audio).toBe('silent')
+      await ctx.session.stop()
+      expect(dispose).toHaveBeenCalled()
+      expect(ctx.store.state.audio).toBe('off')
     })
 
     it('needs a call', async () => {

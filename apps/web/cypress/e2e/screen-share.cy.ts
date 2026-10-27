@@ -46,6 +46,15 @@ describe('Screen share', () => {
         expect(stats.videoFramesDecoded).to.be.greaterThan(0)
         expect(stats.videoWidth).to.be.greaterThan(0)
       })
+      // Measured on this side from the stats of the received video.
+      cy.findByLabelText(/^What reaches you: \d+p, \d+ fps/).should('be.visible')
+
+      // Fullscreen is our own player: the video stays and the controls float over it.
+      cy.findByRole('button', { name: 'Fullscreen' }).click()
+      cy.get('[data-stream-stage][data-immersive]').should('exist')
+      streamVideo().should('be.visible')
+      cy.findByRole('button', { name: 'Exit fullscreen' }).click()
+      cy.get('[data-stream-stage][data-immersive]').should('not.exist')
     })
 
     it('closes the watch view when the peer stops sharing', () => {
@@ -73,7 +82,7 @@ describe('Screen share', () => {
       cy.findByRole('button', { name: 'Share screen' }).click()
       cy.findByRole('dialog').within(() => cy.findByRole('button', { name: 'Choose and share' }).click())
       cy.findByRole('button', { name: 'Stop sharing' }).should('be.visible')
-      cy.findByText('You are presenting to everyone').should('be.visible')
+      cy.findByRole('heading', { name: 'You are presenting to everyone' }).should('be.visible')
       cy.findByText('Nobody is watching yet', { exact: false }).should('be.visible')
 
       cy.task('bot:watch')

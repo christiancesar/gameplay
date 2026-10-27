@@ -2,7 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor } from 'storybook/test'
 
-import { liveLimitedByCpu, liveLimitedByNetwork, liveNoViewers, liveOnTarget, viewerQualities } from '@/fixtures/server'
+import {
+  liveLimitedByCpu,
+  liveLimitedByNetwork,
+  liveNoViewers,
+  liveOnTarget,
+  liveWithoutAudio,
+  viewerQualities,
+} from '@/fixtures/server'
 
 import { ShareDetailsDialogView } from './share-details-dialog.view'
 import { SharePanelView } from './share-panel.view'
@@ -32,6 +39,14 @@ export const Idle: Story = {
 
 /** Seletor nativo do browser aberto. */
 export const WaitingBrowserPicker: Story = { args: { state: { status: 'picking' } } }
+
+/** O áudio foi pedido e o browser não entregou: aviso em âmbar no monitor. */
+export const LiveWithoutAudio: Story = {
+  args: { state: liveWithoutAudio },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Didn't come")).toHaveClass('text-amber-500')
+  },
+}
 
 export const LiveOnTarget: Story = {
   args: { state: liveOnTarget },

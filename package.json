@@ -18,9 +18,10 @@
     "format:check": "turbo run format:check",
     "docker:api": "docker compose -f infra/docker-compose.dev.yml up -d --build --wait",
     "e2e": "turbo run e2e",
-    "host:start": "bash infra/host/start.sh",
-    "host:stop": "bash infra/host/stop.sh",
-    "host:logs": "docker compose --project-directory infra/host -f infra/host/docker-compose.yml --env-file infra/host/.env --profile quick --profile named --profile token logs -f --tail 100"
+    "host:start": "bash infra/self-hosted/start.sh",
+    "host:stop": "bash infra/self-hosted/stop.sh",
+    "host:logs": "docker compose --project-directory infra/self-hosted -f infra/self-hosted/docker-compose.yml --env-file infra/self-hosted/.env --profile quick --profile named --profile token logs -f --tail 100",
+    "deploy": "bash infra/production/deploy.sh"
   },
   "devDependencies": {
     "turbo": "^2.11.10"

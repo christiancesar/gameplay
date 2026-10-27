@@ -12,6 +12,14 @@ const seat = (userId: string, roomId: string, socketId: string | null = `${userI
 })
 
 describe('InMemoryRoomStateStore', () => {
+  it('counts seats and screen shares across rooms', async () => {
+    const store = new InMemoryRoomStateStore()
+    await store.join('ana', () => ({ ...seat('ana', 'r1'), streaming: '1080p60' }))
+    await store.join('bia', () => seat('bia', 'r2', null))
+
+    expect(await store.stats()).toEqual({ seats: 2, streaming: 1 })
+  })
+
   it('keeps one seat per person and moves it to the end of the new room', async () => {
     const store = new InMemoryRoomStateStore()
     await store.join('ana', () => seat('ana', 'r1'))

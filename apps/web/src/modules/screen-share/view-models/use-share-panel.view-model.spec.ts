@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('react-i18next', async () => (await import('@/shared/test/fake-i18n')).fakeI18nModule)
-vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn() }) }))
+vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), warning: vi.fn() }) }))
 vi.mock('./share.controller', async () => ({
   shareController: (await import('./test/fake-share-controller')).fakeShareController,
 }))
@@ -63,7 +63,15 @@ describe('useSharePanelViewModel', () => {
     const { result } = setup()
     act(() => result.current.onStart())
     act(() => result.current.setup.onChange({ ...defaultShareSettings, source: 'window' }))
-    expect(result.current.setup.audioSupport).toBe('unsupported')
+    expect(result.current.setup.audioSupport).toBe('windowUnsupported')
+    fakeShareController.platform.mockReturnValueOnce({
+      engine: 'firefox',
+      chromiumMajor: 0,
+      os: 'windows',
+      browser: 'Firefox',
+    })
+    act(() => result.current.setup.onChange({ ...defaultShareSettings, source: 'screen' }))
+    expect(result.current.setup.audioSupport).toBe('browserUnsupported')
   })
 
   it('starts sharing with the chosen settings and closes the dialog', () => {
@@ -195,5 +203,12 @@ describe('useSharePanelViewModel', () => {
     setup()
     expect(toast.error).toHaveBeenCalledWith('share.notices.failed')
     expect(fakeShareController.dismissNotice).toHaveBeenCalledTimes(1)
+  })
+
+  it('warns, without an error, when the share runs without the audio it asked for', () => {
+    useShareStore.setState({ notice: 'no-audio' })
+    setup()
+    expect(toast.warning).toHaveBeenCalledWith('share.notices.no-audio')
+    expect(toast.error).not.toHaveBeenCalled()
   })
 })

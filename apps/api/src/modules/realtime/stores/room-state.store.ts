@@ -19,4 +19,6 @@ export abstract class RoomStateStore {
   // In join order.
   abstract listRoom(roomId: string): Promise<Seat[]>
   abstract listServer(serverId: string): Promise<Seat[]>
+  // Totals for the metrics: seats in every room, and how many of them share a screen.
+  abstract stats(): Promise<{ seats: number; streaming: number }>
 }

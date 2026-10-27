@@ -10,6 +10,7 @@ import { changePassword, updateUsername } from '@/modules/settings/model/service
 import { removeAvatar, uploadAvatar } from '@/modules/settings/model/services/account.service'
 import type { ChangePasswordValues } from '@/modules/settings/model/profile.schema'
 import type { ImageError } from '@/shared/lib/image-error'
+import { displayNameOf } from '@/shared/lib/display-name'
 
 type PasswordInput = Pick<ChangePasswordValues, 'currentPassword' | 'newPassword'>
 
@@ -59,7 +60,7 @@ function useProfileSettingsViewModel() {
   return {
     formKey,
     user: {
-      name: user?.displayUsername ?? user?.username ?? user?.name ?? '',
+      name: user ? displayNameOf(user) : '',
       email: user?.email ?? '',
       avatarUrl: user?.image ?? undefined,
     },
