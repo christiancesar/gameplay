@@ -1,11 +1,12 @@
 import { existsSync } from 'node:fs'
-import { compose, composeOutput, TUNNEL_MODES, type TunnelMode } from '../compose.ts'
+import { type SelfHostedEnv, TUNNEL_MODES, type TunnelMode } from '@gameplay/env'
+import { compose, composeOutput } from '../compose.ts'
 import { migrateDatabase, seedAdmin } from '../database.ts'
 import type { EnvFile } from '../env-file.ts'
 import { waitForHealth } from '../health.ts'
 import { ENV_EXAMPLE_FILE, ENV_FILE, HOST_DIR } from '../paths.ts'
 import { sentryEnvelopeUrl } from '../sentry.ts'
-import { prepareEnv } from '../setup-env.ts'
+import { prepareEnv, validateEnv } from '../setup-env.ts'
 import { hasCommand, HostError, output } from '../shell.ts'
 import { discoverQuickUrl } from '../tunnel.ts'
 
@@ -16,41 +17,38 @@ function checkTools(): void {
   if (!output('docker', ['compose', 'version'])) throw new HostError('docker compose v2 is required')
 }
 
-function tunnelMode(requested: string | undefined, env: EnvFile): TunnelMode {
-  const mode = requested || env.get('TUNNEL_MODE') || 'quick'
-  if (!TUNNEL_MODES.includes(mode as TunnelMode)) {
-    throw new HostError(`unknown mode '${mode}' (use ${TUNNEL_MODES.join(', ')})`)
+/** The mode passed to the command wins over TUNNEL_MODE, and is saved for the next start. */
+function applyMode(requested: string | undefined, env: EnvFile): void {
+  if (!requested) return
+  if (!TUNNEL_MODES.includes(requested as TunnelMode)) {
+    throw new HostError(`unknown mode '${requested}' (use ${TUNNEL_MODES.join(', ')})`)
   }
-  return mode as TunnelMode
+  env.set('TUNNEL_MODE', requested)
 }
 
 /** Quick mode: starts the tunnel first, since the build needs the URL it gets. */
-async function quickTunnelUrl(env: EnvFile): Promise<string> {
+async function quickTunnelUrl(config: SelfHostedEnv): Promise<string> {
   console.log('Starting database and quick tunnel...')
   compose(['up', '-d', '--wait', 'postgres'])
   compose(['--profile', 'quick', 'up', '-d', 'cloudflared-quick'])
-  return discoverQuickUrl(env.get('CLOUDFLARED_METRICS_PORT') || '20241')
+  return discoverQuickUrl(String(config.CLOUDFLARED_METRICS_PORT))
 }
 
-/** named and token modes: a fixed hostname, configured beforehand in .env. */
-function fixedTunnelUrl(mode: 'named' | 'token', env: EnvFile): string {
-  const appUrl = env.get('APP_URL')
-  if (!appUrl) throw new HostError(`APP_URL is empty in ${ENV_FILE} (your tunnel hostname, https://...)`)
-  if (mode === 'token') {
-    if (!env.get('CLOUDFLARE_TUNNEL_TOKEN')) throw new HostError(`CLOUDFLARE_TUNNEL_TOKEN is empty in ${ENV_FILE}`)
-    return appUrl
+/** named and token modes: a fixed hostname, already required by the schema. */
+function fixedTunnelUrl(config: SelfHostedEnv, env: EnvFile): string {
+  const appUrl = config.APP_URL ?? ''
+  if (config.TUNNEL_MODE === 'named') {
+    const credentials = config.CLOUDFLARE_TUNNEL_CREDENTIALS ?? ''
+    if (!existsSync(credentials)) {
+      throw new HostError(
+        `CLOUDFLARE_TUNNEL_CREDENTIALS must be the path of the tunnel credentials JSON (got '${credentials}')`,
+      )
+    }
+    // The ingress rule needs the bare hostname; the credentials file is usually
+    // readable only by its owner, so the container runs as this user.
+    env.set('PUBLIC_HOSTNAME', new URL(appUrl).hostname)
+    env.set('CLOUDFLARED_UID', String(process.getuid?.() ?? 1000))
   }
-  if (!env.get('CLOUDFLARE_TUNNEL_ID')) throw new HostError(`CLOUDFLARE_TUNNEL_ID is empty in ${ENV_FILE}`)
-  const credentials = env.get('CLOUDFLARE_TUNNEL_CREDENTIALS')
-  if (!existsSync(credentials)) {
-    throw new HostError(
-      `CLOUDFLARE_TUNNEL_CREDENTIALS must be the path of the tunnel credentials JSON (got '${credentials}')`,
-    )
-  }
-  // The ingress rule needs the bare hostname; the credentials file is usually
-  // readable only by its owner, so the container runs as this user.
-  env.set('PUBLIC_HOSTNAME', new URL(appUrl).hostname)
-  env.set('CLOUDFLARED_UID', String(process.getuid?.() ?? 1000))
   return appUrl
 }
 
@@ -58,23 +56,23 @@ function fixedTunnelUrl(mode: 'named' | 'token', env: EnvFile): string {
  * Build inputs that are not plain .env interpolation: the commit names the
  * Sentry release, and the token goes in as a build secret (empty: no upload).
  */
-function buildEnv(env: EnvFile): Record<string, string> {
+function buildEnv(config: SelfHostedEnv): Record<string, string> {
   return {
     GAMEPLAY_RELEASE: output('git', ['-C', HOST_DIR, 'rev-parse', '--short', 'HEAD']).trim(),
-    SENTRY_AUTH_TOKEN: env.get('SENTRY_AUTH_TOKEN'),
-    SENTRY_ENVELOPE_URL: sentryEnvelopeUrl(env.get('VITE_SENTRY_DSN')),
+    SENTRY_AUTH_TOKEN: config.SENTRY_AUTH_TOKEN ?? '',
+    SENTRY_ENVELOPE_URL: sentryEnvelopeUrl(config.VITE_SENTRY_DSN ?? ''),
   }
 }
 
-function printSummary(env: EnvFile, mode: TunnelMode, appUrl: string, generatedAdminPassword: string | null): void {
+function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassword: string | null): void {
   const lines = [
     '',
     'Gameplay is up.',
     '',
     `  Link to share:  ${appUrl}`,
-    `  Local access:   http://127.0.0.1:${env.get('WEB_PORT')}`,
+    `  Local access:   http://127.0.0.1:${config.WEB_PORT}`,
     '',
-    `Admin account: ${env.get('ADMIN_EMAIL')} (username ${env.get('ADMIN_USERNAME')})`,
+    `Admin account: ${config.ADMIN_EMAIL} (username ${config.ADMIN_USERNAME})`,
     generatedAdminPassword
       ? `  Generated password (shown only now, also saved in ${ENV_FILE}): ${generatedAdminPassword}`
       : `  Password: ADMIN_PASSWORD in ${ENV_FILE}`,
@@ -83,7 +81,7 @@ function printSummary(env: EnvFile, mode: TunnelMode, appUrl: string, generatedA
     `  1. Sign in as admin at ${appUrl} and enable 2FA at ${appUrl}/admin/setup.`,
     `  2. Create keys at ${appUrl}/admin/keys and send each friend the link plus a key.`,
   ]
-  if (mode === 'quick') {
+  if (config.TUNNEL_MODE === 'quick') {
     lines.push(
       '',
       'Quick mode: this URL changes on every restart. Sessions on the old URL stop',
@@ -104,30 +102,34 @@ function printSummary(env: EnvFile, mode: TunnelMode, appUrl: string, generatedA
 export async function start(requestedMode: string | undefined): Promise<void> {
   checkTools()
   const { env, generatedAdminPassword } = prepareEnv(ENV_FILE, ENV_EXAMPLE_FILE)
+  applyMode(requestedMode, env)
+  // Stops here, before any build, when something only you can provide is missing.
+  const config = validateEnv(env)
+  env.set('TUNNEL_MODE', config.TUNNEL_MODE)
 
-  const mode = tunnelMode(requestedMode, env)
-  env.set('TUNNEL_MODE', mode)
   // Only one tunnel at a time: drop the other modes' containers if they are around.
-  for (const other of TUNNEL_MODES.filter((candidate) => candidate !== mode)) {
+  for (const other of TUNNEL_MODES.filter((mode) => mode !== config.TUNNEL_MODE)) {
     composeOutput(['--profile', other, 'rm', '-sf', `cloudflared-${other}`])
   }
 
-  const tunnelUrl = mode === 'quick' ? await quickTunnelUrl(env) : fixedTunnelUrl(mode, env)
+  const tunnelUrl = config.TUNNEL_MODE === 'quick' ? await quickTunnelUrl(config) : fixedTunnelUrl(config, env)
   const appUrl = tunnelUrl.replace(/\/+$/, '')
   env.set('APP_URL', appUrl)
 
   console.log('Applying the database migrations...')
   compose(['up', '-d', '--wait', 'postgres'])
-  migrateDatabase(env)
+  migrateDatabase(config)
 
   console.log(`Building and starting the stack for ${appUrl} ...`)
-  compose(['--profile', mode, 'up', '-d', '--build', '--remove-orphans', '--wait'], { env: buildEnv(env) })
-  seedAdmin(env)
+  compose(['--profile', config.TUNNEL_MODE, 'up', '-d', '--build', '--remove-orphans', '--wait'], {
+    env: buildEnv(config),
+  })
+  seedAdmin(config)
 
   console.log(`Waiting for ${appUrl}/api/health ...`)
   if (!(await waitForHealth(appUrl))) {
     compose(['ps'])
     throw new HostError("the public URL did not answer; check 'npm run host:logs'")
   }
-  printSummary(env, mode, appUrl, generatedAdminPassword)
+  printSummary(config, appUrl, generatedAdminPassword)
 }

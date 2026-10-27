@@ -1,8 +1,15 @@
 import { readFileSync, renameSync, writeFileSync } from 'node:fs'
 
+// Surrounding quotes are not part of the value, as docker compose reads it.
+function unquote(value: string): string {
+  const quoted = /^(['"])(.*)\1$/.exec(value)
+  return quoted ? quoted[2] : value
+}
+
 /**
- * The KEY=value lines of a .env file. Values are kept raw (no quotes), as
- * docker compose reads them. Every write keeps the file private (mode 600).
+ * The KEY=value lines of a .env file, read as docker compose reads them
+ * (surrounding quotes dropped) and written unquoted. Every write keeps the
+ * file private (mode 600).
  */
 export class EnvFile {
   readonly path: string
@@ -14,7 +21,18 @@ export class EnvFile {
   /** Value of the last KEY= line; '' when the key is missing. */
   get(key: string): string {
     const line = this.lines().findLast((candidate) => candidate.startsWith(`${key}=`))
-    return line === undefined ? '' : line.slice(key.length + 1)
+    return line === undefined ? '' : unquote(line.slice(key.length + 1))
+  }
+
+  /** Every key with its value; the last line wins for repeated keys. Comments are skipped. */
+  values(): Record<string, string> {
+    const values: Record<string, string> = {}
+    for (const line of this.lines()) {
+      const separator = line.indexOf('=')
+      if (line.startsWith('#') || separator <= 0) continue
+      values[line.slice(0, separator)] = unquote(line.slice(separator + 1))
+    }
+    return values
   }
 
   has(key: string): boolean {

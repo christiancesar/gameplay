@@ -45,15 +45,18 @@ docker compose --project-directory infra/self-hosted --profile quick --profile n
 
 Os comandos `host:*` chamam um pequeno CLI em TypeScript (`cli/`), que o Node 24 roda direto, sem build. Ele faz o que o `docker compose` sozinho não faz: cria o `.env`, descobre a URL do túnel, aplica as migrations, roda o seed do admin e espera a URL pública responder.
 
-| Arquivo            | O que faz                                                              |
-| ------------------ | ---------------------------------------------------------------------- |
-| `cli/main.ts`      | recebe o comando (`start`, `stop`, `logs`) e mostra os erros           |
-| `cli/commands/`    | um arquivo por comando, com o fluxo em ordem                           |
-| `cli/env-file.ts`  | lê e grava o `.env` (sempre com modo 600)                              |
-| `cli/setup-env.ts` | cria o `.env` na primeira vez, gera segredos e renomeia chaves antigas |
-| `cli/compose.ts`   | chama o `docker compose` deste diretório                               |
-| `cli/tunnel.ts`    | descobre a URL do modo rápido                                          |
-| `cli/database.ts`  | migrations e seed do admin                                             |
+| Arquivo              | O que faz                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------- |
+| `cli/main.ts`        | recebe o comando (`start`, `stop`, `logs`) e mostra os erros                        |
+| `cli/commands/`      | um arquivo por comando, com o fluxo em ordem                                        |
+| `cli/env-file.ts`    | lê e grava o `.env` (sempre com modo 600)                                           |
+| `cli/setup-env.ts`   | cria o `.env` na primeira vez, gera segredos, renomeia chaves antigas e valida tudo |
+| `cli/env-sources.ts` | de onde vem cada variável: gerada, padrão, derivada ou externa (com onde obter)     |
+| `cli/compose.ts`     | chama o `docker compose` deste diretório                                            |
+| `cli/tunnel.ts`      | descobre a URL do modo rápido                                                       |
+| `cli/database.ts`    | migrations e seed do admin                                                          |
+
+O `.env` é validado com o schema do pacote `@gameplay/env` (`packages/env/src/self-hosted.ts`), o mesmo pacote que valida a API. O `host:start` gera os segredos que faltam e, se faltar algo que só você tem (por exemplo a chave do TURN com `ICE_PROVIDER=cloudflare`), para antes do build e lista todas as variáveis com problema, com onde conseguir cada uma.
 
 Este diretório é um workspace (`@gameplay/self-hosted`), então `npm run typecheck`, `lint`, `test` e `format:check` na raiz também cobrem o CLI.
 

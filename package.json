@@ -18,7 +18,7 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "e2e": "turbo run e2e",
-    "host:start": "node infra/self-hosted/cli/main.ts start",
+    "host:start": "turbo run build --filter=@gameplay/env --output-logs=errors-only && node infra/self-hosted/cli/main.ts start",
     "host:stop": "node infra/self-hosted/cli/main.ts stop",
     "host:logs": "node infra/self-hosted/cli/main.ts logs",
     "deploy": "bash infra/production/deploy.sh"

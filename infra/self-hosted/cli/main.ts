@@ -1,13 +1,11 @@
 // Entry point of the npm run host:* scripts: node infra/self-hosted/cli/main.ts <command> [mode]
-import { logs } from './commands/logs.ts'
-import { start } from './commands/start.ts'
-import { stop } from './commands/stop.ts'
 import { HostError } from './shell.ts'
 
-const commands: Record<string, (argument: string | undefined) => void | Promise<void>> = {
-  start,
-  stop,
-  logs,
+// Loaded on demand: only start needs the built @gameplay/env package.
+const commands: Record<string, (argument: string | undefined) => Promise<void>> = {
+  start: async (mode) => (await import('./commands/start.ts')).start(mode),
+  stop: async () => (await import('./commands/stop.ts')).stop(),
+  logs: async () => (await import('./commands/logs.ts')).logs(),
 }
 
 const [name = '', argument] = process.argv.slice(2)
