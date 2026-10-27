@@ -262,7 +262,8 @@
         "missing": "Didn't come",
         "silent": "Silent",
         "active": "With sound"
-      }
+      },
+      "mode": "Sent through"
     },
     "stopShort": "Stop",
     "changeQuality": "Change quality",

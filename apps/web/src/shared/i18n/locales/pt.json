@@ -262,7 +262,8 @@
         "missing": "Não veio",
         "silent": "Em silêncio",
         "active": "Com som"
-      }
+      },
+      "mode": "Transmitindo por"
     },
     "stopShort": "Parar",
     "changeQuality": "Mudar qualidade",

@@ -100,7 +100,6 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
           <span className="size-2 animate-pulse rounded-full bg-red-500" aria-hidden />
           {t('share.live')}
           <span className="text-muted-foreground font-normal">· {t(`share.setup.sources.${source}.label`)}</span>
-          <span className="text-muted-foreground rounded border px-1 font-normal">{t(`share.mode.${mode}.name`)}</span>
         </span>
         <span className="text-muted-foreground flex items-center gap-1">
           <UsersIcon className="size-3.5" aria-hidden />
@@ -109,6 +108,8 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
       </div>
 
       <dl className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 text-xs">
+        <dt className="text-muted-foreground">{t('share.monitor.mode')}</dt>
+        <dd className="text-right">{t(`share.mode.${mode}.name`)}</dd>
         <dt className="text-muted-foreground">{t('share.monitor.target')}</dt>
         <dd className="text-right font-mono tabular-nums">
           {target.resolution} · {target.fps} fps
