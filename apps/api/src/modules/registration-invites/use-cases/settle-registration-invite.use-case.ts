@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { TokenHasher } from '../providers/token-hasher'
+import { TokenHasher } from '../providers/token-hasher/token-hasher.provider'
 import { RegistrationInvitesRepository } from '../repositories/registration-invites.repository'
 
 type Input = {

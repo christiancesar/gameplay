@@ -1,3 +1,4 @@
+import type { StreamQualityLevel } from '@gameplay/contracts'
 import { useCallback, useEffect, useRef } from 'react'
 
 import { isImmersive } from '@/modules/screen-share/model/rules/immersive'
@@ -18,6 +19,7 @@ function useStreamWatchViewModel() {
   const status = useWatchStore((state) => state.status)
   const quality = useWatchStore((state) => state.quality)
   const hasAudio = useWatchStore((state) => state.hasAudio)
+  const level = useWatchStore((state) => state.level)
   const { expanded, landscapeOptOut } = useStreamPlayerStore()
   const phoneLandscape = useMediaQuery(PHONE_LANDSCAPE_QUERY)
   const sideways = useRef(phoneLandscape)
@@ -58,7 +60,9 @@ function useStreamWatchViewModel() {
     // Nothing to say about audio before the video is in.
     hasAudio: status !== 'playing' || hasAudio,
     immersive: isImmersive({ expanded, phoneLandscape, landscapeOptOut }),
+    level,
     onVolumeChange: (next: number) => shareController.setStreamVolume(next),
+    onLevelChange: (next: StreamQualityLevel) => shareController.setStreamQuality(next),
     onImmersiveChange: setImmersive,
   }
 }

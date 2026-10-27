@@ -1,3 +1,5 @@
+import type { StreamQualityLevel } from '@gameplay/contracts'
+
 type WatchStatus = 'idle' | 'waiting' | 'playing'
 
 /** What reaches me, measured on my side: it can be lower than what the streamer sends. */
@@ -16,6 +18,8 @@ type WatchSnapshot = {
   quality: ReceivedQuality | null
   /** The stream carries audio (the streamer shared it and the browser gave it). */
   hasAudio: boolean
+  /** The quality I asked for; kept between streams like the volume. */
+  level: StreamQualityLevel
   failed: boolean
 }
 
@@ -31,6 +35,7 @@ const idleWatch: WatchSnapshot = {
   volume: 100,
   quality: null,
   hasAudio: false,
+  level: 'auto',
   failed: false,
 }
 

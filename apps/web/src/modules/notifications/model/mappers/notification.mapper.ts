@@ -4,7 +4,11 @@ import type { HubNotification } from '@/modules/notifications/model/entities/hub
 
 /** API types are kebab-case; the panel View switches on camelCase. */
 function toHubNotification(notification: Notification): HubNotification {
-  const { id, createdAt, server } = notification
+  const { id, createdAt } = notification
+  if (notification.type === 'platform-announcement') {
+    return { id, createdAt, type: 'platformAnnouncement', announcement: notification.announcement }
+  }
+  const { server } = notification
   switch (notification.type) {
     case 'join-approved':
       return { id, createdAt, type: 'joinApproved', server }

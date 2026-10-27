@@ -77,7 +77,11 @@ export const liveOnTarget: SharePanelState = {
   limitation: 'none',
   viewerCount: 2,
   audio: 'active',
+  mode: 'mesh',
 }
+
+/** Pelo servidor (SFU): o que sobe para o servidor vale para todo mundo. */
+export const liveThroughSfu: SharePanelState = { ...liveOnTarget, mode: 'sfu', viewerCount: 5 }
 
 /** Áudio pedido que o browser não entregou (Firefox, por exemplo). */
 export const liveWithoutAudio: SharePanelState = { ...liveOnTarget, audio: 'missing' }
@@ -106,6 +110,7 @@ export const liveNoViewers: SharePanelState = {
   limitation: 'none',
   viewerCount: 0,
   audio: 'off',
+  mode: 'mesh',
 }
 
 export const viewerQualities: ViewerQuality[] = [

@@ -1,4 +1,4 @@
-import { Timers } from '../providers/timers'
+import { Timers } from '../providers/timers/timers.provider'
 
 // Jobs wait until the test runs them.
 export class FakeTimers extends Timers {

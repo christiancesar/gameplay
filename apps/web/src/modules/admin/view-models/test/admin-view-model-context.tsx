@@ -19,7 +19,10 @@ function createAdminViewModelContext(responses: Partial<AdminResponses> = {}) {
     if (url === '/admin/servers') {
       return { data: { servers: api.servers, total: api.servers.length, page: 1, pageSize: 100 } }
     }
+    if (/^\/admin\/servers\/[^/]+\/media$/.test(url)) return { data: api.serverMedia }
     if (url.startsWith('/admin/servers/')) return { data: api.serverDetail }
+    if (url === '/admin/media') return { data: api.media }
+    if (url === '/admin/media/impact') return { data: api.impact }
     if (url === '/admin/hardware/summary') return { data: api.summary }
     if (url === '/admin/settings') return { data: api.settings }
     if (url === '/admin/registration-invites') return { data: { invites: api.invites } }
@@ -28,9 +31,12 @@ function createAdminViewModelContext(responses: Partial<AdminResponses> = {}) {
   fakeHttp.post.mockImplementation(async (url: string, body?: { password?: string; validity?: string }) => {
     if (url.endsWith('/password')) return { data: { password: body?.password ?? '' } }
     if (url === '/admin/registration-invites') return { data: { key: 'ABC234', invite: generatedInvite } }
+    if (url === '/admin/announcements') return { data: { recipients: 3 } }
     return { data: undefined }
   })
-  fakeHttp.put.mockResolvedValue({ data: undefined })
+  fakeHttp.put.mockImplementation(async (url: string) =>
+    url.endsWith('/media') ? { data: { notified: 0 } } : { data: undefined },
+  )
   fakeHttp.delete.mockResolvedValue({ data: undefined })
   return createQueryClientContext()
 }

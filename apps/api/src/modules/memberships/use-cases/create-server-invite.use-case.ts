@@ -3,7 +3,7 @@ import { EffectiveLimitsService } from '../../limits/services/effective-limits.s
 import { ServerAccessService } from '../../servers/services/server-access.service'
 import { type InviteListItem, SERVER_INVITE_TTL_MS } from '../domain/membership'
 import { MemberLimitReachedError } from '../errors/memberships.errors'
-import { InviteCodeGenerator } from '../providers/invite-code-generator'
+import { InviteCodeGenerator } from '../providers/invite-code-generator/invite-code-generator.provider'
 import { MembershipsRepository } from '../repositories/memberships.repository'
 
 type Input = { serverId: string; userId: string }

@@ -15,7 +15,7 @@ export class LeaveRoomUseCase {
   async execute({ userId, socketId }: Input): Promise<void> {
     const seat = await this.store.remove(userId, socketId)
     if (!seat) return
-    this.voice.released(seat, null)
+    await this.voice.released(seat, null)
     await this.voice.announce(seat.serverId, seat.roomId)
   }
 }

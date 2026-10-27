@@ -17,6 +17,7 @@ const fakeShareController = {
   watch: vi.fn(),
   stopWatching: vi.fn(),
   setStreamVolume: vi.fn(),
+  setStreamQuality: vi.fn(),
   dismissWatchFailure: vi.fn(),
 }
 

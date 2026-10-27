@@ -6,7 +6,22 @@ model PlatformSettings {
   maxMembersPerServer Int      @default(10)
   maxRoomsPerServer   Int      @default(2)
   minChromiumVersion  Int      @default(130)
+  // Media resources: screen share through the SFU, mesh, and the TURN relay.
+  sfuEnabled          Boolean  @default(true)
+  meshEnabled         Boolean  @default(true)
+  turnEnabled         Boolean  @default(true)
+  // Monthly SFU traffic allowed, in GB; past it new shares can't use the SFU.
+  sfuBudgetGb         Int      @default(800)
   updatedAt           DateTime @updatedAt
 
   @@map("platform_settings")
+}
+
+// SFU traffic per month (UTC, "2026-10"), summed from what viewers report.
+model MediaUsage {
+  month     String   @id
+  sfuBytes  BigInt   @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@map("media_usage")
 }

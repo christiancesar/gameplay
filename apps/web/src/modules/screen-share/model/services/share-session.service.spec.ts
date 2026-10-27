@@ -34,7 +34,7 @@ describe('ShareSession', () => {
       expect(ctx.acquireScreen).toHaveBeenCalledTimes(1)
       const options = ctx.acquireScreen.mock.calls[0] as unknown as [DisplayMediaStreamOptions]
       expect(options[0].video).toMatchObject({ displaySurface: 'window', frameRate: { ideal: 60 } })
-      expect(ctx.realtime.startStream).toHaveBeenCalledWith('1080p60')
+      expect(ctx.realtime.startStream).toHaveBeenCalledWith('1080p60', 'mesh')
       expect(ctx.store.state).toMatchObject({
         status: 'live',
         settings: gameSettings,
@@ -196,8 +196,8 @@ describe('ShareSession', () => {
         serverId: 's1',
         roomId: 'r1',
         participants: [
-          { userId: 'u1', muted: false, deafened: false, streaming: '1080p60' },
-          { userId: 'u3', muted: false, deafened: false, streaming: null },
+          { userId: 'u1', muted: false, deafened: false, streaming: '1080p60', streamMode: 'mesh' },
+          { userId: 'u3', muted: false, deafened: false, streaming: null, streamMode: null },
         ],
       })
       expect(ctx.store.state.viewerIds).toEqual(['u3'])
@@ -289,7 +289,7 @@ describe('ShareSession', () => {
         maxFramerate: 30,
         degradationPreference: 'maintain-framerate',
       })
-      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith('720p30')
+      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith('720p30', 'mesh')
       expect(ctx.store.state.settings).toMatchObject({ resolution: '720p', fps: 30 })
       expect(ctx.stopScreen).not.toHaveBeenCalled()
     })
@@ -312,7 +312,7 @@ describe('ShareSession', () => {
       await goLive()
       ctx.capture.video.applyConstraints.mockRejectedValueOnce(new Error('Overconstrained'))
       await ctx.session.updateQuality({ ...gameSettings, fps: 30 }, 'smooth')
-      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith('1080p30')
+      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith('1080p30', 'mesh')
     })
 
     it('does nothing when not live', async () => {
@@ -381,5 +381,107 @@ describe('ShareSession', () => {
     ctx.store.setState({ notice: 'failed' })
     ctx.session.dismissNotice()
     expect(ctx.store.state.notice).toBeNull()
+  })
+
+  describe('through the SFU', () => {
+    const goLiveSfu = (fallbackToMesh = true) =>
+      ctx.session.start(gameSettings, 'smooth', { mode: 'sfu', fallbackToMesh })
+
+    it('publishes the screen once with simulcast layers, then announces it in sfu mode', async () => {
+      await goLiveSfu()
+
+      const [tracks] = ctx.publishToSfu.mock.calls[0]
+      expect(tracks.map((track) => track.kind)).toEqual(['video', 'audio'])
+      expect(tracks[0].encodings?.map((layer) => layer.rid)).toEqual(['f', 'h', 'q'])
+      expect(ctx.realtime.startStream).toHaveBeenCalledWith('1080p60', 'sfu')
+      expect(ctx.store.state).toMatchObject({ status: 'live', mode: 'sfu', notice: null })
+      expect(ctx.sfu.publications[0].sender.setParameters).toHaveBeenCalledWith(
+        expect.objectContaining({ degradationPreference: 'maintain-framerate' }),
+      )
+    })
+
+    it('lists who watches without sending them anything over the call', async () => {
+      await goLiveSfu()
+      await viewerAsks('u2')
+
+      expect(ctx.store.state.viewerIds).toEqual(['u2'])
+      expect(media.transport.addTrack).not.toHaveBeenCalled()
+    })
+
+    it('measures what goes up to the SFU, adding up the layers', async () => {
+      await goLiveSfu()
+      const publication = ctx.sfu.publications[0]
+      publication.stats = [
+        outbound({ bytesSent: 0, timestamp: 1000 }),
+        outbound({ frameHeight: 540, bytesSent: 0, timestamp: 1000 }),
+      ]
+      await vi.advanceTimersByTimeAsync(1000)
+      publication.stats = [
+        outbound({ bytesSent: 750_000, timestamp: 2000 }),
+        outbound({ frameHeight: 540, bytesSent: 250_000, timestamp: 2000 }),
+      ]
+      await vi.advanceTimersByTimeAsync(1000)
+
+      expect(ctx.store.state.uplink).toMatchObject({ height: 1080, kbps: 8000 })
+    })
+
+    it('goes Direct (Mesh) with the same capture when the SFU fails', async () => {
+      ctx.sfu.failing = true
+      await goLiveSfu()
+
+      expect(ctx.acquireScreen).toHaveBeenCalledTimes(1)
+      expect(ctx.realtime.startStream).toHaveBeenCalledWith('1080p60', 'mesh')
+      expect(ctx.store.state).toMatchObject({ status: 'live', mode: 'mesh', notice: 'fell-back' })
+    })
+
+    it('does not start when the SFU fails and Direct is off', async () => {
+      ctx.sfu.failing = true
+      await goLiveSfu(false)
+
+      expect(ctx.realtime.startStream).not.toHaveBeenCalled()
+      expect(ctx.store.state).toMatchObject({ status: 'idle', notice: 'start-failed' })
+      expect(ctx.stopScreen).toHaveBeenCalled()
+    })
+
+    it('closes the SFU connection when the share stops', async () => {
+      await goLiveSfu()
+      await ctx.session.stop()
+      expect(ctx.sfu.publications[0].close).toHaveBeenCalled()
+      expect(ctx.realtime.stopStream).toHaveBeenCalled()
+    })
+
+    it('stops quietly and says why when the platform admin turns the mode off', async () => {
+      await goLiveSfu()
+      ctx.realtime.receive('stream:ended', { reason: 'disabled' })
+
+      expect(ctx.store.state).toMatchObject({ status: 'idle', notice: 'disabled' })
+      expect(ctx.sfu.publications[0].close).toHaveBeenCalled()
+      expect(ctx.realtime.stopStream).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('quality each viewer asks for', () => {
+    it('lightens only the connection of a Direct viewer who asked for less', async () => {
+      await goLive()
+      await viewerAsks('u2')
+      await viewerAsks('u3')
+      ctx.realtime.receive('stream:quality', { viewerId: 'u2', level: 'low' })
+      await vi.advanceTimersByTimeAsync(0)
+
+      const calls = media.transport.setVideoEncoding.mock.calls.filter(([viewerId]) => viewerId === 'u2')
+      expect(calls.at(-1)?.[2]).toMatchObject({ scaleResolutionDownBy: 4, maxFramerate: 15, maxBitrate: 800_000 })
+      const other = media.transport.setVideoEncoding.mock.calls.filter(([viewerId]) => viewerId === 'u3')
+      expect(other.at(-1)?.[2]).toMatchObject({ maxBitrate: 8_000_000 })
+    })
+
+    it('through the SFU, shows what each viewer reports', async () => {
+      await ctx.session.start(gameSettings, 'smooth', { mode: 'sfu', fallbackToMesh: true })
+      await viewerAsks('u2')
+      const quality = { width: 1280, height: 720, fps: 30, kbps: 2500 }
+      ctx.realtime.receive('stream:received', { viewerId: 'u2', quality })
+      ctx.realtime.receive('stream:received', { viewerId: 'u9', quality })
+
+      expect(ctx.store.state.stats).toEqual({ u2: { ...quality, limitation: 'none' } })
+    })
   })
 })

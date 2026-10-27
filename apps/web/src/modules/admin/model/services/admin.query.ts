@@ -3,8 +3,11 @@ import type { AdminListQuery } from '@gameplay/contracts'
 
 import { adminKeys } from './admin.keys'
 import {
+  getAdminMedia,
   getAdminServer,
   getHardwareSummary,
+  getMediaImpact,
+  getServerMediaOverrides,
   getPlatformSettings,
   listAdminDevices,
   listAdminServers,
@@ -45,14 +48,25 @@ const registrationInvitesQueryOptions = queryOptions({
   queryFn: listRegistrationInvites,
 })
 
+const adminMediaQueryOptions = queryOptions({ queryKey: adminKeys.media(), queryFn: getAdminMedia })
+
+const mediaImpactQueryOptions = (serverId: string | null) =>
+  queryOptions({ queryKey: adminKeys.mediaImpact(serverId), queryFn: () => getMediaImpact(serverId), staleTime: 0 })
+
+const serverMediaOverridesQueryOptions = (serverId: string) =>
+  queryOptions({ queryKey: adminKeys.serverMedia(serverId), queryFn: () => getServerMediaOverrides(serverId) })
+
 export {
   adminDevicesQueryOptions,
+  adminMediaQueryOptions,
   adminServerDetailQueryOptions,
   adminServersQueryOptions,
   adminUserDevicesQueryOptions,
   adminUserSessionsQueryOptions,
   adminUsersQueryOptions,
   hardwareSummaryQueryOptions,
+  mediaImpactQueryOptions,
   platformSettingsQueryOptions,
   registrationInvitesQueryOptions,
+  serverMediaOverridesQueryOptions,
 }

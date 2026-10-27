@@ -7,6 +7,7 @@ const participant = (userId: string, overrides: Partial<Participant> = {}): Part
   muted: false,
   deafened: false,
   streaming: null,
+  streamMode: null,
   ...overrides,
 })
 

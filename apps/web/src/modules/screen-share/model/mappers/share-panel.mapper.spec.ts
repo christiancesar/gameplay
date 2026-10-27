@@ -32,6 +32,17 @@ describe('share panel mapper', () => {
       limitation: 'bandwidth',
       viewerCount: 3,
       audio: 'active',
+      mode: 'mesh',
+    })
+  })
+
+  it('through the SFU, shows what goes up to the server instead of the worst viewer', () => {
+    const uplink = { width: 1920, height: 1080, fps: 60, kbps: 9000, limitation: 'none' as const }
+    expect(toSharePanelState({ ...live, mode: 'sfu', uplink })).toMatchObject({
+      mode: 'sfu',
+      delivering: { width: 1920, height: 1080, fps: 60, kbps: 9000 },
+      isOnTarget: true,
+      viewerCount: 3,
     })
   })
 

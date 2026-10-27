@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common'
 import { EnvService } from '../../env/env.service'
-import { LocalStorageProvider } from './drivers/local-storage.provider'
-import { S3StorageProvider } from './drivers/s3-storage.provider'
+import { LocalStorageProvider } from './providers/storage/local/local.storage.provider'
+import { S3StorageProvider } from './providers/storage/s3/s3.storage.provider'
 import { ImageProcessor } from './images/image-processor'
-import { StorageProvider } from './storage.provider'
+import { StorageProvider } from './providers/storage/storage.provider'
 
 function createStorage(env: EnvService): StorageProvider {
   const publicBaseUrl = env.get('PUBLIC_UPLOADS_URL')

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InvalidRegistrationKeyError } from '../errors/registration-invite.errors'
-import { TokenHasher } from '../providers/token-hasher'
+import { TokenHasher } from '../providers/token-hasher/token-hasher.provider'
 import { RegistrationInvitesRepository } from '../repositories/registration-invites.repository'
 
 // First half of the sign-up: takes the key before the account is created.

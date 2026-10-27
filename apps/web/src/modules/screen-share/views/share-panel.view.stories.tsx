@@ -7,6 +7,7 @@ import {
   liveLimitedByNetwork,
   liveNoViewers,
   liveOnTarget,
+  liveThroughSfu,
   liveWithoutAudio,
   viewerQualities,
 } from '@/fixtures/server'
@@ -109,5 +110,14 @@ export const LiveWithChangeQuality: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('button', { name: /change quality/i }))
     await expect(args.onChangeQuality).toHaveBeenCalledOnce()
+  },
+}
+
+/** Pelo servidor (SFU): selo do modo e o que sobe para o servidor. */
+export const LiveThroughServer: Story = {
+  args: { state: liveThroughSfu },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText('Server (SFU)')).toBeVisible()
+    await expect(canvas.getByText(/sent to the server/i)).toBeVisible()
   },
 }

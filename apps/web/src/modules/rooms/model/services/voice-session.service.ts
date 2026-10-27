@@ -38,7 +38,8 @@ type VoiceSessionDeps = {
   acquireMicrophone: (deviceId: string | undefined) => Promise<MicrophoneResult>
   stopMicrophone: (microphone: MicrophoneHandle) => void
   /** `renewal` skips any cache: the credentials in hand are about to expire. */
-  loadIceConfig: (renewal: boolean) => Promise<IceConfigResponse>
+  /** `serverId`: the room's server, which may have TURN turned off. */
+  loadIceConfig: (renewal: boolean, serverId: string) => Promise<IceConfigResponse>
   createEngine: () => AudioEngine
   createTransport: (options: { selfId: string; iceServers: IceConfigResponse['iceServers'] }) => MediaTransport
   createSpeakingWatcher: (engine: AudioEngine, onChange: (speakingIds: readonly string[]) => void) => SpeakingWatcher
@@ -136,7 +137,7 @@ class VoiceSession {
     let ice: IceConfigResponse = { iceServers: [], ttlSeconds: 0, requestIp: null }
     let iceFailed = false
     try {
-      ice = await this.deps.loadIceConfig(false)
+      ice = await this.deps.loadIceConfig(false, serverId)
     } catch {
       iceFailed = true
     }
@@ -170,6 +171,12 @@ class VoiceSession {
         if (reason === 'other-tab') this.finish(active, 'other-tab')
         else if (reason === 'room-deleted') this.finish(active, 'room-deleted')
         else this.finish(active, null)
+      }),
+      // The platform admin turned TURN off: the revoked relay is replaced by what the API answers now.
+      realtime.on('media:changed', ({ serverId: changed, turnOff }) => {
+        if (!turnOff || (changed !== null && changed !== serverId)) return
+        clearTimeout(active.iceTimer)
+        this.scheduleIceRenewal(active, 0)
       }),
       // Left, kicked or deleted: the call of that server ends even if the API's room:left is late.
       realtime.on('server:removed', (event) => {
@@ -408,7 +415,7 @@ class VoiceSession {
     if (delayMs === null || this.active !== active) return
     active.iceTimer = setTimeout(async () => {
       try {
-        const ice = await this.deps.loadIceConfig(true)
+        const ice = await this.deps.loadIceConfig(true, active.serverId)
         if (this.active !== active) return
         active.transport?.updateIceServers(ice.iceServers)
         this.scheduleIceRenewal(active, iceRenewalDelayMs(ice.ttlSeconds))

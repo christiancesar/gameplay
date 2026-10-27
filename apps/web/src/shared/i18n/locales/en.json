@@ -262,7 +262,9 @@
         "missing": "Didn't come",
         "silent": "Silent",
         "active": "With sound"
-      }
+      },
+      "mode": "Sent through",
+      "detailsDescriptionSfu": "You send once to the server, which hands each viewer the layer their network carries. What reaches each one, as they report it:"
     },
     "stopShort": "Stop",
     "changeQuality": "Change quality",
@@ -273,12 +275,41 @@
       "failed": "Could not start sharing the screen.",
       "start-failed": "Could not announce the screen share to the room.",
       "not-in-call": "Join a voice room to share your screen.",
-      "no-audio": "Sharing without audio: the browser gave no sound. Check the audio box in the picker, or use Chrome or Edge."
+      "no-audio": "Sharing without audio: the browser gave no sound. Check the audio box in the picker, or use Chrome or Edge.",
+      "disabled": "The platform admin turned this way of sharing off. Your share was stopped.",
+      "fell-back": "Sharing through the server failed. Your share went Direct (Mesh)."
     },
     "receiving": "What reaches you",
     "noStreamAudio": "This stream has no audio",
     "people": "People",
-    "exitFullscreen": "Exit fullscreen"
+    "exitFullscreen": "Exit fullscreen",
+    "mode": {
+      "label": "Send through",
+      "sfu": {
+        "name": "Server (SFU)",
+        "description": "Best for several people watching. You send once to a dedicated server, which hands out copies of your stream without splitting your upload."
+      },
+      "mesh": {
+        "name": "Direct (Mesh)",
+        "description": "Best for 1:1, with the lowest delay. Your upload is split among the viewers."
+      },
+      "reasons": {
+        "disabled": "Turned off for this server.",
+        "not-configured": "Not available on this server.",
+        "budget-exhausted": "The server sharing budget for this month ran out."
+      },
+      "none": "Screen sharing is turned off for this server."
+    },
+    "uplink": "Sent to the server",
+    "quality": {
+      "label": "Quality",
+      "levels": {
+        "auto": "Auto",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    }
   },
   "image": {
     "choose": "Choose image",
@@ -502,7 +533,9 @@
       "servers": "Servers",
       "limits": "Limits",
       "keys": "Sign-up keys",
-      "hardware": "Hardware"
+      "hardware": "Hardware",
+      "announcements": "Announcements",
+      "media": "Media"
     },
     "search": "Search",
     "empty": "Nothing found.",
@@ -578,20 +611,20 @@
     "limitDialog": {
       "useDefault": "Use the global default ({{value}})",
       "override": "Custom value",
-      "save": "Save limit"
+      "save": "Save"
     },
     "servers": {
       "server": "Server",
       "owner": "Owner",
       "members": "Members",
       "rooms": "Rooms",
-      "editLimits": "Adjust limits",
+      "editLimits": "Adjust server",
       "delete": "Delete server",
       "viewMembers": "View members",
       "membersTitle": "Members of {{name}}",
       "role": "Role",
       "joinedVia": "How they joined",
-      "limitsTitle": "Limits of {{name}}"
+      "limitsTitle": "Adjust {{name}}"
     },
     "limits": {
       "description": "Defaults used when a user or server has no custom value. Changes apply without redeploy.",
@@ -635,6 +668,102 @@
       "lastSeen": "Last seen",
       "deviceTitle": "Hardware of {{name}}",
       "noDevices": "No device reported yet."
+    },
+    "announcements": {
+      "description": "The announcement goes to each person's notifications on the Hub and shows up right away for whoever is online.",
+      "titleLabel": "Title",
+      "messageLabel": "Message",
+      "remaining_one": "{{count}} character left",
+      "remaining_other": "{{count}} characters left",
+      "audience": "Send to",
+      "audiences": {
+        "everyone": "Everyone",
+        "server": "Members of a server"
+      },
+      "server": "Server",
+      "serverPlaceholder": "Pick a server",
+      "send": "Send announcement",
+      "sent_one": "Announcement sent to {{count}} person.",
+      "sent_other": "Announcement sent to {{count}} people.",
+      "errors": {
+        "required": "Fill this in.",
+        "titleTooLong": "Use up to 80 characters.",
+        "messageTooLong": "Use up to 500 characters.",
+        "serverRequired": "Pick a server."
+      }
+    },
+    "media": {
+      "title": "Media resources",
+      "description": "Turn screen share modes and the TURN relay on or off for the whole platform. A server can keep its own setting in \"Adjust server\".",
+      "on": "On",
+      "off": "Off",
+      "choices": {
+        "global": "Global default ({{state}})",
+        "on": "On for this server",
+        "off": "Off for this server"
+      },
+      "resources": {
+        "sfu": {
+          "name": "Server (SFU)",
+          "description": "Best for several people watching. The streamer sends once to a dedicated server, which hands out copies without splitting their upload."
+        },
+        "mesh": {
+          "name": "Direct (Mesh)",
+          "description": "Best for 1:1, with the lowest delay. The streamer's upload is split among the viewers."
+        },
+        "turn": {
+          "name": "Relay (TURN)",
+          "description": "Relays voice and Direct shares when a direct connection fails. Without it, some people may not connect."
+        }
+      },
+      "provider": {
+        "ready": "{{name}}, ready",
+        "notConfigured": "No credentials on the server",
+        "failing": "{{name}}, failed the last check",
+        "none": "No provider: it runs between the browsers"
+      },
+      "exceptions": {
+        "title": "Server exceptions",
+        "empty": "Every server follows the global settings.",
+        "adjust": "Adjust"
+      },
+      "confirm": {
+        "title": "Turn off {{resources}}?",
+        "impact_one": "{{count}} person in a voice room will be cut off right away.",
+        "impact_other": "{{count}} people in voice rooms will be cut off right away.",
+        "impactNone": "Nobody is using it right now.",
+        "noticeTitle": "Notice title",
+        "noticeMessage": "Message",
+        "audience": "Send to",
+        "audiences": {
+          "affected": "Only who is cut off",
+          "members": "Members of the server",
+          "everyone": "Everyone"
+        },
+        "defaultTitle": "{{resources}} turned off",
+        "defaultMessage": "The platform admin turned off {{resources}} for now.",
+        "notify": "Turn off and notify",
+        "silent": "Turn off without notifying"
+      },
+      "saved": "Media settings saved.",
+      "budget": {
+        "usage": "{{used}} GB of {{budget}} GB used in {{month}}. Past the budget, new shares go Direct (Mesh).",
+        "label": "Monthly budget (GB)",
+        "save": "Save budget",
+        "saved": "Budget saved.",
+        "errors": {
+          "invalid": "Use a whole number from 0 to 100000."
+        }
+      },
+      "usage": {
+        "title": "Usage in {{month}}",
+        "reported": "viewers reported {{value}} GB",
+        "total": "Total billed by Cloudflare",
+        "ofFreeTier": "{{used}} GB of {{free}} GB free",
+        "notConfigured": "Cloudflare's numbers are off: set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_ANALYTICS_TOKEN on the server. Until then the SFU counts only what viewers report, and TURN is not measured.",
+        "failing": "Could not read the numbers from Cloudflare; showing the last ones.",
+        "checkedAt": "Cloudflare's numbers, checked {{when}}. They come a few minutes late."
+      }
     }
   },
   "hardware": {

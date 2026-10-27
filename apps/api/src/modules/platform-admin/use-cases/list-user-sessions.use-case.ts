@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { type AccountSession, AuthAccounts } from '../providers/auth-accounts'
+import { type AccountSession, AuthAccounts } from '../providers/auth-accounts/auth-accounts.provider'
 import { AdminUsersService } from '../services/admin-users.service'
 
 @Injectable()

@@ -57,7 +57,7 @@ describe('realtime service', () => {
     })
 
     it('joins a room and resolves with the participants of the ack', async () => {
-      const participants = [{ userId: 'u1', muted: false, deafened: false, streaming: null }]
+      const participants = [{ userId: 'u1', muted: false, deafened: false, streaming: null, streamMode: null }]
       socket.ackReply = { ok: true, data: { participants } } as never
       await expect(service.joinRoom({ roomId: 'r1', muted: true, deafened: false })).resolves.toEqual(participants)
       expect(socket.emitted[0].event).toBe('room:join')
@@ -79,11 +79,13 @@ describe('realtime service', () => {
 
     it('sends the screen share events with their payloads', async () => {
       await service.startStream('1080p60')
+      await service.startStream('720p30', 'sfu')
       await service.watchStream('u2')
       await service.unwatchStream('u2')
       await service.stopStream()
       expect(socket.emitted.map((entry) => [entry.event, entry.args[0]])).toEqual([
-        ['stream:start', { preset: '1080p60' }],
+        ['stream:start', { preset: '1080p60', mode: 'mesh' }],
+        ['stream:start', { preset: '720p30', mode: 'sfu' }],
         ['stream:watch', { streamerId: 'u2' }],
         ['stream:unwatch', { streamerId: 'u2' }],
         ['stream:stop', {}],

@@ -1,14 +1,21 @@
-import type { NotificationType } from '@gameplay/contracts'
+import type { Announcement, ServerNotificationType } from '@gameplay/contracts'
 
-export type NotificationRecord = {
+// What a notification says: about a server (the web writes the text), or a
+// platform announcement written by the admin.
+export type NotificationContent =
+  | {
+      type: ServerNotificationType
+      serverId: string
+      // As it was when the event happened.
+      serverName: string
+    }
+  | ({ type: 'platform-announcement' } & Announcement)
+
+export type NotificationRecord = NotificationContent & {
   id: string
   userId: string
-  type: NotificationType
-  serverId: string
-  // As it was when the event happened.
-  serverName: string
   createdAt: Date
   dismissedAt: Date | null
 }
 
-export type NewNotification = Pick<NotificationRecord, 'userId' | 'type' | 'serverId' | 'serverName'>
+export type NewNotification = NotificationContent & { userId: string }

@@ -262,7 +262,9 @@
         "missing": "Não veio",
         "silent": "Em silêncio",
         "active": "Com som"
-      }
+      },
+      "mode": "Transmitindo por",
+      "detailsDescriptionSfu": "Você envia uma vez para o servidor, que entrega a cada espectador a camada que a rede dele aguenta. O que chega para cada um, como eles informam:"
     },
     "stopShort": "Parar",
     "changeQuality": "Mudar qualidade",
@@ -273,12 +275,41 @@
       "failed": "Não foi possível iniciar o compartilhamento.",
       "start-failed": "Não foi possível avisar a sala sobre o compartilhamento.",
       "not-in-call": "Entre em uma sala de voz para compartilhar a tela.",
-      "no-audio": "Transmitindo sem áudio: o browser não entregou o som. Marque a caixa de áudio no seletor ou use Chrome ou Edge."
+      "no-audio": "Transmitindo sem áudio: o browser não entregou o som. Marque a caixa de áudio no seletor ou use Chrome ou Edge.",
+      "disabled": "O admin da plataforma desligou este modo de transmissão. Sua transmissão foi encerrada.",
+      "fell-back": "Não deu para transmitir pelo servidor. Sua transmissão foi para o modo Direto (Mesh)."
     },
     "receiving": "O que chega para você",
     "noStreamAudio": "Esta transmissão está sem áudio",
     "people": "Pessoas",
-    "exitFullscreen": "Sair da tela cheia"
+    "exitFullscreen": "Sair da tela cheia",
+    "mode": {
+      "label": "Transmitir por",
+      "sfu": {
+        "name": "Servidor (SFU)",
+        "description": "Melhor para várias pessoas assistindo. Você envia uma vez só para um servidor dedicado, e este servidor distribui cópias da sua transmissão sem dividir seu upload."
+      },
+      "mesh": {
+        "name": "Direto (Mesh)",
+        "description": "Melhor para 1:1, com menor atraso. Seu upload é dividido entre quem assiste."
+      },
+      "reasons": {
+        "disabled": "Desligado neste servidor.",
+        "not-configured": "Indisponível neste servidor.",
+        "budget-exhausted": "A cota de transmissão pelo servidor deste mês acabou."
+      },
+      "none": "O compartilhamento de tela está desligado neste servidor."
+    },
+    "uplink": "Enviado para o servidor",
+    "quality": {
+      "label": "Qualidade",
+      "levels": {
+        "auto": "Auto",
+        "high": "Alta",
+        "medium": "Média",
+        "low": "Baixa"
+      }
+    }
   },
   "image": {
     "choose": "Escolher imagem",
@@ -502,7 +533,9 @@
       "servers": "Servidores",
       "limits": "Limites",
       "keys": "Keys de cadastro",
-      "hardware": "Hardware"
+      "hardware": "Hardware",
+      "announcements": "Avisos",
+      "media": "Mídia"
     },
     "search": "Buscar",
     "empty": "Nada encontrado.",
@@ -578,20 +611,20 @@
     "limitDialog": {
       "useDefault": "Usar o padrão global ({{value}})",
       "override": "Valor próprio",
-      "save": "Salvar limite"
+      "save": "Salvar"
     },
     "servers": {
       "server": "Servidor",
       "owner": "Owner",
       "members": "Membros",
       "rooms": "Salas",
-      "editLimits": "Ajustar limites",
+      "editLimits": "Ajustar servidor",
       "delete": "Excluir servidor",
       "viewMembers": "Ver membros",
       "membersTitle": "Membros de {{name}}",
       "role": "Papel",
       "joinedVia": "Como entrou",
-      "limitsTitle": "Limites de {{name}}"
+      "limitsTitle": "Ajustar {{name}}"
     },
     "limits": {
       "description": "Padrões usados quando o usuário ou servidor não tem valor próprio. Mudanças valem sem redeploy.",
@@ -635,6 +668,102 @@
       "lastSeen": "Visto por último",
       "deviceTitle": "Hardware de {{name}}",
       "noDevices": "Nenhum dispositivo informado ainda."
+    },
+    "announcements": {
+      "description": "O aviso vai para as notificações do Hub de cada pessoa e aparece na hora para quem está online.",
+      "titleLabel": "Título",
+      "messageLabel": "Mensagem",
+      "remaining_one": "Resta {{count}} caractere",
+      "remaining_other": "Restam {{count}} caracteres",
+      "audience": "Enviar para",
+      "audiences": {
+        "everyone": "Todo mundo",
+        "server": "Membros de um servidor"
+      },
+      "server": "Servidor",
+      "serverPlaceholder": "Escolha um servidor",
+      "send": "Enviar aviso",
+      "sent_one": "Aviso enviado para {{count}} pessoa.",
+      "sent_other": "Aviso enviado para {{count}} pessoas.",
+      "errors": {
+        "required": "Preencha este campo.",
+        "titleTooLong": "Use até 80 caracteres.",
+        "messageTooLong": "Use até 500 caracteres.",
+        "serverRequired": "Escolha um servidor."
+      }
+    },
+    "media": {
+      "title": "Recursos de mídia",
+      "description": "Liga ou desliga os modos de transmissão e o relay TURN para a plataforma toda. Um servidor pode ter uma configuração própria em \"Ajustar servidor\".",
+      "on": "Ligado",
+      "off": "Desligado",
+      "choices": {
+        "global": "Padrão global ({{state}})",
+        "on": "Ligado neste servidor",
+        "off": "Desligado neste servidor"
+      },
+      "resources": {
+        "sfu": {
+          "name": "Servidor (SFU)",
+          "description": "Melhor para várias pessoas assistindo. Quem transmite envia uma vez só para um servidor dedicado, e este servidor distribui cópias da transmissão sem dividir o upload."
+        },
+        "mesh": {
+          "name": "Direto (Mesh)",
+          "description": "Melhor para 1:1, com menor atraso. O upload de quem transmite é dividido entre quem assiste."
+        },
+        "turn": {
+          "name": "Relay (TURN)",
+          "description": "Repassa a voz e as transmissões Diretas quando a conexão direta falha. Sem ele, parte das pessoas pode não conectar."
+        }
+      },
+      "provider": {
+        "ready": "{{name}}, configurado",
+        "notConfigured": "Sem credenciais no servidor",
+        "failing": "{{name}}, falhou na última verificação",
+        "none": "Sem provedor: roda direto entre os browsers"
+      },
+      "exceptions": {
+        "title": "Exceções por servidor",
+        "empty": "Todos os servidores seguem a configuração global.",
+        "adjust": "Ajustar"
+      },
+      "confirm": {
+        "title": "Desligar {{resources}}?",
+        "impact_one": "{{count}} pessoa numa sala de voz perde o recurso na hora.",
+        "impact_other": "{{count}} pessoas em salas de voz perdem o recurso na hora.",
+        "impactNone": "Ninguém está usando agora.",
+        "noticeTitle": "Título do aviso",
+        "noticeMessage": "Mensagem",
+        "audience": "Enviar para",
+        "audiences": {
+          "affected": "Só quem foi afetado",
+          "members": "Membros do servidor",
+          "everyone": "Todo mundo"
+        },
+        "defaultTitle": "{{resources}} desligado",
+        "defaultMessage": "O admin da plataforma desligou {{resources}} por enquanto.",
+        "notify": "Desligar e avisar",
+        "silent": "Desligar sem avisar"
+      },
+      "saved": "Configurações de mídia salvas.",
+      "budget": {
+        "usage": "{{used}} GB de {{budget}} GB usados em {{month}}. Passando do orçamento, as novas transmissões vão pelo Direto (Mesh).",
+        "label": "Orçamento mensal (GB)",
+        "save": "Salvar orçamento",
+        "saved": "Orçamento salvo.",
+        "errors": {
+          "invalid": "Use um número inteiro de 0 a 100000."
+        }
+      },
+      "usage": {
+        "title": "Consumo em {{month}}",
+        "reported": "espectadores informaram {{value}} GB",
+        "total": "Total cobrado pela Cloudflare",
+        "ofFreeTier": "{{used}} GB de {{free}} GB grátis",
+        "notConfigured": "Os números da Cloudflare estão desligados: configure CLOUDFLARE_ACCOUNT_ID e CLOUDFLARE_ANALYTICS_TOKEN no servidor. Até lá o SFU conta só o que os espectadores informam, e o TURN não é medido.",
+        "failing": "Não foi possível ler os números da Cloudflare; mostrando os últimos.",
+        "checkedAt": "Números da Cloudflare, lidos {{when}}. Eles chegam com alguns minutos de atraso."
+      }
     }
   },
   "hardware": {

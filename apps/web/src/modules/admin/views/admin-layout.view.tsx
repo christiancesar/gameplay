@@ -1,4 +1,13 @@
-import { ArrowLeftIcon, CpuIcon, KeyRoundIcon, ServerIcon, SlidersHorizontalIcon, UsersIcon } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  CpuIcon,
+  KeyRoundIcon,
+  MegaphoneIcon,
+  RadioTowerIcon,
+  ServerIcon,
+  SlidersHorizontalIcon,
+  UsersIcon,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,7 +21,9 @@ const ICONS = {
   servers: ServerIcon,
   hardware: CpuIcon,
   limits: SlidersHorizontalIcon,
+  media: RadioTowerIcon,
   keys: KeyRoundIcon,
+  announcements: MegaphoneIcon,
 } as const
 
 type AdminLayoutViewProps = {
@@ -37,7 +48,7 @@ function AdminLayoutView({ tab, children, onTabChange, onBackToHub }: AdminLayou
       </header>
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <Tabs value={tab} onValueChange={(value) => onTabChange(value as AdminTab)}>
-          {/* Five tabs do not fit a phone: the strip scrolls sideways. */}
+          {/* The tabs do not fit a phone: the strip scrolls sideways. */}
           <TabsList className="max-w-full justify-start overflow-x-auto overflow-y-hidden">
             {ADMIN_TABS.map((id) => {
               const Icon = ICONS[id]

@@ -1,4 +1,4 @@
-import { InMemoryStorageProvider } from '../../storage/drivers/in-memory-storage.provider'
+import { InMemoryStorageProvider } from '../../storage/providers/storage/in-memory/in-memory.storage.provider'
 import { ImageProcessor } from '../../storage/images/image-processor'
 import { InMemoryDeviceReportsRepository } from '../repositories/in-memory/in-memory-device-reports.repository'
 import { InMemoryProfilesRepository } from '../repositories/in-memory/in-memory-profiles.repository'

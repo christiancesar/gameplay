@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Req } from '@nestjs/common'
+import { Controller, Get, HttpStatus, Query, Req } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import type { IceConfigResponse } from '@gameplay/contracts'
 import type { Request } from 'express'
@@ -13,11 +13,16 @@ import { GetIceConfigUseCase } from '../use-cases/get-ice-config.use-case'
 export class IceController {
   constructor(private readonly getIceConfig: GetIceConfigUseCase) {}
 
-  // Called before joining a voice room.
+  // Called before joining a voice room, with the room's server: TURN may be
+  // off there.
   @Get()
   @ZodResponse({ status: HttpStatus.OK, type: IceConfigResponseDto })
-  async get(@CurrentUser() user: AuthUser, @Req() request: Request): Promise<IceConfigResponse> {
-    const { iceServers, ttlSeconds } = await this.getIceConfig.execute(user.id)
+  async get(
+    @CurrentUser() user: AuthUser,
+    @Req() request: Request,
+    @Query('serverId') serverId?: string,
+  ): Promise<IceConfigResponse> {
+    const { iceServers, ttlSeconds } = await this.getIceConfig.execute(user.id, serverId || undefined)
     return { iceServers, ttlSeconds, requestIp: clientIp(request) }
   }
 }
