@@ -56,6 +56,15 @@ describe('Realtime gateway (e2e)', () => {
     await expect(connectSocket(app, 'gameplay.session_token=forged')).rejects.toThrow('UNAUTHENTICATED')
   })
 
+  it('accepts the session token in the handshake instead of the cookie, as the desktop app sends it', async () => {
+    const { token } = await signedIn(app)
+    const socket = await connectSocket(app, undefined, token)
+    sockets.push(socket)
+    expect(socket.connected).toBe(true)
+
+    await expect(connectSocket(app, undefined, 'forged')).rejects.toThrow('UNAUTHENTICATED')
+  })
+
   it('shows two members each other online and offline', async () => {
     const { owner, ana, serverId } = await serverWithMember()
     const ownerSide = await subscribed(owner.cookie, serverId)

@@ -1,4 +1,5 @@
 import { Controller, Get, Module } from '@nestjs/common'
+import { DESKTOP_APP_ORIGIN } from '@gameplay/contracts'
 import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { CurrentUser } from '../../src/common/auth/current-user.decorator'
@@ -150,6 +151,80 @@ describe('Authentication (e2e)', () => {
       await prisma.user.updateMany({ where: { email: body.email }, data: { role: 'admin', twoFactorEnabled: true } })
 
       expect((await agent.get('/api/auth-test/admin')).status).toBe(200)
+    })
+  })
+
+  describe('bearer token (desktop app)', () => {
+    it('hands the token out at sign-up and sign-in, exposed to the desktop origin', async () => {
+      const { response, body } = await signUp()
+      expect(String(response.headers['set-auth-token'])).not.toBe('')
+
+      const signIn = await request(app.getHttpServer())
+        .post('/api/auth/sign-in/email')
+        .set('Origin', DESKTOP_APP_ORIGIN)
+        .send({ email: body.email, password: body.password })
+
+      expect(signIn.status).toBe(200)
+      expect(String(signIn.headers['set-auth-token'])).not.toBe('')
+      expect(signIn.headers['access-control-expose-headers']).toContain('set-auth-token')
+      expect(signIn.headers['access-control-allow-origin']).toBe(DESKTOP_APP_ORIGIN)
+    })
+
+    it('authenticates a request that sends the token and no cookie', async () => {
+      const { response, body } = await signUp()
+      const token = String(response.headers['set-auth-token'])
+
+      const me = await request(app.getHttpServer()).get('/api/auth-test/me').set('Authorization', `Bearer ${token}`)
+      expect(me.status).toBe(200)
+      expect(me.body).toEqual({ username: body.username.toLowerCase() })
+
+      const session = await request(app.getHttpServer())
+        .get('/api/auth/get-session')
+        .set('Authorization', `Bearer ${token}`)
+      expect(session.status).toBe(200)
+      expect(session.body.user.email).toBe(body.email.toLowerCase())
+    })
+
+    it('refuses a forged or missing token', async () => {
+      expect(
+        (await request(app.getHttpServer()).get('/api/auth-test/me').set('Authorization', 'Bearer forged')).status,
+      ).toBe(401)
+      expect((await request(app.getHttpServer()).get('/api/auth-test/me')).status).toBe(401)
+    })
+
+    it('lets an admin with two-factor in by token', async () => {
+      const { response, body } = await signUp()
+      await prisma.user.updateMany({ where: { email: body.email }, data: { role: 'admin', twoFactorEnabled: true } })
+      const token = String(response.headers['set-auth-token'])
+
+      const admin = await request(app.getHttpServer())
+        .get('/api/auth-test/admin')
+        .set('Authorization', `Bearer ${token}`)
+
+      expect(admin.status).toBe(200)
+    })
+
+    it('answers the preflight of the desktop origin, with PATCH and the authorization header', async () => {
+      const response = await request(app.getHttpServer())
+        .options('/api/servers/any')
+        .set('Origin', DESKTOP_APP_ORIGIN)
+        .set('Access-Control-Request-Method', 'PATCH')
+        .set('Access-Control-Request-Headers', 'authorization,content-type')
+
+      expect(response.status).toBe(204)
+      expect(response.headers['access-control-allow-origin']).toBe(DESKTOP_APP_ORIGIN)
+      expect(response.headers['access-control-allow-methods']).toContain('PATCH')
+      expect(response.headers['access-control-allow-headers']).toContain('authorization')
+      expect(response.headers['access-control-allow-credentials']).toBe('true')
+    })
+
+    it('gives no CORS to another origin', async () => {
+      const response = await request(app.getHttpServer())
+        .options('/api/servers/any')
+        .set('Origin', 'https://evil.example')
+        .set('Access-Control-Request-Method', 'GET')
+
+      expect(response.headers['access-control-allow-origin']).toBeUndefined()
     })
   })
 

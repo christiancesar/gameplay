@@ -5,7 +5,7 @@ import { issueRegistrationKey } from '../factories/registration-invite.factory'
 import { makeSignUp } from '../factories/user.factory'
 
 // Signs up a new user and returns the agent holding the session cookie (also
-// as a Cookie header, for Socket.IO clients). Role and two-factor are set
+// as a Cookie header, for Socket.IO clients) and the bearer token the sign-up answers. Role and two-factor are set
 // straight in the database.
 export async function signedIn(app: INestApplication, { admin = false, twoFactor = true } = {}) {
   const { key } = await issueRegistrationKey(app)
@@ -22,5 +22,6 @@ export async function signedIn(app: INestApplication, { admin = false, twoFactor
     .concat(response.headers['set-cookie'] ?? [])
     .map((line) => line.split(';')[0])
     .join('; ')
-  return { agent, user, cookie }
+  const token = String(response.headers['set-auth-token'] ?? '')
+  return { agent, user, cookie, token }
 }
