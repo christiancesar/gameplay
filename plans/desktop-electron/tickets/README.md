@@ -12,7 +12,7 @@ Pacotes divididos, web e desktop consumindo o mesmo client. Sem recursos nativos
 |---|---|---|---|
 | DESK-01 Plano do app desktop (este diretório) | 3 | 0 | concluído |
 | [DESK-02 Front-end em `packages/client`](DESK-02-packages-client.md) | 8 | 1 | concluído |
-| [DESK-03 Porta `Platform` no client](DESK-03-porta-platform.md) | 3 | 2 | pendente |
+| [DESK-03 Porta `Platform` no client](DESK-03-porta-platform.md) | 3 | 2 | concluído |
 | [DESK-04 Servidor em tempo de execução e token](DESK-04-servidor-e-token.md) | 5 | 3 | pendente |
 | [DESK-05 `apps/desktop` com Electron Forge](DESK-05-apps-desktop.md) | 5 | 4 | pendente |
 | [DESK-06 `packages/desktop-bridge` e o IPC tipado](DESK-06-desktop-bridge.md) | 3 | 5 | pendente |

@@ -46,10 +46,16 @@
 
 ### 3.1 A porta `Platform`
 
-Interface no `packages/client` (`shared/platform/platform.ts`), entregue por um context na raiz do app. Cada casca injeta a sua implementação.
+Interface no `packages/client` (`shared/platform/platform.ts`). Cada casca injeta a sua implementação: o `App` recebe a `platform` por prop. *(DESK-03 feito: o que está abaixo é o que existe no código.)*
 
 ```ts
 type CaptureSource = { id: string; name: string; kind: 'screen' | 'window'; thumbnail: string | null }
+type CaptureRequest = {
+  /** O que o seletor do browser recebe: superfície, resolução, fps e áudio. */
+  options: DisplayMediaStreamOptions
+  /** Uma fonte escolhida em `listSources`; null deixa a escolha com o seletor do próprio host. */
+  sourceId: string | null
+}
 
 type Platform = {
   kind: 'browser' | 'desktop'
@@ -61,17 +67,18 @@ type Platform = {
     globalHotkeys: boolean
   }
   capture: {
-    listSources(): Promise<CaptureSource[]>
-    start(request: { sourceId: string | null; audio: boolean; video: MediaTrackConstraints }): Promise<ScreenCaptureResult>
+    listSources: () => Promise<CaptureSource[]>
+    start: (request: CaptureRequest) => Promise<ScreenCaptureResult>
   }
-  /** Endereço do servidor: o próprio domínio no web, o escolhido pelo usuário no desktop. */
-  server: { baseUrl(): string }
+  // `server` (endereço do servidor e sessão) entra no DESK-04.
 }
 ```
 
+- **Dois jeitos de ler**, porque parte do código vive fora do React: `usePlatform()` (context, `PlatformProvider`) nos componentes e `currentPlatform()` (registro de módulo, preenchido pelo `App`) nos controllers como o `share.controller`. A plataforma não muda enquanto o app roda.
 - ViewModels usam a `Platform`. As Views continuam só com props: recebem as `capabilities` e a lista de fontes já prontas. A regra do MVVM não muda.
-- O `acquireScreen` de hoje (`shared/media/screen-capture.ts`) vira a implementação browser de `capture.start`.
-- No Storybook e nos specs, uma `FakePlatform` (um arquivo, como os outros fakes) simula as duas plataformas.
+- **Camada nova no lint**: `shared/platform` é o tipo `shared-platform` nas fronteiras do oxlint; `model-service`, `view-model` e `app` podem importá-lo, e ele só importa `shared-lib` e `shared-media`.
+- **A implementação do browser fica no client**, em `modules/screen-share/model/services/browser-platform.service.ts` (`createBrowserPlatform`, exportada pelo pacote), e não no `apps/web`: ela depende de regras internas do client (`audio-support`, `capture-platform`) e o desktop vai reaproveitar a captura do browser na fase 1. `capture.start` chama o `acquireScreen`; `windowAudio` e `systemAudio` saem de `audioSupportFor`; `listSources` devolve vazio.
+- No Storybook e nos specs, uma `FakePlatform` (`shared/platform/test/fake-platform.ts`, sem framework de teste dentro) simula as plataformas.
 
 ### 3.2 IPC tipado (`packages/desktop-bridge`)
 
@@ -166,7 +173,6 @@ gameplay/
 │   │   ├── public/
 │   │   ├── src/
 │   │   │   ├── main.tsx           monta <App platform={browserPlatform} />
-│   │   │   ├── browser-platform.ts
 │   │   │   └── index.css          @import do tema do client, @source do pacote
 │   │   ├── index.html, vite.config.ts (React, Tailwind, router plugin apontando para o pacote, proxy /api)
 │   │   ├── Dockerfile             passa a copiar packages/client
@@ -201,9 +207,9 @@ gameplay/
 │   │   │   ├── app/               App (recebe a Platform), router, root-layout, routes/, route-tree.gen.ts
 │   │   │   ├── docs/
 │   │   │   ├── fixtures/
-│   │   │   ├── modules/           os mesmos módulos de hoje (+ seletor de fontes no screen-share, tela de servidor no desktop)
+│   │   │   ├── modules/           os mesmos módulos de hoje (+ browser-platform no screen-share, seletor de fontes e tela de servidor no desktop)
 │   │   │   ├── shared/
-│   │   │   │   ├── platform/      platform.ts (porta), platform-context.tsx, test/fake-platform.ts
+│   │   │   │   ├── platform/      platform.ts (porta), current-platform.ts, platform-provider.tsx, use-platform.ts, test/fake-platform.ts
 │   │   │   │   ├── ui/            shadcn
 │   │   │   │   ├── lib/           http, socket, auth-client lendo platform.server
 │   │   │   │   ├── media/         screen-capture vira a implementação browser
