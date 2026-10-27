@@ -1,4 +1,3 @@
-/// <reference types="vitest/config" />
 import path from 'node:path'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
@@ -6,19 +5,18 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-// https://vite.dev/config/
-import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
-import { playwright } from '@vitest/browser-playwright'
+// The front-end lives in packages/client: the router plugin reads its routes and `@/` points to its src.
+const clientSrc = path.resolve(import.meta.dirname, '../../packages/client/src')
 
-// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
+// https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    // Precisa vir antes do react(): gera src/app/route-tree.gen.ts a partir de src/app/routes.
+    // Precisa vir antes do react(): gera app/route-tree.gen.ts a partir de app/routes, no pacote do client.
     tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
-      routesDirectory: './src/app/routes',
-      generatedRouteTree: './src/app/route-tree.gen.ts',
+      routesDirectory: path.join(clientSrc, 'app/routes'),
+      generatedRouteTree: path.join(clientSrc, 'app/route-tree.gen.ts'),
     }),
     react(),
     tailwindcss(),
@@ -41,7 +39,7 @@ export default defineConfig({
   build: { sourcemap: process.env.SENTRY_AUTH_TOKEN ? 'hidden' : false },
   resolve: {
     alias: {
-      '@': path.resolve(import.meta.dirname, './src'),
+      '@': clientSrc,
     },
   },
   // Mesmo domínio que o nginx em produção: os cookies do Better Auth funcionam sem CORS.
@@ -52,42 +50,5 @@ export default defineConfig({
       // Avatars, icons and covers of the local storage driver (nginx serves this path in production).
       '/uploads': 'http://localhost:3333',
     },
-  },
-  test: {
-    projects: [
-      {
-        extends: true,
-        test: {
-          name: 'unit',
-          environment: 'jsdom',
-          include: ['src/**/*.spec.{ts,tsx}'],
-        },
-      },
-      {
-        extends: true,
-        plugins: [
-          // The plugin will run tests for the stories defined in your Storybook config
-          // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
-          storybookTest({
-            configDir: path.join(import.meta.dirname, '.storybook'),
-          }),
-        ],
-        test: {
-          name: 'storybook',
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: playwright({}),
-            // Desktop: abaixo de 768px a sidebar vira um Sheet fechado.
-            viewport: { width: 1280, height: 800 },
-            instances: [
-              {
-                browser: 'chromium',
-              },
-            ],
-          },
-        },
-      },
-    ],
   },
 })

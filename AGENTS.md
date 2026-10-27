@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Gameplay: voice rooms and screen sharing for small groups (Discord alternative). Monorepo with npm workspaces + Turborepo: `apps/api` (NestJS 11, Prisma 7, Postgres, Better Auth, Socket.IO), `apps/web` (React 19, Vite 8, Tailwind 4, shadcn, Storybook 10), `packages/contracts` (zod schemas and typed Socket.IO events shared by both).
+Gameplay: voice rooms and screen sharing for small groups (Discord alternative). Monorepo with npm workspaces + Turborepo: `apps/api` (NestJS 11, Prisma 7, Postgres, Better Auth, Socket.IO), `apps/web` (thin Vite shell for the browser, plus the Cypress e2e), `packages/client` (the whole front-end: React 19, Vite 8, Tailwind 4, shadcn, Storybook 10, shared by the web and the future desktop app), `packages/contracts` (zod schemas and typed Socket.IO events shared by the API and the client).
 
 Planning docs are in Portuguese, in `plans/`. Write code, comments and commits in English. Write docs, plans and ticket notes in Portuguese.
 
@@ -25,7 +25,7 @@ Each new plan gets its own directory, `plans/<plan>/`, with `00-requirements.md`
 
 ## Frontend architecture (MVVM, strict)
 
-MVVM is the architecture of the whole frontend, not just state management.
+MVVM is the architecture of the whole frontend, not just state management. The frontend lives in `packages/client`; every path below is relative to `packages/client/src`. `apps/web` only mounts the `App` of the client (`src/main.tsx`) and points the router plugin and Tailwind at the package.
 
 | Layer | Where | May use |
 |---|---|---|
@@ -34,7 +34,7 @@ MVVM is the architecture of the whole frontend, not just state management.
 | View | `modules/<m>/views/*.view.tsx` (already exist, with stories). Props and callbacks only. No query, store, axios, router or business rule. The View owns `useForm` with the Model schema and calls `onSubmit(values)`; server errors come by prop through `useServerErrors` (`shared/lib/form.ts`). | `shared/ui`, Model schemas |
 | Screen | `modules/<m>/screens/*.screen.tsx`. Thin glue: calls the ViewModel, passes the result to the View. | ViewModel, View |
 
-- Routes live in `apps/web/src/app/routes` (TanStack Router, file based). A route file only declares `validateSearch`, `beforeLoad`, `loader` and `component: XxxScreen`.
+- Routes live in `packages/client/src/app/routes` (TanStack Router, file based). A route file only declares `validateSearch`, `beforeLoad`, `loader` and `component: XxxScreen`.
 - Views never use `Link` or `useNavigate`; navigation arrives as a callback. Storybook must keep working without a router.
 - Socket events only invalidate queries or update stores. REST stays the source of truth.
 - One component per file in our code (`shared/ui` from shadcn and `*.stories.tsx` are exempt).
@@ -46,11 +46,11 @@ MVVM is the architecture of the whole frontend, not just state management.
 
 - Keep data and factories apart: one fake class per file, seed data as plain constants in its own file, context or factory wiring in another. No setup helpers piling up inside specs.
 - API: unit specs use `test/<module>-context.ts` over `test/<module>-seed.ts`; e2e factories in `test/factories/`.
-- Web: ViewModels with `renderHook` in the `unit` Vitest project; services and transports tested with fakes.
+- Client: ViewModels with `renderHook` in the `unit` Vitest project; services and transports tested with fakes. Stories run in the `storybook` Vitest project. Both live in `packages/client` (`npm test` from the root runs them). Cypress e2e stays in `apps/web`.
 
 ## Commands
 
-From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`.
+From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`. `npm run e2e` (Cypress, in `apps/web`) needs the local API on 3333 and `npm run dev -w web` on 5173.
 
 Local API for manual testing: `npm run db:up` in `apps/api` (dev-only Postgres on 5432 from `apps/api/docker-compose.yml`; the e2e tests create `gameplay_test` there), then `npm run dev` (API on 3333). Seeded admin: `admin@gameplay.local` / `admin-pass-123`. If `prisma migrate dev` hangs with no output, run it with `< /dev/null`.
 

@@ -2,6 +2,7 @@
 
 > Data: 2026-10-25. Base: `00-requirements.md` 3.4 e 3.5, `02-core-flows.md`, contrato em `packages/contracts`.
 > Tickets em `tickets/FE-*.md` (índice em `tickets/README.md`).
+> Desde 2026-10-28 (DESK-02) o front-end mora em `packages/client`: os caminhos `src/...` deste plano são relativos a `packages/client/src`. O `apps/web` é só a casca do browser (e o Cypress).
 
 ## Estado atual
 

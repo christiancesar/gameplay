@@ -1,0 +1,7 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "semi": false,
+  "singleQuote": true,
+  "ignorePatterns": ["storybook-static/**", "src/app/route-tree.gen.ts"]
+}
