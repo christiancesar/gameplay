@@ -27,11 +27,21 @@ Porta `Platform` (DESK-03). Servidor em tempo de execução e token (DESK-04). `
 - [ ] Router plugin gerando as rotas no pacote
 - [ ] Tailwind enxergando o pacote (estilos iguais, conferidos no Storybook e no web)
 - [ ] shadcn adicionando componentes no pacote
-- [ ] Dockerfile do web, self-hosted (`host:start`) e `npm run deploy` (sem rodar em produção) buildando
+- [ ] Dockerfile do web buildando (`docker build -f apps/web/Dockerfile .`)
 - [ ] Cypress verde
 - [ ] Typecheck, lint, format e testes na raiz
 - [ ] Docs atualizadas
 - [ ] Commit a cada passo verde
+
+## Checklist de validação
+Rodar e colar o resultado nas notas da execução:
+- [ ] `npm run typecheck`, `npm run lint`, `npm run format:check` e `npm test` na raiz, todos verdes, com o mesmo número de testes de antes (web hoje: contar antes de mover)
+- [ ] Storybook: `npm run storybook` abre e os testes das stories (projeto `storybook` do Vitest) passam
+- [ ] `npm run build -w web` gera o `dist/` e `npm run dev` serve o app em `localhost:5173` com login funcionando contra a API local
+- [ ] `git diff --stat dev` mostra os arquivos como renomeados (R), não apagados e criados
+- [ ] `grep -rn "apps/" packages/client/src` sem resultado de import
+- [ ] `docker build -f apps/web/Dockerfile .` termina sem erro
+- [ ] Cypress (`npm run e2e -w web`) verde, ou anotado nas notas se a stack não pôde subir
 
 ## Critério de aceite
 O web funciona exatamente como antes, todos os testes e stories passam, e nada em `packages/client` importa de `apps/*`.
