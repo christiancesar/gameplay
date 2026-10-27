@@ -5,9 +5,9 @@ output "api_ip" {
   value       = aws_lightsail_static_ip.api.ip_address
 }
 
-output "api_url" {
-  description = "Public URL of the API (BETTER_AUTH_URL)."
-  value       = "https://${local.api_hostname}"
+output "app_url" {
+  description = "Public URL of the app (BETTER_AUTH_URL and WEB_ORIGIN)."
+  value       = "https://${local.app_hostname}"
 }
 
 output "uploads_bucket" {

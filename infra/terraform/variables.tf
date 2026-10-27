@@ -38,10 +38,10 @@ variable "zone_name" {
   default     = "oikos.company"
 }
 
-variable "api_subdomain" {
-  description = "Hostname of the API under the zone. One level only, so the free Universal SSL covers it."
+variable "app_subdomain" {
+  description = "Hostname of the app (web and API on the same origin) under the zone. One level only, so the free Universal SSL covers it."
   type        = string
-  default     = "unlimited"
+  default     = "gameplay"
 }
 
 variable "ssh_public_key_path" {

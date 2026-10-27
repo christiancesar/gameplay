@@ -1,4 +1,4 @@
-# The API server: Docker with the api and nginx containers. Nothing is built
+# The app server: Docker with the api and web (nginx) containers. Nothing is built
 # here; the images are built on the deploy machine and shipped over SSH.
 
 resource "aws_lightsail_key_pair" "deploy" {

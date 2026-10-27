@@ -4,17 +4,17 @@
 data "cloudflare_ip_ranges" "cloudflare" {}
 
 locals {
-  api_hostname = "${var.api_subdomain}.${var.zone_name}"
+  app_hostname = "${var.app_subdomain}.${var.zone_name}"
 }
 
 resource "cloudflare_dns_record" "api" {
   zone_id = var.cloudflare_zone_id
-  name    = local.api_hostname
+  name    = local.app_hostname
   type    = "A"
   content = aws_lightsail_static_ip.api.ip_address
   proxied = true
   ttl     = 1
-  comment = "Gameplay API on Lightsail (terraform, infra/terraform)"
+  comment = "Gameplay web and API on Lightsail (terraform, infra/terraform)"
 }
 
 # Certificate nginx presents to Cloudflare (Full (strict)). Trusted by
@@ -28,15 +28,15 @@ resource "tls_cert_request" "origin" {
   private_key_pem = tls_private_key.origin.private_key_pem
 
   subject {
-    common_name = local.api_hostname
+    common_name = local.app_hostname
   }
 
-  dns_names = [local.api_hostname]
+  dns_names = [local.app_hostname]
 }
 
 resource "cloudflare_origin_ca_certificate" "api" {
   csr                = tls_cert_request.origin.cert_request_pem
-  hostnames          = [local.api_hostname]
+  hostnames          = [local.app_hostname]
   request_type       = "origin-ecc"
   requested_validity = 5475
 }
