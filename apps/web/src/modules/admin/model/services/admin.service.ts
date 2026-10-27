@@ -11,6 +11,7 @@ import {
   listRegistrationInvitesResponseSchema,
   mediaChangeResponseSchema,
   mediaImpactSchema,
+  realtimeUsagePeriodSchema,
   platformSettingsSchema,
   resetPasswordResponseSchema,
   sendAnnouncementResponseSchema,
@@ -26,6 +27,8 @@ import {
   type ListAdminServersResponse,
   type ListAdminUsersResponse,
   type MediaImpact,
+  type RealtimeUsagePeriod,
+  type RealtimeUsageQuery,
   type PlatformSettings,
   type RegistrationInvite,
   type RegistrationInviteValidity,
@@ -147,6 +150,11 @@ async function getAdminMedia(): Promise<AdminMediaResponse> {
 }
 
 /** How many people each resource would cut off now; null for the whole platform. */
+async function getRealtimeUsage(query: RealtimeUsageQuery): Promise<RealtimeUsagePeriod> {
+  const { data } = await http.get('/admin/media/usage', { params: query })
+  return realtimeUsagePeriodSchema.parse(data)
+}
+
 async function getMediaImpact(serverId: string | null): Promise<MediaImpact> {
   const { data } = await http.get('/admin/media/impact', { params: serverId ? { serverId } : {} })
   return mediaImpactSchema.parse(data)
@@ -179,6 +187,7 @@ export {
   getAdminServer,
   getHardwareSummary,
   getMediaImpact,
+  getRealtimeUsage,
   getPlatformSettings,
   getServerMediaOverrides,
   listAdminDevices,

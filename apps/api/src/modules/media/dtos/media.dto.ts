@@ -2,6 +2,8 @@ import {
   adminMediaResponseSchema,
   mediaChangeResponseSchema,
   mediaImpactSchema,
+  realtimeUsagePeriodSchema,
+  realtimeUsageQuerySchema,
   serverMediaOverridesSchema,
   serverMediaSchema,
   updateMediaSettingsRequestSchema,
@@ -20,3 +22,5 @@ export class MediaImpactQueryDto extends createZodDto(z.object({ serverId: z.str
 export class ServerMediaOverridesDto extends createZodDto(serverMediaOverridesSchema) {}
 export class ServerMediaDto extends createZodDto(serverMediaSchema) {}
 export class UpdateSfuBudgetRequestDto extends createZodDto(updateSfuBudgetRequestSchema) {}
+export class RealtimeUsageQueryDto extends createZodDto(realtimeUsageQuerySchema) {}
+export class RealtimeUsagePeriodDto extends createZodDto(realtimeUsagePeriodSchema) {}

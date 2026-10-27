@@ -67,3 +67,14 @@ export class SfuSessionLimitError extends DomainError {
     super('Too many media sessions open. Close one and try again.')
   }
 }
+
+// Cloudflare keeps 32 days of analytics: a custom usage range can't start
+// before the last 30 days, nor in the future.
+export class UsagePeriodOutOfRangeError extends DomainError {
+  readonly code = 'USAGE_PERIOD_OUT_OF_RANGE'
+  override readonly status = HttpStatus.BAD_REQUEST
+
+  constructor() {
+    super('Usage can only be shown for the last 30 days.')
+  }
+}

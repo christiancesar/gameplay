@@ -755,13 +755,35 @@
         }
       },
       "usage": {
-        "title": "Consumo em {{month}}",
-        "reported": "espectadores informaram {{value}} GB",
+        "title": "Consumo",
         "total": "Total cobrado pela Cloudflare",
-        "ofFreeTier": "{{used}} GB de {{free}} GB grátis",
         "notConfigured": "Os números da Cloudflare estão desligados: configure CLOUDFLARE_ACCOUNT_ID e CLOUDFLARE_ANALYTICS_TOKEN no servidor. Até lá o SFU conta só o que os espectadores informam, e o TURN não é medido.",
         "failing": "Não foi possível ler os números da Cloudflare; mostrando os últimos.",
-        "checkedAt": "Números da Cloudflare, lidos {{when}}. Eles chegam com alguns minutos de atraso."
+        "checkedAt": "Números da Cloudflare, lidos {{when}}. Eles chegam com alguns minutos de atraso.",
+        "description": "SFU e TURN cobrados pela Cloudflare no período.",
+        "periodLabel": "Período",
+        "periods": {
+          "30m": "Últimos 30 minutos",
+          "6h": "Últimas 6 horas",
+          "12h": "Últimas 12 horas",
+          "24h": "Últimas 24 horas",
+          "7d": "Últimos 7 dias",
+          "30d": "Últimos 30 dias",
+          "custom": "Período personalizado"
+        },
+        "range": {
+          "from": "De",
+          "to": "Até",
+          "apply": "Aplicar",
+          "hint": "Dias em UTC, dentro dos últimos 30 dias. A Cloudflare não guarda nada mais antigo.",
+          "errors": {
+            "required": "Escolha as duas datas.",
+            "order": "A data inicial precisa vir antes da final.",
+            "outOfRange": "Escolha datas dentro dos últimos 30 dias."
+          }
+        },
+        "empty": "Sem números da Cloudflare para este período.",
+        "freeTier": "Franquia grátis de {{month}}: {{used}} GB de {{free}} GB usados (SFU e TURN juntos)."
       }
     }
   },

@@ -1,3 +1,4 @@
+import type { RealtimeUsagePeriod, UsagePeriod } from '@gameplay/contracts'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor, within } from 'storybook/test'
@@ -38,7 +39,13 @@ type Overlay =
   | 'newKey'
   | 'mediaOff'
 
-type ScenarioProps = { initialTab: AdminTab; overlay: Overlay; empty: boolean; noCloudflare?: boolean }
+type ScenarioProps = {
+  initialTab: AdminTab
+  overlay: Overlay
+  empty: boolean
+  noCloudflare?: boolean
+  usagePeriod?: UsagePeriod
+}
 
 const actions = {
   onOpenDevice: fn(),
@@ -55,6 +62,8 @@ const actions = {
   onAdjustServer: fn(),
   onConfirmMediaOff: fn(),
   onSaveBudget: fn(),
+  onUsagePeriodChange: fn(),
+  onApplyUsageRange: fn(),
 }
 
 const mediaData = {
@@ -74,8 +83,37 @@ const mediaData = {
   exceptions: [{ serverId: 's2', serverName: 'Clan Zero', overrides: { sfu: false, mesh: null, turn: true } }],
 }
 
-function Scenario({ initialTab, overlay, empty, noCloudflare = false }: ScenarioProps) {
+// Last 24 hours in 15-minute buckets: SFU in the evening peaks, TURN a thin layer.
+const DAY_START = Date.parse('2026-10-26T15:30:00Z')
+const usagePoints = Array.from({ length: 96 }, (_, index) => {
+  const wave = Math.max(0, Math.sin((index / 96) * Math.PI * 2 - 1))
+  return {
+    at: new Date(DAY_START + index * 15 * 60_000).toISOString(),
+    sfuBytes: Math.round(wave * 2_400_000_000 + (index % 7) * 40_000_000),
+    turnBytes: Math.round(wave * 300_000_000),
+  }
+})
+const sum = (key: 'sfuBytes' | 'turnBytes') => usagePoints.reduce((total, point) => total + point[key], 0)
+const usagePeriodData: RealtimeUsagePeriod = {
+  from: usagePoints[0].at,
+  to: '2026-10-27T15:30:00.000Z',
+  bucket: 'fifteen-minutes',
+  sfu: { cloudflareBytes: sum('sfuBytes') },
+  turn: { cloudflareBytes: sum('turnBytes') },
+  points: usagePoints,
+  cloudflare: { state: 'ready', checkedAt: new Date(Date.now() - 3 * 60_000).toISOString() },
+}
+const noCloudflareUsage: RealtimeUsagePeriod = {
+  ...usagePeriodData,
+  sfu: { cloudflareBytes: null },
+  turn: { cloudflareBytes: null },
+  points: [],
+  cloudflare: { state: 'not-configured', checkedAt: null },
+}
+
+function Scenario({ initialTab, overlay, empty, noCloudflare = false, usagePeriod = '24h' }: ScenarioProps) {
   const [tab, setTab] = useState(initialTab)
+  const [period, setPeriod] = useState(usagePeriod)
   const [search, setSearch] = useState('')
   const [deviceId, setDeviceId] = useState<string>()
   const users = empty ? [] : adminUsers.filter((user) => user.name.toLowerCase().includes(search.toLowerCase()))
@@ -155,6 +193,18 @@ function Scenario({ initialTab, overlay, empty, noCloudflare = false }: Scenario
         onAdjustServer={actions.onAdjustServer}
         isSavingBudget={false}
         onSaveBudget={actions.onSaveBudget}
+        usage={{
+          data: noCloudflare ? noCloudflareUsage : usagePeriodData,
+          isFetching: false,
+          period,
+          range: { from: '2026-10-21', to: '2026-10-27' },
+          limits: { min: '2026-09-27', max: '2026-10-27' },
+          onPeriodChange: (next) => {
+            actions.onUsagePeriodChange(next)
+            setPeriod(next)
+          },
+          onApplyRange: actions.onApplyUsageRange,
+        }}
       />
     ),
     announcements: (
@@ -495,13 +545,44 @@ export const MediaBudget: Story = {
   },
 }
 
-/** Consumo do mês: SFU e TURN separados, e o total da Cloudflare contra a franquia de 1.000 GB. */
+/** Consumo das últimas 24 horas: totais, gráfico de área empilhado e a franquia grátis do mês. */
 export const MediaUsage: Story = {
   args: { initialTab: 'media' },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/775 GB of 1000 GB free/i)).toBeVisible()
-    await expect(canvas.getByText(/viewers reported 670 GB/i)).toBeVisible()
-    await expect(canvas.getByText('85 GB')).toBeVisible()
+    await expect(canvas.getByRole('heading', { name: 'Usage' })).toBeVisible()
+    await expect(canvas.getByText(/775 GB of 1000 GB used/i)).toBeVisible()
+    await expect(canvas.getByRole('combobox', { name: /period/i })).toHaveTextContent(/last 24 hours/i)
+  },
+}
+
+/** Trocar o período pede o novo consumo; "Período personalizado" abre as datas. */
+export const MediaUsagePeriod: Story = {
+  args: { initialTab: 'media' },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('combobox', { name: /period/i }))
+    await userEvent.click(await screen.findByRole('option', { name: /custom range/i }))
+    await expect(actions.onUsagePeriodChange).toHaveBeenCalledWith('custom')
+    await expect(canvas.getByLabelText('From')).toHaveValue('2026-10-21')
+  },
+}
+
+/** Período personalizado: datas fora de ordem não saem do formulário. */
+export const MediaUsageCustomRange: Story = {
+  args: { initialTab: 'media', usagePeriod: 'custom' },
+  play: async ({ canvas, userEvent }) => {
+    const to = canvas.getByLabelText('To')
+    await userEvent.clear(to)
+    await userEvent.type(to, '2026-10-01')
+    await userEvent.click(canvas.getByRole('button', { name: 'Apply' }))
+    await expect(canvas.getByText(/start date must come before/i)).toBeVisible()
+    await expect(actions.onApplyUsageRange).not.toHaveBeenCalled()
+
+    await userEvent.clear(to)
+    await userEvent.type(to, '2026-10-25')
+    await userEvent.click(canvas.getByRole('button', { name: 'Apply' }))
+    await waitFor(() =>
+      expect(actions.onApplyUsageRange).toHaveBeenCalledWith({ from: '2026-10-21', to: '2026-10-25' }),
+    )
   },
 }
 

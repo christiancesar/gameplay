@@ -1,64 +1,133 @@
-import type { RealtimeUsage } from '@gameplay/contracts'
+import { USAGE_PERIODS, type RealtimeUsage, type RealtimeUsagePeriod, type UsagePeriod } from '@gameplay/contracts'
 import { cn } from 'cn'
 import { useTranslation } from 'react-i18next'
 
+import type { UsageRangeValues } from '@/modules/admin/model/usage-range.schema'
+import { formatBytes } from '@/shared/ui/format-bytes'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 
-type MediaUsageViewProps = { usage: RealtimeUsage }
+import { MediaUsageChartView } from './media-usage-chart.view'
+import { UsageRangeFormView } from './usage-range-form.view'
+
+type MediaUsageViewProps = {
+  /** undefined enquanto carrega. */
+  data?: RealtimeUsagePeriod
+  isFetching: boolean
+  period: UsagePeriod
+  range: UsageRangeValues
+  limits: { min: string; max: string }
+  rangeError?: 'outOfRange'
+  /** O mês corrente, para a franquia grátis (mensal) da Cloudflare. */
+  month?: RealtimeUsage
+  onPeriodChange: (period: UsagePeriod) => void
+  onApplyRange: (range: UsageRangeValues) => void
+}
 
 const BYTES_PER_GB = 1_000_000_000
 
-function barTone(share: number) {
-  if (share >= 1) return 'bg-red-500'
-  return share >= 0.8 ? 'bg-amber-500' : 'bg-emerald-500'
-}
-
-/** Consumo do mês: SFU e TURN separados e o total da Cloudflare contra a franquia grátis, que os dois dividem. */
-function MediaUsageView({ usage }: MediaUsageViewProps) {
+/** Consumo do período escolhido: SFU e TURN cobrados pela Cloudflare, no gráfico e no total. */
+function MediaUsageView({
+  data,
+  isFetching,
+  period,
+  range,
+  limits,
+  rangeError,
+  month,
+  onPeriodChange,
+  onApplyRange,
+}: MediaUsageViewProps) {
   const { t, i18n } = useTranslation()
-  const gb = (bytes: number) =>
-    (bytes / BYTES_PER_GB).toLocaleString(i18n.language, { maximumFractionDigits: bytes < BYTES_PER_GB ? 3 : 1 })
-  const { sfu, turn, cloudflare, freeTierGb, month } = usage
-  const official = sfu.cloudflareBytes !== null || turn.cloudflareBytes !== null
-  const total = (sfu.cloudflareBytes ?? 0) + (turn.cloudflareBytes ?? 0)
-  const share = Math.min(1, total / (freeTierGb * BYTES_PER_GB))
+  const bytes = (value: number | null | undefined) =>
+    value === null || value === undefined ? '–' : formatBytes(value, i18n.language)
+  const total =
+    data && (data.sfu.cloudflareBytes !== null || data.turn.cloudflareBytes !== null)
+      ? (data.sfu.cloudflareBytes ?? 0) + (data.turn.cloudflareBytes ?? 0)
+      : null
+  const monthTotal = month ? (month.sfu.cloudflareBytes ?? 0) + (month.turn.cloudflareBytes ?? 0) : 0
+  const cloudflare = data?.cloudflare
 
   return (
-    <section className="flex flex-col gap-3" aria-labelledby="media-usage-title">
-      <h2 id="media-usage-title" className="text-sm font-medium">
-        {t('admin.media.usage.title', { month })}
-      </h2>
-      <dl className="bg-card grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 rounded-md border p-4 text-sm">
-        <dt>{t('admin.media.resources.sfu.name')}</dt>
-        <dd className="text-right tabular-nums">
-          {sfu.cloudflareBytes !== null ? `${gb(sfu.cloudflareBytes)} GB` : '–'}
-          <span className="text-muted-foreground block text-xs">
-            {t('admin.media.usage.reported', { value: gb(sfu.reportedBytes) })}
-          </span>
-        </dd>
-        <dt>{t('admin.media.resources.turn.name')}</dt>
-        <dd className="text-right tabular-nums">
-          {turn.cloudflareBytes !== null ? `${gb(turn.cloudflareBytes)} GB` : '–'}
-        </dd>
-        <dt className="font-medium">{t('admin.media.usage.total')}</dt>
-        <dd className="text-right font-medium tabular-nums">
-          {official ? t('admin.media.usage.ofFreeTier', { used: gb(total), free: freeTierGb }) : '–'}
-        </dd>
-        {official && (
-          <div className="bg-muted col-span-2 h-1.5 overflow-hidden rounded-full" aria-hidden>
-            <div className={cn('h-full', barTone(share))} style={{ width: `${share * 100}%` }} />
-          </div>
+    <section className="bg-card flex flex-col rounded-md border" aria-labelledby="media-usage-title">
+      <header className="flex flex-wrap items-start gap-3 border-b p-4">
+        <div className="min-w-0 flex-1">
+          <h2 id="media-usage-title" className="text-sm font-medium">
+            {t('admin.media.usage.title')}
+          </h2>
+          <p className="text-muted-foreground mt-1 text-xs">{t('admin.media.usage.description')}</p>
+        </div>
+        <Select value={period} onValueChange={(value) => onPeriodChange(value as UsagePeriod)}>
+          <SelectTrigger className="w-48" aria-label={t('admin.media.usage.periodLabel')}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {USAGE_PERIODS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {t(`admin.media.usage.periods.${option}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </header>
+
+      <div className={cn('flex flex-col gap-4 p-4', isFetching && 'opacity-60')}>
+        {period === 'custom' && (
+          <UsageRangeFormView
+            range={range}
+            limits={limits}
+            rangeError={rangeError}
+            isFetching={isFetching}
+            onApply={onApplyRange}
+          />
         )}
-      </dl>
-      <p className={cn('text-xs', cloudflare.state === 'failing' ? 'text-amber-500' : 'text-muted-foreground')}>
-        {cloudflare.state === 'not-configured'
-          ? t('admin.media.usage.notConfigured')
-          : cloudflare.state === 'failing'
-            ? t('admin.media.usage.failing')
-            : t('admin.media.usage.checkedAt', {
-                when: cloudflare.checkedAt ? formatRelativeTime(cloudflare.checkedAt, i18n.language) : '',
-              })}
-      </p>
+
+        <dl className="grid grid-cols-3 gap-4 text-sm">
+          {(
+            [
+              ['admin.media.resources.sfu.name', data?.sfu.cloudflareBytes],
+              ['admin.media.resources.turn.name', data?.turn.cloudflareBytes],
+              ['admin.media.usage.total', total],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label} className="flex flex-col gap-1">
+              <dt className="text-muted-foreground text-xs">{t(label)}</dt>
+              <dd className="font-medium tabular-nums">{bytes(value)}</dd>
+            </div>
+          ))}
+        </dl>
+
+        {data && data.points.length > 0 ? (
+          <MediaUsageChartView points={data.points} bucket={data.bucket} />
+        ) : (
+          <p className="text-muted-foreground rounded-md border border-dashed px-3 py-8 text-center text-xs">
+            {t('admin.media.usage.empty')}
+          </p>
+        )}
+      </div>
+
+      <footer className="flex flex-col gap-1 border-t p-4 text-xs">
+        {month && month.cloudflare.state !== 'not-configured' && (
+          <p className="text-muted-foreground">
+            {t('admin.media.usage.freeTier', {
+              month: month.month,
+              used: (monthTotal / BYTES_PER_GB).toLocaleString(i18n.language, { maximumFractionDigits: 1 }),
+              free: month.freeTierGb,
+            })}
+          </p>
+        )}
+        {cloudflare && (
+          <p className={cloudflare.state === 'failing' ? 'text-amber-500' : 'text-muted-foreground'}>
+            {cloudflare.state === 'not-configured'
+              ? t('admin.media.usage.notConfigured')
+              : cloudflare.state === 'failing'
+                ? t('admin.media.usage.failing')
+                : t('admin.media.usage.checkedAt', {
+                    when: cloudflare.checkedAt ? formatRelativeTime(cloudflare.checkedAt, i18n.language) : '',
+                  })}
+          </p>
+        )}
+      </footer>
     </section>
   )
 }

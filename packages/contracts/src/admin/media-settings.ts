@@ -82,6 +82,43 @@ export const realtimeUsageSchema = z.object({
 })
 export type RealtimeUsage = z.infer<typeof realtimeUsageSchema>
 
+// Periods of the usage card, counted back from now. Cloudflare keeps 32 days
+// of analytics, so a custom range (UTC days, inclusive) stays inside the last
+// USAGE_MAX_DAYS.
+export const USAGE_PERIODS = ['30m', '6h', '12h', '24h', '7d', '30d', 'custom'] as const
+export type UsagePeriod = (typeof USAGE_PERIODS)[number]
+export const USAGE_MAX_DAYS = 30
+
+export const realtimeUsageQuerySchema = z
+  .object({ period: z.enum(USAGE_PERIODS), from: z.iso.date().optional(), to: z.iso.date().optional() })
+  .refine((query) => query.period !== 'custom' || (query.from && query.to && query.from <= query.to), {
+    message: 'A custom period needs from <= to.',
+  })
+export type RealtimeUsageQuery = z.infer<typeof realtimeUsageQuerySchema>
+
+// The step of the usage chart, picked from the length of the period.
+export const USAGE_BUCKETS = ['minute', 'five-minutes', 'fifteen-minutes', 'hour', 'day'] as const
+export type UsageBucket = (typeof USAGE_BUCKETS)[number]
+
+const egressBytesSchema = z.number().int().min(0).nullable()
+
+// SFU and TURN egress Cloudflare billed in a period: the totals and one point
+// per bucket (zero where nothing went out). null where that resource has no
+// Cloudflare app or key; no points when Cloudflare can't be read.
+export const realtimeUsagePeriodSchema = z.object({
+  from: z.iso.datetime(),
+  to: z.iso.datetime(),
+  bucket: z.enum(USAGE_BUCKETS),
+  sfu: z.object({ cloudflareBytes: egressBytesSchema }),
+  turn: z.object({ cloudflareBytes: egressBytesSchema }),
+  points: z.array(z.object({ at: z.iso.datetime(), sfuBytes: egressBytesSchema, turnBytes: egressBytesSchema })),
+  cloudflare: z.object({
+    state: z.enum(REALTIME_USAGE_SOURCE_STATES),
+    checkedAt: z.iso.datetime().nullable(),
+  }),
+})
+export type RealtimeUsagePeriod = z.infer<typeof realtimeUsagePeriodSchema>
+
 // Monthly SFU budget; 0 keeps the SFU off for new shares.
 export const updateSfuBudgetRequestSchema = z.object({ budgetGb: z.number().int().min(0).max(100_000) })
 export type UpdateSfuBudgetRequest = z.infer<typeof updateSfuBudgetRequestSchema>

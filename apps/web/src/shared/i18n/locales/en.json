@@ -755,13 +755,35 @@
         }
       },
       "usage": {
-        "title": "Usage in {{month}}",
-        "reported": "viewers reported {{value}} GB",
+        "title": "Usage",
         "total": "Total billed by Cloudflare",
-        "ofFreeTier": "{{used}} GB of {{free}} GB free",
         "notConfigured": "Cloudflare's numbers are off: set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_ANALYTICS_TOKEN on the server. Until then the SFU counts only what viewers report, and TURN is not measured.",
         "failing": "Could not read the numbers from Cloudflare; showing the last ones.",
-        "checkedAt": "Cloudflare's numbers, checked {{when}}. They come a few minutes late."
+        "checkedAt": "Cloudflare's numbers, checked {{when}}. They come a few minutes late.",
+        "description": "SFU and TURN billed by Cloudflare in the period.",
+        "periodLabel": "Period",
+        "periods": {
+          "30m": "Last 30 minutes",
+          "6h": "Last 6 hours",
+          "12h": "Last 12 hours",
+          "24h": "Last 24 hours",
+          "7d": "Last 7 days",
+          "30d": "Last 30 days",
+          "custom": "Custom range"
+        },
+        "range": {
+          "from": "From",
+          "to": "To",
+          "apply": "Apply",
+          "hint": "Days in UTC, within the last 30 days. Cloudflare keeps nothing older.",
+          "errors": {
+            "required": "Pick both dates.",
+            "order": "The start date must come before the end date.",
+            "outOfRange": "Pick dates within the last 30 days."
+          }
+        },
+        "empty": "No Cloudflare numbers for this period.",
+        "freeTier": "Free tier for {{month}}: {{used}} GB of {{free}} GB used (SFU and TURN together)."
       }
     }
   },

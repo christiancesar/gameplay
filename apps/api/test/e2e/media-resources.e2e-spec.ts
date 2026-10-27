@@ -98,4 +98,32 @@ describe('Media resources (e2e)', () => {
     expect((await admin.agent.get(`/api/servers/${serverId}/media`)).status).toBe(404)
     expect((await owner.agent.put(`/api/admin/servers/${serverId}/media`).send({ overrides: FOLLOW })).status).toBe(403)
   })
+
+  it('usage for a period: presets, a custom range of the last 30 days, and nothing older', async () => {
+    const admin = await signedIn(app, { admin: true })
+
+    const day = await admin.agent.get('/api/admin/media/usage').query({ period: '24h' })
+    expect(day.status).toBe(200)
+    expect(day.body).toMatchObject({
+      bucket: 'fifteen-minutes',
+      points: [],
+      sfu: { cloudflareBytes: null },
+      turn: { cloudflareBytes: null },
+      cloudflare: { state: 'not-configured', checkedAt: null },
+    })
+    expect(Date.parse(day.body.to) - Date.parse(day.body.from)).toBe(24 * 60 * 60 * 1000)
+
+    const today = new Date().toISOString().slice(0, 10)
+    const custom = await admin.agent.get('/api/admin/media/usage').query({ period: 'custom', from: today, to: today })
+    expect(custom.status).toBe(200)
+    expect(custom.body.from).toBe(`${today}T00:00:00.000Z`)
+
+    const noDates = await admin.agent.get('/api/admin/media/usage').query({ period: 'custom' })
+    expect(noDates.status).toBe(400)
+    const old = await admin.agent
+      .get('/api/admin/media/usage')
+      .query({ period: 'custom', from: '2020-01-01', to: today })
+    expect(old.status).toBe(400)
+    expect(old.body.error.code).toBe('USAGE_PERIOD_OUT_OF_RANGE')
+  })
 })
