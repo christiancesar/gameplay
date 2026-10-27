@@ -1,7 +1,9 @@
 #!/bin/bash
 # First boot of the Lightsail instance (user data, runs as root once).
 # Installs Docker and prepares the folder the deploy writes to.
-set -euxo pipefail
+# Lightsail prepends its own launch script, so this runs under sh, not bash:
+# keep it POSIX (no pipefail).
+set -eux
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
