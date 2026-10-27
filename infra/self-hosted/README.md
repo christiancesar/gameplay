@@ -22,7 +22,7 @@ Na raiz do repositório:
 npm run host:start
 ```
 
-Na primeira vez o script cria `infra/host/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele sobe o banco e o túnel, lê a URL `https://*.trycloudflare.com` sorteada, aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder pela URL pública. No fim imprime o link para compartilhar.
+Na primeira vez o script cria `infra/self-hosted/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele sobe o banco e o túnel, lê a URL `https://*.trycloudflare.com` sorteada, aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder pela URL pública. No fim imprime o link para compartilhar.
 
 A URL do modo rápido muda a cada reinício. As sessões da URL antiga deixam de valer e os amigos precisam do link novo.
 
@@ -36,12 +36,12 @@ npm run host:stop    # para a stack e o túnel, mantém os dados
 Para apagar tudo, inclusive banco e uploads:
 
 ```bash
-docker compose --project-directory infra/host --profile quick --profile named --profile token down -v
+docker compose --project-directory infra/self-hosted --profile quick --profile named --profile token down -v
 ```
 
 ## Modos de túnel
 
-Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`bash infra/host/start.sh named`).
+Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`bash infra/self-hosted/start.sh named`).
 
 | Modo | Endereço | Precisa de |
 |---|---|---|
@@ -111,18 +111,18 @@ Os dados ficam em dois volumes: `gameplay-host_postgres-data` e `gameplay-host_u
 
 ```bash
 # banco
-docker compose --project-directory infra/host exec -T postgres pg_dump -U gameplay gameplay > gameplay.sql
+docker compose --project-directory infra/self-hosted exec -T postgres pg_dump -U gameplay gameplay > gameplay.sql
 
 # uploads
 docker run --rm -v gameplay-host_uploads:/data:ro -v "$PWD":/backup alpine tar czf /backup/uploads.tgz -C /data .
 ```
 
-Para restaurar o banco: `docker compose --project-directory infra/host exec -T postgres psql -U gameplay gameplay < gameplay.sql`.
+Para restaurar o banco: `docker compose --project-directory infra/self-hosted exec -T postgres psql -U gameplay gameplay < gameplay.sql`.
 
 ## Segurança
 
 - Só o nginx fica exposto, e apenas em `127.0.0.1:8080` no host. O acesso externo é pelo túnel. Postgres e API não publicam porta.
-- Mantenha o 2FA do admin ligado e guarde o `infra/host/.env` (está no `.gitignore`). Ele tem os segredos, a senha do admin e o token do túnel.
+- Mantenha o 2FA do admin ligado e guarde o `infra/self-hosted/.env` (está no `.gitignore`). Ele tem os segredos, a senha do admin e o token do túnel.
 - Trocar `BETTER_AUTH_SECRET` desloga todo mundo. Trocar `REGISTRATION_KEY_SECRET` invalida as chaves ainda não usadas.
 - O nginx repassa o IP real do cliente (`CF-Connecting-IP`) e a API confia em um único salto.
 - Quando não estiver testando, rode `npm run host:stop`: sem a stack o link público deixa de funcionar.

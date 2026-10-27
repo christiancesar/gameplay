@@ -1,6 +1,6 @@
 # Build context: repository root.
 #   docker build -f apps/web/Dockerfile -t gameplay-web .
-# Serves the Vite build with nginx (infra/host/nginx.conf is mounted by the
+# Serves the Vite build with nginx (infra/self-hosted/nginx.conf is mounted by the
 # compose file, it also proxies /api and /socket.io to the api).
 
 FROM node:24-alpine AS base

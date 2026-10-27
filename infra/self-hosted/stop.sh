@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Stops the stack and the tunnel. Data (database, uploads) is kept.
-# To wipe everything too: docker compose --project-directory infra/host --profile quick --profile named --profile token down -v
+# To wipe everything too: docker compose --project-directory infra/self-hosted --profile quick --profile named --profile token down -v
 set -euo pipefail
 
 # shellcheck source=lib.sh

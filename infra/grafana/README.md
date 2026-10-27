@@ -1,6 +1,6 @@
 # Grafana Cloud
 
-Dashboards do Gameplay, versionados em JSON. Os dados chegam pela API (OTLP, ver `infra/host/README.md`, seção Observabilidade).
+Dashboards do Gameplay, versionados em JSON. Os dados chegam pela API (OTLP, ver `infra/self-hosted/README.md`, seção Observabilidade).
 
 | Arquivo | Dashboard | O que mostra |
 |---|---|---|

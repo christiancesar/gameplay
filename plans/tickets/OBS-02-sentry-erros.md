@@ -10,7 +10,7 @@ O Sentry está ligado no código desde o FE-13, mas desligado sem DSN. Decisão 
 - Sentry só para erros: tirar o tracing (`tanstackRouterBrowserTracingIntegration`, `tracesSampleRate`, `tracePropagationTargets`). Replay continua só em erro, mascarando texto e mídia.
 - `environment` (`host`, `development`) e `release` (sha do git) no build.
 - Source maps com `@sentry/vite-plugin`, `SENTRY_AUTH_TOKEN` passado como secret do build Docker (nunca como `ARG` gravado na imagem). Os `.map` não ficam no nginx.
-- Build args no `infra/host/docker-compose.yml` e no `apps/web/Dockerfile`; README do host.
+- Build args no `infra/self-hosted/docker-compose.yml` e no `apps/web/Dockerfile`; README do host.
 
 ## Fora do escopo
 Faro (OBS-04). CI (não existe ainda).
