@@ -124,7 +124,7 @@ Base: `plans/media-transport-options.md` seção 7 e `plans/06-producao-aws.md` 
 | Ticket | Pontos | Onda | Status |
 |---|---|---|---|
 | [SFU-01 Módulo `media` na API](SFU-01-modulo-media-na-api.md) | 8 | 1 | concluído |
-| [SFU-05 Aviso da plataforma](SFU-05-aviso-da-plataforma.md) | 3 | 2 | pendente |
+| [SFU-05 Aviso da plataforma](SFU-05-aviso-da-plataforma.md) | 3 | 2 | concluído |
 | [SFU-04 Aba Mídia no admin e recursos por servidor](SFU-04-aba-midia-e-recursos.md) | 8 | 3 | pendente |
 | [SFU-02 Transmissão pelo SFU no web](SFU-02-transmissao-pelo-sfu-no-web.md) | 8 | 4 | pendente |
 | [SFU-03 Orçamento e qualidade de quem assiste](SFU-03-orcamento-e-qualidade.md) | 5 | 5 | pendente |
