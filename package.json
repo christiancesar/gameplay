@@ -13,7 +13,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "storybook": "turbo run storybook --filter=web",
+    "storybook": "turbo run storybook --filter=@gameplay/client",
     "build-storybook": "turbo run build-storybook",
     "format": "turbo run format",
     "format:check": "turbo run format:check",

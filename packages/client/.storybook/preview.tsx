@@ -5,7 +5,7 @@ import { I18nextProvider } from 'react-i18next'
 
 import { i18n, SUPPORTED_LANGUAGES } from '../src/shared/i18n'
 import { TooltipProvider } from '../src/shared/ui/tooltip'
-import '../src/index.css'
+import '../src/styles/theme.css'
 
 const preview: Preview = {
   parameters: {
