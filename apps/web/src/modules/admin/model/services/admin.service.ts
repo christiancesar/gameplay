@@ -10,6 +10,7 @@ import {
   listRegistrationInvitesResponseSchema,
   platformSettingsSchema,
   resetPasswordResponseSchema,
+  sendAnnouncementResponseSchema,
   type AdminListQuery,
   type AdminServerDetail,
   type AdminSession,
@@ -22,6 +23,7 @@ import {
   type PlatformSettings,
   type RegistrationInvite,
   type RegistrationInviteValidity,
+  type SendAnnouncementRequest,
   type ServerLimits,
   type UserLimits,
 } from '@gameplay/contracts'
@@ -123,6 +125,12 @@ async function revokeRegistrationInvite(inviteId: string): Promise<void> {
   await http.post(`/admin/registration-invites/${inviteId}/revoke`)
 }
 
+/** Platform announcement; answers how many people got it. */
+async function sendAnnouncement(request: SendAnnouncementRequest): Promise<number> {
+  const { data } = await http.post('/admin/announcements', request)
+  return sendAnnouncementResponseSchema.parse(data).recipients
+}
+
 export {
   deleteAdminServer,
   generateRegistrationInvite,
@@ -140,6 +148,7 @@ export {
   revokeRegistrationInvite,
   revokeUserSession,
   revokeUserSessions,
+  sendAnnouncement,
   setServerLimits,
   setUserLimits,
   suspendUser,

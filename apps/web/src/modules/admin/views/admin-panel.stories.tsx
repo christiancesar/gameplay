@@ -13,6 +13,7 @@ import {
 } from '@/fixtures/admin'
 
 import { AdminLayoutView, type AdminTab } from './admin-layout.view'
+import { AnnouncementsTabView } from './announcements-tab.view'
 import { DeviceHardwareDialogView } from './device-hardware-dialog.view'
 import { HardwareTabView } from './hardware-tab.view'
 import { KeysTabView } from './keys-tab.view'
@@ -46,6 +47,7 @@ const actions = {
   onSaveLimits: fn(),
   onResetPassword: fn(),
   onSaveOverrides: fn(),
+  onSendAnnouncement: fn(),
 }
 
 function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
@@ -108,6 +110,13 @@ function Scenario({ initialTab, overlay, empty }: ScenarioProps) {
         onCopyNewKey={fn()}
         onCloseNewKey={fn()}
         onRevoke={fn()}
+      />
+    ),
+    announcements: (
+      <AnnouncementsTabView
+        servers={empty ? [] : adminServers.map(({ id, name }) => ({ id, name }))}
+        isSending={false}
+        onSend={actions.onSendAnnouncement}
       />
     ),
   }[tab]
@@ -186,7 +195,10 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: { initialTab: 'users', overlay: 'none', empty: false },
   argTypes: {
-    initialTab: { control: 'inline-radio', options: ['users', 'servers', 'hardware', 'limits', 'keys'] },
+    initialTab: {
+      control: 'inline-radio',
+      options: ['users', 'servers', 'hardware', 'limits', 'keys', 'announcements'],
+    },
     overlay: {
       control: 'select',
       options: [
@@ -317,3 +329,38 @@ export const GlobalLimitsValidation: Story = {
 
 export const SignUpKeys: Story = { args: { initialTab: 'keys' } }
 export const NewSignUpKey: Story = { args: { initialTab: 'keys', overlay: 'newKey' } }
+
+export const Announcements: Story = { args: { initialTab: 'announcements' } }
+
+/** Sem título e sem servidor escolhido não envia; com tudo preenchido, entrega os valores ao ViewModel. */
+export const SendAnnouncement: Story = {
+  args: { initialTab: 'announcements' },
+  play: async ({ canvas, userEvent }) => {
+    const send = canvas.getByRole('button', { name: /send announcement/i })
+    await userEvent.click(send)
+    await expect(await canvas.findAllByText(/fill this in/i)).toHaveLength(2)
+
+    await userEvent.type(canvas.getByLabelText(/title/i), 'Maintenance at 10 pm')
+    await userEvent.type(canvas.getByLabelText(/message/i), 'The app will be down for about 10 minutes.')
+    await userEvent.click(canvas.getByRole('combobox', { name: /send to/i }))
+    await userEvent.click(await screen.findByRole('option', { name: /members of a server/i }))
+    await userEvent.click(send)
+    await expect(await canvas.findByText(/pick a server\./i)).toBeVisible()
+    await expect(actions.onSendAnnouncement).not.toHaveBeenCalled()
+
+    await userEvent.click(canvas.getByRole('combobox', { name: /^server$/i }))
+    await userEvent.click(await screen.findByRole('option', { name: 'Turbex' }))
+    await userEvent.click(send)
+    await waitFor(() =>
+      expect(actions.onSendAnnouncement).toHaveBeenCalledWith(
+        {
+          title: 'Maintenance at 10 pm',
+          message: 'The app will be down for about 10 minutes.',
+          audience: 'server',
+          serverId: expect.any(String),
+        },
+        expect.anything(),
+      ),
+    )
+  },
+}

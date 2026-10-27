@@ -20,6 +20,7 @@ import { Route as AuthedAdminPanelRouteImport } from './routes/_authed/admin/_pa
 import { Route as AuthedAdminSetupRouteImport } from './routes/_authed/admin/setup'
 import { Route as AuthedServersServerIdRouteImport } from './routes/_authed/servers.$serverId'
 import { Route as AuthedAdminPanelIndexRouteImport } from './routes/_authed/admin/_panel/index'
+import { Route as AuthedAdminPanelAnnouncementsRouteImport } from './routes/_authed/admin/_panel/announcements'
 import { Route as AuthedAdminPanelHardwareRouteImport } from './routes/_authed/admin/_panel/hardware'
 import { Route as AuthedAdminPanelKeysRouteImport } from './routes/_authed/admin/_panel/keys'
 import { Route as AuthedAdminPanelLimitsRouteImport } from './routes/_authed/admin/_panel/limits'
@@ -78,6 +79,12 @@ const AuthedAdminPanelIndexRoute = AuthedAdminPanelIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedAdminPanelRoute,
 } as any)
+const AuthedAdminPanelAnnouncementsRoute =
+  AuthedAdminPanelAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
+    getParentRoute: () => AuthedAdminPanelRoute,
+  } as any)
 const AuthedAdminPanelHardwareRoute =
   AuthedAdminPanelHardwareRouteImport.update({
     id: '/hardware',
@@ -113,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/i/$code': typeof ICodeRoute
   '/admin/setup': typeof AuthedAdminSetupRoute
   '/servers/$serverId': typeof AuthedServersServerIdRoute
+  '/admin/announcements': typeof AuthedAdminPanelAnnouncementsRoute
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
@@ -128,6 +136,7 @@ export interface FileRoutesByTo {
   '/i/$code': typeof ICodeRoute
   '/admin/setup': typeof AuthedAdminSetupRoute
   '/servers/$serverId': typeof AuthedServersServerIdRoute
+  '/admin/announcements': typeof AuthedAdminPanelAnnouncementsRoute
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
@@ -146,6 +155,7 @@ export interface FileRoutesById {
   '/_authed/admin/_panel': typeof AuthedAdminPanelRouteWithChildren
   '/_authed/admin/setup': typeof AuthedAdminSetupRoute
   '/_authed/servers/$serverId': typeof AuthedServersServerIdRoute
+  '/_authed/admin/_panel/announcements': typeof AuthedAdminPanelAnnouncementsRoute
   '/_authed/admin/_panel/hardware': typeof AuthedAdminPanelHardwareRoute
   '/_authed/admin/_panel/keys': typeof AuthedAdminPanelKeysRoute
   '/_authed/admin/_panel/limits': typeof AuthedAdminPanelLimitsRoute
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/i/$code'
     | '/admin/setup'
     | '/servers/$serverId'
+    | '/admin/announcements'
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/i/$code'
     | '/admin/setup'
     | '/servers/$serverId'
+    | '/admin/announcements'
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
@@ -195,6 +207,7 @@ export interface FileRouteTypes {
     | '/_authed/admin/_panel'
     | '/_authed/admin/setup'
     | '/_authed/servers/$serverId'
+    | '/_authed/admin/_panel/announcements'
     | '/_authed/admin/_panel/hardware'
     | '/_authed/admin/_panel/keys'
     | '/_authed/admin/_panel/limits'
@@ -288,6 +301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminPanelIndexRouteImport
       parentRoute: typeof AuthedAdminPanelRoute
     }
+    '/_authed/admin/_panel/announcements': {
+      id: '/_authed/admin/_panel/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AuthedAdminPanelAnnouncementsRouteImport
+      parentRoute: typeof AuthedAdminPanelRoute
+    }
     '/_authed/admin/_panel/hardware': {
       id: '/_authed/admin/_panel/hardware'
       path: '/hardware'
@@ -327,6 +347,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedAdminPanelRouteChildren {
+  AuthedAdminPanelAnnouncementsRoute: typeof AuthedAdminPanelAnnouncementsRoute
   AuthedAdminPanelHardwareRoute: typeof AuthedAdminPanelHardwareRoute
   AuthedAdminPanelKeysRoute: typeof AuthedAdminPanelKeysRoute
   AuthedAdminPanelLimitsRoute: typeof AuthedAdminPanelLimitsRoute
@@ -336,6 +357,7 @@ interface AuthedAdminPanelRouteChildren {
 }
 
 const AuthedAdminPanelRouteChildren: AuthedAdminPanelRouteChildren = {
+  AuthedAdminPanelAnnouncementsRoute: AuthedAdminPanelAnnouncementsRoute,
   AuthedAdminPanelHardwareRoute: AuthedAdminPanelHardwareRoute,
   AuthedAdminPanelKeysRoute: AuthedAdminPanelKeysRoute,
   AuthedAdminPanelLimitsRoute: AuthedAdminPanelLimitsRoute,

@@ -502,7 +502,8 @@
       "servers": "Servidores",
       "limits": "Limites",
       "keys": "Keys de cadastro",
-      "hardware": "Hardware"
+      "hardware": "Hardware",
+      "announcements": "Avisos"
     },
     "search": "Buscar",
     "empty": "Nada encontrado.",
@@ -635,6 +636,29 @@
       "lastSeen": "Visto por último",
       "deviceTitle": "Hardware de {{name}}",
       "noDevices": "Nenhum dispositivo informado ainda."
+    },
+    "announcements": {
+      "description": "O aviso vai para as notificações do Hub de cada pessoa e aparece na hora para quem está online.",
+      "titleLabel": "Título",
+      "messageLabel": "Mensagem",
+      "remaining_one": "Resta {{count}} caractere",
+      "remaining_other": "Restam {{count}} caracteres",
+      "audience": "Enviar para",
+      "audiences": {
+        "everyone": "Todo mundo",
+        "server": "Membros de um servidor"
+      },
+      "server": "Servidor",
+      "serverPlaceholder": "Escolha um servidor",
+      "send": "Enviar aviso",
+      "sent_one": "Aviso enviado para {{count}} pessoa.",
+      "sent_other": "Aviso enviado para {{count}} pessoas.",
+      "errors": {
+        "required": "Preencha este campo.",
+        "titleTooLong": "Use até 80 caracteres.",
+        "messageTooLong": "Use até 500 caracteres.",
+        "serverRequired": "Escolha um servidor."
+      }
     }
   },
   "hardware": {

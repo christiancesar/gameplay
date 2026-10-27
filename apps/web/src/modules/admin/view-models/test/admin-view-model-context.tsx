@@ -28,6 +28,7 @@ function createAdminViewModelContext(responses: Partial<AdminResponses> = {}) {
   fakeHttp.post.mockImplementation(async (url: string, body?: { password?: string; validity?: string }) => {
     if (url.endsWith('/password')) return { data: { password: body?.password ?? '' } }
     if (url === '/admin/registration-invites') return { data: { key: 'ABC234', invite: generatedInvite } }
+    if (url === '/admin/announcements') return { data: { recipients: 3 } }
     return { data: undefined }
   })
   fakeHttp.put.mockResolvedValue({ data: undefined })

@@ -17,6 +17,7 @@ export class AdminAnnouncementsController {
   @Post()
   @ZodResponse({ status: HttpStatus.CREATED, type: SendAnnouncementResponseDto })
   send(@CurrentUser() user: AuthUser, @Body() body: SendAnnouncementRequestDto): Promise<SendAnnouncementResponse> {
-    return this.sendAnnouncement.execute({ ...body, sentById: user.id })
+    const { title, message, audience } = body
+    return this.sendAnnouncement.execute({ title, message, audience, sentById: user.id })
   }
 }

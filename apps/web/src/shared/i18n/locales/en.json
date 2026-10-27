@@ -502,7 +502,8 @@
       "servers": "Servers",
       "limits": "Limits",
       "keys": "Sign-up keys",
-      "hardware": "Hardware"
+      "hardware": "Hardware",
+      "announcements": "Announcements"
     },
     "search": "Search",
     "empty": "Nothing found.",
@@ -635,6 +636,29 @@
       "lastSeen": "Last seen",
       "deviceTitle": "Hardware of {{name}}",
       "noDevices": "No device reported yet."
+    },
+    "announcements": {
+      "description": "The announcement goes to each person's notifications on the Hub and shows up right away for whoever is online.",
+      "titleLabel": "Title",
+      "messageLabel": "Message",
+      "remaining_one": "{{count}} character left",
+      "remaining_other": "{{count}} characters left",
+      "audience": "Send to",
+      "audiences": {
+        "everyone": "Everyone",
+        "server": "Members of a server"
+      },
+      "server": "Server",
+      "serverPlaceholder": "Pick a server",
+      "send": "Send announcement",
+      "sent_one": "Announcement sent to {{count}} person.",
+      "sent_other": "Announcement sent to {{count}} people.",
+      "errors": {
+        "required": "Fill this in.",
+        "titleTooLong": "Use up to 80 characters.",
+        "messageTooLong": "Use up to 500 characters.",
+        "serverRequired": "Pick a server."
+      }
     }
   },
   "hardware": {
