@@ -32,3 +32,11 @@ storybook-static
 !.env.example
 
 *storybook.log
+
+# Terraform (state holds secrets: keep it out of git, with a backup)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
