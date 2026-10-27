@@ -24,12 +24,12 @@ const TICK_FORMAT: Record<UsageBucket, Intl.DateTimeFormatOptions> = {
   day: { day: '2-digit', month: 'short' },
 }
 
-/** SFU e TURN cobrados pela Cloudflare em cada intervalo do período, empilhados: o topo é o total. */
+/** SFU (verde) e TURN (âmbar) cobrados pela Cloudflare em cada intervalo do período, empilhados: o topo é o total. */
 function MediaUsageChartView({ points, bucket }: MediaUsageChartViewProps) {
   const { t, i18n } = useTranslation()
   const config = {
     sfuBytes: { label: t('admin.media.resources.sfu.name'), color: 'var(--color-emerald-500)' },
-    turnBytes: { label: t('admin.media.resources.turn.name'), color: 'var(--color-emerald-300)' },
+    turnBytes: { label: t('admin.media.resources.turn.name'), color: 'var(--color-amber-500)' },
   } satisfies ChartConfig
   const series = SERIES.filter((key) => points.some((point) => point[key] !== null))
   const time = (at: string, options: Intl.DateTimeFormatOptions) => new Date(at).toLocaleString(i18n.language, options)
