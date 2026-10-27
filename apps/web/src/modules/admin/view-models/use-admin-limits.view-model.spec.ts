@@ -13,7 +13,7 @@ import { fakeHttp } from '@/shared/test/fake-http'
 import { createAdminViewModelContext } from './test/admin-view-model-context'
 import { useAdminLimitsViewModel } from './use-admin-limits.view-model'
 
-const saved = { serversPerUser: 2, membersPerServer: 10, roomsPerServer: 2, minChromiumVersion: 130 }
+const saved = { serversPerUser: 2, membersPerServer: 10, roomsPerServer: 2 }
 
 const setup = async () => {
   const context = createAdminViewModelContext()
@@ -31,14 +31,13 @@ describe('useAdminLimitsViewModel', () => {
       serversPerUser: 1,
       membersPerServer: 10,
       roomsPerServer: 2,
-      minChromiumVersion: 130,
     })
   })
 
   it('saves in the API shape, keeps the answer and shows a toast', async () => {
     const { result } = await setup()
     fakeHttp.put.mockResolvedValueOnce({
-      data: { maxServersPerUser: 2, maxMembersPerServer: 10, maxRoomsPerServer: 2, minChromiumVersion: 130 },
+      data: { maxServersPerUser: 2, maxMembersPerServer: 10, maxRoomsPerServer: 2 },
     })
     act(() => result.current.onSave(saved))
     await waitFor(() =>
@@ -46,7 +45,6 @@ describe('useAdminLimitsViewModel', () => {
         maxServersPerUser: 2,
         maxMembersPerServer: 10,
         maxRoomsPerServer: 2,
-        minChromiumVersion: 130,
       }),
     )
     await waitFor(() => expect(result.current.values.serversPerUser).toBe(2))

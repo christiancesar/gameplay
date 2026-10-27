@@ -205,7 +205,7 @@
         },
         "tab": {
           "label": "Browser tab",
-          "hint": "A Chrome tab, with its audio."
+          "hint": "A browser tab, with its audio."
         }
       },
       "gameTip": "Games in exclusive fullscreen can show up black. Use borderless window mode.",
@@ -631,7 +631,6 @@
       "serversPerUser": "Servers per user",
       "membersPerServer": "Members per server",
       "roomsPerServer": "Rooms per server",
-      "minChromiumVersion": "Minimum Chromium version",
       "saved": "Limits saved.",
       "errors": {
         "atLeastOne": "Use a whole number, 1 or more.",
@@ -847,15 +846,6 @@
     "connectionType": "Connection",
     "plan": "Plan",
     "planValue": "↓ {{download}} Mbps · ↑ {{upload}} Mbps"
-  },
-  "browserSupport": {
-    "unsupportedTitle": "{{browser}} isn't fully supported",
-    "unsupportedDescription": "Voice and screen share are built and tested for Chromium browsers. Some features may fail or perform worse here.",
-    "outdatedTitle": "Your {{browser}} is out of date",
-    "outdatedDescription": "You're on version {{version}}. Gameplay needs {{min}} or newer for stable voice and screen share.",
-    "howToUpdate": "Open the browser menu › Help › About to update, then restart it.",
-    "recommended": "Recommended browsers",
-    "continueAnyway": "Continue anyway"
   },
   "notifications": {
     "title": "Notifications",

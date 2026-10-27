@@ -6,7 +6,7 @@ import { resetDatabase } from '../support/database'
 import { createTestApp } from '../support/create-test-app'
 import { signedIn } from '../support/signed-in'
 
-const defaults = { maxServersPerUser: 1, maxMembersPerServer: 10, maxRoomsPerServer: 2, minChromiumVersion: 130 }
+const defaults = { maxServersPerUser: 1, maxMembersPerServer: 10, maxRoomsPerServer: 2 }
 
 describe('Limits and platform settings (e2e)', () => {
   let app: INestApplication
@@ -100,12 +100,5 @@ describe('Limits and platform settings (e2e)', () => {
 
     expect((await agent.get('/api/admin/settings')).status).toBe(403)
     expect((await agent.put(`/api/admin/users/${user.id}/limits`).send({ maxServers: 9 })).status).toBe(403)
-  })
-
-  it('serves the minimum Chromium version without a session', async () => {
-    const response = await request(app.getHttpServer()).get('/api/settings/public')
-
-    expect(response.status).toBe(200)
-    expect(response.body).toEqual({ minChromiumVersion: 130 })
   })
 })

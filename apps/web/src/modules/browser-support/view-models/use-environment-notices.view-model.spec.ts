@@ -62,11 +62,10 @@ describe('useEnvironmentNoticesViewModel', () => {
     expect(result.current.notices).toEqual([])
   })
 
-  it('shows the browser notice', () => {
-    const { result } = setup({ browser: firefoxBrowser })
-    expect(result.current.notices).toEqual([
-      { id: 'env:browser', type: 'browserUnsupported', browser: { name: 'Firefox', version: '144.0' } },
-    ])
+  it('says nothing about the browser: any browser is fine', async () => {
+    const { result, env } = setup({ browser: firefoxBrowser })
+    await waitFor(() => expect(env.environment.gatherPublicIps).toHaveBeenCalled())
+    expect(result.current.notices).toEqual([])
   })
 
   it('shows the acceleration notice for a software renderer', () => {
@@ -122,17 +121,19 @@ describe('useEnvironmentNoticesViewModel', () => {
     expect(result.current.notices).toEqual([])
   })
 
-  it('dismisses one notice for the session', () => {
-    const { result, storage } = setup({ browser: firefoxBrowser, gpu: softwareGpu })
-    expect(result.current.isEnvironmentNotice('env:browser')).toBe(true)
+  it('dismisses one notice for the session', async () => {
+    const { result, storage } = setup({ gpu: softwareGpu, permission: 'prompt' })
+    await waitFor(() => expect(result.current.notices).toHaveLength(2))
+    expect(result.current.isEnvironmentNotice('env:acceleration')).toBe(true)
     expect(result.current.isEnvironmentNotice('server-1')).toBe(false)
-    act(() => result.current.dismiss('env:browser'))
-    expect(types(result.current.notices)).toEqual(['accelerationOff'])
-    expect(createDismissedNotices(() => storage).isDismissed('browser')).toBe(true)
+    act(() => result.current.dismiss('env:acceleration'))
+    expect(types(result.current.notices)).toEqual(['monitorsPermission'])
+    expect(createDismissedNotices(() => storage).isDismissed('acceleration')).toBe(true)
   })
 
-  it('dismisses all of them', () => {
-    const { result } = setup({ browser: firefoxBrowser, gpu: softwareGpu })
+  it('dismisses all of them', async () => {
+    const { result } = setup({ gpu: softwareGpu, permission: 'prompt' })
+    await waitFor(() => expect(result.current.notices).toHaveLength(2))
     act(() => result.current.dismissAll())
     expect(result.current.notices).toEqual([])
   })

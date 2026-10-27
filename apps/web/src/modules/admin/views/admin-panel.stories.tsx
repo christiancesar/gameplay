@@ -117,7 +117,7 @@ function Scenario({ initialTab, overlay, empty, noCloudflare = false }: Scenario
     ),
     limits: (
       <LimitsTabView
-        values={{ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 2, minChromiumVersion: 130 }}
+        values={{ serversPerUser: 1, membersPerServer: 10, roomsPerServer: 2 }}
         isSaving={false}
         onSave={actions.onSaveLimits}
       />
@@ -402,7 +402,7 @@ export const GlobalLimitsValidation: Story = {
     await userEvent.type(rooms, '3')
     await userEvent.click(save)
     await expect(actions.onSaveLimits).toHaveBeenCalledWith(
-      { serversPerUser: 1, membersPerServer: 10, roomsPerServer: 3, minChromiumVersion: 130 },
+      { serversPerUser: 1, membersPerServer: 10, roomsPerServer: 3 },
       expect.anything(),
     )
   },

@@ -1,4 +1,3 @@
-import { BrowserSupportAlertScreen } from '@/modules/browser-support/screens/browser-support-alert.screen'
 import { useSignInViewModel } from '@/modules/auth/view-models/use-sign-in.view-model'
 import { useLanguageViewModel } from '@/modules/settings/view-models/use-language.view-model'
 import { SignInView } from '@/modules/auth/views/sign-in.view'
@@ -8,12 +7,6 @@ export function CredentialsScreen() {
   const { language, languageOptions, setLanguage } = useLanguageViewModel()
 
   return (
-    <SignInView
-      {...viewModel}
-      notice={<BrowserSupportAlertScreen />}
-      language={language}
-      languageOptions={languageOptions}
-      onLanguageChange={setLanguage}
-    />
+    <SignInView {...viewModel} language={language} languageOptions={languageOptions} onLanguageChange={setLanguage} />
   )
 }

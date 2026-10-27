@@ -76,7 +76,6 @@ const platformSettings: PlatformSettings = {
   maxServersPerUser: 1,
   maxMembersPerServer: 10,
   maxRoomsPerServer: 2,
-  minChromiumVersion: 130,
 }
 
 const activeInvite: RegistrationInvite = {
