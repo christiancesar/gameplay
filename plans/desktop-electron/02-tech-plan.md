@@ -70,7 +70,12 @@ type Platform = {
     listSources: () => Promise<CaptureSource[]>
     start: (request: CaptureRequest) => Promise<ScreenCaptureResult>
   }
-  // `server` (endereço do servidor e sessão) entra no DESK-04.
+  server: {
+    /** Origem da API, sem barra final. Vazia no web (página e API no mesmo domínio). */
+    baseUrl: () => string
+    /** Token da sessão de quem não tem cookie (o desktop). Síncrono; o web não tem token. */
+    session: { getToken: () => string | null; setToken: (token: string) => void; clearToken: () => void }
+  }
 }
 ```
 
@@ -123,11 +128,13 @@ Anotado para a fase 2; nada disso entra na migração.
 
 ## 4. O que muda no client para rodar no desktop
 
-1. **Endereço da API em tempo de execução.** Hoje `http.ts` usa `baseURL: '/api'`, o socket conecta no mesmo domínio e o Better Auth usa o domínio da página. No desktop a página vem do protocolo do app (`app://`), então os três passam a ler `platform.server.baseUrl()`. No web continua o mesmo domínio.
+1. **Endereço da API em tempo de execução** *(feito no DESK-04)*. Antes, `http.ts` usa `baseURL: '/api'`, o socket conecta no mesmo domínio e o Better Auth usa o domínio da página. No desktop a página vem do protocolo do app (`app://`), então os três passam a ler `platform.server.baseUrl()`. No web continua o mesmo domínio.
 2. **Autenticação por token no desktop** (decisão do usuário em 2026-10-27). O Better Auth client continua **no renderer**, com o mesmo código do web: login, 2FA, sessão e admin não mudam. O main só **guarda o token**.
    - Por quê: no web a sessão é um cookie `HttpOnly`. No desktop a página vem de `app://` e a API de `https://`, então o cookie seria de terceiro (exigiria `SameSite=None` e CORS com credenciais). Sem cookie, o lugar do renderer seria o `localStorage`, em texto puro no disco e legível por qualquer script da página. O `safeStorage` criptografa com o cofre do sistema (keyring no Linux, DPAPI no Windows, Keychain no macOS).
    - Fluxo: com o plugin `bearer` na API, o login devolve o token; o renderer manda para o main (`auth:set-token`), que criptografa e grava. Na abertura, o renderer pede o token (`auth:get-token`) e configura o Better Auth client, o `http` e o handshake do socket com `Authorization: Bearer`. O logout apaga (`auth:clear-token`).
-   - O web segue com cookie. *(conferir a doc do plugin `bearer` antes)*
+   - O web segue com cookie.
+   - *(feito no DESK-04)* API: plugin `bearer` do Better Auth (o login responde o token no header `set-auth-token`, e `Authorization: Bearer` vale por cookie em qualquer rota), `app://gameplay` (`DESKTOP_APP_ORIGIN` em `@gameplay/contracts`) em `trustedOrigins`, CORS próprio no `setupApp` (o do módulo do Better Auth não tem PATCH) e o handshake do Socket.IO aceitando o token em `auth`. Client: `http`, socket e `authClient` leem a plataforma a cada chamada; o `authClient` guarda o `set-auth-token` e apaga no sign-out.
+   - O `getToken` é síncrono porque cada request o pede. No desktop, o main guarda o token cifrado e o renderer mantém uma cópia em memória, carregada antes de montar o app (DESK-06).
 3. **Primeira abertura do desktop**: tela para informar o servidor (produção ou um self-hosted). Nova View e nova rota, com story.
 4. **Versões diferentes entre app e servidor.** O `/api/health` passa a informar a versão mínima de app aceita; o desktop pede atualização quando estiver abaixo.
 5. **Variáveis `VITE_*`** (Sentry, Faro): os tunnels `/monitoring/*` viram URLs absolutas do servidor no desktop.
@@ -271,6 +278,7 @@ Atualização completa por sistema:
 
 ## 8. Pendências
 
-- **Token no desktop**: confirmar o plugin `bearer` do Better Auth e como ele convive com o 2FA e o admin.
+- **2FA no desktop, cookie de terceiro**: o plugin `bearer` e o admin funcionam por token (testado na API), mas o desafio de 2FA do Better Auth usa um cookie assinado (`two_factor`) que o login grava e o `verify-totp` devolve. No desktop a página (`app://`) e a API (`https://`) são de sites diferentes, e o cookie `SameSite=Lax` não volta. Para validar com o Electron de verdade (DESK-05 e DESK-06). Caminho provável: o main reescreve o `Set-Cookie` das respostas do servidor para `SameSite=None; Secure` (`webRequest.onHeadersReceived`), sem mexer nos cookies do web. Mudar o atributo na API quebraria o 2FA de quem acessa por `http://<ip>`.
+- **Rastreamento do Faro no desktop**: o Faro só propaga os headers de trace para a mesma origem; entre `app://` e o servidor seria preciso `propagateTraceHeaderCorsUrls`.
 - **Distribuição**: onde publicar os instaladores e os bundles da UI (GitHub Releases ou o bucket S3) e se haverá assinatura de código no Windows e macOS (certificados custam).
 - **Push-to-talk global** (atalho fora da janela): entra depois, como mais uma capacidade da `Platform`.
