@@ -16,6 +16,8 @@ A UI é a mesma do web. Nada de componente reescrito: o que é feito para o web 
 - **`apps/web`** e **`apps/desktop`** viram cascas finas sobre o `packages/client`.
 - **`packages/desktop-bridge`**: contrato tipado do IPC entre o renderer e o processo main.
 - **Scaffold: Electron Forge** (seção 3).
+- **Linux é o primeiro sistema**; o Windows vem depois, para testar por lá. Áudio por aplicativo com **`@vencord/venmic`** e PipeWire.
+- **Ordem do trabalho**: primeiro a migração (pacotes, web consumindo o `packages/client`, desktop rodando o mesmo client), sem os recursos nativos de captura. Os recursos nativos vêm depois, com o projeto já normalizado (seção 9).
 
 ## 3. Forge, Fiddle e alternativas
 
@@ -25,7 +27,7 @@ A UI é a mesma do web. Nada de componente reescrito: o que é feito para o web 
 - Mantida pelo time do Electron e ativa: `@electron-forge/cli` 8.0.1 (29/09/2026), depois da linha 7 (7.11.2 em 20/05/2026) e de uma série de alfas da 8 ao longo de 2026.
 - `@electron-forge/plugin-vite` 8.0.1 declara `vite ^8.0.0`, a mesma versão do nosso monorepo.
 - Template `vite-typescript`, makers por sistema (Squirrel e MSI no Windows, DMG e ZIP no macOS, deb e rpm no Linux), publishers (GitHub, S3) e integração com o `autoUpdater`, assinatura e notarização.
-- Contra: a configuração é "do jeito do Forge"; o plugin de Vite historicamente andou atrás das versões do Vite e já foi marcado como experimental. Confirmar no spike (DESK-05).
+- A configuração do compilador é nossa: o plugin só orquestra os builds de main, preload e renderer, cada um com um `vite.*.config.ts` escrito por nós (aliases, React, Tailwind, router plugin). O que o DESK-05 confirma é o monorepo: o renderer importando o código-fonte do `packages/client`, o Tailwind enxergando o pacote e o router plugin gerando as rotas dele.
 
 **electron-vite + electron-builder** (comunidade) fica como plano B: Vite nativo com HMR no main e no preload (electron-vite 6.0.0, 14/10/2026) e o electron-builder (26.18.0, 26/10/2026), maduro para empacotar e atualizar. São duas ferramentas de terceiros.
 
@@ -107,6 +109,16 @@ O renderer continua usando o `getDisplayMedia` do Chromium. No desktop, o main i
 - **Sistema inteiro**: `audio: 'loopback'` no handler, **só no Windows** (documentação do Electron).
 - **Por janela ou processo**: não existe no Electron. Exige módulo nativo por sistema: WASAPI process loopback (Windows), ScreenCaptureKit (macOS), um nó do PipeWire por aplicativo (Linux). O áudio chega ao renderer como uma faixa extra, que o `ShareSession` junta ao vídeo.
 - **Linux**: com PipeWire o `desktopCapturer.getSources()` devolve uma fonte só, escolhida pelo seletor do sistema. Nosso seletor com miniaturas vale para Windows e macOS.
+
+### 4.4 Linux: o que o sistema oferece
+
+Anotado para a fase 2; nada disso entra na migração.
+
+- **Quem escolhe a janela é sempre o usuário que compartilha.** A diferença é de quem é a tela de escolha:
+  - **X11**: o `desktopCapturer` lista telas e janelas com miniatura, e o seletor é nosso (como o do Discord).
+  - **Wayland** (padrão do Ubuntu atual): o app não consegue listar as janelas de outros programas. A escolha passa pelo portal do sistema (`xdg-desktop-portal`, ScreenCast, sobre o PipeWire), que abre a janela de escolha do próprio GNOME ou KDE, e o app recebe só a fonte escolhida. O Discord no Wayland também cai nesse portal.
+- **Áudio por aplicativo**: cada app que toca som é um nó no PipeWire, com `application.name` e `application.process.id`. O `@vencord/venmic` (7.2.3, módulo nativo, usado pelo Vesktop) cria um microfone virtual com o áudio dos apps escolhidos, sem o resto do sistema e sem a voz da call; o renderer captura esse microfone como uma faixa comum. Plano B sem módulo nativo: o main roda o `pw-record` no nó do app.
+- **Duas escolhas no Linux**: no Wayland não dá para ligar a janela do portal a um processo. O fluxo fica em duas etapas: a janela ou tela, e o áudio numa lista nossa com os apps que estão tocando (um ou vários). No Windows, janela e processo se ligam pelo PID e as etapas podem virar uma.
 
 ## 5. O que muda no client para rodar no desktop
 
@@ -215,7 +227,28 @@ Regras de dependência:
 - `apps/desktop/src/main` não importa nada do `packages/client`.
 - As regras de camada do MVVM (`AGENTS.md`) valem dentro do `packages/client`.
 
-## 7. Segurança do desktop
+## 7. Atualizações
+
+O que muda define o caminho:
+- **Atualização completa** (instalador novo): versão do Electron (o Chromium traz correções de segurança a cada 8 semanas, mais ou menos), main, preload, módulo nativo de áudio, contrato do `desktop-bridge`.
+- **OTA da UI** (troca só o bundle do renderer): telas, ViewModels, services, transportes, i18n. É a maior parte das mudanças.
+
+OTA da UI:
+1. Cada release do client gera o bundle do renderer e um manifest com versão, hash e a **versão mínima do shell** (a do contrato do `desktop-bridge`).
+2. O bundle é **assinado** com uma chave privada que fica só no CI ou na máquina de release; o app sai com a chave pública embutida.
+3. O main busca bundle novo ao abrir e de tempos em tempos, confere assinatura e hash e guarda em `userData/ui/<versão>`.
+4. O protocolo `app://` serve o bundle verificado mais novo compatível com o shell. Se falhar, volta ao anterior e, por último, ao que veio no instalador.
+5. Bundle que exige shell mais novo não é aplicado; o app pede a atualização completa.
+
+Regras:
+- Sem assinatura não existe OTA: baixar UI sem verificar desfaria o motivo de empacotar a UI.
+- O bundle vem só do nosso canal de releases (GitHub Releases ou o bucket S3), **nunca do servidor ao qual o usuário se conecta**. Um self-hosted não empurra UI para o app.
+
+Atualização completa por sistema:
+- **Windows e macOS**: `autoUpdater` do Electron com os makers do Forge (Squirrel, ZIP). `update.electronjs.org` serve repositório público no GitHub; a alternativa é o S3. No macOS exige app assinado e notarizado (conta Apple de US$ 99 por ano); no Windows funciona sem assinatura, com aviso do SmartScreen.
+- **Linux**: o `autoUpdater` do Electron não roda no Linux. deb e rpm se atualizam pelo gerenciador do sistema; atualização sozinha exige AppImage com o `electron-updater`. No começo, aviso de versão nova com link, e o OTA cobre a UI.
+
+## 8. Segurança do desktop
 
 - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`, `webSecurity` ligado.
 - CSP no protocolo do app: scripts só do próprio app; `connect-src` só para o servidor escolhido e a Cloudflare (TURN e SFU).
@@ -223,26 +256,33 @@ Regras de dependência:
 - Fuses do Electron pelo Forge (`RunAsNode` desligado, integridade do ASAR).
 - O main valida toda entrada do IPC e só atende a janela do app.
 
-## 8. Fases e tickets
+## 9. Fases e tickets
 
-Cada fase deixa o web funcionando como hoje.
+Cada ticket deixa o web funcionando como hoje.
+
+**Fase 1: migração (agora).** Pacotes divididos, web e desktop consumindo o mesmo client. Sem recursos nativos de captura: no desktop, a transmissão usa o `getDisplayMedia` padrão do Chromium.
 
 | Ticket | O que é |
 |---|---|
-| DESK-01 | Este plano (estudo do app desktop). |
-| DESK-02 | Mover `apps/web/src` para `packages/client` sem mudar comportamento. Storybook, Vitest, router plugin, Tailwind, Dockerfile e Cypress ajustados. Todos os testes e stories passando, deploy do web igual. |
+| DESK-01 | Este plano. |
+| DESK-02 | Mover `apps/web/src` para `packages/client` sem mudar comportamento. Storybook, Vitest, router plugin, Tailwind, shadcn, Dockerfile e Cypress ajustados. Todos os testes e stories passando, deploy do web igual. |
 | DESK-03 | Porta `Platform` no client, com a implementação browser (o `acquireScreen` de hoje) e a `FakePlatform` nos specs e stories. |
 | DESK-04 | Servidor em tempo de execução e autenticação por token: `platform.server` no `http`, no socket e no Better Auth client; plugin `bearer` na API; web continua com cookie. |
-| DESK-05 | Spike do Forge com plugin Vite 8 no monorepo (decide Forge ou plano B) e scaffold do `apps/desktop`: janela, protocolo `app://`, segurança da seção 7, renderer montando o client com a tela de escolha do servidor. |
-| DESK-06 | `packages/desktop-bridge` e o IPC tipado, com os canais de app (endereço do servidor, token). |
-| DESK-07 | Captura de janela e tela no desktop: canais `capture:*`, `setDisplayMediaRequestHandler`, seletor de fontes com miniaturas (View nova com story). |
-| DESK-08 | Áudio do sistema pelo loopback no Windows. |
-| DESK-09 | Áudio por janela ou processo com módulo nativo, no sistema escolhido primeiro. |
-| DESK-10 | Empacotamento, assinatura, auto update e versão mínima do app no `/api/health`. |
+| DESK-05 | `apps/desktop` com Forge e plugin Vite 8: janela, protocolo `app://`, segurança da seção 8, renderer montando o client e tela de escolha do servidor. |
+| DESK-06 | `packages/desktop-bridge` e o IPC tipado só com os canais do app (endereço do servidor, token no `safeStorage`). |
 
-## 9. Pendências
+**Fase 2: recursos nativos (depois, com o projeto normalizado).** Detalhar quando a fase 1 terminar.
 
-- **Qual sistema vem primeiro** para o áudio nativo (DESK-08 e DESK-09). O Windows é o caminho mais curto (loopback já existe; WASAPI para processo). O Linux é o ambiente do usuário, mas o mais trabalhoso.
+| Ticket | O que é |
+|---|---|
+| DESK-07 | Captura de janela e tela no Linux (portal no Wayland, seletor nosso no X11), canais `capture:*` e `setDisplayMediaRequestHandler`. |
+| DESK-08 | Áudio por aplicativo no Linux com `@vencord/venmic` e PipeWire, lista de apps tocando som. |
+| DESK-09 | Windows: seletor com miniaturas, loopback do sistema e áudio por processo (WASAPI). |
+| DESK-10 | Empacotamento, assinatura, atualização completa e versão mínima do app no `/api/health`. |
+| DESK-11 | OTA da UI assinado, com rollback (seção 7). |
+
+## 10. Pendências
+
 - **Token no desktop**: confirmar o plugin `bearer` do Better Auth e como ele convive com o 2FA e o admin.
-- **Distribuição**: onde publicar os instaladores (GitHub Releases ou o bucket S3) e se haverá assinatura de código no Windows e macOS (certificados custam).
+- **Distribuição**: onde publicar os instaladores e os bundles da UI (GitHub Releases ou o bucket S3) e se haverá assinatura de código no Windows e macOS (certificados custam).
 - **Push-to-talk global** (atalho fora da janela): entra depois, como mais uma capacidade da `Platform`.
