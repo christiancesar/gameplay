@@ -117,7 +117,10 @@ Anotado para a fase 2; nada disso entra na migração.
 ## 4. O que muda no client para rodar no desktop
 
 1. **Endereço da API em tempo de execução.** Hoje `http.ts` usa `baseURL: '/api'`, o socket conecta no mesmo domínio e o Better Auth usa o domínio da página. No desktop a página vem do protocolo do app (`app://`), então os três passam a ler `platform.server.baseUrl()`. No web continua o mesmo domínio.
-2. **Autenticação por token no desktop.** O cookie de sessão não serve entre `app://` e `https://`. Proposta: plugin `bearer` do Better Auth na API, token guardado pelo main com `safeStorage`, enviado no `http`, no Better Auth client e no handshake do socket. O web segue com cookie. *(conferir a doc do Better Auth antes)*
+2. **Autenticação por token no desktop** (decisão do usuário em 2026-10-27). O Better Auth client continua **no renderer**, com o mesmo código do web: login, 2FA, sessão e admin não mudam. O main só **guarda o token**.
+   - Por quê: no web a sessão é um cookie `HttpOnly`. No desktop a página vem de `app://` e a API de `https://`, então o cookie seria de terceiro (exigiria `SameSite=None` e CORS com credenciais). Sem cookie, o lugar do renderer seria o `localStorage`, em texto puro no disco e legível por qualquer script da página. O `safeStorage` criptografa com o cofre do sistema (keyring no Linux, DPAPI no Windows, Keychain no macOS).
+   - Fluxo: com o plugin `bearer` na API, o login devolve o token; o renderer manda para o main (`auth:set-token`), que criptografa e grava. Na abertura, o renderer pede o token (`auth:get-token`) e configura o Better Auth client, o `http` e o handshake do socket com `Authorization: Bearer`. O logout apaga (`auth:clear-token`).
+   - O web segue com cookie. *(conferir a doc do plugin `bearer` antes)*
 3. **Primeira abertura do desktop**: tela para informar o servidor (produção ou um self-hosted). Nova View e nova rota, com story.
 4. **Versões diferentes entre app e servidor.** O `/api/health` passa a informar a versão mínima de app aceita; o desktop pede atualização quando estiver abaixo.
 5. **Variáveis `VITE_*`** (Sentry, Faro): os tunnels `/monitoring/*` viram URLs absolutas do servidor no desktop.
