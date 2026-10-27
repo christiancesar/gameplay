@@ -41,7 +41,7 @@ type StreamModeChoice = (typeof STREAM_MODES)[number]
 
 /** O que o servidor oferece: um modo desligado aparece travado, com o motivo. */
 type StreamModeOptions = {
-  sfu: { available: boolean; reason: 'disabled' | 'not-configured' | null }
+  sfu: { available: boolean; reason: 'disabled' | 'not-configured' | 'budget-exhausted' | null }
   mesh: { available: boolean }
 }
 

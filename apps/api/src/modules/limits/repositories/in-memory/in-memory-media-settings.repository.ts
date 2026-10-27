@@ -5,6 +5,7 @@ const FOLLOW_GLOBAL: ServerMediaOverrides = { sfu: null, mesh: null, turn: null 
 
 export class InMemoryMediaSettingsRepository extends MediaSettingsRepository {
   global: MediaSettings = { sfu: true, mesh: true, turn: true }
+  sfuBudgetGb = 800
   // serverId -> name and overrides; a server exists when it's in the map.
   readonly servers = new Map<string, { name: string; overrides: ServerMediaOverrides }>()
 
@@ -37,5 +38,13 @@ export class InMemoryMediaSettingsRepository extends MediaSettingsRepository {
       .filter(([, { overrides }]) => Object.values(overrides).some((value) => value !== null))
       .map(([serverId, { name, overrides }]) => ({ serverId, serverName: name, overrides: { ...overrides } }))
       .sort((a, b) => a.serverName.localeCompare(b.serverName))
+  }
+
+  async getSfuBudgetGb(): Promise<number> {
+    return this.sfuBudgetGb
+  }
+
+  async setSfuBudgetGb(budgetGb: number): Promise<void> {
+    this.sfuBudgetGb = budgetGb
   }
 }

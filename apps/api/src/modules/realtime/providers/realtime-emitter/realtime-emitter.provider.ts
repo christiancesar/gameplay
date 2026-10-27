@@ -2,6 +2,7 @@ import {
   type Announcement,
   type MediaChanged,
   type StreamEnded,
+  type StreamReceived,
   type Participant,
   type RoomLeft,
   type ServerRemoved,
@@ -39,4 +40,6 @@ export abstract class RealtimeEmitter {
   abstract mediaChanged(to: MediaAudience, change: MediaChanged): void
   // To the streamer's socket: the API stopped the share.
   abstract streamEnded(socketId: string, ended: StreamEnded): void
+  // To the streamer's socket: what one viewer receives through the SFU.
+  abstract streamReceived(socketId: string, received: StreamReceived): void
 }

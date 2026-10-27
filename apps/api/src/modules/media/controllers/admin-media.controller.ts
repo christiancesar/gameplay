@@ -1,5 +1,5 @@
-import { Body, Controller, Get, HttpStatus, Param, Put, Query } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Put, Query } from '@nestjs/common'
+import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger'
 import type { AdminMediaResponse, MediaChangeResponse, MediaImpact, ServerMediaOverrides } from '@gameplay/contracts'
 import { ZodResponse } from 'nestjs-zod'
 import { CurrentUser } from '../../../common/auth/current-user.decorator'
@@ -13,12 +13,14 @@ import {
   ServerMediaOverridesDto,
   UpdateMediaSettingsRequestDto,
   UpdateServerMediaRequestDto,
+  UpdateSfuBudgetRequestDto,
 } from '../dtos/media.dto'
 import { GetAdminMediaUseCase } from '../use-cases/get-admin-media.use-case'
 import { GetMediaImpactUseCase } from '../use-cases/get-media-impact.use-case'
 import { GetServerMediaOverridesUseCase } from '../use-cases/get-server-media-overrides.use-case'
 import { UpdateMediaSettingsUseCase } from '../use-cases/update-media-settings.use-case'
 import { UpdateServerMediaUseCase } from '../use-cases/update-server-media.use-case'
+import { UpdateSfuBudgetUseCase } from '../use-cases/update-sfu-budget.use-case'
 
 // Media resources (SFU, mesh, TURN) for the platform and per server.
 @ApiTags('admin: media')
@@ -31,6 +33,7 @@ export class AdminMediaController {
     private readonly updateSettings: UpdateMediaSettingsUseCase,
     private readonly getServerOverrides: GetServerMediaOverridesUseCase,
     private readonly updateServer: UpdateServerMediaUseCase,
+    private readonly updateBudget: UpdateSfuBudgetUseCase,
   ) {}
 
   @Get('media')
@@ -50,6 +53,13 @@ export class AdminMediaController {
   @ZodResponse({ status: HttpStatus.OK, type: MediaChangeResponseDto })
   update(@CurrentUser() user: AuthUser, @Body() body: UpdateMediaSettingsRequestDto): Promise<MediaChangeResponse> {
     return this.updateSettings.execute({ settings: body.settings, notice: body.notice, sentById: user.id })
+  }
+
+  @Put('media/budget')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse()
+  async budget(@CurrentUser() user: AuthUser, @Body() body: UpdateSfuBudgetRequestDto): Promise<void> {
+    await this.updateBudget.execute({ budgetGb: body.budgetGb, changedById: user.id })
   }
 
   @Get('servers/:serverId/media')

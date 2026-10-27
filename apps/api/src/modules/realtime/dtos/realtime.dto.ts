@@ -1,5 +1,6 @@
 import {
   mediaChangedSchema,
+  mediaUsageSchema,
   notificationNewSchema,
   presenceSnapshotSchema,
   presenceUpdateSchema,
@@ -17,6 +18,7 @@ import {
   streamTargetSchema,
   streamViewerQualitySchema,
   streamEndedSchema,
+  streamReceivedSchema,
   streamViewerSchema,
   voiceStateSchema,
 } from '@gameplay/contracts'
@@ -45,3 +47,5 @@ export class SignalReceiveDto extends createZodDto(signalReceiveSchema) {}
 export class NotificationNewDto extends createZodDto(notificationNewSchema) {}
 export class MediaChangedDto extends createZodDto(mediaChangedSchema) {}
 export class StreamEndedDto extends createZodDto(streamEndedSchema) {}
+export class MediaUsageDto extends createZodDto(mediaUsageSchema) {}
+export class StreamReceivedDto extends createZodDto(streamReceivedSchema) {}

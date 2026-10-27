@@ -40,6 +40,8 @@ export interface DomainEvents {
   // platform (serverId null). disabled lists what went off somewhere;
   // turnCutUserIds are the people in voice rooms who lost the TURN relay.
   'media.changed': { serverId: string | null; disabled: MediaResource[]; turnCutUserIds: string[] }
+  // A viewer received this many bytes from the SFU since their last report.
+  'media.usage-reported': { userId: string; bytes: number }
 }
 
 export type DomainEventName = Extract<keyof DomainEvents, string>

@@ -40,7 +40,7 @@ export class SfuController {
 
   @Get()
   @ZodResponse({ status: HttpStatus.OK, type: SfuStatusResponseDto })
-  status(): SfuStatusResponse {
+  status(): Promise<SfuStatusResponse> {
     return this.getStatus.execute()
   }
 

@@ -4,6 +4,8 @@ import { PrismaService } from '../../../../lib/prisma'
 import { MediaSettingsRepository, type ServerMediaException } from '../media-settings.repository'
 
 const ID = 'global'
+// The schema default, for an emptied database.
+const DEFAULT_SFU_BUDGET_GB = 800
 const select = { sfuEnabled: true, meshEnabled: true, turnEnabled: true }
 
 type Columns = { sfuEnabled: boolean | null; meshEnabled: boolean | null; turnEnabled: boolean | null }
@@ -57,5 +59,15 @@ export class PrismaMediaSettingsRepository extends MediaSettingsRepository {
       orderBy: { name: 'asc' },
     })
     return rows.map((row) => ({ serverId: row.id, serverName: row.name, overrides: toOverrides(row) }))
+  }
+
+  async getSfuBudgetGb(): Promise<number> {
+    const row = await this.prisma.platformSettings.findUnique({ where: { id: ID }, select: { sfuBudgetGb: true } })
+    return row?.sfuBudgetGb ?? DEFAULT_SFU_BUDGET_GB
+  }
+
+  async setSfuBudgetGb(budgetGb: number): Promise<void> {
+    await this.prisma.platformSettings.createMany({ data: [{ id: ID }], skipDuplicates: true })
+    await this.prisma.platformSettings.update({ where: { id: ID }, data: { sfuBudgetGb: budgetGb } })
   }
 }

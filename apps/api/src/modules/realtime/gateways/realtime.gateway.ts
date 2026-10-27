@@ -21,6 +21,7 @@ import {
   RoomJoinResultDto,
   ServerSubscribeDto,
   SignalSendDto,
+  MediaUsageDto,
   StreamQualityDto,
   StreamStartDto,
   StreamTargetDto,
@@ -35,6 +36,7 @@ import { DisconnectSocketUseCase } from '../use-cases/disconnect-socket.use-case
 import { JoinRoomUseCase } from '../use-cases/join-room.use-case'
 import { LeaveRoomUseCase } from '../use-cases/leave-room.use-case'
 import { RelayToPeerUseCase } from '../use-cases/relay-to-peer.use-case'
+import { ReportMediaUsageUseCase } from '../use-cases/report-media-usage.use-case'
 import { SubscribeToServerUseCase } from '../use-cases/subscribe-to-server.use-case'
 import { UpdateVoiceStateUseCase } from '../use-cases/update-voice-state.use-case'
 
@@ -62,6 +64,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     private readonly leaveRoom: LeaveRoomUseCase,
     private readonly updateVoiceState: UpdateVoiceStateUseCase,
     private readonly relayToPeer: RelayToPeerUseCase,
+    private readonly reportMediaUsage: ReportMediaUsageUseCase,
   ) {}
 
   // The handshake is the gate: a socket without a session never connects,
@@ -239,6 +242,20 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @MessageBody() { streamerId, level }: StreamQualityDto,
   ): Promise<AckResponse> {
     await this.relayToPeer.execute({ ...this.who(socket), message: { type: 'quality', streamerId, level } })
+    return OK
+  }
+
+  @SubscribeMessage(REALTIME_EVENTS.mediaUsage)
+  @AsyncApiReceive({
+    channel: REALTIME_EVENTS.mediaUsage,
+    summary: 'Watching through the SFU: bytes received since the last report and the quality that arrives',
+    message: { name: 'MediaUsage', payload: MediaUsageDto },
+  })
+  async mediaUsage(
+    @ConnectedSocket() socket: RealtimeSocket,
+    @MessageBody() { streamerId, bytes, quality }: MediaUsageDto,
+  ): Promise<AckResponse> {
+    await this.reportMediaUsage.execute({ ...this.who(socket), streamerId, bytes, quality })
     return OK
   }
 

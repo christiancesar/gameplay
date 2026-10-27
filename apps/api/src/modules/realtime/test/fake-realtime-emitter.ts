@@ -2,6 +2,7 @@ import type {
   Announcement,
   MediaChanged,
   StreamEnded,
+  StreamReceived,
   Participant,
   RoomLeft,
   ServerRemoved,
@@ -26,6 +27,7 @@ type Emitted =
   | { event: 'notification:new'; userId: string; notificationId: string; announcement?: Announcement }
   | { event: 'media:changed'; to: MediaAudience; change: MediaChanged }
   | { event: 'stream:ended'; socketId: string; ended: StreamEnded }
+  | { event: 'stream:received'; socketId: string; received: StreamReceived }
 
 // Keeps what would go to the sockets, in order.
 export class FakeRealtimeEmitter extends RealtimeEmitter {
@@ -94,5 +96,9 @@ export class FakeRealtimeEmitter extends RealtimeEmitter {
 
   streamEnded(socketId: string, ended: StreamEnded) {
     this.emitted.push({ event: 'stream:ended', socketId, ended })
+  }
+
+  streamReceived(socketId: string, received: StreamReceived) {
+    this.emitted.push({ event: 'stream:received', socketId, received })
   }
 }

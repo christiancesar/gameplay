@@ -6,6 +6,7 @@ import {
   serverMediaSchema,
   updateMediaSettingsRequestSchema,
   updateServerMediaRequestSchema,
+  updateSfuBudgetRequestSchema,
 } from '@gameplay/contracts'
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
@@ -18,3 +19,4 @@ export class MediaImpactDto extends createZodDto(mediaImpactSchema) {}
 export class MediaImpactQueryDto extends createZodDto(z.object({ serverId: z.string().min(1).optional() })) {}
 export class ServerMediaOverridesDto extends createZodDto(serverMediaOverridesSchema) {}
 export class ServerMediaDto extends createZodDto(serverMediaSchema) {}
+export class UpdateSfuBudgetRequestDto extends createZodDto(updateSfuBudgetRequestSchema) {}

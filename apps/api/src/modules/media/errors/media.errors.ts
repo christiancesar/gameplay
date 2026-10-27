@@ -11,6 +11,16 @@ export class SfuDisabledError extends DomainError {
   }
 }
 
+// The monthly SFU budget ran out: shares go Direct (Mesh) until next month.
+export class SfuBudgetExhaustedError extends DomainError {
+  readonly code = 'SFU_BUDGET_EXHAUSTED'
+  override readonly status = HttpStatus.CONFLICT
+
+  constructor() {
+    super('The server sharing budget for this month ran out.')
+  }
+}
+
 export class SfuNotConfiguredError extends DomainError {
   readonly code = 'SFU_NOT_CONFIGURED'
   override readonly status = HttpStatus.SERVICE_UNAVAILABLE

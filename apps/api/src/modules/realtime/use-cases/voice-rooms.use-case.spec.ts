@@ -250,6 +250,41 @@ describe('voice room use-cases', () => {
     })
   })
 
+  describe('usage reports from viewers', () => {
+    const quality = { width: 1280, height: 720, fps: 30, kbps: 2500 }
+
+    it('relays the quality to the streamer and counts the bytes, through the SFU only', async () => {
+      const { join, store, reportUsage, emitter, events } = makeRealtimeContext()
+      await join('ana', 'r1')
+      await join('bia', 'r1')
+      await store.update('ana', 'ana-tab', { streaming: '720p30', streamMode: 'sfu' })
+      emitter.emitted.length = 0
+
+      await reportUsage.execute({ userId: 'bia', socketId: 'bia-tab', streamerId: 'ana', bytes: 1000, quality })
+
+      expect(emitter.emitted).toEqual([
+        { event: 'stream:received', socketId: 'ana-tab', received: { viewerId: 'bia', quality } },
+      ])
+      expect(events.published).toContainEqual({ name: 'media.usage-reported', payload: { userId: 'bia', bytes: 1000 } })
+
+      await store.update('ana', 'ana-tab', { streaming: '720p30', streamMode: 'mesh' })
+      await expect(
+        reportUsage.execute({ userId: 'bia', socketId: 'bia-tab', streamerId: 'ana', bytes: 1000, quality }),
+      ).rejects.toBeInstanceOf(NotStreamingError)
+    })
+
+    it('only from someone in the same room', async () => {
+      const { join, store, reportUsage } = makeRealtimeContext()
+      await join('ana', 'r1')
+      await join('caio', 'r2')
+      await store.update('ana', 'ana-tab', { streaming: '720p30', streamMode: 'sfu' })
+
+      await expect(
+        reportUsage.execute({ userId: 'caio', socketId: 'caio-tab', streamerId: 'ana', bytes: 1, quality: null }),
+      ).rejects.toBeInstanceOf(PeerNotInRoomError)
+    })
+  })
+
   describe('relaying', () => {
     async function threeInRooms() {
       const context = makeRealtimeContext()

@@ -294,7 +294,8 @@
       },
       "reasons": {
         "disabled": "Desligado neste servidor.",
-        "not-configured": "Indisponível neste servidor."
+        "not-configured": "Indisponível neste servidor.",
+        "budget-exhausted": "A cota de transmissão pelo servidor deste mês acabou."
       },
       "none": "O compartilhamento de tela está desligado neste servidor."
     },

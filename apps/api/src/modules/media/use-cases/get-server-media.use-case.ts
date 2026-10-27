@@ -3,6 +3,7 @@ import type { ServerMedia } from '@gameplay/contracts'
 import { EffectiveMediaService } from '../../limits/services/effective-media.service'
 import { ServerAccessService } from '../../servers/services/server-access.service'
 import { SfuProvider } from '../providers/sfu/sfu.provider'
+import { SfuBudgetService } from '../services/sfu-budget.service'
 
 type Input = { userId: string; serverId: string }
 
@@ -13,12 +14,19 @@ export class GetServerMediaUseCase {
     private readonly access: ServerAccessService,
     private readonly media: EffectiveMediaService,
     private readonly sfu: SfuProvider,
+    private readonly budget: SfuBudgetService,
   ) {}
 
   async execute({ userId, serverId }: Input): Promise<ServerMedia> {
     await this.access.member(serverId, userId)
     const { sfu, mesh, turn } = await this.media.forServer(serverId)
-    const sfuReason = !sfu ? 'disabled' : !this.sfu.configured ? 'not-configured' : null
+    const sfuReason = !sfu
+      ? 'disabled'
+      : !this.sfu.configured
+        ? 'not-configured'
+        : (await this.budget.exhausted())
+          ? 'budget-exhausted'
+          : null
     return {
       sfu: { available: sfuReason === null, reason: sfuReason },
       mesh: { available: mesh },

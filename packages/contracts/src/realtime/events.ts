@@ -26,6 +26,8 @@ export const REALTIME_EVENTS = {
   signalReceive: 'signal:receive',
   notificationNew: 'notification:new',
   mediaChanged: 'media:changed',
+  mediaUsage: 'media:usage',
+  streamReceived: 'stream:received',
   streamEnded: 'stream:ended',
 } as const
 
@@ -132,6 +134,30 @@ export type StreamStart = z.input<typeof streamStartSchema>
 export const mediaChangedSchema = z.object({ serverId: z.string().nullable(), turnOff: z.boolean() })
 export type MediaChanged = z.infer<typeof mediaChangedSchema>
 
+// What reaches a viewer, measured on their side.
+export const receivedQualitySchema = z.object({
+  width: z.number().int().min(0),
+  height: z.number().int().min(0),
+  fps: z.number().min(0),
+  kbps: z.number().min(0),
+})
+export type ReceivedQuality = z.infer<typeof receivedQualitySchema>
+
+// Viewer, every few seconds while watching through the SFU: bytes received
+// since the last report (counted against the monthly SFU budget) and the
+// quality that reaches them (shown to the streamer).
+export const MEDIA_USAGE_MAX_BYTES = 25_000_000
+export const mediaUsageSchema = z.object({
+  streamerId: z.string().min(1),
+  bytes: z.number().int().min(0).max(MEDIA_USAGE_MAX_BYTES),
+  quality: receivedQualitySchema.nullable(),
+})
+export type MediaUsage = z.infer<typeof mediaUsageSchema>
+
+// To the streamer: what one viewer receives through the SFU.
+export const streamReceivedSchema = z.object({ viewerId: z.string(), quality: receivedQualitySchema })
+export type StreamReceived = z.infer<typeof streamReceivedSchema>
+
 // To the streamer whose share was stopped by the API, not by them.
 export const STREAM_ENDED_REASONS = ['disabled'] as const
 export const streamEndedSchema = z.object({ reason: z.enum(STREAM_ENDED_REASONS) })
@@ -179,6 +205,7 @@ export interface ClientToServerEvents {
   'stream:watch': (payload: StreamTarget, ack: Ack) => void
   'stream:unwatch': (payload: StreamTarget, ack: Ack) => void
   'stream:quality': (payload: StreamQuality, ack: Ack) => void
+  'media:usage': (payload: MediaUsage, ack: Ack) => void
   'signal:send': (payload: SignalSend, ack: Ack) => void
 }
 
@@ -198,4 +225,5 @@ export interface ServerToClientEvents {
   'notification:new': (payload: NotificationNew) => void
   'media:changed': (payload: MediaChanged) => void
   'stream:ended': (payload: StreamEnded) => void
+  'stream:received': (payload: StreamReceived) => void
 }

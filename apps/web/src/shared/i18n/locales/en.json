@@ -294,7 +294,8 @@
       },
       "reasons": {
         "disabled": "Turned off for this server.",
-        "not-configured": "Not available on this server."
+        "not-configured": "Not available on this server.",
+        "budget-exhausted": "The server sharing budget for this month ran out."
       },
       "none": "Screen sharing is turned off for this server."
     },

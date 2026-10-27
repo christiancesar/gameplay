@@ -12,4 +12,7 @@ export abstract class MediaSettingsRepository {
   abstract setServer(serverId: string, overrides: ServerMediaOverrides): Promise<boolean>
   // Servers with at least one override, by name.
   abstract listExceptions(): Promise<ServerMediaException[]>
+  // Monthly SFU traffic allowed, in GB.
+  abstract getSfuBudgetGb(): Promise<number>
+  abstract setSfuBudgetGb(budgetGb: number): Promise<void>
 }

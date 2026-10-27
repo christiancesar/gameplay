@@ -2,6 +2,7 @@ import type { AdminMediaResponse, MediaImpact, ServerMediaOverrides } from '@gam
 
 const adminMedia: AdminMediaResponse = {
   settings: { sfu: true, mesh: true, turn: true },
+  sfuUsage: { month: '2026-10', usedBytes: 250_000_000_000, budgetGb: 800 },
   providers: { sfu: { name: 'cloudflare', state: 'ready' }, turn: { name: 'cloudflare', state: 'ready' } },
   exceptions: [{ serverId: 'sv1', serverName: 'Turbex', overrides: { sfu: false, mesh: null, turn: null } }],
 }

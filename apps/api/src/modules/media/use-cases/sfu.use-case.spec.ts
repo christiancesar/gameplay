@@ -1,5 +1,6 @@
 import { NotInRoomError, NotStreamingError, PeerNotInRoomError } from '../../realtime/errors/realtime.errors'
 import {
+  SfuBudgetExhaustedError,
   SfuNotConfiguredError,
   SfuSessionLimitError,
   SfuSessionNotFoundError,
@@ -23,12 +24,37 @@ async function anaStreamingToBia() {
 }
 
 describe('SFU use-cases', () => {
-  it('tells whether the SFU is configured', () => {
-    const { getStatus, provider } = makeMediaContext()
-    expect(getStatus.execute()).toEqual({ available: true, reason: null })
+  it('tells whether the SFU is configured and within the month budget', async () => {
+    const { getStatus, provider, budget, mediaSettings } = makeMediaContext()
+    expect(await getStatus.execute()).toEqual({ available: true, reason: null })
+
+    await mediaSettings.setSfuBudgetGb(1)
+    await budget.record(1_000_000_000)
+    expect(await getStatus.execute()).toEqual({ available: false, reason: 'budget-exhausted' })
 
     provider.configured = false
-    expect(getStatus.execute()).toEqual({ available: false, reason: 'not-configured' })
+    expect(await getStatus.execute()).toEqual({ available: false, reason: 'not-configured' })
+  })
+
+  it('refuses new shares past the budget, but lets viewers join the ones running', async () => {
+    const { anaSession, biaSession, watch, publish, mediaSettings, createSession } = await anaStreamingToBia()
+    await mediaSettings.setSfuBudgetGb(0)
+
+    await expect(
+      watch.execute({ userId: 'bia', sessionId: biaSession, streamerId: 'ana', layer: 'f' }),
+    ).resolves.toBeDefined()
+    const { sessionId } = await createSession.execute({ userId: 'ana' })
+    await expect(
+      publish.execute({ userId: 'ana', sessionId, offer: BROWSER_OFFER, tracks: SCREEN_TRACKS }),
+    ).rejects.toBeInstanceOf(SfuBudgetExhaustedError)
+    expect(anaSession).toBeDefined()
+  })
+
+  it("adds what viewers report to this month's traffic", async () => {
+    const { usageListener, budget } = makeMediaContext()
+    await usageListener.usageReported({ userId: 'bia', bytes: 2_000 })
+    await usageListener.usageReported({ userId: 'caio', bytes: 3_000 })
+    expect((await budget.current()).usedBytes).toBe(5_000)
   })
 
   describe('sessions', () => {

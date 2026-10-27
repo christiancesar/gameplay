@@ -4,7 +4,7 @@ import { z } from 'zod'
 // connection with the Cloudflare Realtime SFU through the API, which holds
 // the app secret and checks who may publish and watch.
 
-export const SFU_UNAVAILABLE_REASONS = ['not-configured'] as const
+export const SFU_UNAVAILABLE_REASONS = ['not-configured', 'budget-exhausted'] as const
 export const sfuStatusResponseSchema = z.object({
   available: z.boolean(),
   reason: z.enum(SFU_UNAVAILABLE_REASONS).nullable(),

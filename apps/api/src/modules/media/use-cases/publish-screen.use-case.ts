@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import type { SessionDescription, SfuTrack, SfuTracksResponse } from '@gameplay/contracts'
 import { SfuSessionStore } from '../../realtime/stores/sfu-session.store'
 import { EffectiveMediaService } from '../../limits/services/effective-media.service'
-import { SfuDisabledError } from '../errors/media.errors'
+import { SfuBudgetExhaustedError, SfuDisabledError } from '../errors/media.errors'
+import { SfuBudgetService } from '../services/sfu-budget.service'
 import { SfuAccessService } from '../services/sfu-access.service'
 import { SfuProvider } from '../providers/sfu/sfu.provider'
 
@@ -19,11 +20,14 @@ export class PublishScreenUseCase {
     private readonly sessions: SfuSessionStore,
     private readonly access: SfuAccessService,
     private readonly media: EffectiveMediaService,
+    private readonly budget: SfuBudgetService,
   ) {}
 
   async execute({ userId, sessionId, offer, tracks }: Input): Promise<SfuTracksResponse> {
     const { seat } = await this.access.ownSession(userId, sessionId)
     if (!(await this.media.isOn(seat.serverId, 'sfu'))) throw new SfuDisabledError()
+    // Viewers of shares already on the SFU may still join them; only new shares stop.
+    if (await this.budget.exhausted()) throw new SfuBudgetExhaustedError()
     const named = tracks.map((track) => ({ ...track, trackName: `screen-${track.kind}-${track.mid}` }))
 
     const result = await this.provider.publish(

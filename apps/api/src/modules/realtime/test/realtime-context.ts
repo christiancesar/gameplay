@@ -11,6 +11,7 @@ import { DisconnectSocketUseCase } from '../use-cases/disconnect-socket.use-case
 import { JoinRoomUseCase } from '../use-cases/join-room.use-case'
 import { LeaveRoomUseCase } from '../use-cases/leave-room.use-case'
 import { RelayToPeerUseCase } from '../use-cases/relay-to-peer.use-case'
+import { ReportMediaUsageUseCase } from '../use-cases/report-media-usage.use-case'
 import { ReleaseVoiceSeatsUseCase } from '../use-cases/release-voice-seats.use-case'
 import { SubscribeToServerUseCase } from '../use-cases/subscribe-to-server.use-case'
 import { UpdateVoiceStateUseCase } from '../use-cases/update-voice-state.use-case'
@@ -59,6 +60,7 @@ export function makeRealtimeContext() {
     leaveRoom: new LeaveRoomUseCase(store, voice),
     updateVoiceState: new UpdateVoiceStateUseCase(store, voice, sfuSessions, events, effectiveMedia),
     relay: new RelayToPeerUseCase(store, voice, emitter),
+    reportUsage: new ReportMediaUsageUseCase(store, voice, emitter, events),
     releaseSeats,
     listener: new DomainEventsListener(emitter, presence, releaseSeats, applyMediaChange),
   }

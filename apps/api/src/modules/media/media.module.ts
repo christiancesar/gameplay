@@ -9,6 +9,11 @@ import { AdminMediaController } from './controllers/admin-media.controller'
 import { ServerMediaController } from './controllers/server-media.controller'
 import { SfuController } from './controllers/sfu.controller'
 import { SfuCleanupListener } from './listeners/sfu-cleanup.listener'
+import { SfuUsageListener } from './listeners/sfu-usage.listener'
+import { MediaUsageRepository } from './repositories/media-usage.repository'
+import { PrismaMediaUsageRepository } from './repositories/prisma/prisma-media-usage.repository'
+import { SfuBudgetService } from './services/sfu-budget.service'
+import { UpdateSfuBudgetUseCase } from './use-cases/update-sfu-budget.use-case'
 import { CloudflareSfuProvider } from './providers/sfu/cloudflare/cloudflare.sfu.provider'
 import { NotConfiguredSfuProvider } from './providers/sfu/not-configured/not-configured.sfu.provider'
 import { MediaChangeService } from './services/media-change.service'
@@ -43,6 +48,10 @@ export function createSfuProvider(env: EnvService): SfuProvider {
   controllers: [SfuController, AdminMediaController, ServerMediaController],
   providers: [
     { provide: SfuProvider, inject: [EnvService], useFactory: createSfuProvider },
+    { provide: MediaUsageRepository, useClass: PrismaMediaUsageRepository },
+    SfuBudgetService,
+    SfuUsageListener,
+    UpdateSfuBudgetUseCase,
     SfuAccessService,
     MediaChangeService,
     GetAdminMediaUseCase,

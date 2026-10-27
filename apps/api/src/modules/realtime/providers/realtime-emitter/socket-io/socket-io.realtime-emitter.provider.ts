@@ -3,6 +3,7 @@ import {
   type Announcement,
   type MediaChanged,
   type StreamEnded,
+  type StreamReceived,
   type Participant,
   REALTIME_EVENTS,
   type RoomLeft,
@@ -24,6 +25,7 @@ import {
   ServerRemovedDto,
   SignalReceiveDto,
   StreamEndedDto,
+  StreamReceivedDto,
   StreamViewerDto,
   StreamViewerQualityDto,
 } from '../../../dtos/realtime.dto'
@@ -180,5 +182,14 @@ export class SocketIoRealtimeEmitter extends RealtimeEmitter {
   })
   streamEnded(socketId: string, ended: StreamEnded) {
     this.server?.to(socketId).emit(REALTIME_EVENTS.streamEnded, ended)
+  }
+
+  @AsyncApiSend({
+    channel: REALTIME_EVENTS.streamReceived,
+    summary: 'What one viewer receives of your screen through the SFU',
+    message: { name: 'StreamReceived', payload: StreamReceivedDto },
+  })
+  streamReceived(socketId: string, received: StreamReceived) {
+    this.server?.to(socketId).emit(REALTIME_EVENTS.streamReceived, received)
   }
 }

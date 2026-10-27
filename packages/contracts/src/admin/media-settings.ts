@@ -57,8 +57,21 @@ export const mediaProviderStatusSchema = z.object({
 })
 export type MediaProviderStatus = z.infer<typeof mediaProviderStatusSchema>
 
+// SFU traffic of the current month (UTC) against the budget the admin set.
+export const sfuUsageSchema = z.object({
+  month: z.string().regex(/^\d{4}-\d{2}$/),
+  usedBytes: z.number().int().min(0),
+  budgetGb: z.number().int().min(0),
+})
+export type SfuUsage = z.infer<typeof sfuUsageSchema>
+
+// Monthly SFU budget; 0 keeps the SFU off for new shares.
+export const updateSfuBudgetRequestSchema = z.object({ budgetGb: z.number().int().min(0).max(100_000) })
+export type UpdateSfuBudgetRequest = z.infer<typeof updateSfuBudgetRequestSchema>
+
 export const adminMediaResponseSchema = z.object({
   settings: mediaSettingsSchema,
+  sfuUsage: sfuUsageSchema,
   providers: z.object({ sfu: mediaProviderStatusSchema, turn: mediaProviderStatusSchema }),
   // Servers that differ from the global settings.
   exceptions: z.array(
@@ -68,7 +81,7 @@ export const adminMediaResponseSchema = z.object({
 export type AdminMediaResponse = z.infer<typeof adminMediaResponseSchema>
 
 // What a server offers its members right now.
-export const SERVER_SFU_UNAVAILABLE_REASONS = ['disabled', 'not-configured'] as const
+export const SERVER_SFU_UNAVAILABLE_REASONS = ['disabled', 'not-configured', 'budget-exhausted'] as const
 export const serverMediaSchema = z.object({
   sfu: z.object({ available: z.boolean(), reason: z.enum(SERVER_SFU_UNAVAILABLE_REASONS).nullable() }),
   mesh: z.object({ available: z.boolean() }),
