@@ -1,5 +1,9 @@
+import type { SfuLayer, StreamMode } from '@gameplay/contracts'
+
 import type { RealtimeService } from '@/modules/realtime/model/services/realtime.service'
+import type { MediaStreamFactory, TrackEventLike } from '@/shared/media/browser-media'
 import type { CallMedia } from '@/shared/media/call-media'
+import type { StatsRecord } from '@/shared/media/media-transport'
 
 import { idleWatch, type WatchStateStore } from '../entities/watch'
 import { type InboundSample, toInboundSample, toReceivedQuality } from '../mappers/inbound-stats.mapper'
@@ -11,8 +15,22 @@ type WatchSessionDeps = {
   realtime: WatchRealtime
   store: WatchStateStore
   subscribeMedia: (handler: (media: CallMedia | null) => void) => () => void
+  /** How the streamer sends their screen, from the room's roster. */
+  streamModeOf: (userId: string) => StreamMode | null
+  watchFromSfu: (
+    streamerId: string,
+    layer: SfuLayer,
+    onTrack: (event: TrackEventLike) => void,
+  ) => Promise<SfuSubscription>
+  createMediaStream: MediaStreamFactory
   /** How often what reaches me is measured. */
   pollMs?: number
+}
+
+/** Someone's screen received from the SFU. */
+type SfuSubscription = {
+  getStats(): Promise<{ forEach(callback: (stats: StatsRecord) => void): void }>
+  close(): void
 }
 
 const POLL_MS = 1000
@@ -21,11 +39,20 @@ const POLL_MS = 1000
 type Measuring = { trackId: string; previous: InboundSample | undefined; timer: ReturnType<typeof setInterval> }
 
 /** Everything tied to the media of one call, released when the call goes. */
-type Bound = { media: CallMedia; stops: (() => void)[]; streamerDown: boolean; measuring: Measuring | null }
+type Bound = {
+  media: CallMedia
+  stops: (() => void)[]
+  streamerDown: boolean
+  measuring: Measuring | null
+  /** The screen watched through the SFU; null in Mesh. */
+  sfu: SfuSubscription | null
+}
 
 /**
- * Watching one screen at a time (a stream costs the streamer one encode per viewer). Nothing is received
- * before `watch`: the streamer only adds the video to the connection after the request.
+ * Watching one screen at a time. A Direct (Mesh) stream costs the streamer one encode per viewer and nothing
+ * is received before `watch`: the streamer only adds the video to the connection after the request. Through
+ * the SFU the screen comes on a connection of its own; the request still goes out, so the streamer sees
+ * who watches.
  */
 class WatchSession {
   private readonly deps: WatchSessionDeps
@@ -56,6 +83,7 @@ class WatchSession {
     if (current === streamerId) return
     if (current) this.release(bound, { announce: true })
     store.setState({ streamerId, status: 'waiting', stream: null, failed: false })
+    if (this.deps.streamModeOf(streamerId) === 'sfu') void this.watchSfu(bound, streamerId)
     realtime.watchStream(streamerId).catch(() => {
       if (store.getState().streamerId !== streamerId) return
       this.release(bound, { announce: false })
@@ -91,7 +119,7 @@ class WatchSession {
     this.bound = null
     if (!media) return
 
-    const bound: Bound = { media, stops: [], streamerDown: false, measuring: null }
+    const bound: Bound = { media, stops: [], streamerDown: false, measuring: null, sfu: null }
     this.bound = bound
     bound.stops.push(
       media.transport.onRemoteTrack((peerId, track, stream, source) =>
@@ -107,6 +135,26 @@ class WatchSession {
         }
       }),
     )
+  }
+
+  private async watchSfu(bound: Bound, streamerId: string) {
+    const { store } = this.deps
+    const current = () => this.bound === bound && store.getState().streamerId === streamerId
+    try {
+      const sfu = await this.deps.watchFromSfu(streamerId, 'f', ({ track, streams }) => {
+        if (!current()) return
+        this.onTrack(bound, streamerId, track, streams[0] ?? this.deps.createMediaStream([track]), 'screen')
+      })
+      if (!current()) {
+        sfu.close()
+        return
+      }
+      bound.sfu = sfu
+    } catch {
+      if (!current()) return
+      this.release(bound, { announce: true })
+      store.setState({ failed: true })
+    }
   }
 
   private onTrack(bound: Bound, peerId: string, track: MediaStreamTrack, stream: MediaStream, source: string) {
@@ -130,7 +178,7 @@ class WatchSession {
       trackId,
       previous: undefined,
       timer: setInterval(async () => {
-        const sample = toInboundSample(await bound.media.transport.getConnectionStats(streamerId), trackId)
+        const sample = toInboundSample(await this.statsOf(bound, streamerId), trackId)
         if (bound.measuring !== measuring || !sample) return
         const quality = toReceivedQuality(sample, measuring.previous)
         measuring.previous = sample
@@ -138,6 +186,14 @@ class WatchSession {
       }, this.deps.pollMs ?? POLL_MS),
     }
     bound.measuring = measuring
+  }
+
+  /** The SFU connection when watching through it, else the call's connection with the streamer. */
+  private async statsOf(bound: Bound, streamerId: string): Promise<StatsRecord[]> {
+    if (!bound.sfu) return bound.media.transport.getConnectionStats(streamerId)
+    const records: StatsRecord[] = []
+    ;(await bound.sfu.getStats()).forEach((record) => records.push(record))
+    return records
   }
 
   private stopMeasuring(bound: Bound) {
@@ -166,10 +222,12 @@ class WatchSession {
       if (announce) realtime.unwatchStream(streamerId).catch(() => undefined)
     }
     bound.streamerDown = false
+    bound.sfu?.close()
+    bound.sfu = null
     this.stopMeasuring(bound)
     store.setState({ ...idleWatch, volume })
   }
 }
 
 export { POLL_MS, WatchSession }
-export type { WatchRealtime, WatchSessionDeps }
+export type { SfuSubscription, WatchRealtime, WatchSessionDeps }

@@ -78,5 +78,27 @@ function videoEncoding(preset: StreamPreset, priority: SharePriority): VideoEnco
   }
 }
 
-export { contentHintOf, displayMediaOptions, fromPreset, liveVideoConstraints, presetSpec, toPreset, videoEncoding }
+/**
+ * Simulcast layers sent to the SFU: full (`f`), half (`h`) and quarter (`q`) resolution. Each viewer gets
+ * the one their network carries; the lowest also drops to 15 fps.
+ */
+function simulcastEncodings(preset: StreamPreset): RTCRtpEncodingParameters[] {
+  const spec = SPECS[preset]
+  return [
+    { rid: 'f', maxBitrate: spec.maxBitrate, maxFramerate: spec.fps },
+    { rid: 'h', scaleResolutionDownBy: 2, maxBitrate: Math.round(spec.maxBitrate * 0.3), maxFramerate: spec.fps },
+    { rid: 'q', scaleResolutionDownBy: 4, maxBitrate: Math.round(spec.maxBitrate * 0.1), maxFramerate: 15 },
+  ]
+}
+
+export {
+  simulcastEncodings,
+  contentHintOf,
+  displayMediaOptions,
+  fromPreset,
+  liveVideoConstraints,
+  presetSpec,
+  toPreset,
+  videoEncoding,
+}
 export type { PresetSpec }

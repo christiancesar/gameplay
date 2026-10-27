@@ -1,8 +1,11 @@
-import type { StreamPreset } from '@gameplay/contracts'
+import type { StreamMode, StreamPreset } from '@gameplay/contracts'
 
 import type { RealtimeService } from '@/modules/realtime/model/services/realtime.service'
 import type { CallMedia } from '@/shared/media/call-media'
+import type { RtpSenderLike } from '@/shared/media/browser-media'
+import type { StatsRecord } from '@/shared/media/media-transport'
 import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
+import type { OutgoingTrack } from '@/shared/media/sfu-connection'
 import { SpeakingDetector } from '@/shared/media/speaking-detector'
 
 import {
@@ -13,11 +16,28 @@ import {
   type ShareStateStore,
   type ShareSurface,
 } from '../entities/share'
-import { toOutboundSample, toViewerStat, type OutboundSample } from '../mappers/outbound-stats.mapper'
+import { toOutboundSample, toUplinkSample, toViewerStat, type OutboundSample } from '../mappers/outbound-stats.mapper'
 import { toSurface } from '../rules/surface'
-import { contentHintOf, displayMediaOptions, liveVideoConstraints, toPreset, videoEncoding } from '../rules/preset'
+import {
+  contentHintOf,
+  displayMediaOptions,
+  liveVideoConstraints,
+  simulcastEncodings,
+  toPreset,
+  videoEncoding,
+} from '../rules/preset'
 
 type ShareRealtime = Pick<RealtimeService, 'startStream' | 'stopStream' | 'on'>
+
+/** The screen on the SFU: sent once, whatever the number of viewers. */
+type SfuPublication = {
+  senderOf(track: MediaStreamTrack): RtpSenderLike | undefined
+  getStats(): Promise<{ forEach(callback: (stats: StatsRecord) => void): void }>
+  close(): void
+}
+
+/** How to send the share: through the SFU or straight to each viewer, and whether Direct may stand in. */
+type ShareStartMode = { mode: StreamMode; fallbackToMesh: boolean }
 
 /** What the browser gave when a share started, for the reports. */
 type ShareStartReport = {
@@ -34,6 +54,7 @@ type ShareSessionDeps = {
   subscribeMedia: (handler: (media: CallMedia | null) => void) => () => void
   acquireScreen: (options: DisplayMediaStreamOptions) => Promise<ScreenCaptureResult>
   stopScreen: (capture: ScreenCaptureHandle) => void
+  publishToSfu: (tracks: OutgoingTrack[]) => Promise<SfuPublication>
   /** How often the viewers are measured. */
   pollMs?: number
   /** Told once per share that goes live. */
@@ -57,12 +78,17 @@ type Live = {
   poll: ReturnType<typeof setInterval> | undefined
   /** Reads whether the captured audio has sound; missing without an audio track. */
   audioLevel: SpeakingDetector | undefined
+  mode: StreamMode
+  /** The screen on the SFU; null in Mesh. */
+  sfu: SfuPublication | null
+  uplink: OutboundSample | undefined
 }
 
 /**
  * The screen share of this tab, outside React like the call. Starting opens the browser's picker, then
- * tells the room. The video only goes to who asked to watch (`stream:watch-request`), one connection
- * each (mesh); each viewer is measured from the stats of its own sender.
+ * tells the room. Through the SFU the screen goes up once, with simulcast layers, and each viewer pulls it;
+ * Direct (Mesh) sends it only to who asked to watch (`stream:watch-request`), one connection each, and each
+ * viewer is measured from the stats of its own sender.
  */
 class ShareSession {
   private readonly deps: ShareSessionDeps
@@ -92,7 +118,11 @@ class ShareSession {
   }
 
   /** Opens the picker and, if the user picks something, goes live. */
-  async start(settings: ShareSettings, priority: SharePriority): Promise<void> {
+  async start(
+    settings: ShareSettings,
+    priority: SharePriority,
+    { mode, fallbackToMesh }: ShareStartMode = { mode: 'mesh', fallbackToMesh: false },
+  ): Promise<void> {
     const { store } = this.deps
     if (store.getState().status !== 'idle') return
     const media = this.media
@@ -129,11 +159,20 @@ class ShareSession {
       stops: [],
       poll: undefined,
       audioLevel: undefined,
+      mode,
+      sfu: null,
+      uplink: undefined,
     }
     this.live = live
     live.stops.push(
       this.deps.realtime.on('stream:watch-request', ({ viewerId }) => void this.addViewer(live, viewerId)),
       this.deps.realtime.on('stream:unwatch', ({ viewerId }) => this.removeViewer(live, viewerId)),
+      // The platform admin turned this mode off: the API already stopped the share.
+      this.deps.realtime.on('stream:ended', () => {
+        if (this.live !== live) return
+        this.teardown({ announce: false })
+        this.deps.store.setState({ notice: 'disabled' })
+      }),
       this.deps.realtime.on('room:participants', ({ roomId, participants }) => {
         if (roomId !== media.roomId) return
         const present = new Set(participants.map((participant) => participant.userId))
@@ -153,6 +192,9 @@ class ShareSession {
       notice: missingAudio ? 'no-audio' : null,
     })
     if (capture.audio) live.audioLevel = this.watchAudioLevel(live)
+    if (mode === 'sfu' && !(await this.publish(live, fallbackToMesh))) return
+    if (this.live !== live) return
+    store.setState({ mode: live.mode })
     this.deps.report?.({
       source: settings.source,
       surface,
@@ -160,7 +202,7 @@ class ShareSession {
       audioReceived: capture.audio !== null,
     })
     try {
-      await this.deps.realtime.startStream(preset)
+      await this.deps.realtime.startStream(preset, live.mode)
     } catch {
       if (this.live === live) {
         this.teardown({ announce: false })
@@ -169,6 +211,50 @@ class ShareSession {
       return
     }
     if (this.live === live) live.poll = setInterval(() => void this.measure(live), this.deps.pollMs ?? POLL_MS)
+  }
+
+  /** Puts the screen on the SFU. False when the share could not go on (it was torn down). */
+  private async publish(live: Live, fallbackToMesh: boolean): Promise<boolean> {
+    const { video, audio, stream } = live.capture
+    const tracks: OutgoingTrack[] = [
+      { track: video, stream, kind: 'video', encodings: simulcastEncodings(live.preset) },
+      ...(audio ? [{ track: audio, stream, kind: 'audio' as const }] : []),
+    ]
+    try {
+      const sfu = await this.deps.publishToSfu(tracks)
+      if (this.live !== live) {
+        sfu.close()
+        return false
+      }
+      live.sfu = sfu
+      await this.applySfuEncoding(live)
+      return true
+    } catch {
+      if (this.live !== live) return false
+      if (!fallbackToMesh) {
+        this.teardown({ announce: false })
+        this.deps.store.setState({ notice: 'start-failed' })
+        return false
+      }
+      // Same capture, no new picker: the share goes Direct.
+      live.mode = 'mesh'
+      this.deps.store.setState({ notice: 'fell-back' })
+      return true
+    }
+  }
+
+  /** Simulcast layers of the preset, with the priority's degradation, on the SFU sender. */
+  private async applySfuEncoding(live: Live) {
+    const sender = live.sfu?.senderOf(live.capture.video)
+    if (!sender) return
+    const parameters = sender.getParameters()
+    const layers = simulcastEncodings(live.preset)
+    parameters.encodings = parameters.encodings.map((encoding) => ({
+      ...encoding,
+      ...layers.find((layer) => layer.rid === encoding.rid),
+    }))
+    const { degradationPreference } = videoEncoding(live.preset, live.priority)
+    await sender.setParameters({ ...parameters, degradationPreference } as RTCRtpSendParameters).catch(() => undefined)
   }
 
   /** Stops sharing, from the panel or because the browser's own button ended the track. */
@@ -188,14 +274,16 @@ class ShareSession {
     if (this.live !== live) return
     const presetChanged = preset !== live.preset
     live.preset = preset
-    await Promise.all(
-      this.deps.store
-        .getState()
-        .viewerIds.map((viewerId) =>
-          live.media.transport.setVideoEncoding(viewerId, live.capture.video, videoEncoding(preset, priority)),
-        ),
-    )
-    if (presetChanged) this.deps.realtime.startStream(preset).catch(() => undefined)
+    if (live.sfu) await this.applySfuEncoding(live)
+    else
+      await Promise.all(
+        this.deps.store
+          .getState()
+          .viewerIds.map((viewerId) =>
+            live.media.transport.setVideoEncoding(viewerId, live.capture.video, videoEncoding(preset, priority)),
+          ),
+      )
+    if (presetChanged) this.deps.realtime.startStream(preset, live.mode).catch(() => undefined)
   }
 
   dismissNotice(): void {
@@ -224,6 +312,8 @@ class ShareSession {
     if (!store.getState().viewerIds.includes(viewerId)) {
       store.setState({ viewerIds: [...store.getState().viewerIds, viewerId] })
     }
+    // Through the SFU the viewer pulls the screen; the request only lists them.
+    if (live.sfu) return
     transport.addTrack(viewerId, video, stream)
     if (audio) transport.addTrack(viewerId, audio, stream)
     await transport.setVideoEncoding(viewerId, video, videoEncoding(live.preset, live.priority))
@@ -233,14 +323,17 @@ class ShareSession {
     if (this.live !== live) return
     const { store } = this.deps
     if (!store.getState().viewerIds.includes(viewerId)) return
-    live.media.transport.removeTrack(viewerId, live.capture.video)
-    if (live.capture.audio) live.media.transport.removeTrack(viewerId, live.capture.audio)
+    if (!live.sfu) {
+      live.media.transport.removeTrack(viewerId, live.capture.video)
+      if (live.capture.audio) live.media.transport.removeTrack(viewerId, live.capture.audio)
+    }
     live.samples.delete(viewerId)
     const { [viewerId]: _gone, ...stats } = store.getState().stats
     store.setState({ viewerIds: store.getState().viewerIds.filter((id) => id !== viewerId), stats })
   }
 
   private async measure(live: Live) {
+    if (live.sfu) return this.measureUplink(live, live.sfu)
     const viewerIds = [...this.deps.store.getState().viewerIds]
     const results = await Promise.all(
       viewerIds.map(async (viewerId) => {
@@ -260,6 +353,17 @@ class ShareSession {
     store.setState({ stats })
   }
 
+  /** Through the SFU only the upload is known here; each viewer's quality is measured on their side. */
+  private async measureUplink(live: Live, sfu: SfuPublication) {
+    const records: StatsRecord[] = []
+    ;(await sfu.getStats()).forEach((record) => records.push(record))
+    const sample = toUplinkSample(records)
+    if (this.live !== live || !sample) return
+    const uplink = toViewerStat(sample, live.uplink)
+    live.uplink = sample
+    if (uplink) this.deps.store.setState({ uplink })
+  }
+
   private teardown({ announce }: { announce: boolean }) {
     const live = this.live
     if (!live) return
@@ -268,7 +372,8 @@ class ShareSession {
     live.audioLevel?.dispose()
     for (const stop of live.stops) stop()
     live.capture.video.onended = null
-    for (const viewerId of this.deps.store.getState().viewerIds) {
+    live.sfu?.close()
+    for (const viewerId of live.sfu ? [] : this.deps.store.getState().viewerIds) {
       live.media.transport.removeTrack(viewerId, live.capture.video)
       if (live.capture.audio) live.media.transport.removeTrack(viewerId, live.capture.audio)
     }
@@ -280,4 +385,4 @@ class ShareSession {
 }
 
 export { AUDIO_HOLD_MS, AUDIO_POLL_MS, POLL_MS, ShareSession }
-export type { ShareRealtime, ShareSessionDeps, ShareStartReport }
+export type { SfuPublication, ShareRealtime, ShareSessionDeps, ShareStartMode, ShareStartReport }

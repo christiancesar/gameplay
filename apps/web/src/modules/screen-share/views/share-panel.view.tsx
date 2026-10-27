@@ -44,6 +44,8 @@ type SharePanelState =
       limitation: QualityLimitation
       viewerCount: number
       audio: ShareAudioState
+      /** Servidor (SFU): `delivering` é o que sobe para o servidor. Direto (Mesh): o pior espectador. */
+      mode: 'sfu' | 'mesh'
     }
 
 type SharePanelViewProps = {
@@ -82,7 +84,7 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
     )
   }
 
-  const { source, target, delivering, isOnTarget, limitation, viewerCount, audio } = state
+  const { source, target, delivering, isOnTarget, limitation, viewerCount, audio, mode } = state
   const below = Boolean(delivering) && !isOnTarget
   const targetHeight = TARGET_HEIGHT[target.resolution]
 
@@ -98,6 +100,7 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
           <span className="size-2 animate-pulse rounded-full bg-red-500" aria-hidden />
           {t('share.live')}
           <span className="text-muted-foreground font-normal">· {t(`share.setup.sources.${source}.label`)}</span>
+          <span className="text-muted-foreground rounded border px-1 font-normal">{t(`share.mode.${mode}.name`)}</span>
         </span>
         <span className="text-muted-foreground flex items-center gap-1">
           <UsersIcon className="size-3.5" aria-hidden />
@@ -110,7 +113,7 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
         <dd className="text-right font-mono tabular-nums">
           {target.resolution} · {target.fps} fps
         </dd>
-        <dt className="text-muted-foreground">{t('share.monitor.delivering')}</dt>
+        <dt className="text-muted-foreground">{mode === 'sfu' ? t('share.uplink') : t('share.monitor.delivering')}</dt>
         <dd
           className={cn(
             'text-right font-mono tabular-nums',

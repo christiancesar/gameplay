@@ -35,6 +35,16 @@ type ShareSettings = {
   includeAudio: boolean
 }
 
+const STREAM_MODES = ['sfu', 'mesh'] as const
+/** Servidor (SFU) ou Direto (Mesh). */
+type StreamModeChoice = (typeof STREAM_MODES)[number]
+
+/** O que o servidor oferece: um modo desligado aparece travado, com o motivo. */
+type StreamModeOptions = {
+  sfu: { available: boolean; reason: 'disabled' | 'not-configured' | null }
+  mesh: { available: boolean }
+}
+
 type ShareSetupDialogViewProps = {
   open: boolean
   settings: ShareSettings
@@ -48,6 +58,10 @@ type ShareSetupDialogViewProps = {
   onChange: (settings: ShareSettings) => void
   onPriorityChange: (priority: SharePriority) => void
   onSaveAsDefaultChange: (value: boolean) => void
+  /** Modo escolhido; só ao começar. Sem `streamModes`, a escolha não aparece. */
+  streamMode?: StreamModeChoice
+  streamModes?: StreamModeOptions
+  onStreamModeChange?: (mode: StreamModeChoice) => void
   onStart: () => void
 }
 
@@ -64,12 +78,17 @@ function ShareSetupDialogView({
   onChange,
   onPriorityChange,
   onSaveAsDefaultChange,
+  streamMode,
+  streamModes,
+  onStreamModeChange,
   onStart,
 }: ShareSetupDialogViewProps) {
   const { t } = useTranslation()
   const isUpdate = mode === 'update'
   const set = (patch: Partial<ShareSettings>) => onChange({ ...settings, ...patch })
   const audioAvailable = AUDIO_AVAILABLE.includes(audioSupport)
+  const showModes = !isUpdate && Boolean(streamModes)
+  const noMode = showModes && !streamModes?.sfu.available && !streamModes?.mesh.available
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -203,6 +222,45 @@ function ShareSetupDialogView({
             </div>
           )}
 
+          {showModes && streamModes && (
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-2 text-sm font-medium">{t('share.mode.label')}</legend>
+              {noMode ? (
+                <p className="text-amber-500 text-xs">{t('share.mode.none')}</p>
+              ) : (
+                <div role="radiogroup" aria-label={t('share.mode.label')} className="flex flex-col gap-2">
+                  {STREAM_MODES.map((option) => {
+                    const available = streamModes[option].available
+                    const reason = option === 'sfu' ? streamModes.sfu.reason : 'disabled'
+                    const selected = streamMode === option
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        disabled={!available}
+                        onClick={() => onStreamModeChange?.(option)}
+                        className={cn(
+                          'hover:bg-accent focus-visible:ring-ring/50 flex flex-col gap-1 rounded-lg border p-3 text-left outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-60',
+                          selected && 'border-foreground bg-accent',
+                        )}
+                      >
+                        <span className="text-sm font-medium">{t(`share.mode.${option}.name`)}</span>
+                        <span className="text-muted-foreground text-xs leading-snug">
+                          {t(`share.mode.${option}.description`)}
+                        </span>
+                        {!available && reason && (
+                          <span className="text-amber-500 text-xs">{t(`share.mode.reasons.${reason}`)}</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </fieldset>
+          )}
+
           {!isUpdate && (
             <div className="flex items-center gap-2">
               <Checkbox
@@ -221,7 +279,7 @@ function ShareSetupDialogView({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t('common.cancel')}
           </Button>
-          <Button variant="success" onClick={onStart}>
+          <Button variant="success" onClick={onStart} disabled={noMode}>
             {!isUpdate && <MonitorUpIcon data-icon="inline-start" aria-hidden />}
             {isUpdate ? t('share.setup.apply') : t('share.setup.start')}
           </Button>
@@ -231,7 +289,7 @@ function ShareSetupDialogView({
   )
 }
 
-export { SHARE_FPS, SHARE_PRIORITIES, SHARE_RESOLUTIONS, SHARE_SOURCES, ShareSetupDialogView }
+export { SHARE_FPS, SHARE_PRIORITIES, SHARE_RESOLUTIONS, SHARE_SOURCES, STREAM_MODES, ShareSetupDialogView }
 export type {
   AudioSupport,
   ShareFps,
@@ -240,4 +298,6 @@ export type {
   ShareSettings,
   ShareSetupDialogViewProps,
   ShareSource,
+  StreamModeChoice,
+  StreamModeOptions,
 }

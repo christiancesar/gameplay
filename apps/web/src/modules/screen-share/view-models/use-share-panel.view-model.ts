@@ -1,3 +1,5 @@
+import type { StreamMode } from '@gameplay/contracts'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -13,6 +15,8 @@ import {
   type ViewerProfile,
 } from '@/modules/screen-share/model/mappers/share-panel.mapper'
 import { audioSupportFor, canShareAudio } from '@/modules/screen-share/model/rules/audio-support'
+import { serverMediaQueryOptions } from '@/modules/screen-share/model/services/server-media.query'
+import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
 
 import { useSharePreferencesStore } from './stores/share-preferences.store'
 import { useShareStore } from './stores/share.store'
@@ -31,12 +35,24 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   const [draftPriority, setDraftPriority] = useState<SharePriority>(saved ? savedPriority : 'smooth')
   const [saveAsDefault, setSaveAsDefault] = useState(saved !== null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const serverId = useVoiceStore((state) => state.connection?.serverId)
+  const { data: serverMedia } = useQuery({ ...serverMediaQueryOptions(serverId ?? ''), enabled: Boolean(serverId) })
+  // Server (SFU) first whenever the server offers it; the choice is not remembered.
+  const preferredMode: StreamMode | null = serverMedia
+    ? serverMedia.sfu.available
+      ? 'sfu'
+      : serverMedia.mesh.available
+        ? 'mesh'
+        : null
+    : 'mesh'
+  const [pickedMode, setPickedMode] = useState<StreamMode | null>(null)
+  const streamMode = pickedMode && serverMedia?.[pickedMode].available !== false ? pickedMode : preferredMode
 
   const { notice } = snapshot
   useEffect(() => {
     if (!notice) return
-    // Without audio the share still runs: a warning, not an error.
-    const show = notice === 'no-audio' ? toast.warning : toast.error
+    // Without audio, or Direct instead of the server, the share still runs: a warning, not an error.
+    const show = notice === 'no-audio' || notice === 'fell-back' ? toast.warning : toast.error
     show(t(`share.notices.${notice}`))
     shareController.dismissNotice()
   }, [notice, t])
@@ -48,6 +64,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
     setDraft(saved ?? defaultShareSettings)
     setDraftPriority(saved ? savedPriority : 'smooth')
     setSaveAsDefault(saved !== null)
+    setPickedMode(null)
     setDetailsOpen(false)
     setDialog('start')
   }
@@ -62,7 +79,12 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
     if (saveAsDefault) save(settings, draftPriority)
     else clear()
     setDialog('closed')
-    void shareController.start(settings, draftPriority)
+    if (!streamMode) return
+    void shareController.start(settings, draftPriority, {
+      mode: streamMode,
+      // Without the server's answer the share is Direct already.
+      fallbackToMesh: serverMedia?.mesh.available ?? true,
+    })
   }
 
   function openUpdate() {
@@ -94,6 +116,9 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
       onChange: setDraft,
       onPriorityChange: setDraftPriority,
       onSaveAsDefaultChange: setSaveAsDefault,
+      streamMode: streamMode ?? undefined,
+      streamModes: serverMedia ? { sfu: serverMedia.sfu, mesh: serverMedia.mesh } : undefined,
+      onStreamModeChange: setPickedMode,
       onStart: dialog === 'update' ? applyQuality : start,
     },
     details: {

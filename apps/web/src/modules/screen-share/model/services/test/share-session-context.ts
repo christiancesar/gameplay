@@ -1,11 +1,13 @@
 import { vi } from 'vitest'
 
 import type { ScreenCaptureResult } from '@/shared/media/screen-capture'
+import type { OutgoingTrack } from '@/shared/media/sfu-connection'
 
 import { idleShare, type ShareSnapshot } from '../../entities/share'
 import { ShareSession } from '../share-session.service'
 import { FakeCallMediaSource } from './fake-call-media-source'
 import { FakeSessionStore } from './fake-session-store'
+import { FakeSfuPublication } from './fake-sfu-publication'
 import { FakeStreamRealtime } from './fake-stream-realtime'
 import { makeCapture } from './screen-seed'
 
@@ -28,6 +30,13 @@ function makeShareSessionContext() {
     return { ok: true, capture }
   })
   const stopScreen = vi.fn()
+  const sfu = { failing: false, publications: [] as FakeSfuPublication[] }
+  const publishToSfu = vi.fn(async (tracks: OutgoingTrack[]) => {
+    if (sfu.failing) throw new Error('SFU down')
+    const publication = new FakeSfuPublication(tracks[0]?.encodings)
+    sfu.publications.push(publication)
+    return publication
+  })
   const report = vi.fn()
   const session = new ShareSession({
     realtime,
@@ -35,6 +44,7 @@ function makeShareSessionContext() {
     subscribeMedia: source.subscribe,
     acquireScreen,
     stopScreen,
+    publishToSfu,
     pollMs: 1000,
     report,
   })
@@ -50,6 +60,8 @@ function makeShareSessionContext() {
     acquireScreen,
     stopScreen,
     report,
+    sfu,
+    publishToSfu,
     get capture() {
       return captures[captures.length - 1]
     },

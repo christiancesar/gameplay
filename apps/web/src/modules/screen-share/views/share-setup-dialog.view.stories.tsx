@@ -7,6 +7,8 @@ import {
   type AudioSupport,
   type SharePriority,
   type ShareSettings,
+  type StreamModeChoice,
+  type StreamModeOptions,
 } from './share-setup-dialog.view'
 
 // Regra de exemplo só para a story (Chrome no Windows, ou no Linux com `tabOnly`); a real fica no Model e considera browser e sistema.
@@ -30,14 +32,26 @@ const meta = {
     onChange: fn(),
     onPriorityChange: fn(),
     onSaveAsDefaultChange: fn(),
+    streamMode: 'sfu',
+    streamModes: {
+      sfu: { available: true, reason: null },
+      mesh: { available: true },
+    } satisfies StreamModeOptions as StreamModeOptions,
+    onStreamModeChange: fn(),
     onStart: fn(),
   },
   render: function Render(args) {
     const [settings, setSettings] = useState(args.settings)
     const [priority, setPriority] = useState<SharePriority>(args.priority)
+    const [mode, setMode] = useState<StreamModeChoice | undefined>(args.streamMode)
     return (
       <ShareSetupDialogView
         {...args}
+        streamMode={mode}
+        onStreamModeChange={(next) => {
+          args.onStreamModeChange?.(next)
+          setMode(next)
+        }}
         settings={settings}
         priority={priority}
         onPriorityChange={(next) => {
@@ -133,5 +147,40 @@ export const ChangeQualityLive: Story = {
     await expect(args.onPriorityChange).toHaveBeenLastCalledWith('sharp')
     await userEvent.click(screen.getByRole('button', { name: /apply/i }))
     await expect(args.onStart).toHaveBeenCalledOnce()
+  },
+}
+
+/** Servidor (SFU) vem marcado; trocar para Direto (Mesh) chega ao ViewModel. */
+export const ChooseStreamMode: Story = {
+  play: async ({ args, userEvent }) => {
+    const server = await screen.findByRole('radio', { name: /server \(sfu\)/i })
+    await expect(server).toHaveAttribute('aria-checked', 'true')
+    await waitFor(() => expect(screen.getByText(/without splitting your upload/i)).toBeVisible())
+    await userEvent.click(screen.getByRole('radio', { name: /direct \(mesh\)/i }))
+    await expect(args.onStreamModeChange).toHaveBeenCalledWith('mesh')
+  },
+}
+
+/** SFU desligado no servidor: aparece travado, com o motivo, e só o Direto fica. */
+export const ServerModeTurnedOff: Story = {
+  args: {
+    streamMode: 'mesh',
+    streamModes: { sfu: { available: false, reason: 'disabled' }, mesh: { available: true } },
+  },
+  play: async () => {
+    await expect(await screen.findByRole('radio', { name: /server \(sfu\)/i })).toBeDisabled()
+    await waitFor(() => expect(screen.getByText(/turned off for this server\./i)).toBeVisible())
+  },
+}
+
+/** Os dois modos desligados: nada para escolher e o botão de começar travado. */
+export const SharingTurnedOff: Story = {
+  args: {
+    streamMode: undefined,
+    streamModes: { sfu: { available: false, reason: 'disabled' }, mesh: { available: false } },
+  },
+  play: async () => {
+    await waitFor(() => expect(screen.getByText(/screen sharing is turned off for this server/i)).toBeVisible())
+    await expect(screen.getByRole('button', { name: /choose and share/i })).toBeDisabled()
   },
 }

@@ -79,11 +79,13 @@ describe('realtime service', () => {
 
     it('sends the screen share events with their payloads', async () => {
       await service.startStream('1080p60')
+      await service.startStream('720p30', 'sfu')
       await service.watchStream('u2')
       await service.unwatchStream('u2')
       await service.stopStream()
       expect(socket.emitted.map((entry) => [entry.event, entry.args[0]])).toEqual([
-        ['stream:start', { preset: '1080p60' }],
+        ['stream:start', { preset: '1080p60', mode: 'mesh' }],
+        ['stream:start', { preset: '720p30', mode: 'sfu' }],
         ['stream:watch', { streamerId: 'u2' }],
         ['stream:unwatch', { streamerId: 'u2' }],
         ['stream:stop', {}],

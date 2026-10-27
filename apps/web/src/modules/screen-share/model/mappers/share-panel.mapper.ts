@@ -8,8 +8,10 @@ type ViewerProfile = { name: string; avatarUrl?: string }
 function toSharePanelState(snapshot: ShareSnapshot): SharePanelModel {
   if (snapshot.status === 'idle') return { status: 'idle' }
   if (snapshot.status === 'picking') return { status: 'picking' }
-  const { settings, viewerIds, stats, source, audio } = snapshot
-  const measured = viewerIds.flatMap((id) => (stats[id] ? [stats[id]] : []))
+  const { settings, viewerIds, stats, source, audio, uplink } = snapshot
+  const mode = snapshot.mode ?? 'mesh'
+  // Through the SFU, what goes up stands for everyone; Direct is as good as its worst viewer.
+  const measured = mode === 'sfu' ? (uplink ? [uplink] : []) : viewerIds.flatMap((id) => (stats[id] ? [stats[id]] : []))
   const summary = summarizeQuality(measured, settings, source)
   return {
     status: 'live',
@@ -20,6 +22,7 @@ function toSharePanelState(snapshot: ShareSnapshot): SharePanelModel {
     limitation: summary.limitation,
     viewerCount: viewerIds.length,
     audio,
+    mode,
   }
 }
 
