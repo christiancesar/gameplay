@@ -1,5 +1,6 @@
 import { faro, getWebInstrumentations, initializeFaro, TransportItemType } from '@grafana/faro-web-sdk'
 import { TracingInstrumentation } from '@grafana/faro-web-tracing'
+import { onServer } from './server-url'
 
 /** The slice of the router Faro follows: the route of each resolved navigation names the view. */
 type FaroRouter = {
@@ -19,14 +20,15 @@ type MetricsSdk = {
 /**
  * Starts Grafana Faro: Web Vitals, sessions, views and traces of the `/api` calls, linked to the API
  * traces. Errors and console stay out: Sentry owns errors. Does nothing (returns false) without
- * `VITE_FARO_URL`, which in self-hosting is the same-origin tunnel nginx forwards to the collector.
+ * `VITE_FARO_URL`, which in self-hosting is the tunnel of the server (same origin on the web, `serverUrl` on the
+ * desktop) that nginx forwards to the collector.
  */
-function initFaro(router: FaroRouter): boolean {
+function initFaro(router: FaroRouter, serverUrl = ''): boolean {
   const url = import.meta.env.VITE_FARO_URL
   if (!url) return false
 
   initializeFaro({
-    url,
+    url: onServer(url, serverUrl),
     app: {
       name: 'gameplay-web',
       version: import.meta.env.VITE_SENTRY_RELEASE || 'dev',

@@ -8,7 +8,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-import { type AckResponse, REALTIME_EVENTS, type RoomJoinResult } from '@gameplay/contracts'
+import { type AckResponse, DESKTOP_APP_ORIGIN, REALTIME_EVENTS, type RoomJoinResult } from '@gameplay/contracts'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { WsAckExceptionFilter } from '../../../common/errors/ws-ack-exception.filter'
 import { AsyncApiReceive, AsyncApiSend } from '../../../docs/asyncapi-decorators'
@@ -45,8 +45,9 @@ const OK: AckResponse = { ok: true, data: undefined }
 // Code of the connect_error a client gets without a valid session.
 export const UNAUTHENTICATED = 'UNAUTHENTICATED'
 
-// Socket.IO on /socket.io, same origin and session cookie as the REST API.
-@WebSocketGateway()
+// Socket.IO on /socket.io, same origin and session cookie as the REST API. The desktop app comes from its own
+// origin (CORS for the polling transport) and brings the session token in the handshake.
+@WebSocketGateway({ cors: { origin: [DESKTOP_APP_ORIGIN] } })
 @UsePipes(ZodValidationPipe)
 @UseFilters(WsAckExceptionFilter)
 @UseInterceptors(RealtimeMetricsInterceptor)
@@ -72,7 +73,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   afterInit(server: RealtimeServer) {
     this.emitter.attach(server)
     server.use((socket, next) => {
-      this.sessions.resolve(socket.request.headers).then(
+      this.sessions.resolve(socket.request.headers, socket.handshake.auth).then(
         (resolved) => {
           if (!resolved) {
             this.metrics.handshakeRejected()

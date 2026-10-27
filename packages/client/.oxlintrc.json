@@ -39,7 +39,7 @@
             "allow": {
               "to": {
                 "element": {
-                  "types": ["model", "model-service", "shared-lib", "shared-media"]
+                  "types": ["model", "model-service", "shared-platform", "shared-lib", "shared-media"]
                 }
               }
             }
@@ -72,6 +72,7 @@
                     "model-service",
                     "store",
                     "view-model",
+                    "shared-platform",
                     "shared-lib",
                     "shared-media",
                     "shared-i18n"
@@ -131,7 +132,7 @@
             "allow": {
               "to": {
                 "element": {
-                  "types": ["app", "screen", "shared-ui", "shared-lib", "shared-i18n"]
+                  "types": ["app", "screen", "shared-ui", "shared-platform", "shared-lib", "shared-i18n"]
                 }
               }
             }
@@ -159,7 +160,7 @@
             "allow": {
               "to": {
                 "element": {
-                  "types": ["shared-lib"]
+                  "types": ["shared-lib", "shared-platform"]
                 }
               }
             }
@@ -275,6 +276,20 @@
               "to": {
                 "file": {
                   "categories": ["constants"]
+                }
+              }
+            }
+          },
+          {
+            "from": {
+              "element": {
+                "type": "shared-platform"
+              }
+            },
+            "allow": {
+              "to": {
+                "element": {
+                  "types": ["shared-platform", "shared-media"]
                 }
               }
             }
@@ -425,6 +440,11 @@
       {
         "type": "shared-i18n",
         "pattern": "src/shared/i18n/**",
+        "partialMatch": false
+      },
+      {
+        "type": "shared-platform",
+        "pattern": "src/shared/platform/**",
         "partialMatch": false
       },
       {

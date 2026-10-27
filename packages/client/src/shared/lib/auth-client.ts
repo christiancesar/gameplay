@@ -1,8 +1,33 @@
 import { adminClient, inferAdditionalFields, twoFactorClient, usernameClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/react'
 
-/** Client do Better Auth. As rotas ficam em /api/auth no mesmo domínio (padrão do client). */
+import { currentPlatform } from '@/shared/platform/current-platform'
+
+/** O mesmo caminho no servidor da plataforma: o client monta a URL no domínio da página, aqui ela troca de domínio. */
+function toServerUrl(input: Parameters<typeof fetch>[0]): Parameters<typeof fetch>[0] {
+  const base = currentPlatform().server.baseUrl()
+  if (!base) return input
+  const url = new URL(input instanceof Request ? input.url : String(input))
+  return new URL(`${url.pathname}${url.search}`, base).toString()
+}
+
+/**
+ * Client do Better Auth. As rotas ficam em /api/auth. No web é o mesmo domínio e a sessão é um cookie (padrão do
+ * client). No desktop as chamadas vão ao servidor escolhido com o token no header Authorization: o login devolve o
+ * token no header `set-auth-token`, o logout o apaga. A plataforma é lida a cada chamada, porque só existe depois
+ * que o app monta.
+ */
 const authClient = createAuthClient({
+  fetchOptions: {
+    customFetchImpl: (input, init) => fetch(toServerUrl(input), init),
+    auth: { type: 'Bearer', token: () => currentPlatform().server.session.getToken() ?? '' },
+    onSuccess: ({ response }) => {
+      const { session } = currentPlatform().server
+      if (response.url.endsWith('/sign-out')) return session.clearToken()
+      const token = response.headers.get('set-auth-token')
+      if (token) session.setToken(token)
+    },
+  },
   plugins: [
     usernameClient(),
     twoFactorClient(),

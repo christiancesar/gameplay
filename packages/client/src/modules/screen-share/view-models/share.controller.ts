@@ -9,8 +9,9 @@ import { WatchSession } from '@/modules/screen-share/model/services/watch-sessio
 import { voiceController } from '@/modules/rooms/view-models/voice.controller'
 import { monitoring } from '@/shared/lib/monitoring'
 import { createBrowserMediaStream, createBrowserPeerConnection } from '@/shared/media/browser-media'
-import { acquireScreen, stopScreen } from '@/shared/media/screen-capture'
+import { stopScreen } from '@/shared/media/screen-capture'
 import { SfuConnection, type SfuConnectionDeps } from '@/shared/media/sfu-connection'
+import { currentPlatform } from '@/shared/platform/current-platform'
 import { sfuSignaling } from '@/modules/screen-share/model/services/sfu.service'
 import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
 
@@ -41,7 +42,8 @@ function getShare(): ShareSession {
       realtime,
       store: useShareStore,
       subscribeMedia: voiceController.subscribeMedia,
-      acquireScreen: (options) => acquireScreen(options),
+      // The host decides how a screen is captured: the browser's picker on the web, its own on the desktop.
+      acquireScreen: (options) => currentPlatform().capture.start({ options, sourceId: null }),
       stopScreen,
       publishToSfu: (tracks) => SfuConnection.publish(sfuDeps, tracks),
       report: monitoring.measuring

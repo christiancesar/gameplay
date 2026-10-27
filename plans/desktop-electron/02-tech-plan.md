@@ -46,10 +46,16 @@
 
 ### 3.1 A porta `Platform`
 
-Interface no `packages/client` (`shared/platform/platform.ts`), entregue por um context na raiz do app. Cada casca injeta a sua implementação.
+Interface no `packages/client` (`shared/platform/platform.ts`). Cada casca injeta a sua implementação: o `App` recebe a `platform` por prop. *(DESK-03 feito: o que está abaixo é o que existe no código.)*
 
 ```ts
 type CaptureSource = { id: string; name: string; kind: 'screen' | 'window'; thumbnail: string | null }
+type CaptureRequest = {
+  /** O que o seletor do browser recebe: superfície, resolução, fps e áudio. */
+  options: DisplayMediaStreamOptions
+  /** Uma fonte escolhida em `listSources`; null deixa a escolha com o seletor do próprio host. */
+  sourceId: string | null
+}
 
 type Platform = {
   kind: 'browser' | 'desktop'
@@ -61,17 +67,23 @@ type Platform = {
     globalHotkeys: boolean
   }
   capture: {
-    listSources(): Promise<CaptureSource[]>
-    start(request: { sourceId: string | null; audio: boolean; video: MediaTrackConstraints }): Promise<ScreenCaptureResult>
+    listSources: () => Promise<CaptureSource[]>
+    start: (request: CaptureRequest) => Promise<ScreenCaptureResult>
   }
-  /** Endereço do servidor: o próprio domínio no web, o escolhido pelo usuário no desktop. */
-  server: { baseUrl(): string }
+  server: {
+    /** Origem da API, sem barra final. Vazia no web (página e API no mesmo domínio). */
+    baseUrl: () => string
+    /** Token da sessão de quem não tem cookie (o desktop). Síncrono; o web não tem token. */
+    session: { getToken: () => string | null; setToken: (token: string) => void; clearToken: () => void }
+  }
 }
 ```
 
+- **Dois jeitos de ler**, porque parte do código vive fora do React: `usePlatform()` (context, `PlatformProvider`) nos componentes e `currentPlatform()` (registro de módulo, preenchido pelo `App`) nos controllers como o `share.controller`. A plataforma não muda enquanto o app roda.
 - ViewModels usam a `Platform`. As Views continuam só com props: recebem as `capabilities` e a lista de fontes já prontas. A regra do MVVM não muda.
-- O `acquireScreen` de hoje (`shared/media/screen-capture.ts`) vira a implementação browser de `capture.start`.
-- No Storybook e nos specs, uma `FakePlatform` (um arquivo, como os outros fakes) simula as duas plataformas.
+- **Camada nova no lint**: `shared/platform` é o tipo `shared-platform` nas fronteiras do oxlint; `model-service`, `view-model` e `app` podem importá-lo, e ele só importa `shared-lib` e `shared-media`.
+- **A implementação do browser fica no client**, em `modules/screen-share/model/services/browser-platform.service.ts` (`createBrowserPlatform`, exportada pelo pacote), e não no `apps/web`: ela depende de regras internas do client (`audio-support`, `capture-platform`) e o desktop vai reaproveitar a captura do browser na fase 1. `capture.start` chama o `acquireScreen`; `windowAudio` e `systemAudio` saem de `audioSupportFor`; `listSources` devolve vazio.
+- No Storybook e nos specs, uma `FakePlatform` (`shared/platform/test/fake-platform.ts`, sem framework de teste dentro) simula as plataformas.
 
 ### 3.2 IPC tipado (`packages/desktop-bridge`)
 
@@ -116,11 +128,14 @@ Anotado para a fase 2; nada disso entra na migração.
 
 ## 4. O que muda no client para rodar no desktop
 
-1. **Endereço da API em tempo de execução.** Hoje `http.ts` usa `baseURL: '/api'`, o socket conecta no mesmo domínio e o Better Auth usa o domínio da página. No desktop a página vem do protocolo do app (`app://`), então os três passam a ler `platform.server.baseUrl()`. No web continua o mesmo domínio.
+1. **Endereço da API em tempo de execução** *(feito no DESK-04)*. Antes, `http.ts` usa `baseURL: '/api'`, o socket conecta no mesmo domínio e o Better Auth usa o domínio da página. No desktop a página vem do protocolo do app (`app://`), então os três passam a ler `platform.server.baseUrl()`. No web continua o mesmo domínio.
 2. **Autenticação por token no desktop** (decisão do usuário em 2026-10-27). O Better Auth client continua **no renderer**, com o mesmo código do web: login, 2FA, sessão e admin não mudam. O main só **guarda o token**.
    - Por quê: no web a sessão é um cookie `HttpOnly`. No desktop a página vem de `app://` e a API de `https://`, então o cookie seria de terceiro (exigiria `SameSite=None` e CORS com credenciais). Sem cookie, o lugar do renderer seria o `localStorage`, em texto puro no disco e legível por qualquer script da página. O `safeStorage` criptografa com o cofre do sistema (keyring no Linux, DPAPI no Windows, Keychain no macOS).
    - Fluxo: com o plugin `bearer` na API, o login devolve o token; o renderer manda para o main (`auth:set-token`), que criptografa e grava. Na abertura, o renderer pede o token (`auth:get-token`) e configura o Better Auth client, o `http` e o handshake do socket com `Authorization: Bearer`. O logout apaga (`auth:clear-token`).
-   - O web segue com cookie. *(conferir a doc do plugin `bearer` antes)*
+   - O web segue com cookie.
+   - **Decisão em aberto, resolvida no DESK-05:** o Bearer só existe porque o cookie não volta entre `app://` e `https://`. Como o desafio de 2FA (cookie `two_factor`) precisa da mesma correção, o main reescrevendo o `Set-Cookie` para `SameSite=None; Secure` pode servir a sessão inteira e dispensar o Bearer. O DESK-05 testa isso primeiro; se funcionar, o Bearer sai (um mecanismo só, igual ao web), senão fica e a reescrita cobre só o 2FA. Limite do cookie: só vale em HTTPS ou `localhost` e `127.0.0.1`.
+   - *(feito no DESK-04, a manter ou remover conforme essa decisão)* API: plugin `bearer` do Better Auth (o login responde o token no header `set-auth-token`, e `Authorization: Bearer` vale por cookie em qualquer rota), `app://gameplay` (`DESKTOP_APP_ORIGIN` em `@gameplay/contracts`) em `trustedOrigins`, CORS próprio no `setupApp` (o do módulo do Better Auth não tem PATCH) e o handshake do Socket.IO aceitando o token em `auth`. Client: `http`, socket e `authClient` leem a plataforma a cada chamada; o `authClient` guarda o `set-auth-token` e apaga no sign-out.
+   - O `getToken` é síncrono porque cada request o pede. No desktop, o main guarda o token cifrado e o renderer mantém uma cópia em memória, carregada antes de montar o app (DESK-06).
 3. **Primeira abertura do desktop**: tela para informar o servidor (produção ou um self-hosted). Nova View e nova rota, com story.
 4. **Versões diferentes entre app e servidor.** O `/api/health` passa a informar a versão mínima de app aceita; o desktop pede atualização quando estiver abaixo.
 5. **Variáveis `VITE_*`** (Sentry, Faro): os tunnels `/monitoring/*` viram URLs absolutas do servidor no desktop.
@@ -166,7 +181,6 @@ gameplay/
 │   │   ├── public/
 │   │   ├── src/
 │   │   │   ├── main.tsx           monta <App platform={browserPlatform} />
-│   │   │   ├── browser-platform.ts
 │   │   │   └── index.css          @import do tema do client, @source do pacote
 │   │   ├── index.html, vite.config.ts (React, Tailwind, router plugin apontando para o pacote, proxy /api)
 │   │   ├── Dockerfile             passa a copiar packages/client
@@ -201,9 +215,9 @@ gameplay/
 │   │   │   ├── app/               App (recebe a Platform), router, root-layout, routes/, route-tree.gen.ts
 │   │   │   ├── docs/
 │   │   │   ├── fixtures/
-│   │   │   ├── modules/           os mesmos módulos de hoje (+ seletor de fontes no screen-share, tela de servidor no desktop)
+│   │   │   ├── modules/           os mesmos módulos de hoje (+ browser-platform no screen-share, seletor de fontes e tela de servidor no desktop)
 │   │   │   ├── shared/
-│   │   │   │   ├── platform/      platform.ts (porta), platform-context.tsx, test/fake-platform.ts
+│   │   │   │   ├── platform/      platform.ts (porta), current-platform.ts, platform-provider.tsx, use-platform.ts, test/fake-platform.ts
 │   │   │   │   ├── ui/            shadcn
 │   │   │   │   ├── lib/           http, socket, auth-client lendo platform.server
 │   │   │   │   ├── media/         screen-capture vira a implementação browser
@@ -265,6 +279,7 @@ Atualização completa por sistema:
 
 ## 8. Pendências
 
-- **Token no desktop**: confirmar o plugin `bearer` do Better Auth e como ele convive com o 2FA e o admin.
+- **2FA e sessão no desktop, cookie de terceiro** *(primeiro item do DESK-05)*: o plugin `bearer` e o admin funcionam por token (testado na API), mas o desafio de 2FA do Better Auth usa um cookie assinado (`two_factor`) que o login grava e o `verify-totp` devolve. No desktop a página (`app://`) e a API (`https://`) são de sites diferentes, e o cookie `SameSite=Lax` não volta. Para validar com o Electron de verdade (DESK-05 e DESK-06). Caminho provável: o main reescreve o `Set-Cookie` das respostas do servidor para `SameSite=None; Secure` (`webRequest.onHeadersReceived`), sem mexer nos cookies do web. Mudar o atributo na API quebraria o 2FA de quem acessa por `http://<ip>`.
+- **Rastreamento do Faro no desktop**: o Faro só propaga os headers de trace para a mesma origem; entre `app://` e o servidor seria preciso `propagateTraceHeaderCorsUrls`.
 - **Distribuição**: onde publicar os instaladores e os bundles da UI (GitHub Releases ou o bucket S3) e se haverá assinatura de código no Windows e macOS (certificados custam).
 - **Push-to-talk global** (atalho fora da janela): entra depois, como mais uma capacidade da `Platform`.

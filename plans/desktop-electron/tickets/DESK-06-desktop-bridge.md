@@ -5,10 +5,18 @@
 ## Contexto
 `../02-tech-plan.md`, seções 3.2, 4 (item 2) e 5.2. Só os canais do próprio app: endereço do servidor e token da sessão. Nada de captura nesta fase.
 
+## Decisão herdada do DESK-05
+O teste do cookie reescrito decide se o desktop guarda token:
+- **Cookie funcionou (Bearer fora):** os canais `auth:*` e o módulo `auth` **não existem**; o login fica no cookie do Chromium, que o cifra com o cofre do sistema. O `desktop-bridge` começa só com os canais `server:*`.
+- **Cookie não funcionou (Bearer fica):** valem os canais `auth:*` abaixo, e entram três itens de endurecimento:
+  - o token é guardado **por servidor** (a chave é a origem do servidor, para nunca mandar o token de um para outro; o `Platform.server.session` passa a receber o endereço);
+  - **401** de uma rota autenticada, ou `session:revoked` no socket, apaga o token e leva ao login;
+  - `bearer({ requireSignature: true })` na API, com teste, já que o app só envia o token que o servidor entregou.
+
 ## Escopo
-- `packages/desktop-bridge` (`@gameplay/desktop-bridge`): `channels.ts` com zod para `server:get-url`, `server:set-url`, `auth:get-token`, `auth:set-token`, `auth:clear-token`; `bridge.ts` com o tipo `DesktopBridge` e os helpers de preload e de main.
+- `packages/desktop-bridge` (`@gameplay/desktop-bridge`): `channels.ts` com zod para `server:get-url` e `server:set-url` e, se o Bearer ficar, `auth:get-token`, `auth:set-token`, `auth:clear-token`; `bridge.ts` com o tipo `DesktopBridge` e os helpers de preload e de main.
 - `apps/desktop/src/main/ipc.ts`: registra os canais pelo contrato, valida a entrada com zod e só atende a janela do app no protocolo `app://` (confere o `senderFrame`).
-- `src/main/modules/server/` e `src/main/modules/auth/`: handlers, services e providers (`auth` com o `safeStorage` atrás de uma porta), com fakes em `test/`.
+- `src/main/modules/server/` e, se o Bearer ficar, `src/main/modules/auth/`: handlers, services e providers (`auth` com o `safeStorage` atrás de uma porta), com fakes em `test/`.
 - `src/preload/preload.ts`: `contextBridge.exposeInMainWorld('gameplayDesktop', ...)` montado pelo contrato, só funções.
 - `desktopPlatform` passa a usar a ponte para servidor e token, no lugar da memória.
 

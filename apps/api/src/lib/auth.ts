@@ -1,7 +1,7 @@
-import { PASSWORD_MIN_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
+import { DESKTOP_APP_ORIGIN, PASSWORD_MIN_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { admin, openAPI, twoFactor, username } from 'better-auth/plugins'
+import { admin, bearer, openAPI, twoFactor, username } from 'better-auth/plugins'
 import { isDocsEnabled } from '../docs/docs-enabled'
 import type { EnvService } from '../env/env.service'
 import { DISABLED_AUTH_PATHS, disabledAuthPrefixes } from './auth-disabled-paths'
@@ -18,7 +18,8 @@ export function createAuth(prisma: PrismaService, env: EnvService) {
     basePath: BASE_PATH,
     disabledPaths: DISABLED_AUTH_PATHS,
     secret: env.get('BETTER_AUTH_SECRET'),
-    trustedOrigins: [env.get('WEB_ORIGIN')],
+    // The web page, and the desktop app that calls this API from its own origin.
+    trustedOrigins: [env.get('WEB_ORIGIN'), DESKTOP_APP_ORIGIN],
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     emailAndPassword: {
       enabled: true,
@@ -59,6 +60,9 @@ export function createAuth(prisma: PrismaService, env: EnvService) {
       // role "admin" is the platform admin; everyone else is "user".
       admin(),
       twoFactor({ issuer: 'Gameplay' }),
+      // The desktop app has no session cookie: sign-in also answers the token (`set-auth-token` header), and
+      // `Authorization: Bearer <token>` stands for the cookie in every route.
+      bearer(),
       disabledAuthPrefixes(BASE_PATH),
       // OpenAPI of the auth routes, shown in /api/docs next to the app's.
       ...(isDocsEnabled(env) ? [openAPI({ disableDefaultReference: true })] : []),

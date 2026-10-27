@@ -35,6 +35,7 @@ MVVM is the architecture of the whole frontend, not just state management. The f
 | Screen | `modules/<m>/screens/*.screen.tsx`. Thin glue: calls the ViewModel, passes the result to the View. | ViewModel, View |
 
 - Routes live in `packages/client/src/app/routes` (TanStack Router, file based). A route file only declares `validateSearch`, `beforeLoad`, `loader` and `component: XxxScreen`.
+- What differs between hosts (browser, desktop) goes through the `Platform` port in `shared/platform` (`capabilities`, `capture`, and `server`: where the API is and the session token, read on every request by `http`, the socket and `authClient`). The `App` takes it as a prop; React code reads it with `usePlatform()`, controllers outside React with `currentPlatform()`. Never import a browser capture API or Electron in a ViewModel. Specs and stories use `FakePlatform`.
 - Views never use `Link` or `useNavigate`; navigation arrives as a callback. Storybook must keep working without a router.
 - Socket events only invalidate queries or update stores. REST stays the source of truth.
 - One component per file in our code (`shared/ui` from shadcn and `*.stories.tsx` are exempt).
