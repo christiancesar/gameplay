@@ -35,7 +35,7 @@ MVVM is the architecture of the whole frontend, not just state management. The f
 | Screen | `modules/<m>/screens/*.screen.tsx`. Thin glue: calls the ViewModel, passes the result to the View. | ViewModel, View |
 
 - Routes live in `packages/client/src/app/routes` (TanStack Router, file based). A route file only declares `validateSearch`, `beforeLoad`, `loader` and `component: XxxScreen`.
-- What differs between hosts (browser, desktop) goes through the `Platform` port in `shared/platform` (`capabilities`, `capture`, and `server`: where the API is and the session token, read on every request by `http`, the socket and `authClient`). The `App` takes it as a prop; React code reads it with `usePlatform()`, controllers outside React with `currentPlatform()`. Never import a browser capture API or Electron in a ViewModel. Specs and stories use `FakePlatform`.
+- What differs between hosts (browser, desktop) goes through the `Platform` port in `shared/platform` (`capabilities`, `capture`, and `server`: where the API is, read on every request by `http`, the socket and `authClient`; the session is a cookie on every host). The `App` takes it as a prop; React code reads it with `usePlatform()`, controllers outside React with `currentPlatform()`. Never import a browser capture API or Electron in a ViewModel. Specs and stories use `FakePlatform`.
 - Views never use `Link` or `useNavigate`; navigation arrives as a callback. Storybook must keep working without a router.
 - Socket events only invalidate queries or update stores. REST stays the source of truth.
 - One component per file in our code (`shared/ui` from shadcn and `*.stories.tsx` are exempt).
@@ -51,7 +51,7 @@ MVVM is the architecture of the whole frontend, not just state management. The f
 
 ## Commands
 
-From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`. `npm run e2e` (Cypress, in `apps/web`) needs the local API on 3333 and `npm run dev -w web` on 5173.
+From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`. `npm run e2e` (Cypress, in `apps/web`) needs the local API on 3333 and `npm run dev -w web` on 5173. Desktop app: `npm run desktop` (Electron Forge, `apps/desktop`; the first run may need `node node_modules/electron/install.js` to fetch the binary) and `npm run desktop:make` (deb and zip for Linux, in `apps/desktop/out/make`). Run the app on a headless box with `xvfb-run`.
 
 Local API for manual testing: `npm run db:up` in `apps/api` (dev-only Postgres on 5432 from `apps/api/docker-compose.yml`; the e2e tests create `gameplay_test` there), then `npm run dev` (API on 3333). Seeded admin: `admin@gameplay.local` / `admin-pass-123`. If `prisma migrate dev` hangs with no output, run it with `< /dev/null`.
 

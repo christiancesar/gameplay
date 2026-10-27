@@ -54,3 +54,7 @@ Suposições:
 - *(suposição)* O `authClient` não ganhou tratamento de 401 que apague o token: com a sessão expirada o próximo `get-session` devolve vazio e o app cai no login.
 
 Pendências levantadas (ficaram no tech plan, seção 8): o cookie do desafio de 2FA entre `app://` e `https://`, que só dá para validar com o Electron de verdade, e a propagação dos headers de trace do Faro entre origens.
+
+## Revisão no DESK-05 (2026-10-28)
+
+O teste do cookie reescrito no Electron real funcionou para a sessão, o 2FA e o socket, então **o Bearer saiu**: o plugin `bearer`, o token no handshake do Socket.IO (`socketAuthSchema`), `Platform.server.session` e o código de header em `http` e `authClient` foram removidos (commit `f92585e`). O que do DESK-04 ficou: `Platform.server.baseUrl()`, a leitura da plataforma a cada chamada em `http`, socket e `authClient`, os túneis do Sentry e do Faro no servidor, a origem `app://gameplay` confiável e o CORS com credenciais (HTTP e Socket.IO). Os testes e2e de Bearer viraram testes da origem do desktop (login com CORS e credenciais, preflight com PATCH, outra origem sem CORS).
