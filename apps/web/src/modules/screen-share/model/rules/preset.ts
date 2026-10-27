@@ -1,4 +1,4 @@
-import type { StreamPreset } from '@gameplay/contracts'
+import type { SfuLayer, StreamPreset, StreamQualityLevel } from '@gameplay/contracts'
 
 import type { VideoEncoding } from '@/shared/media/media-transport'
 
@@ -78,5 +78,53 @@ function videoEncoding(preset: StreamPreset, priority: SharePriority): VideoEnco
   }
 }
 
-export { contentHintOf, displayMediaOptions, fromPreset, liveVideoConstraints, presetSpec, toPreset, videoEncoding }
+/**
+ * Simulcast layers sent to the SFU: full (`f`), half (`h`) and quarter (`q`) resolution. Each viewer gets
+ * the one their network carries; the lowest also drops to 15 fps.
+ */
+function simulcastEncodings(preset: StreamPreset): RTCRtpEncodingParameters[] {
+  const spec = SPECS[preset]
+  return [
+    { rid: 'f', maxBitrate: spec.maxBitrate, maxFramerate: spec.fps },
+    { rid: 'h', scaleResolutionDownBy: 2, maxBitrate: Math.round(spec.maxBitrate * 0.3), maxFramerate: spec.fps },
+    { rid: 'q', scaleResolutionDownBy: 4, maxBitrate: Math.round(spec.maxBitrate * 0.1), maxFramerate: 15 },
+  ]
+}
+
+/** What a Direct (Mesh) viewer who asked for less gets: smaller, lighter, and at most 15 fps on Low. */
+function viewerEncoding(preset: StreamPreset, priority: SharePriority, level: StreamQualityLevel): VideoEncoding {
+  const encoding = videoEncoding(preset, priority)
+  if (level === 'medium') {
+    return { ...encoding, maxBitrate: Math.round(encoding.maxBitrate * 0.35), scaleResolutionDownBy: 2 }
+  }
+  if (level === 'low') {
+    return {
+      ...encoding,
+      maxBitrate: Math.round(encoding.maxBitrate * 0.1),
+      maxFramerate: Math.min(15, encoding.maxFramerate),
+      scaleResolutionDownBy: 4,
+    }
+  }
+  return encoding
+}
+
+/** The simulcast layer a viewer asks the SFU for. Auto starts on the full one and lets the SFU step down. */
+function layerFor(level: StreamQualityLevel): SfuLayer {
+  if (level === 'medium') return 'h'
+  if (level === 'low') return 'q'
+  return 'f'
+}
+
+export {
+  layerFor,
+  viewerEncoding,
+  simulcastEncodings,
+  contentHintOf,
+  displayMediaOptions,
+  fromPreset,
+  liveVideoConstraints,
+  presetSpec,
+  toPreset,
+  videoEncoding,
+}
 export type { PresetSpec }

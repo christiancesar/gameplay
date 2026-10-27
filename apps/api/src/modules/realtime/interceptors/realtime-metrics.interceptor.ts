@@ -2,7 +2,7 @@ import { type CallHandler, type ExecutionContext, Injectable, type NestIntercept
 import { MESSAGE_METADATA } from '@nestjs/websockets/constants'
 import { type Observable, tap } from 'rxjs'
 import { DomainError } from '../../../common/errors/domain-error'
-import { RealtimeMetrics } from '../providers/realtime-metrics'
+import { RealtimeMetrics } from '../providers/realtime-metrics/realtime-metrics.provider'
 
 // Times every client event on the gateway and counts the failures by error
 // name. Runs before the ack filter, so it sees the original error.

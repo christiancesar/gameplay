@@ -1,5 +1,5 @@
 import { REGISTRATION_KEY_ALPHABET } from '@gameplay/contracts'
-import { InviteCodeGenerator } from '../providers/invite-code-generator'
+import { InviteCodeGenerator } from '../providers/invite-code-generator/invite-code-generator.provider'
 
 // GAMEPL32, GAMEPL42...: valid codes, a new one each call.
 export class SequentialInviteCodes extends InviteCodeGenerator {

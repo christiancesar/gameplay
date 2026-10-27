@@ -1,10 +1,14 @@
-import { queryOptions } from '@tanstack/react-query'
-import type { AdminListQuery } from '@gameplay/contracts'
+import { keepPreviousData, queryOptions } from '@tanstack/react-query'
+import type { AdminListQuery, RealtimeUsageQuery } from '@gameplay/contracts'
 
 import { adminKeys } from './admin.keys'
 import {
+  getAdminMedia,
   getAdminServer,
   getHardwareSummary,
+  getMediaImpact,
+  getRealtimeUsage,
+  getServerMediaOverrides,
   getPlatformSettings,
   listAdminDevices,
   listAdminServers,
@@ -45,14 +49,34 @@ const registrationInvitesQueryOptions = queryOptions({
   queryFn: listRegistrationInvites,
 })
 
+const adminMediaQueryOptions = queryOptions({ queryKey: adminKeys.media(), queryFn: getAdminMedia })
+
+/** Consumo do período: mantém o gráfico anterior na tela enquanto o novo período carrega. */
+const mediaUsageQueryOptions = (query: RealtimeUsageQuery) =>
+  queryOptions({
+    queryKey: adminKeys.mediaUsage(query),
+    queryFn: () => getRealtimeUsage(query),
+    placeholderData: keepPreviousData,
+  })
+
+const mediaImpactQueryOptions = (serverId: string | null) =>
+  queryOptions({ queryKey: adminKeys.mediaImpact(serverId), queryFn: () => getMediaImpact(serverId), staleTime: 0 })
+
+const serverMediaOverridesQueryOptions = (serverId: string) =>
+  queryOptions({ queryKey: adminKeys.serverMedia(serverId), queryFn: () => getServerMediaOverrides(serverId) })
+
 export {
   adminDevicesQueryOptions,
+  adminMediaQueryOptions,
   adminServerDetailQueryOptions,
   adminServersQueryOptions,
   adminUserDevicesQueryOptions,
   adminUserSessionsQueryOptions,
   adminUsersQueryOptions,
   hardwareSummaryQueryOptions,
+  mediaImpactQueryOptions,
+  mediaUsageQueryOptions,
   platformSettingsQueryOptions,
   registrationInvitesQueryOptions,
+  serverMediaOverridesQueryOptions,
 }

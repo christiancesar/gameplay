@@ -1,24 +1,33 @@
 import { Module } from '@nestjs/common'
 import { metrics } from '@opentelemetry/api'
 import { EnvService } from '../../env/env.service'
+import { LimitsModule } from '../limits/limits.module'
 import { ServersModule } from '../servers/servers.module'
 import { RealtimeGateway } from './gateways/realtime.gateway'
 import { DomainEventsListener } from './listeners/domain-events.listener'
 import { RealtimeMetricsInterceptor } from './interceptors/realtime-metrics.interceptor'
-import { RealtimeEmitter, SocketIoRealtimeEmitter } from './providers/realtime-emitter'
-import { OtelRealtimeMetrics, RealtimeMetrics } from './providers/realtime-metrics'
-import { BetterAuthSocketSessionResolver, SocketSessionResolver } from './providers/socket-session-resolver'
-import { NodeTimers, Timers } from './providers/timers'
+import { RealtimeEmitter } from './providers/realtime-emitter/realtime-emitter.provider'
+import { SocketIoRealtimeEmitter } from './providers/realtime-emitter/socket-io/socket-io.realtime-emitter.provider'
+import { OtelRealtimeMetrics } from './providers/realtime-metrics/otel/otel.realtime-metrics.provider'
+import { RealtimeMetrics } from './providers/realtime-metrics/realtime-metrics.provider'
+import { BetterAuthSocketSessionResolver } from './providers/socket-session-resolver/better-auth/better-auth.socket-session-resolver.provider'
+import { SocketSessionResolver } from './providers/socket-session-resolver/socket-session-resolver.provider'
+import { NodeTimers } from './providers/timers/node/node.timers.provider'
+import { Timers } from './providers/timers/timers.provider'
 import { VoiceRoomsConfig, VoiceRoomsService } from './services/voice-rooms.service'
 import { InMemoryPresenceStore } from './stores/in-memory/in-memory-presence.store'
 import { InMemoryRoomStateStore } from './stores/in-memory/in-memory-room-state.store'
 import { PresenceStore } from './stores/presence.store'
 import { RoomStateStore } from './stores/room-state.store'
+import { InMemorySfuSessionStore } from './stores/in-memory/in-memory-sfu-session.store'
+import { SfuSessionStore } from './stores/sfu-session.store'
+import { ApplyMediaChangeUseCase } from './use-cases/apply-media-change.use-case'
 import { ConnectSocketUseCase } from './use-cases/connect-socket.use-case'
 import { DisconnectSocketUseCase } from './use-cases/disconnect-socket.use-case'
 import { JoinRoomUseCase } from './use-cases/join-room.use-case'
 import { LeaveRoomUseCase } from './use-cases/leave-room.use-case'
 import { RelayToPeerUseCase } from './use-cases/relay-to-peer.use-case'
+import { ReportMediaUsageUseCase } from './use-cases/report-media-usage.use-case'
 import { ReleaseVoiceSeatsUseCase } from './use-cases/release-voice-seats.use-case'
 import { SubscribeToServerUseCase } from './use-cases/subscribe-to-server.use-case'
 import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case'
@@ -26,9 +35,10 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
 // Socket.IO gateway: authenticated connection, presence, voice rooms with
 // WebRTC signaling, and the bridge from domain events to the sockets. Voice
 // state lives in memory only; nothing here writes to the database.
-// PresenceStore is exported for the platform admin panel (BE-15).
+// PresenceStore is exported for the platform admin panel (BE-15); RoomStateStore
+// and SfuSessionStore for the media module (SFU sessions of people in rooms).
 @Module({
-  imports: [ServersModule],
+  imports: [ServersModule, LimitsModule],
   providers: [
     RealtimeGateway,
     DomainEventsListener,
@@ -37,6 +47,7 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
     { provide: SocketSessionResolver, useClass: BetterAuthSocketSessionResolver },
     { provide: PresenceStore, useClass: InMemoryPresenceStore },
     { provide: RoomStateStore, useClass: InMemoryRoomStateStore },
+    { provide: SfuSessionStore, useClass: InMemorySfuSessionStore },
     { provide: Timers, useClass: NodeTimers },
     {
       provide: RealtimeMetrics,
@@ -58,8 +69,10 @@ import { UpdateVoiceStateUseCase } from './use-cases/update-voice-state.use-case
     LeaveRoomUseCase,
     UpdateVoiceStateUseCase,
     RelayToPeerUseCase,
+    ReportMediaUsageUseCase,
     ReleaseVoiceSeatsUseCase,
+    ApplyMediaChangeUseCase,
   ],
-  exports: [PresenceStore],
+  exports: [PresenceStore, RoomStateStore, SfuSessionStore],
 })
 export class RealtimeModule {}

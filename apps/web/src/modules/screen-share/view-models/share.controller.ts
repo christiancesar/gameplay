@@ -1,3 +1,5 @@
+import type { StreamQualityLevel } from '@gameplay/contracts'
+
 import { browserEnvironment } from '@/modules/browser-support/model/services/browser-environment.service'
 import { realtime } from '@/modules/realtime/model/services/realtime.service'
 import { toShareStartMeasurement } from '@/modules/screen-share/model/mappers/share-start.mapper'
@@ -6,10 +8,21 @@ import { ShareSession } from '@/modules/screen-share/model/services/share-sessio
 import { WatchSession } from '@/modules/screen-share/model/services/watch-session.service'
 import { voiceController } from '@/modules/rooms/view-models/voice.controller'
 import { monitoring } from '@/shared/lib/monitoring'
+import { createBrowserMediaStream, createBrowserPeerConnection } from '@/shared/media/browser-media'
 import { acquireScreen, stopScreen } from '@/shared/media/screen-capture'
+import { SfuConnection, type SfuConnectionDeps } from '@/shared/media/sfu-connection'
+import { sfuSignaling } from '@/modules/screen-share/model/services/sfu.service'
+import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
 
 import { useShareStore } from './stores/share.store'
 import { useWatchStore } from './stores/watch.store'
+
+/** Cloudflare's SFU is anycast; its STUN is enough to reach it. */
+const sfuDeps: SfuConnectionDeps = {
+  signaling: sfuSignaling,
+  createPeerConnection: createBrowserPeerConnection,
+  iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }],
+}
 
 let share: ShareSession | undefined
 let watch: WatchSession | undefined
@@ -30,6 +43,7 @@ function getShare(): ShareSession {
       subscribeMedia: voiceController.subscribeMedia,
       acquireScreen: (options) => acquireScreen(options),
       stopScreen,
+      publishToSfu: (tracks) => SfuConnection.publish(sfuDeps, tracks),
       report: monitoring.measuring
         ? (start) => monitoring.measure(toShareStartMeasurement(start, getPlatform()))
         : undefined,
@@ -41,7 +55,15 @@ function getShare(): ShareSession {
 
 function getWatch(): WatchSession {
   if (!watch) {
-    watch = new WatchSession({ realtime, store: useWatchStore, subscribeMedia: voiceController.subscribeMedia })
+    watch = new WatchSession({
+      realtime,
+      store: useWatchStore,
+      subscribeMedia: voiceController.subscribeMedia,
+      streamModeOf: (userId) =>
+        useVoiceStore.getState().participants.find((participant) => participant.userId === userId)?.streamMode ?? null,
+      watchFromSfu: (streamerId, layer, onTrack) => SfuConnection.watch(sfuDeps, streamerId, layer, onTrack),
+      createMediaStream: createBrowserMediaStream,
+    })
     watch.attach()
   }
   return watch
@@ -60,6 +82,7 @@ const shareController = {
   watch: (streamerId: string) => getWatch().watch(streamerId),
   stopWatching: () => getWatch().stop(),
   setStreamVolume: (volume: number) => getWatch().setVolume(volume),
+  setStreamQuality: (level: StreamQualityLevel) => getWatch().setLevel(level),
   dismissWatchFailure: () => getWatch().dismissFailure(),
 }
 

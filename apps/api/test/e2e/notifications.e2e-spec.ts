@@ -86,4 +86,52 @@ describe('Hub notifications (e2e)', () => {
     ])
     expect(await notificationsOf(owner.agent)).toEqual([])
   })
+
+  describe('platform announcements', () => {
+    const announcement = { title: 'Maintenance', message: 'Back in 10 minutes.' }
+
+    it("reach a server's members right away and stay on their Hub", async () => {
+      const admin = await signedIn(app, { admin: true })
+      const { owner, members, serverId } = await createServerWithMembers(app)
+      const [ana] = members
+      const socket = await connectSocket(app, ana.cookie)
+      sockets.push(socket)
+
+      const arrived = nextEvent(socket, 'notification:new')
+      const sent = await admin.agent
+        .post('/api/admin/announcements')
+        .send({ ...announcement, audience: { type: 'server', serverId } })
+      expect(sent.status).toBe(201)
+      expect(sent.body).toEqual({ recipients: 2 })
+      const { id, announcement: live } = await arrived
+
+      expect(live).toEqual(announcement)
+      expect(await notificationsOf(ana.agent)).toEqual([
+        { id, type: 'platform-announcement', announcement, createdAt: expect.any(String) },
+      ])
+      expect(await notificationsOf(owner.agent)).toHaveLength(1)
+      expect(await notificationsOf(admin.agent)).toEqual([])
+    })
+
+    it('go to everyone, and only the platform admin sends them', async () => {
+      const admin = await signedIn(app, { admin: true })
+      const { owner } = await createServerWithMembers(app)
+
+      const sent = await admin.agent
+        .post('/api/admin/announcements')
+        .send({ ...announcement, audience: { type: 'everyone' } })
+      // Every account, including the ones the sign-up helpers create.
+      expect(sent.body).toEqual({ recipients: await app.get(PrismaService).user.count() })
+      expect(await notificationsOf(owner.agent)).toHaveLength(1)
+
+      const refused = await owner.agent
+        .post('/api/admin/announcements')
+        .send({ ...announcement, audience: { type: 'everyone' } })
+      expect(refused.status).toBe(403)
+      const empty = await admin.agent
+        .post('/api/admin/announcements')
+        .send({ title: ' ', message: 'x', audience: { type: 'everyone' } })
+      expect(empty.status).toBe(400)
+    })
+  })
 })

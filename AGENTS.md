@@ -15,7 +15,9 @@ Planning docs are in Portuguese, in `plans/`. Write code, comments and commits i
 
 ## Git
 
-- Never commit or push straight to `main`. Work on a branch (`feature/...`, `fix/...`, `docs/...`) and open a PR into `main`.
+- Two long-lived branches: `dev` (integration) and `main` (release). Never commit or push straight to either.
+- Every branch (`feature/...`, `fix/...`, `chore/...`, `docs/...`) starts from an up-to-date `dev` and goes back through a PR into `dev`.
+- `main` only receives PRs from `dev`, when the user decides to release.
 - Commit at every green step (typecheck, lint and tests passing), not one big commit at the end.
 - Conventional commit messages (`feat(web): ...`, `fix(api): ...`, `docs(plans): ...`).
 
@@ -48,7 +50,7 @@ MVVM is the architecture of the whole frontend, not just state management.
 
 From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`.
 
-Local API for manual testing: `docker compose -f infra/docker-compose.dev.yml up -d --wait postgres s3mock`, then `npm run dev` (API on 3333). Seeded admin: `admin@gameplay.local` / `admin-pass-123`. If `prisma migrate dev` hangs with no output, run it with `< /dev/null`.
+Local API for manual testing: `npm run db:up` in `apps/api` (dev-only Postgres on 5432 from `apps/api/docker-compose.yml`; the e2e tests create `gameplay_test` there), then `npm run dev` (API on 3333). Seeded admin: `admin@gameplay.local` / `admin-pass-123`. If `prisma migrate dev` hangs with no output, run it with `< /dev/null`.
 
 Before using a library API from memory (TanStack Router/Query, Better Auth, zod, Socket.IO), check its current docs.
 

@@ -1,6 +1,6 @@
 import { makeCollected } from '../../accounts/test/hardware-seed'
 import type { AdminDeviceRecord, AdminUserRecord } from '../domain/admin-records'
-import type { AccountSession } from '../providers/auth-accounts'
+import type { AccountSession } from '../providers/auth-accounts/auth-accounts.provider'
 
 // The platform admin unit tests start with the admin, "ana" and "bia" (bia
 // signed up last), each with a password, and two sessions for ana.

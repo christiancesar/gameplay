@@ -9,7 +9,7 @@ import { collectFor, connectSocket, nextEvent, participantsWhere, type TestSocke
 
 type Person = { cookie: string }
 
-const idle = (userId: string) => ({ userId, muted: false, deafened: false, streaming: null })
+const idle = (userId: string) => ({ userId, muted: false, deafened: false, streaming: null, streamMode: null })
 
 describe('Voice rooms (e2e)', () => {
   let app: INestApplication
@@ -141,7 +141,7 @@ describe('Voice rooms (e2e)', () => {
     const back = await again.emitWithAck('room:join', { roomId: room1 })
     expect(back).toEqual({
       ok: true,
-      data: { participants: [idle(owner.user.id), { ...idle(ana.user.id), streaming: '720p30' }] },
+      data: { participants: [idle(owner.user.id), { ...idle(ana.user.id), streaming: '720p30', streamMode: 'mesh' }] },
     })
 
     const anaGone = participantsWhere(o, room1, ({ participants }) => participants.length === 1)

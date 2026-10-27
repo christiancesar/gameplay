@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn } from 'storybook/test'
 
 import { languageOptions, useStoryLanguage } from '@/fixtures/language'
-import { BrowserSupportAlertView } from '@/modules/browser-support/views/browser-support-alert.view'
 
 import { SignInView } from './sign-in.view'
 
@@ -88,18 +87,6 @@ export const GoToSignUp: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('button', { name: /sign up/i }))
     await expect(args.onSignUpClick).toHaveBeenCalledOnce()
-  },
-}
-
-/** Entrou com um browser que não é Chromium. */
-export const UnsupportedBrowser: Story = {
-  args: {
-    notice: (
-      <BrowserSupportAlertView
-        status={{ type: 'unsupported', browser: { name: 'Firefox', version: '144' } }}
-        onDismiss={fn()}
-      />
-    ),
   },
 }
 

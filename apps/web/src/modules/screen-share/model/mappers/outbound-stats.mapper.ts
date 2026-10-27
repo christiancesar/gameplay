@@ -51,5 +51,19 @@ function toViewerStat(current: OutboundSample, previous: OutboundSample | undefi
   return { width: current.width, height: current.height, fps: current.fps, kbps, limitation: current.limitation }
 }
 
-export { toOutboundSample, toViewerStat }
+/**
+ * What goes up to the SFU: the largest simulcast layer gives the size and fps; the bytes of every layer
+ * add up, since all of them leave the streamer's network.
+ */
+function toUplinkSample(records: readonly StatsRecord[]): OutboundSample | null {
+  const layers = records.filter(
+    (record) => record.type === 'outbound-rtp' && (record.kind === 'video' || record.mediaType === 'video'),
+  )
+  const largest = [...layers].sort((a, b) => (numberOf(b.frameHeight) ?? 0) - (numberOf(a.frameHeight) ?? 0))[0]
+  if (!largest) return null
+  const bytesSent = layers.reduce((sum, layer) => sum + (numberOf(layer.bytesSent) ?? 0), 0)
+  return toOutboundSample([{ ...largest, bytesSent }])
+}
+
+export { toUplinkSample, toOutboundSample, toViewerStat }
 export type { OutboundSample }

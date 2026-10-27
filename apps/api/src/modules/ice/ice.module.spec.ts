@@ -1,12 +1,12 @@
 import type { EnvService } from '../../env/env.service'
-import { type Env, validateEnv } from '../../env/env.schema'
+import { type ApiEnv as Env, validateApiEnv } from '@gameplay/env'
 import { createIceProvider } from './ice.module'
-import { CloudflareIceProvider } from './providers/cloudflare.ice-provider'
-import { CoturnIceProvider } from './providers/coturn.ice-provider'
-import { StunOnlyIceProvider } from './providers/stun-only.ice-provider'
+import { CloudflareIceProvider } from './providers/ice/cloudflare/cloudflare.ice.provider'
+import { CoturnIceProvider } from './providers/ice/coturn/coturn.ice.provider'
+import { StunOnlyIceProvider } from './providers/ice/stun-only/stun-only.ice.provider'
 
 function envWith(overrides: Record<string, string>): EnvService {
-  const env = validateEnv({
+  const env = validateApiEnv({
     DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
     BETTER_AUTH_SECRET: 'a'.repeat(32),
     REGISTRATION_KEY_SECRET: 'b'.repeat(32),

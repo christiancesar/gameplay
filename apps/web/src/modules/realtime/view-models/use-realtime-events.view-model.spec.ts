@@ -11,7 +11,7 @@ vi.mock('react-i18next', () => ({
     t: (key: string, options?: { server?: string }) => (options?.server ? `${key}:${options.server}` : key),
   }),
 }))
-vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn() }) }))
+vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), info: vi.fn() }) }))
 
 import { toast } from 'sonner'
 
@@ -48,6 +48,16 @@ describe('useRealtimeEventsViewModel', () => {
     const { invalidate } = setup()
     fakeSocket.receive('notification:new', { id: 'n1' })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: notificationsKeys.all })
+    expect(toast.info).not.toHaveBeenCalled()
+  })
+
+  it('shows a platform announcement right away', () => {
+    setup()
+    fakeSocket.receive('notification:new', {
+      id: 'n1',
+      announcement: { title: 'Maintenance', message: 'Back in 10 minutes.' },
+    })
+    expect(toast.info).toHaveBeenCalledWith('Maintenance', { description: 'Back in 10 minutes.' })
   })
 
   it('on server:removed while on that server: toast with its name, back to the Hub, cache cleaned', async () => {

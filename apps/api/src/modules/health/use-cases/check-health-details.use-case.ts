@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { probe } from '../../../common/health/probe'
 import { PrismaService } from '../../../lib/prisma'
 import { IceHealthService } from '../../ice/services/ice-health.service'
-import { StorageProvider } from '../../storage/storage.provider'
+import { StorageProvider } from '../../storage/providers/storage/storage.provider'
 import { overallStatus } from '../domain/overall-status'
 import type { HealthDetails } from '../dtos/health-details.dto'
 

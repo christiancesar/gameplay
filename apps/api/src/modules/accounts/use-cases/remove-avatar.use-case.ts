@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { StorageProvider } from '../../storage/storage.provider'
+import { StorageProvider } from '../../storage/providers/storage/storage.provider'
 import { ProfilesRepository } from '../repositories/profiles.repository'
 import { deleteQuietly } from './delete-quietly'
 import { GetMyProfileUseCase } from './get-my-profile.use-case'

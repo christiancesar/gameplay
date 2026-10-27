@@ -1,0 +1,80 @@
+import { HttpStatus } from '@nestjs/common'
+import { DomainError } from '../../../common/errors/domain-error'
+
+// The platform admin turned the SFU off for the person's server.
+export class SfuDisabledError extends DomainError {
+  readonly code = 'SFU_DISABLED'
+  override readonly status = HttpStatus.CONFLICT
+
+  constructor() {
+    super('Screen share through the server is turned off for this server.')
+  }
+}
+
+// The monthly SFU budget ran out: shares go Direct (Mesh) until next month.
+export class SfuBudgetExhaustedError extends DomainError {
+  readonly code = 'SFU_BUDGET_EXHAUSTED'
+  override readonly status = HttpStatus.CONFLICT
+
+  constructor() {
+    super('The server sharing budget for this month ran out.')
+  }
+}
+
+export class SfuNotConfiguredError extends DomainError {
+  readonly code = 'SFU_NOT_CONFIGURED'
+  override readonly status = HttpStatus.SERVICE_UNAVAILABLE
+
+  constructor() {
+    super('Screen share through the server is not available.')
+  }
+}
+
+// The media server refused or did not answer in time.
+export class SfuFailedError extends DomainError {
+  readonly code = 'SFU_FAILED'
+  override readonly status = HttpStatus.BAD_GATEWAY
+
+  constructor() {
+    super('The media server did not accept the request. Try again.')
+  }
+}
+
+// Unknown, someone else's, or from a room the person is no longer in.
+export class SfuSessionNotFoundError extends DomainError {
+  readonly code = 'SFU_SESSION_NOT_FOUND'
+  override readonly status = HttpStatus.NOT_FOUND
+
+  constructor() {
+    super('That media session does not exist.')
+  }
+}
+
+export class SfuTrackNotFoundError extends DomainError {
+  readonly code = 'SFU_TRACK_NOT_FOUND'
+  override readonly status = HttpStatus.NOT_FOUND
+
+  constructor() {
+    super('That track is not in the media session.')
+  }
+}
+
+export class SfuSessionLimitError extends DomainError {
+  readonly code = 'SFU_SESSION_LIMIT'
+  override readonly status = HttpStatus.TOO_MANY_REQUESTS
+
+  constructor() {
+    super('Too many media sessions open. Close one and try again.')
+  }
+}
+
+// Cloudflare keeps 32 days of analytics: a custom usage range can't start
+// before the last 30 days, nor in the future.
+export class UsagePeriodOutOfRangeError extends DomainError {
+  readonly code = 'USAGE_PERIOD_OUT_OF_RANGE'
+  override readonly status = HttpStatus.BAD_REQUEST
+
+  constructor() {
+    super('Usage can only be shown for the last 30 days.')
+  }
+}

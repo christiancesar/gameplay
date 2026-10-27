@@ -4,7 +4,7 @@ import { PrismaService } from '../../../../lib/prisma'
 import { PlatformSettingsRepository } from '../platform-settings.repository'
 
 const ID = 'global'
-const select = { maxServersPerUser: true, maxMembersPerServer: true, maxRoomsPerServer: true, minChromiumVersion: true }
+const select = { maxServersPerUser: true, maxMembersPerServer: true, maxRoomsPerServer: true }
 
 // The migration creates the row. If it's missing (an emptied database), it is
 // recreated with the schema defaults through ON CONFLICT DO NOTHING: two

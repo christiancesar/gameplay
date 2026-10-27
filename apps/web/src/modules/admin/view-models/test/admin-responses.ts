@@ -1,5 +1,9 @@
 import type {
+  RealtimeUsagePeriod,
   AdminDevice,
+  AdminMediaResponse,
+  MediaImpact,
+  ServerMediaOverrides,
   AdminServer,
   AdminServerDetail,
   AdminSession,
@@ -21,6 +25,7 @@ import {
   usedInvite,
 } from './admin-seed'
 import { adminGamingDevice, gamingDevice } from './device-seed'
+import { adminMedia, mediaImpact, mediaUsage, serverMediaOverrides } from './media-seed'
 
 /** What the fake API answers on each admin GET. Specs override the parts they care about. */
 type AdminResponses = {
@@ -33,6 +38,10 @@ type AdminResponses = {
   summary: HardwareSummary
   settings: PlatformSettings
   invites: RegistrationInvite[]
+  media: AdminMediaResponse
+  mediaUsage: RealtimeUsagePeriod
+  impact: MediaImpact
+  serverMedia: ServerMediaOverrides
 }
 
 const defaultResponses: AdminResponses = {
@@ -51,6 +60,10 @@ const defaultResponses: AdminResponses = {
   },
   settings: platformSettings,
   invites: [activeInvite, usedInvite],
+  media: adminMedia,
+  mediaUsage,
+  impact: mediaImpact,
+  serverMedia: serverMediaOverrides,
 }
 
 export { defaultResponses }

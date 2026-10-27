@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ServersRepository } from '../../servers/repositories/servers.repository'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
+import { RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
 import { PresenceStore } from '../stores/presence.store'
 
 type Input = { userId: string; socketId: string }

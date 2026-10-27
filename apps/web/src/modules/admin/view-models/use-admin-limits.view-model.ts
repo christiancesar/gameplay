@@ -14,7 +14,6 @@ const LOADING_LIMITS: GlobalLimits = {
   serversPerUser: 1,
   membersPerServer: 1,
   roomsPerServer: 1,
-  minChromiumVersion: 1,
 }
 
 /** `/admin/limits`: the platform-wide defaults. */

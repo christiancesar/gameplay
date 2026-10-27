@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { DomainEventBus } from '../../../common/events/domain-event-bus'
 import { UserNotFoundError } from '../errors/platform-admin.errors'
-import { AuthAccounts } from '../providers/auth-accounts'
-import { PasswordGenerator } from '../providers/password-generator'
+import { AuthAccounts } from '../providers/auth-accounts/auth-accounts.provider'
+import { PasswordGenerator } from '../providers/password-generator/password-generator.provider'
 import { AdminUsersService } from '../services/admin-users.service'
 
 type Input = { userId: string; password?: string }

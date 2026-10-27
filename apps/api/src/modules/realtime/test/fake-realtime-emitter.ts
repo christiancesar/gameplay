@@ -1,5 +1,15 @@
-import type { Participant, RoomLeft, ServerRemoved, SignalReceive, StreamQualityLevel } from '@gameplay/contracts'
-import { RealtimeEmitter } from '../providers/realtime-emitter'
+import type {
+  Announcement,
+  MediaChanged,
+  StreamEnded,
+  StreamReceived,
+  Participant,
+  RoomLeft,
+  ServerRemoved,
+  SignalReceive,
+  StreamQualityLevel,
+} from '@gameplay/contracts'
+import { type MediaAudience, RealtimeEmitter } from '../providers/realtime-emitter/realtime-emitter.provider'
 
 type Emitted =
   | { event: 'presence:update'; serverIds: string[]; userId: string; online: boolean }
@@ -14,7 +24,10 @@ type Emitted =
   | { event: 'stream:unwatch'; socketId: string; viewerId: string }
   | { event: 'stream:quality'; socketId: string; viewerId: string; level: StreamQualityLevel }
   | { event: 'signal:receive'; socketId: string; signal: SignalReceive }
-  | { event: 'notification:new'; userId: string; notificationId: string }
+  | { event: 'notification:new'; userId: string; notificationId: string; announcement?: Announcement }
+  | { event: 'media:changed'; to: MediaAudience; change: MediaChanged }
+  | { event: 'stream:ended'; socketId: string; ended: StreamEnded }
+  | { event: 'stream:received'; socketId: string; received: StreamReceived }
 
 // Keeps what would go to the sockets, in order.
 export class FakeRealtimeEmitter extends RealtimeEmitter {
@@ -68,12 +81,24 @@ export class FakeRealtimeEmitter extends RealtimeEmitter {
     this.emitted.push({ event: 'signal:receive', socketId, signal })
   }
 
-  notificationNew(userId: string, notificationId: string) {
-    this.emitted.push({ event: 'notification:new', userId, notificationId })
+  notificationNew(userId: string, notificationId: string, announcement?: Announcement) {
+    this.emitted.push({ event: 'notification:new', userId, notificationId, ...(announcement && { announcement }) })
   }
 
   // Only the events of one kind.
   of<E extends Emitted['event']>(event: E): Extract<Emitted, { event: E }>[] {
     return this.emitted.filter((emitted): emitted is Extract<Emitted, { event: E }> => emitted.event === event)
+  }
+
+  mediaChanged(to: MediaAudience, change: MediaChanged) {
+    this.emitted.push({ event: 'media:changed', to, change })
+  }
+
+  streamEnded(socketId: string, ended: StreamEnded) {
+    this.emitted.push({ event: 'stream:ended', socketId, ended })
+  }
+
+  streamReceived(socketId: string, received: StreamReceived) {
+    this.emitted.push({ event: 'stream:received', socketId, received })
   }
 }

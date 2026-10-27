@@ -1,3 +1,5 @@
+import type { StreamMode } from '@gameplay/contracts'
+
 import type { QualityLimitation } from '../rules/quality-summary'
 import type { ShareAudio, ShareFps, ShareResolution, ShareSource } from './share'
 
@@ -16,6 +18,7 @@ type SharePanelModel =
       limitation: QualityLimitation
       viewerCount: number
       audio: ShareAudio
+      mode: StreamMode
     }
 
 /** One row of the details table. Same shape as the View's `ViewerQuality`. */

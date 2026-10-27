@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { EffectiveLimitsService } from '../../limits/services/effective-limits.service'
-import { StorageProvider } from '../../storage/storage.provider'
+import { StorageProvider } from '../../storage/providers/storage/storage.provider'
 import type { AdminServerRecord } from '../domain/admin-records'
 
 export type AdminServerView = Omit<AdminServerRecord, 'iconKey'> & {

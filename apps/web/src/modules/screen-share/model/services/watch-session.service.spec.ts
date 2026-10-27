@@ -15,6 +15,7 @@ const roster = (...live: string[]) => ({
     muted: false,
     deafened: false,
     streaming: live.includes(userId) ? ('1080p60' as const) : null,
+    streamMode: live.includes(userId) ? ('mesh' as const) : null,
   })),
 })
 
@@ -173,5 +174,103 @@ describe('WatchSession', () => {
   it('detach stops following', () => {
     ctx.session.detach()
     expect(ctx.source.listenerCount).toBe(0)
+  })
+
+  describe('through the SFU', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      ctx.modes.u2 = 'sfu'
+    })
+
+    it('pulls the screen from the SFU and still tells the streamer', async () => {
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      const video = fakeTrack('video', 'v')
+      const game = fakeTrack('audio', 'game')
+      ctx.sfu.deliver({ track: video, streams: [] })
+      ctx.sfu.deliver({ track: game, streams: [] })
+
+      expect(ctx.watchFromSfu).toHaveBeenCalledWith('u2', 'f', expect.any(Function))
+      expect(ctx.realtime.watchStream).toHaveBeenCalledWith('u2')
+      expect(ctx.store.state).toMatchObject({ status: 'playing', hasAudio: true })
+      expect(media.audio.addStream).toHaveBeenCalledWith('screen:u2', expect.anything())
+    })
+
+    it('measures what reaches me on the SFU connection', async () => {
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      ctx.sfu.deliver({ track: fakeTrack('video', 'v'), streams: [] })
+      ctx.sfu.stats = [inbound({ trackIdentifier: 'v', bytesReceived: 0, timestamp: 1000 })]
+      await vi.advanceTimersByTimeAsync(1000)
+      ctx.sfu.stats = [inbound({ trackIdentifier: 'v', bytesReceived: 500_000, timestamp: 2000 })]
+      await vi.advanceTimersByTimeAsync(1000)
+
+      expect(ctx.store.state.quality).toMatchObject({ kbps: 4000 })
+    })
+
+    it('closes the SFU connection when I stop watching', async () => {
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      ctx.session.stop()
+      expect(ctx.sfu.close).toHaveBeenCalled()
+    })
+
+    it('fails the view when the SFU refuses', async () => {
+      ctx.sfu.failing = true
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      expect(ctx.store.state).toMatchObject({ failed: true, streamerId: null })
+    })
+  })
+
+  describe('quality I ask for', () => {
+    beforeEach(() => vi.useFakeTimers())
+
+    it('asks a Direct streamer for less, now and for the next stream', async () => {
+      ctx.session.setLevel('low')
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      expect(ctx.realtime.sendStreamQuality).toHaveBeenCalledWith('u2', 'low')
+
+      ctx.session.setLevel('auto')
+      expect(ctx.realtime.sendStreamQuality).toHaveBeenLastCalledWith('u2', 'auto')
+      ctx.session.stop()
+      expect(ctx.store.state.level).toBe('auto')
+    })
+
+    it('switches the SFU layer, and starts on the layer chosen before', async () => {
+      ctx.modes.u2 = 'sfu'
+      ctx.session.setLevel('medium')
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      expect(ctx.watchFromSfu).toHaveBeenCalledWith('u2', 'h', expect.any(Function))
+
+      ctx.session.setLevel('low')
+      expect(ctx.sfu.setLayer).toHaveBeenCalledWith('q')
+      expect(ctx.realtime.sendStreamQuality).not.toHaveBeenCalled()
+    })
+
+    it('reports the bytes received from the SFU since the last report, with the quality', async () => {
+      ctx.modes.u2 = 'sfu'
+      ctx.session.watch('u2')
+      await vi.advanceTimersByTimeAsync(0)
+      ctx.sfu.stats = [
+        inbound({ bytesReceived: 4_000_000 }),
+        { type: 'inbound-rtp', kind: 'audio', bytesReceived: 100_000 },
+      ]
+      await vi.advanceTimersByTimeAsync(10_000)
+      ctx.sfu.stats = [
+        inbound({ bytesReceived: 9_000_000 }),
+        { type: 'inbound-rtp', kind: 'audio', bytesReceived: 200_000 },
+      ]
+      await vi.advanceTimersByTimeAsync(10_000)
+
+      expect(ctx.realtime.reportMediaUsage.mock.calls.map(([usage]) => (usage as { bytes: number }).bytes)).toEqual([
+        4_100_000, 5_100_000,
+      ])
+      ctx.session.stop()
+      await vi.advanceTimersByTimeAsync(10_000)
+      expect(ctx.realtime.reportMediaUsage).toHaveBeenCalledTimes(2)
+    })
   })
 })

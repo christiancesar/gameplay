@@ -1,8 +1,8 @@
 import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { PrismaService } from '../../src/lib/prisma'
-import { InMemoryStorageProvider } from '../../src/modules/storage/drivers/in-memory-storage.provider'
-import { StorageProvider } from '../../src/modules/storage/storage.provider'
+import { InMemoryStorageProvider } from '../../src/modules/storage/providers/storage/in-memory/in-memory.storage.provider'
+import { StorageProvider } from '../../src/modules/storage/providers/storage/storage.provider'
 import { resetDatabase } from '../support/database'
 import { createTestApp } from '../support/create-test-app'
 

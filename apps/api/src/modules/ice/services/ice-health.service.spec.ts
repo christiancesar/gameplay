@@ -1,4 +1,4 @@
-import { StunOnlyIceProvider } from '../providers/stun-only.ice-provider'
+import { StunOnlyIceProvider } from '../providers/ice/stun-only/stun-only.ice.provider'
 import { CountingIceProvider } from '../test/counting-ice-provider'
 import { FALLBACK_STUN_URLS } from '../test/ice-seed'
 import { IceHealthService } from './ice-health.service'

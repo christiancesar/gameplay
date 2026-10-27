@@ -22,6 +22,8 @@ type VideoEncoding = {
   maxBitrate: number
   maxFramerate: number
   degradationPreference: 'maintain-framerate' | 'maintain-resolution' | 'balanced'
+  /** A viewer that asked for less gets a smaller picture too. */
+  scaleResolutionDownBy?: number
 }
 
 /** One entry of `getStats()`, as a plain object. */

@@ -8,7 +8,6 @@ function toGlobalLimits(settings: PlatformSettings): GlobalLimits {
     serversPerUser: settings.maxServersPerUser,
     membersPerServer: settings.maxMembersPerServer,
     roomsPerServer: settings.maxRoomsPerServer,
-    minChromiumVersion: settings.minChromiumVersion,
   }
 }
 
@@ -17,7 +16,6 @@ function toPlatformSettings(limits: GlobalLimits): PlatformSettings {
     maxServersPerUser: limits.serversPerUser,
     maxMembersPerServer: limits.membersPerServer,
     maxRoomsPerServer: limits.roomsPerServer,
-    minChromiumVersion: limits.minChromiumVersion,
   }
 }
 

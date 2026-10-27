@@ -1,6 +1,6 @@
 type StorageLike = Pick<Storage, 'getItem' | 'setItem'>
 
-type NoticeKey = 'browser' | 'vpn' | 'acceleration' | 'monitors'
+type NoticeKey = 'vpn' | 'acceleration' | 'monitors'
 
 type DismissedNotices = {
   isDismissed: (key: NoticeKey) => boolean

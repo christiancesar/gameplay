@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn } from 'storybook/test'
+import { expect, fn, screen } from 'storybook/test'
 
 import { images } from '@/fixtures'
 import { stageLongNames, stageWithLive } from '@/fixtures/server'
@@ -22,6 +22,8 @@ const meta = {
     onStopWatching: fn(),
     onImmersiveChange: fn(),
     onStreamVolumeChange: fn(),
+    qualityLevel: 'auto',
+    onQualityLevelChange: fn(),
     onWatch: fn(),
     onVolumeChange: fn(),
   },
@@ -115,5 +117,15 @@ export const StopWatching: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('button', { name: /stop watching/i }))
     await expect(args.onStopWatching).toHaveBeenCalledOnce()
+  },
+}
+
+/** Quem assiste escolhe quanto baixar: Auto, Alta, Média ou Baixa. */
+export const ChooseQuality: Story = {
+  args: { received: { width: 1920, height: 1080, fps: 59.6, kbps: 7800 } },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('combobox', { name: /quality/i }))
+    await userEvent.click(await screen.findByRole('option', { name: 'Low' }))
+    await expect(args.onQualityLevelChange).toHaveBeenCalledWith('low')
   },
 }

@@ -25,6 +25,10 @@ export const REALTIME_EVENTS = {
   signalSend: 'signal:send',
   signalReceive: 'signal:receive',
   notificationNew: 'notification:new',
+  mediaChanged: 'media:changed',
+  mediaUsage: 'media:usage',
+  streamReceived: 'stream:received',
+  streamEnded: 'stream:ended',
 } as const
 
 // Client asks to follow the server it has open. One server per socket:
@@ -36,12 +40,20 @@ export const STREAM_PRESETS = ['720p30', '720p60', '1080p30', '1080p60'] as cons
 export const streamPresetSchema = z.enum(STREAM_PRESETS)
 export type StreamPreset = z.infer<typeof streamPresetSchema>
 
-// Someone in a voice room. streaming is the preset of their screen share.
+// How a screen share reaches the viewers: through the Cloudflare SFU, or
+// straight from the streamer to each viewer (mesh).
+export const STREAM_MODES = ['sfu', 'mesh'] as const
+export const streamModeSchema = z.enum(STREAM_MODES)
+export type StreamMode = z.infer<typeof streamModeSchema>
+
+// Someone in a voice room. streaming is the preset of their screen share and
+// streamMode how it is sent; both null when not sharing.
 export const participantSchema = z.object({
   userId: z.string(),
   muted: z.boolean(),
   deafened: z.boolean(),
   streaming: streamPresetSchema.nullable(),
+  streamMode: streamModeSchema.nullable(),
 })
 export type Participant = z.infer<typeof participantSchema>
 
@@ -111,11 +123,46 @@ export type RoomLeft = z.infer<typeof roomLeftSchema>
 export const voiceStateSchema = z.object({ muted: z.boolean(), deafened: z.boolean() })
 export type VoiceState = z.infer<typeof voiceStateSchema>
 
-export const streamStartSchema = z.object({ preset: streamPresetSchema })
-export type StreamStart = z.infer<typeof streamStartSchema>
+// With sfu, the screen must already be published through /api/media/sfu.
+export const streamStartSchema = z.object({ preset: streamPresetSchema, mode: streamModeSchema.default('mesh') })
+export type StreamStart = z.input<typeof streamStartSchema>
 
 // Viewer to streamer (same room). The streamer only sends the screen to
 // who asked to watch.
+// The platform admin changed the media resources of a server (serverId) or of
+// the whole platform (null): refetch what the server offers.
+export const mediaChangedSchema = z.object({ serverId: z.string().nullable(), turnOff: z.boolean() })
+export type MediaChanged = z.infer<typeof mediaChangedSchema>
+
+// What reaches a viewer, measured on their side.
+export const receivedQualitySchema = z.object({
+  width: z.number().int().min(0),
+  height: z.number().int().min(0),
+  fps: z.number().min(0),
+  kbps: z.number().min(0),
+})
+export type ReceivedQuality = z.infer<typeof receivedQualitySchema>
+
+// Viewer, every few seconds while watching through the SFU: bytes received
+// since the last report (counted against the monthly SFU budget) and the
+// quality that reaches them (shown to the streamer).
+export const MEDIA_USAGE_MAX_BYTES = 25_000_000
+export const mediaUsageSchema = z.object({
+  streamerId: z.string().min(1),
+  bytes: z.number().int().min(0).max(MEDIA_USAGE_MAX_BYTES),
+  quality: receivedQualitySchema.nullable(),
+})
+export type MediaUsage = z.infer<typeof mediaUsageSchema>
+
+// To the streamer: what one viewer receives through the SFU.
+export const streamReceivedSchema = z.object({ viewerId: z.string(), quality: receivedQualitySchema })
+export type StreamReceived = z.infer<typeof streamReceivedSchema>
+
+// To the streamer whose share was stopped by the API, not by them.
+export const STREAM_ENDED_REASONS = ['disabled'] as const
+export const streamEndedSchema = z.object({ reason: z.enum(STREAM_ENDED_REASONS) })
+export type StreamEnded = z.infer<typeof streamEndedSchema>
+
 export const streamTargetSchema = z.object({ streamerId: z.string().min(1) })
 export type StreamTarget = z.infer<typeof streamTargetSchema>
 
@@ -158,6 +205,7 @@ export interface ClientToServerEvents {
   'stream:watch': (payload: StreamTarget, ack: Ack) => void
   'stream:unwatch': (payload: StreamTarget, ack: Ack) => void
   'stream:quality': (payload: StreamQuality, ack: Ack) => void
+  'media:usage': (payload: MediaUsage, ack: Ack) => void
   'signal:send': (payload: SignalSend, ack: Ack) => void
 }
 
@@ -175,4 +223,7 @@ export interface ServerToClientEvents {
   'stream:quality': (payload: StreamViewerQuality) => void
   'signal:receive': (payload: SignalReceive) => void
   'notification:new': (payload: NotificationNew) => void
+  'media:changed': (payload: MediaChanged) => void
+  'stream:ended': (payload: StreamEnded) => void
+  'stream:received': (payload: StreamReceived) => void
 }

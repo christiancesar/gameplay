@@ -150,7 +150,6 @@ export const JoinInvalidCode: Story = {
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString()
 
 const sampleNotifications: HubNotification[] = [
-  { id: 'n1', type: 'browserOutdated', browser: { name: 'Chrome', version: '109' }, minVersion: 130 },
   { id: 'n2', type: 'vpn' },
   { id: 'n3', type: 'monitorsPermission' },
   { id: 'n4', type: 'joinApproved', server: { id: 's2', name: 'Clan Zero' }, createdAt: minutesAgo(12) },
@@ -188,6 +187,34 @@ export const ClearNotifications: Story = {
 }
 
 export const NotificationsEmpty: Story = { args: { notifications: <StoryNotifications initial={[]} /> } }
+
+/** Aviso do admin da plataforma: título e mensagem vêm prontos, quebras de linha mantidas. */
+export const PlatformAnnouncement: Story = {
+  args: {
+    notifications: (
+      <StoryNotifications
+        initial={[
+          {
+            id: 'a1',
+            type: 'platformAnnouncement',
+            announcement: {
+              title: 'Transmissões via servidor desativadas',
+              message: 'Estamos ajustando o servidor de mídia.\nUse o modo Direto (Mesh) até voltar.',
+            },
+            createdAt: minutesAgo(2),
+          },
+          ...sampleNotifications.slice(3),
+        ]}
+      />
+    ),
+  },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByText('Transmissões via servidor desativadas')).toBeVisible()
+    await expect(canvas.getByText(/use o modo direto/i)).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: /dismiss: transmissões via servidor/i }))
+    await expect(canvas.queryByText('Transmissões via servidor desativadas')).not.toBeInTheDocument()
+  },
+}
 
 /** Sair pede confirmação: cancelar não chama o ViewModel, confirmar chama. */
 export const SignOut: Story = {

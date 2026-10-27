@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common'
 import { EnvService } from '../../env/env.service'
+import { LimitsModule } from '../limits/limits.module'
 import { IceController } from './controllers/ice.controller'
-import { IceProvider } from './ice.provider'
-import { CloudflareIceProvider } from './providers/cloudflare.ice-provider'
-import { CoturnIceProvider } from './providers/coturn.ice-provider'
-import { StunOnlyIceProvider } from './providers/stun-only.ice-provider'
+import { TurnRevocationListener } from './listeners/turn-revocation.listener'
+import { IceProvider } from './providers/ice/ice.provider'
+import { CloudflareIceProvider } from './providers/ice/cloudflare/cloudflare.ice.provider'
+import { CoturnIceProvider } from './providers/ice/coturn/coturn.ice.provider'
+import { StunOnlyIceProvider } from './providers/ice/stun-only/stun-only.ice.provider'
 import { IceHealthService } from './services/ice-health.service'
 import { GetIceConfigUseCase } from './use-cases/get-ice-config.use-case'
 
@@ -32,6 +34,7 @@ export function createIceProvider(env: EnvService, stunOnly: StunOnlyIceProvider
 
 // ICE servers for WebRTC and the client IP seen over HTTP.
 @Module({
+  imports: [LimitsModule],
   controllers: [IceController],
   providers: [
     {
@@ -41,6 +44,7 @@ export function createIceProvider(env: EnvService, stunOnly: StunOnlyIceProvider
     },
     { provide: IceProvider, inject: [EnvService, StunOnlyIceProvider], useFactory: createIceProvider },
     GetIceConfigUseCase,
+    TurnRevocationListener,
     IceHealthService,
   ],
   exports: [IceHealthService],

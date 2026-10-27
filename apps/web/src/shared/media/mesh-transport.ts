@@ -278,6 +278,7 @@ class MeshTransport implements MediaTransport {
       if (!parameters.encodings || parameters.encodings.length === 0) parameters.encodings = [{}]
       parameters.encodings[0].maxBitrate = encoding.maxBitrate
       parameters.encodings[0].maxFramerate = encoding.maxFramerate
+      parameters.encodings[0].scaleResolutionDownBy = encoding.scaleResolutionDownBy ?? 1
       ;(parameters as { degradationPreference?: string }).degradationPreference = encoding.degradationPreference
       await sender.setParameters(parameters)
     } catch {

@@ -1,5 +1,11 @@
-import { ADMIN_PAGE_SIZE_MAX } from '@gameplay/contracts'
+import {
+  ADMIN_PAGE_SIZE_MAX,
+  type MediaNotice,
+  type MediaResource,
+  type ServerMediaOverrides,
+} from '@gameplay/contracts'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -7,14 +13,20 @@ import { toast } from 'sonner'
 import type { LimitOverrides } from '@/modules/admin/model/limits.schema'
 import { toAdminServerItem, toAdminServerMember } from '@/modules/admin/model/mappers/admin-server.mapper'
 import { adminKeys } from '@/modules/admin/model/services/admin.keys'
+import { fromMediaChoices, toMediaChoices } from '@/modules/admin/model/mappers/media-choice.mapper'
+import type { MediaChoice } from '@/modules/admin/model/media-choice.schema'
+import { effectiveMedia, mediaGoingOff } from '@/modules/admin/model/rules/media-going-off'
 import {
+  adminMediaQueryOptions,
   adminServerDetailQueryOptions,
   adminServersQueryOptions,
   platformSettingsQueryOptions,
+  serverMediaOverridesQueryOptions,
 } from '@/modules/admin/model/services/admin.query'
-import { deleteAdminServer, setServerLimits } from '@/modules/admin/model/services/admin.service'
+import { deleteAdminServer, setServerLimits, updateServerMedia } from '@/modules/admin/model/services/admin.service'
 import { useAdminErrorToast } from '@/modules/admin/view-models/use-admin-error-toast'
 import { useDebouncedValue } from '@/modules/admin/view-models/use-debounced-value'
+import { useMediaOffConfirm } from '@/modules/admin/view-models/use-media-off-confirm'
 import { SEARCH_DEBOUNCE_MS } from '@/modules/admin/view-models/use-admin-users.view-model'
 
 const MEMBERS_FIELD = 'maxMembers'
@@ -25,14 +37,20 @@ const FALLBACK_ROOMS_LIMIT = 2
 
 type ServerDialog = { type: 'members' | 'limits'; serverId: string }
 
+type SaveInput = { serverId: string; overrides: LimitOverrides; media?: ServerMediaOverrides; notice?: MediaNotice }
+
 /** `/admin/servers`: owner, members (with who invited them), limits and deletion. */
 function useAdminServersViewModel() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const onError = useAdminErrorToast()
 
+  const navigate = useNavigate()
+  // From the Media tab: open "Adjust server" for that server.
+  const { edit } = useSearch({ from: '/_authed/admin/_panel/servers' })
   const [search, setSearch] = useState('')
-  const [dialog, setDialog] = useState<ServerDialog>()
+  const [picked, setDialog] = useState<ServerDialog>()
+  const dialog: ServerDialog | undefined = picked ?? (edit ? { type: 'limits', serverId: edit } : undefined)
   const term = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS)
 
   const { data: page } = useQuery({
@@ -50,7 +68,16 @@ function useAdminServersViewModel() {
     enabled: dialog?.type === 'members',
   })
 
-  const close = () => setDialog(undefined)
+  const { data: media } = useQuery({ ...adminMediaQueryOptions, enabled: dialog?.type === 'limits' })
+  const { data: mediaOverrides } = useQuery({
+    ...serverMediaOverridesQueryOptions(dialog?.serverId ?? ''),
+    enabled: dialog?.type === 'limits',
+  })
+
+  const close = () => {
+    setDialog(undefined)
+    if (edit) void navigate({ to: '/admin/servers', search: {}, replace: true })
+  }
 
   const remove = useMutation({
     mutationFn: deleteAdminServer,
@@ -62,18 +89,23 @@ function useAdminServersViewModel() {
     onError,
   })
   const saveLimits = useMutation({
-    mutationFn: ({ serverId, overrides }: { serverId: string; overrides: LimitOverrides }) =>
-      setServerLimits(serverId, {
+    mutationFn: async ({ serverId, overrides, media: overridesMedia, notice }: SaveInput) => {
+      await setServerLimits(serverId, {
         maxMembers: overrides[MEMBERS_FIELD] ?? null,
         maxRooms: overrides[ROOMS_FIELD] ?? null,
-      }),
-    onSuccess: async () => {
+      })
+      return overridesMedia ? updateServerMedia(serverId, { overrides: overridesMedia, notice }) : 0
+    },
+    onSuccess: async (notified) => {
       toast.success(t('admin.notices.limitSaved'))
+      if (notified > 0) toast.success(t('admin.announcements.sent', { count: notified }))
+      confirm.close()
       close()
-      await queryClient.invalidateQueries({ queryKey: adminKeys.serversAll() })
+      await queryClient.invalidateQueries({ queryKey: adminKeys.all })
     },
     onError,
   })
+  const confirm = useMediaOffConfirm(dialog?.serverId ?? null, saveLimits.isPending)
 
   const serverId = dialog?.serverId ?? ''
   const dialogOpenChange = (type: ServerDialog['type']) => (next: boolean) => {
@@ -112,10 +144,19 @@ function useAdminServersViewModel() {
           override: selected?.maxRoomsOverride ?? undefined,
         },
       ],
+      media: media && mediaOverrides ? { globals: media.settings, choices: toMediaChoices(mediaOverrides) } : undefined,
       isSaving: saveLimits.isPending,
       onOpenChange: dialogOpenChange('limits'),
-      onSave: (overrides: LimitOverrides) => saveLimits.mutate({ serverId, overrides }),
+      onSave: (overrides: LimitOverrides, choices?: Record<MediaResource, MediaChoice>) => {
+        const next = choices && fromMediaChoices(choices)
+        const goingOff =
+          media && mediaOverrides && next
+            ? mediaGoingOff(effectiveMedia(media.settings, mediaOverrides), effectiveMedia(media.settings, next))
+            : []
+        confirm.request(goingOff, (notice) => saveLimits.mutate({ serverId, overrides, media: next, notice }))
+      },
     },
+    confirmDialog: confirm.dialog,
   }
 }
 

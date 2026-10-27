@@ -9,6 +9,7 @@ import { AuthenticationModule } from './modules/auth/authentication.module'
 import { IceModule } from './modules/ice/ice.module'
 import { HealthModule } from './modules/health/health.module'
 import { LimitsModule } from './modules/limits/limits.module'
+import { MediaModule } from './modules/media/media.module'
 import { ServersModule } from './modules/servers/servers.module'
 import { StorageModule } from './modules/storage/storage.module'
 import { MembershipsModule } from './modules/memberships/memberships.module'
@@ -35,6 +36,7 @@ import { RegistrationInvitesModule } from './modules/registration-invites/regist
     MembershipsModule,
     NotificationsModule,
     RealtimeModule,
+    MediaModule,
     PlatformAdminModule,
   ],
 })

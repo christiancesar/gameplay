@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { fn } from 'storybook/test'
+import { expect, fn, screen, waitFor } from 'storybook/test'
 
 import { viewerQualities } from '@/fixtures/server'
 
@@ -22,3 +22,11 @@ type Story = StoryObj<typeof meta>
 export const MixedQuality: Story = {}
 
 export const EveryoneOnTarget: Story = { args: { viewers: viewerQualities.slice(0, 1) } }
+
+/** Pelo servidor (SFU): a qualidade vem do que cada espectador informa. */
+export const ThroughServer: Story = {
+  args: { mode: 'sfu' },
+  play: async () => {
+    await waitFor(() => expect(screen.getByText(/hands each viewer the layer/i)).toBeVisible())
+  },
+}

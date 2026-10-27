@@ -1,4 +1,4 @@
-import { type AccountSession, AuthAccounts } from '../providers/auth-accounts'
+import { type AccountSession, AuthAccounts } from '../providers/auth-accounts/auth-accounts.provider'
 
 // Account state in memory: who is suspended, their sessions and passwords.
 export class FakeAuthAccounts extends AuthAccounts {

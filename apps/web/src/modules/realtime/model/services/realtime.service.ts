@@ -1,10 +1,13 @@
 import type {
   AckResponse,
+  MediaUsage,
   Participant,
   RoomJoin,
   ServerToClientEvents,
   SignalSend,
+  StreamMode,
   StreamPreset,
+  StreamQualityLevel,
   VoiceState,
 } from '@gameplay/contracts'
 import { REALTIME_EVENTS } from '@gameplay/contracts'
@@ -43,14 +46,18 @@ type RealtimeService = {
   sendVoiceState(state: VoiceState): Promise<void>
   /** `signal:send`: offer, answer or ICE candidate for someone in the same room. */
   sendSignal(signal: SignalSend): Promise<void>
-  /** `stream:start`: announces the screen share (or changes its preset while it runs). */
-  startStream(preset: StreamPreset): Promise<void>
+  /** `stream:start`: announces the screen share and how it is sent (or changes its preset while it runs). */
+  startStream(preset: StreamPreset, mode?: StreamMode): Promise<void>
   /** `stream:stop` */
   stopStream(): Promise<void>
   /** `stream:watch`: asks a streamer in the room to send their screen to me. */
   watchStream(streamerId: string): Promise<void>
   /** `stream:unwatch`: stops receiving it. Accepted even after the stream ended. */
   unwatchStream(streamerId: string): Promise<void>
+  /** `stream:quality`: asks a Direct (Mesh) streamer for another quality on my connection only. */
+  sendStreamQuality(streamerId: string, level: StreamQualityLevel): Promise<void>
+  /** `media:usage`: watching through the SFU, what I received since the last report. */
+  reportMediaUsage(usage: MediaUsage): Promise<void>
 }
 
 /** The API did not answer an event in time (socket dropped before the ack). */
@@ -118,10 +125,14 @@ function createRealtimeService(getSocket: () => SocketLike): RealtimeService {
     leaveRoom: () => emitWithAck<void>(getSocket(), REALTIME_EVENTS.roomLeave, {}),
     sendVoiceState: (state) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.voiceState, state),
     sendSignal: (signal) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.signalSend, signal),
-    startStream: (preset) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamStart, { preset }),
+    startStream: (preset, mode = 'mesh') =>
+      emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamStart, { preset, mode }),
     stopStream: () => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamStop, {}),
     watchStream: (streamerId) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamWatch, { streamerId }),
     unwatchStream: (streamerId) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamUnwatch, { streamerId }),
+    sendStreamQuality: (streamerId, level) =>
+      emitWithAck<void>(getSocket(), REALTIME_EVENTS.streamQuality, { streamerId, level }),
+    reportMediaUsage: (usage) => emitWithAck<void>(getSocket(), REALTIME_EVENTS.mediaUsage, usage),
   }
 }
 

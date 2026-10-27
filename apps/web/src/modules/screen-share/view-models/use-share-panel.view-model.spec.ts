@@ -3,12 +3,16 @@ import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('react-i18next', async () => (await import('@/shared/test/fake-i18n')).fakeI18nModule)
+vi.mock('@/shared/lib/http', async () => ({ http: (await import('@/shared/test/fake-http')).fakeHttp }))
 vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), warning: vi.fn() }) }))
 vi.mock('./share.controller', async () => ({
   shareController: (await import('./test/fake-share-controller')).fakeShareController,
 }))
 
 import { defaultShareSettings, idleShare } from '@/modules/screen-share/model/entities/share'
+import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
+import { fakeHttp } from '@/shared/test/fake-http'
+import { createQueryClientContext } from '@/shared/test/query-client-context'
 
 import { useSharePreferencesStore } from './stores/share-preferences.store'
 import { useShareStore } from './stores/share.store'
@@ -24,7 +28,10 @@ const live = {
   stats: { u2: { width: 1280, height: 720, fps: 42, kbps: 2100, limitation: 'bandwidth' as const } },
 }
 
-const setup = () => renderHook(() => useSharePanelViewModel(profiles))
+const setup = () => renderHook(() => useSharePanelViewModel(profiles), { wrapper: createQueryClientContext().wrapper })
+
+/** Without a call the server's media is unknown: the share goes Direct, as before the SFU. */
+const DIRECT = { mode: 'mesh', fallbackToMesh: true }
 
 describe('useSharePanelViewModel', () => {
   afterEach(cleanup)
@@ -82,6 +89,7 @@ describe('useSharePanelViewModel', () => {
     expect(fakeShareController.start).toHaveBeenCalledWith(
       { source: 'tab', resolution: '720p', fps: 60, includeAudio: true },
       'smooth',
+      DIRECT,
     )
     expect(result.current.setup.open).toBe(false)
   })
@@ -91,7 +99,11 @@ describe('useSharePanelViewModel', () => {
     act(() => result.current.onStart())
     act(() => result.current.setup.onChange({ ...defaultShareSettings, source: 'window', includeAudio: true }))
     act(() => result.current.setup.onStart())
-    expect(fakeShareController.start).toHaveBeenCalledWith(expect.objectContaining({ includeAudio: false }), 'smooth')
+    expect(fakeShareController.start).toHaveBeenCalledWith(
+      expect.objectContaining({ includeAudio: false }),
+      'smooth',
+      DIRECT,
+    )
   })
 
   it('saves the settings for next time only when asked, and forgets them when not', () => {
@@ -165,7 +177,7 @@ describe('useSharePanelViewModel', () => {
     expect(result.current.setup.priority).toBe('smooth')
     act(() => result.current.setup.onPriorityChange('sharp'))
     act(() => result.current.setup.onStart())
-    expect(fakeShareController.start).toHaveBeenCalledWith(defaultShareSettings, 'sharp')
+    expect(fakeShareController.start).toHaveBeenCalledWith(defaultShareSettings, 'sharp', DIRECT)
   })
 
   it('saves the priority with the settings for next time, and offers it again', () => {
@@ -210,5 +222,61 @@ describe('useSharePanelViewModel', () => {
     setup()
     expect(toast.warning).toHaveBeenCalledWith('share.notices.no-audio')
     expect(toast.error).not.toHaveBeenCalled()
+  })
+
+  describe('how the share is sent', () => {
+    const offer = (media: object) => {
+      useVoiceStore.setState({ connection: { serverId: 's1', roomId: 'r1' } })
+      fakeHttp.get.mockImplementation(async (url: string) => {
+        if (url === '/servers/s1/media') return { data: media }
+        throw new Error(`unexpected GET ${url}`)
+      })
+    }
+    const ALL = { sfu: { available: true, reason: null }, mesh: { available: true }, turn: { available: true } }
+    afterEach(() => useVoiceStore.setState({ connection: null }))
+
+    it('opens on Server (SFU) and lets Direct stand in when it fails', async () => {
+      offer(ALL)
+      const { result } = setup()
+      await vi.waitFor(() => expect(result.current.setup.streamModes).toBeDefined())
+      act(() => result.current.onStart())
+      expect(result.current.setup.streamMode).toBe('sfu')
+      act(() => result.current.setup.onStart())
+      expect(fakeShareController.start).toHaveBeenCalledWith(defaultShareSettings, 'smooth', {
+        mode: 'sfu',
+        fallbackToMesh: true,
+      })
+    })
+
+    it('starts Direct when picked', async () => {
+      offer(ALL)
+      const { result } = setup()
+      await vi.waitFor(() => expect(result.current.setup.streamModes).toBeDefined())
+      act(() => result.current.onStart())
+      act(() => result.current.setup.onStreamModeChange('mesh'))
+      act(() => result.current.setup.onStart())
+      expect(fakeShareController.start).toHaveBeenCalledWith(defaultShareSettings, 'smooth', {
+        mode: 'mesh',
+        fallbackToMesh: true,
+      })
+    })
+
+    it('uses what the server leaves, and does not start when it leaves nothing', async () => {
+      offer({ ...ALL, sfu: { available: false, reason: 'disabled' }, mesh: { available: false } })
+      const { result } = setup()
+      await vi.waitFor(() => expect(result.current.setup.streamModes).toBeDefined())
+      act(() => result.current.onStart())
+      expect(result.current.setup.streamMode).toBeUndefined()
+      act(() => result.current.setup.onStart())
+      expect(fakeShareController.start).not.toHaveBeenCalled()
+    })
+
+    it('warns when the share went Direct, and says why the admin stopped it', () => {
+      setup()
+      act(() => useShareStore.setState({ notice: 'fell-back' }))
+      expect(toast.warning).toHaveBeenCalledWith('share.notices.fell-back')
+      act(() => useShareStore.setState({ notice: 'disabled' }))
+      expect(toast.error).toHaveBeenCalledWith('share.notices.disabled')
+    })
   })
 })

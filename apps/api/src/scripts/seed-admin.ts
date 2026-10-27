@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { AuthService } from '@thallesp/nestjs-better-auth'
-import { passwordSchema, usernameSchema } from '@gameplay/contracts'
-import { z } from 'zod'
+import { adminEnvObject } from '@gameplay/env'
 import { AppModule } from '../app.module'
 import type { Auth } from '../lib/auth'
 import { PrismaService } from '../lib/prisma'
@@ -11,14 +10,8 @@ import { PrismaService } from '../lib/prisma'
 // the account until then.
 //   dev:  npm run seed:admin
 //   prod: node apps/api/dist/scripts/seed-admin
-const adminSchema = z.object({
-  ADMIN_EMAIL: z.email(),
-  ADMIN_USERNAME: usernameSchema,
-  ADMIN_PASSWORD: passwordSchema,
-})
-
 async function main() {
-  const admin = adminSchema.parse(process.env)
+  const admin = adminEnvObject.parse(process.env)
   const app = await NestFactory.create(AppModule, { bodyParser: false, logger: ['error', 'warn'] })
   await app.init()
 

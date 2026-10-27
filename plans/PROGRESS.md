@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-26 (backend e frontend completos; `feature/web-routing` fechada no PR para a `main`; próximo foco: observabilidade).
+> Última atualização: 2026-10-27 (SFU-01 a SFU-05 concluídos na `feature/sfu`; próximo: review e PR para a `dev`).
 
 ## Status das fases (workflow ágil)
 
@@ -26,6 +26,15 @@ Escopo mínimo para começar:
 5. **Todas as Views dos fluxos F1 a F13 estão no Storybook**, com stories de todos os estados e interaction tests (157 testes). A página "Introdução" do Storybook liga cada fluxo às stories.
 
 Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
+
+## SFU, retomar daqui
+
+- 2026-10-27: removido o aviso de navegador (só Chromium e versão mínima), a pedido do usuário: em testes reais o app funcionou em qualquer navegador. Saíram o alerta do sign-in, os avisos do Hub, a configuração `minChromiumVersion` (admin e banco, migration `drop_min_chromium_version`) e a rota `GET /api/settings/public`. Os avisos de áudio da tela que citam Chrome e Edge continuam, porque descrevem um limite real do Firefox e do Safari. Branch `chore/remove-chromium-only-check`.
+
+- 2026-10-27: branch `dev` criada; toda branch sai da `dev` e volta por PR para ela, e a `main` só recebe PR da `dev` (protegida no GitHub, só entra por PR).
+- 2026-10-27: tela pelo Cloudflare Realtime SFU por padrão, com o mesh como opção no diálogo de compartilhar; voz em mesh; sem RealtimeKit; um app do SFU só para desenvolvimento e produção. Desenho em `media-transport-options.md` seção 7.
+- Variáveis `CLOUDFLARE_SFU_APP_ID` e `CLOUDFLARE_SFU_APP_TOKEN` criadas nos `.env.example`, no schema da API, nos composes e no `deploy.sh` (branch `feature/sfu`). Os valores ficam com o usuário.
+- Tickets SFU-01 a SFU-05 escritos (`tickets/README.md`, seção SFU). Ordem: SFU-01, SFU-05, SFU-04, SFU-02, SFU-03. Aprovados pelo usuário em 2026-10-27: nomes e explicações dos modos, queda para Direto, aba Mídia com SFU, Mesh e TURN globais e por servidor, desligar derruba, aviso da plataforma, correção do campo numérico no SFU-04. Todos os tickets SFU (01 a 05) concluídos na `feature/sfu` (notas nos tickets), aguardando review. Transmissão pelo SFU, troca de camada e medição testadas com a Cloudflare de verdade (dois browsers headless). Providers da API reorganizados por recurso e implementação (`04-tech-plan.md`). Próximo: review do usuário e PR da `feature/sfu` para a `dev`. Decisão do usuário em 2026-10-27: ao recarregar a página, o app só volta para a chamada de voz; a live que a pessoa assistia não é retomada (o `?watch=` é descartado), e ela clica em Assistir de novo.
 
 ## Frontend (`apps/web`), retomar daqui
 
@@ -98,14 +107,14 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - **Padrões dos módulos novos:** transação com trava de linha (`SELECT ... FOR UPDATE`) para limites e unicidade: `ServersRepository.createWithOwner` e `RoomsRepository` recebem um `guard` que roda dentro da transação; `MembershipsRepository.withServerLock()` entrega um `MembershipStore`. Testes unitários usam `makeServersContext()` (`servers/test/fakes.ts`) e `makeMembershipsContext()` (`memberships/test/fakes.ts`), com `FakeEventBus`.
 - **Suposições minhas a confirmar com o usuário:** username fora do perfil (fica no `/update-user`); `deviceMemory` arredondado em vez de recusado; ICE cai para STUN por 60 s se o provider falhar; `defaultRoomName` enviado pelo web na criação do servidor ("Room 1" se faltar); no sign-up só o convite vencido vira aviso. Detalhes nas notas de cada ticket.
 - **Produção:** `TRUST_PROXY_HOPS=1` atrás do nginx (BE-14).
-- Infra local para os testes: `docker compose -f infra/docker-compose.dev.yml up -d --wait postgres s3mock`. Se o `prisma migrate dev` travar sem saída, rodar com `< /dev/null`.
+- Infra local para os testes: `npm run db:up` em `apps/api` sobe o Postgres só de desenvolvimento (`apps/api/docker-compose.yml`, porta 5432), isolado da simulação de produção (`infra/self-hosted`). O e2e cria o próprio banco `gameplay_test` nesse servidor (`test/support/global-setup.ts`). O `infra/docker-compose.dev.yml` não existe mais (o e2e do driver S3 foi removido em 2026-10-27, a pedido do usuário). Se o `prisma migrate dev` travar sem saída, rodar com `< /dev/null`.
 - `apps/api/.env` precisa de `REGISTRATION_KEY_SECRET` (já adicionado no ambiente local; ver `.env.example`).
 - **Pendência do BE-04 resolvida:** todas as rotas `/api/auth/admin/*` desligadas (o painel do BE-15 usa rotas próprias com 2FA), além de fluxos de email, login social, exclusão de conta e OTP do 2FA. `change-password` e `update-user` ficam ligadas. Avatar só por upload: `update-user` recusa `image`, e o upload do BE-08 grava a URL em `user.image`. Detalhes em `tickets/BE-04-auth-better-auth.md`.
 - **Ajuste do Storybook feito no PR #3:** o perfil hoje mostra username e email só leitura com o texto "Peça ao admin da plataforma para trocar seu email ou senha". Liberar a troca de username e de senha (com a senha atual); o email continua só leitura. O avatar vem de `session.user.image`.
 - Nos documentos, `platform_admin` virou "admin da plataforma" (`user.role = 'admin'`). Papéis dentro do servidor ficam em `Membership.role`.
 - Opcional sugerido: juntar as rotas do Better Auth no documento REST do Scalar (hoje é uma fonte separada no seletor).
 - Banco de dev local tem um admin de teste criado pelo seed: `admin@gameplay.local` / `admin-pass-123`.
-- Docker: `npm run docker:api` sobe a imagem de produção na porta 3334 ao lado do `npm run dev` (3333). Docs só na 3333.
+- Docker: a imagem de produção roda na stack self-hosted (`npm run host:start`), que simula a produção com os mesmos nomes de variáveis (`APP_URL`, `SENTRY_ENVELOPE_URL`), TURN da Cloudflare por padrão, rotação de logs e healthcheck do web. Banco e uploads ficam locais. (`npm run docker:api` foi removido em 2026-10-27.)
 
 ## Assets fornecidos pelo usuário
 

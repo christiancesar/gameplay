@@ -1,4 +1,4 @@
-import type { AdminListQuery } from '@gameplay/contracts'
+import type { AdminListQuery, RealtimeUsageQuery } from '@gameplay/contracts'
 
 /** Query keys of the admin module. Every admin query lives under `admin`. */
 const adminKeys = {
@@ -15,6 +15,10 @@ const adminKeys = {
   hardwareSummary: () => [...adminKeys.all, 'hardware-summary'] as const,
   settings: () => [...adminKeys.all, 'settings'] as const,
   registrationInvites: () => [...adminKeys.all, 'registration-invites'] as const,
+  media: () => [...adminKeys.all, 'media'] as const,
+  mediaUsage: (query: RealtimeUsageQuery) => [...adminKeys.all, 'media-usage', query] as const,
+  mediaImpact: (serverId: string | null) => [...adminKeys.all, 'media-impact', serverId] as const,
+  serverMedia: (serverId: string) => [...adminKeys.all, 'server-media', serverId] as const,
 }
 
 export { adminKeys }

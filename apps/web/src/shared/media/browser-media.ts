@@ -15,6 +15,8 @@ type RtpSenderLike = {
 type RtpTransceiverLike = {
   direction: RTCRtpTransceiverDirection
   readonly sender: RtpSenderLike
+  /** Set once a description is applied; the SFU names tracks by it. */
+  readonly mid?: string | null
 }
 
 type TrackEventLike = {
@@ -28,6 +30,8 @@ type PeerConnectionLike = {
   readonly signalingState: RTCSignalingState
   readonly connectionState: RTCPeerConnectionState
   readonly localDescription: { type: RTCSdpType; sdp: string } | null
+  readonly iceGatheringState: RTCIceGatheringState
+  onicegatheringstatechange: (() => void) | null
   onnegotiationneeded: (() => void) | null
   onicecandidate: ((event: { candidate: IceCandidateLike | null }) => void) | null
   ontrack: ((event: TrackEventLike) => void) | null

@@ -4,7 +4,7 @@ import { AllowAnonymous } from '@thallesp/nestjs-better-auth'
 import sharp from 'sharp'
 import request from 'supertest'
 import { ImageProcessor, imageKey } from '../../src/modules/storage/images/image-processor'
-import { StorageProvider } from '../../src/modules/storage/storage.provider'
+import { StorageProvider } from '../../src/modules/storage/providers/storage/storage.provider'
 import { requireImageFile, UploadImage } from '../../src/modules/storage/upload/upload-image.decorator'
 import { createTestApp } from '../support/create-test-app'
 
