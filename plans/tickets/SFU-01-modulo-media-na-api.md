@@ -32,13 +32,30 @@ Transporte no web e seletor de modo (SFU-02). Orçamento, medição de consumo e
 - Cloudflare: [Connection API](https://developers.cloudflare.com/realtime/sfu/api/), [Simulcast](https://developers.cloudflare.com/realtime/sfu/features/simulcast/), [Limits](https://developers.cloudflare.com/realtime/sfu/platform/limits/), [OpenAPI](https://developers.cloudflare.com/realtime/static/realtime-api-2024-05-21.yaml)
 
 ## Checklist
-- [ ] Conferir no OpenAPI da Cloudflare o corpo de cada rota (publicar, assinar com simulcast, `tracks/update`, renegociar, fechar)
-- [ ] `SfuProvider` com a implementação da Cloudflare (HTTP mockado nos testes) e o fake
-- [ ] Rota de disponibilidade e rotas de sessão e tracks, com e2e
-- [ ] Permissões: só quem está na sala publica e assina; só o dono da sessão mexe nela
-- [ ] Modo no contrato do `stream:start` e do participante
-- [ ] Limpeza ao parar, sair e desconectar
-- [ ] Commit
+- [x] Conferir no OpenAPI da Cloudflare o corpo de cada rota (publicar, assinar com simulcast, `tracks/update`, renegociar, fechar)
+- [x] `SfuProvider` com a implementação da Cloudflare (HTTP mockado nos testes) e o fake
+- [x] Rota de disponibilidade e rotas de sessão e tracks, com e2e
+- [x] Permissões: só quem está na sala publica e assina; só o dono da sessão mexe nela
+- [x] Modo no contrato do `stream:start` e do participante
+- [x] Limpeza ao parar, sair e desconectar
+- [x] Commit
 
 ## Critério de aceite
 Com as credenciais no env, um browser consegue publicar a tela no SFU pela nossa API e outro da mesma sala consegue assinar escolhendo a camada. Sem as credenciais, `GET /api/media/sfu` responde indisponível e nada mais muda. Ninguém de fora da sala consegue assinar.
+
+## Notas da execução
+- **Contrato** (`packages/contracts`): `STREAM_MODES` (`sfu`, `mesh`). O `stream:start` aceita `mode`, com `mesh` como padrão, para o web atual continuar funcionando sem mudança até o SFU-02. O participante ganhou `streamMode` (nulo quando não transmite). Schemas REST novos em `realtime/sfu.ts`.
+- **Rotas** (todas com sessão, em `/api/media/sfu`):
+  - `GET /` responde `{ available, reason }`. Hoje o único motivo é `not-configured`; `disabled` e `budget-exhausted` entram no SFU-04 e no SFU-03. *(Suposição: não criei o motivo `unavailable` agora, porque ainda não há verificação de saúde da Cloudflare; ela entra no SFU-04.)*
+  - `POST /sessions` cria a sessão na Cloudflare, presa à sala de voz da pessoa.
+  - `POST /sessions/:id/publish` com a oferta do browser e as tracks (`mid` e `kind`). O nome de cada track é `screen-<kind>-<mid>`.
+  - `POST /sessions/:id/watch` com `streamerId` e `layer` (`f`, `h` ou `q`, padrão `f`). A API acha a sessão de quem transmite; o `sessionId` dela nunca vai para o web. O simulcast só vai na track de vídeo.
+  - `PUT /sessions/:id/renegotiate` (204), `PUT /sessions/:id/layer` (204, `tracks/update` da Cloudflare) e `PUT /sessions/:id/close` (com oferta renegocia; sem oferta fecha com `force`).
+- **Permissões:** criar sessão exige estar numa sala de voz (vale também durante a espera de reconexão). Cada rota de sessão confere o dono e se a sessão é da sala onde a pessoa está agora; senão responde 404. Assistir exige quem transmite na mesma sala, em modo `sfu`, com a tela publicada daquela sala.
+- **`stream:start` em `sfu`** só é aceito com a tela (vídeo) publicada a partir da mesma sala; senão o ack volta com `SCREEN_NOT_PUBLISHED`.
+- **Onde ficam as sessões:** o registro em memória (`SfuSessionStore`) está no módulo `realtime`, porque o `stream:start` precisa dele. O módulo `media` importa o `realtime` e escreve nele; o `realtime` não conhece o `media`. A limpeza vem por eventos de domínio que o `realtime` publica: `voice.left-room` (saiu, mudou de sala, foi removido ou a espera de reconexão acabou) e `stream.changed` (começou, mudou ou parou; com modo diferente de `sfu`, a tela publicada é fechada). Uma falha da Cloudflare na limpeza só gera log e nunca trava a sala.
+- **Simulcast:** `priorityOrdering` e `ridNotAvailable` em `asciibetical`, para a Cloudflare descer de `f` para `h` e `q` quando a camada não existe ou a rede de quem assiste não aguenta. *(Suposição.)* A resposta do `tracks/update` pode pedir renegociação; a documentação não deixa claro quando. Conferir no teste manual do SFU-02.
+- **Limite:** 4 sessões por pessoa (uma para publicar e uma para assistir por aba é o normal). *(Suposição.)*
+- **Erros:** `SFU_NOT_CONFIGURED` (503), `SFU_FAILED` (502, recusa ou timeout de 5 s da Cloudflare, inclusive erro por track vindo com status 200), `SFU_SESSION_NOT_FOUND` e `SFU_TRACK_NOT_FOUND` (404), `SFU_SESSION_LIMIT` (429).
+- **Credenciais:** com as variáveis do `apps/api/.env`, um `POST /sessions/new` direto na Cloudflare respondeu 201. O e2e fixa as duas variáveis vazias, para nunca chamar a Cloudflare de verdade; a suíte do SFU usa um fake.
+- **Testes:** unitários do provider (HTTP mockado), dos use-cases e da limpeza; e2e com o app inteiro e o SFU fake (publicar, `stream:start` antes e depois da publicação, assistir, renegociar, sala diferente, sessão de outra pessoa, sem sala, sem credenciais). O `infra/docker-compose.dev.yml` foi removido, então rodei o e2e com um Postgres temporário (`docker run --rm`, já parado). O e2e do S3 não rodou, porque precisa do s3mock.
