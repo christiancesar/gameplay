@@ -503,7 +503,8 @@
       "limits": "Limites",
       "keys": "Keys de cadastro",
       "hardware": "Hardware",
-      "announcements": "Avisos"
+      "announcements": "Avisos",
+      "media": "Mídia"
     },
     "search": "Buscar",
     "empty": "Nada encontrado.",
@@ -579,20 +580,20 @@
     "limitDialog": {
       "useDefault": "Usar o padrão global ({{value}})",
       "override": "Valor próprio",
-      "save": "Salvar limite"
+      "save": "Salvar"
     },
     "servers": {
       "server": "Servidor",
       "owner": "Owner",
       "members": "Membros",
       "rooms": "Salas",
-      "editLimits": "Ajustar limites",
+      "editLimits": "Ajustar servidor",
       "delete": "Excluir servidor",
       "viewMembers": "Ver membros",
       "membersTitle": "Membros de {{name}}",
       "role": "Papel",
       "joinedVia": "Como entrou",
-      "limitsTitle": "Limites de {{name}}"
+      "limitsTitle": "Ajustar {{name}}"
     },
     "limits": {
       "description": "Padrões usados quando o usuário ou servidor não tem valor próprio. Mudanças valem sem redeploy.",
@@ -659,6 +660,61 @@
         "messageTooLong": "Use até 500 caracteres.",
         "serverRequired": "Escolha um servidor."
       }
+    },
+    "media": {
+      "title": "Recursos de mídia",
+      "description": "Liga ou desliga os modos de transmissão e o relay TURN para a plataforma toda. Um servidor pode ter uma configuração própria em \"Ajustar servidor\".",
+      "on": "Ligado",
+      "off": "Desligado",
+      "choices": {
+        "global": "Padrão global ({{state}})",
+        "on": "Ligado neste servidor",
+        "off": "Desligado neste servidor"
+      },
+      "resources": {
+        "sfu": {
+          "name": "Servidor (SFU)",
+          "description": "Melhor para várias pessoas assistindo. Quem transmite envia uma vez só para um servidor dedicado, e este servidor distribui cópias da transmissão sem dividir o upload."
+        },
+        "mesh": {
+          "name": "Direto (Mesh)",
+          "description": "Melhor para 1:1, com menor atraso. O upload de quem transmite é dividido entre quem assiste."
+        },
+        "turn": {
+          "name": "Relay (TURN)",
+          "description": "Repassa a voz e as transmissões Diretas quando a conexão direta falha. Sem ele, parte das pessoas pode não conectar."
+        }
+      },
+      "provider": {
+        "ready": "{{name}}, configurado",
+        "notConfigured": "Sem credenciais no servidor",
+        "failing": "{{name}}, falhou na última verificação",
+        "none": "Sem provedor: roda direto entre os browsers"
+      },
+      "exceptions": {
+        "title": "Exceções por servidor",
+        "empty": "Todos os servidores seguem a configuração global.",
+        "adjust": "Ajustar"
+      },
+      "confirm": {
+        "title": "Desligar {{resources}}?",
+        "impact_one": "{{count}} pessoa numa sala de voz perde o recurso na hora.",
+        "impact_other": "{{count}} pessoas em salas de voz perdem o recurso na hora.",
+        "impactNone": "Ninguém está usando agora.",
+        "noticeTitle": "Título do aviso",
+        "noticeMessage": "Mensagem",
+        "audience": "Enviar para",
+        "audiences": {
+          "affected": "Só quem foi afetado",
+          "members": "Membros do servidor",
+          "everyone": "Todo mundo"
+        },
+        "defaultTitle": "{{resources}} desligado",
+        "defaultMessage": "O admin da plataforma desligou {{resources}} por enquanto.",
+        "notify": "Desligar e avisar",
+        "silent": "Desligar sem avisar"
+      },
+      "saved": "Configurações de mídia salvas."
     }
   },
   "hardware": {

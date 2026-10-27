@@ -503,7 +503,8 @@
       "limits": "Limits",
       "keys": "Sign-up keys",
       "hardware": "Hardware",
-      "announcements": "Announcements"
+      "announcements": "Announcements",
+      "media": "Media"
     },
     "search": "Search",
     "empty": "Nothing found.",
@@ -579,20 +580,20 @@
     "limitDialog": {
       "useDefault": "Use the global default ({{value}})",
       "override": "Custom value",
-      "save": "Save limit"
+      "save": "Save"
     },
     "servers": {
       "server": "Server",
       "owner": "Owner",
       "members": "Members",
       "rooms": "Rooms",
-      "editLimits": "Adjust limits",
+      "editLimits": "Adjust server",
       "delete": "Delete server",
       "viewMembers": "View members",
       "membersTitle": "Members of {{name}}",
       "role": "Role",
       "joinedVia": "How they joined",
-      "limitsTitle": "Limits of {{name}}"
+      "limitsTitle": "Adjust {{name}}"
     },
     "limits": {
       "description": "Defaults used when a user or server has no custom value. Changes apply without redeploy.",
@@ -659,6 +660,61 @@
         "messageTooLong": "Use up to 500 characters.",
         "serverRequired": "Pick a server."
       }
+    },
+    "media": {
+      "title": "Media resources",
+      "description": "Turn screen share modes and the TURN relay on or off for the whole platform. A server can keep its own setting in \"Adjust server\".",
+      "on": "On",
+      "off": "Off",
+      "choices": {
+        "global": "Global default ({{state}})",
+        "on": "On for this server",
+        "off": "Off for this server"
+      },
+      "resources": {
+        "sfu": {
+          "name": "Server (SFU)",
+          "description": "Best for several people watching. The streamer sends once to a dedicated server, which hands out copies without splitting their upload."
+        },
+        "mesh": {
+          "name": "Direct (Mesh)",
+          "description": "Best for 1:1, with the lowest delay. The streamer's upload is split among the viewers."
+        },
+        "turn": {
+          "name": "Relay (TURN)",
+          "description": "Relays voice and Direct shares when a direct connection fails. Without it, some people may not connect."
+        }
+      },
+      "provider": {
+        "ready": "{{name}}, ready",
+        "notConfigured": "No credentials on the server",
+        "failing": "{{name}}, failed the last check",
+        "none": "No provider: it runs between the browsers"
+      },
+      "exceptions": {
+        "title": "Server exceptions",
+        "empty": "Every server follows the global settings.",
+        "adjust": "Adjust"
+      },
+      "confirm": {
+        "title": "Turn off {{resources}}?",
+        "impact_one": "{{count}} person in a voice room will be cut off right away.",
+        "impact_other": "{{count}} people in voice rooms will be cut off right away.",
+        "impactNone": "Nobody is using it right now.",
+        "noticeTitle": "Notice title",
+        "noticeMessage": "Message",
+        "audience": "Send to",
+        "audiences": {
+          "affected": "Only who is cut off",
+          "members": "Members of the server",
+          "everyone": "Everyone"
+        },
+        "defaultTitle": "{{resources}} turned off",
+        "defaultMessage": "The platform admin turned off {{resources}} for now.",
+        "notify": "Turn off and notify",
+        "silent": "Turn off without notifying"
+      },
+      "saved": "Media settings saved."
     }
   },
   "hardware": {

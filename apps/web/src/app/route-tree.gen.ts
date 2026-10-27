@@ -24,6 +24,7 @@ import { Route as AuthedAdminPanelAnnouncementsRouteImport } from './routes/_aut
 import { Route as AuthedAdminPanelHardwareRouteImport } from './routes/_authed/admin/_panel/hardware'
 import { Route as AuthedAdminPanelKeysRouteImport } from './routes/_authed/admin/_panel/keys'
 import { Route as AuthedAdminPanelLimitsRouteImport } from './routes/_authed/admin/_panel/limits'
+import { Route as AuthedAdminPanelMediaRouteImport } from './routes/_authed/admin/_panel/media'
 import { Route as AuthedAdminPanelServersRouteImport } from './routes/_authed/admin/_panel/servers'
 import { Route as AuthedAdminPanelUsersRouteImport } from './routes/_authed/admin/_panel/users'
 
@@ -101,6 +102,11 @@ const AuthedAdminPanelLimitsRoute = AuthedAdminPanelLimitsRouteImport.update({
   path: '/limits',
   getParentRoute: () => AuthedAdminPanelRoute,
 } as any)
+const AuthedAdminPanelMediaRoute = AuthedAdminPanelMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AuthedAdminPanelRoute,
+} as any)
 const AuthedAdminPanelServersRoute = AuthedAdminPanelServersRouteImport.update({
   id: '/servers',
   path: '/servers',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
+  '/admin/media': typeof AuthedAdminPanelMediaRoute
   '/admin/servers': typeof AuthedAdminPanelServersRoute
   '/admin/users': typeof AuthedAdminPanelUsersRoute
   '/admin/': typeof AuthedAdminPanelIndexRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
+  '/admin/media': typeof AuthedAdminPanelMediaRoute
   '/admin/servers': typeof AuthedAdminPanelServersRoute
   '/admin/users': typeof AuthedAdminPanelUsersRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/_authed/admin/_panel/hardware': typeof AuthedAdminPanelHardwareRoute
   '/_authed/admin/_panel/keys': typeof AuthedAdminPanelKeysRoute
   '/_authed/admin/_panel/limits': typeof AuthedAdminPanelLimitsRoute
+  '/_authed/admin/_panel/media': typeof AuthedAdminPanelMediaRoute
   '/_authed/admin/_panel/servers': typeof AuthedAdminPanelServersRoute
   '/_authed/admin/_panel/users': typeof AuthedAdminPanelUsersRoute
   '/_authed/admin/_panel/': typeof AuthedAdminPanelIndexRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
+    | '/admin/media'
     | '/admin/servers'
     | '/admin/users'
     | '/admin/'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
+    | '/admin/media'
     | '/admin/servers'
     | '/admin/users'
   id:
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authed/admin/_panel/hardware'
     | '/_authed/admin/_panel/keys'
     | '/_authed/admin/_panel/limits'
+    | '/_authed/admin/_panel/media'
     | '/_authed/admin/_panel/servers'
     | '/_authed/admin/_panel/users'
     | '/_authed/admin/_panel/'
@@ -329,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminPanelLimitsRouteImport
       parentRoute: typeof AuthedAdminPanelRoute
     }
+    '/_authed/admin/_panel/media': {
+      id: '/_authed/admin/_panel/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AuthedAdminPanelMediaRouteImport
+      parentRoute: typeof AuthedAdminPanelRoute
+    }
     '/_authed/admin/_panel/servers': {
       id: '/_authed/admin/_panel/servers'
       path: '/servers'
@@ -351,6 +370,7 @@ interface AuthedAdminPanelRouteChildren {
   AuthedAdminPanelHardwareRoute: typeof AuthedAdminPanelHardwareRoute
   AuthedAdminPanelKeysRoute: typeof AuthedAdminPanelKeysRoute
   AuthedAdminPanelLimitsRoute: typeof AuthedAdminPanelLimitsRoute
+  AuthedAdminPanelMediaRoute: typeof AuthedAdminPanelMediaRoute
   AuthedAdminPanelServersRoute: typeof AuthedAdminPanelServersRoute
   AuthedAdminPanelUsersRoute: typeof AuthedAdminPanelUsersRoute
   AuthedAdminPanelIndexRoute: typeof AuthedAdminPanelIndexRoute
@@ -361,6 +381,7 @@ const AuthedAdminPanelRouteChildren: AuthedAdminPanelRouteChildren = {
   AuthedAdminPanelHardwareRoute: AuthedAdminPanelHardwareRoute,
   AuthedAdminPanelKeysRoute: AuthedAdminPanelKeysRoute,
   AuthedAdminPanelLimitsRoute: AuthedAdminPanelLimitsRoute,
+  AuthedAdminPanelMediaRoute: AuthedAdminPanelMediaRoute,
   AuthedAdminPanelServersRoute: AuthedAdminPanelServersRoute,
   AuthedAdminPanelUsersRoute: AuthedAdminPanelUsersRoute,
   AuthedAdminPanelIndexRoute: AuthedAdminPanelIndexRoute,

@@ -1,4 +1,5 @@
 import {
+  adminMediaResponseSchema,
   adminServerDetailSchema,
   generateRegistrationInviteResponseSchema,
   hardwareSummarySchema,
@@ -8,10 +9,14 @@ import {
   listAdminUsersResponseSchema,
   listDevicesResponseSchema,
   listRegistrationInvitesResponseSchema,
+  mediaChangeResponseSchema,
+  mediaImpactSchema,
   platformSettingsSchema,
   resetPasswordResponseSchema,
   sendAnnouncementResponseSchema,
+  serverMediaOverridesSchema,
   type AdminListQuery,
+  type AdminMediaResponse,
   type AdminServerDetail,
   type AdminSession,
   type DeviceReport,
@@ -20,10 +25,14 @@ import {
   type ListAdminDevicesResponse,
   type ListAdminServersResponse,
   type ListAdminUsersResponse,
+  type MediaImpact,
   type PlatformSettings,
   type RegistrationInvite,
   type RegistrationInviteValidity,
   type SendAnnouncementRequest,
+  type ServerMediaOverrides,
+  type UpdateMediaSettingsRequest,
+  type UpdateServerMediaRequest,
   type ServerLimits,
   type UserLimits,
 } from '@gameplay/contracts'
@@ -131,12 +140,42 @@ async function sendAnnouncement(request: SendAnnouncementRequest): Promise<numbe
   return sendAnnouncementResponseSchema.parse(data).recipients
 }
 
+async function getAdminMedia(): Promise<AdminMediaResponse> {
+  const { data } = await http.get('/admin/media')
+  return adminMediaResponseSchema.parse(data)
+}
+
+/** How many people each resource would cut off now; null for the whole platform. */
+async function getMediaImpact(serverId: string | null): Promise<MediaImpact> {
+  const { data } = await http.get('/admin/media/impact', { params: serverId ? { serverId } : {} })
+  return mediaImpactSchema.parse(data)
+}
+
+async function getServerMediaOverrides(serverId: string): Promise<ServerMediaOverrides> {
+  const { data } = await http.get(`/admin/servers/${serverId}/media`)
+  return serverMediaOverridesSchema.parse(data)
+}
+
+/** Answers how many people got the notice. */
+async function updateMediaSettings(request: UpdateMediaSettingsRequest): Promise<number> {
+  const { data } = await http.put('/admin/media', request)
+  return mediaChangeResponseSchema.parse(data).notified
+}
+
+async function updateServerMedia(serverId: string, request: UpdateServerMediaRequest): Promise<number> {
+  const { data } = await http.put(`/admin/servers/${serverId}/media`, request)
+  return mediaChangeResponseSchema.parse(data).notified
+}
+
 export {
   deleteAdminServer,
   generateRegistrationInvite,
+  getAdminMedia,
   getAdminServer,
   getHardwareSummary,
+  getMediaImpact,
   getPlatformSettings,
+  getServerMediaOverrides,
   listAdminDevices,
   listAdminServers,
   listAdminSessions,
@@ -152,5 +191,7 @@ export {
   setServerLimits,
   setUserLimits,
   suspendUser,
+  updateMediaSettings,
   updatePlatformSettings,
+  updateServerMedia,
 }

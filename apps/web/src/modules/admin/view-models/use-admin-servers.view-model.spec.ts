@@ -4,11 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('@/shared/lib/http', async () => ({ http: (await import('@/shared/test/fake-http')).fakeHttp }))
 vi.mock('react-i18next', async () => (await import('@/shared/test/fake-i18n')).fakeI18nModule)
 vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }) }))
+vi.mock('@tanstack/react-router', async () => (await import('@/shared/test/fake-router')).fakeRouterModule)
 
 import { toast } from 'sonner'
 
 import { ApiError } from '@/shared/lib/api-error'
 import { fakeHttp } from '@/shared/test/fake-http'
+import { navigate, routerSearch } from '@/shared/test/fake-router'
 
 import { adminServer } from './test/admin-seed'
 import { createAdminViewModelContext } from './test/admin-view-model-context'
@@ -91,5 +93,64 @@ describe('useAdminServersViewModel', () => {
     fakeHttp.delete.mockRejectedValueOnce(new ApiError({ code: 'SERVER_NOT_FOUND', message: 'x' }, 404))
     act(() => result.current.serversTab.onDelete('sv1'))
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith('admin.errors.notFound'))
+  })
+
+  describe('media resources in "Adjust server"', () => {
+    const openDialog = async () => {
+      const context = await setup()
+      act(() => context.result.current.serversTab.onEditLimits('sv1'))
+      await waitFor(() => expect(context.result.current.limitDialog.media).toBeDefined())
+      return context
+    }
+
+    it('starts from the global settings and the server overrides', async () => {
+      const { result } = await openDialog()
+      expect(result.current.limitDialog.media).toEqual({
+        globals: { sfu: true, mesh: true, turn: true },
+        choices: { sfu: 'global', mesh: 'global', turn: 'global' },
+      })
+    })
+
+    it('saves straight away when nothing goes off', async () => {
+      const { result } = await openDialog()
+      act(() => result.current.limitDialog.onSave({}, { sfu: 'global', mesh: 'on', turn: 'global' }))
+      await waitFor(() =>
+        expect(fakeHttp.put).toHaveBeenCalledWith('/admin/servers/sv1/media', {
+          overrides: { sfu: null, mesh: true, turn: null },
+          notice: undefined,
+        }),
+      )
+      expect(result.current.confirmDialog.open).toBe(false)
+    })
+
+    it('asks before turning something off, then sends the notice along', async () => {
+      const { result } = await openDialog()
+      act(() => result.current.limitDialog.onSave({}, { sfu: 'off', mesh: 'global', turn: 'off' }))
+      expect(result.current.confirmDialog).toMatchObject({ open: true, resources: ['sfu', 'turn'], scope: 'server' })
+      await waitFor(() => expect(result.current.confirmDialog.impact).toBe(4))
+      expect(fakeHttp.put).not.toHaveBeenCalledWith('/admin/servers/sv1/media', expect.anything())
+
+      const notice = { title: 'Off', message: 'Back soon.', audience: 'members' as const }
+      act(() => result.current.confirmDialog.onConfirm(notice))
+      await waitFor(() =>
+        expect(fakeHttp.put).toHaveBeenCalledWith('/admin/servers/sv1/media', {
+          overrides: { sfu: false, mesh: null, turn: false },
+          notice,
+        }),
+      )
+      await waitFor(() => expect(result.current.confirmDialog.open).toBe(false))
+    })
+
+    it('opens for the server the Media tab asked for', async () => {
+      routerSearch.current = { edit: 'sv1' }
+      try {
+        const { result } = await setup()
+        expect(result.current.limitDialog.open).toBe(true)
+        act(() => result.current.limitDialog.onOpenChange(false))
+        expect(navigate).toHaveBeenCalledWith({ to: '/admin/servers', search: {}, replace: true })
+      } finally {
+        routerSearch.current = {}
+      }
+    })
   })
 })

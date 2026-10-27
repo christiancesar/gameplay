@@ -3,6 +3,7 @@ import {
   CpuIcon,
   KeyRoundIcon,
   MegaphoneIcon,
+  RadioTowerIcon,
   ServerIcon,
   SlidersHorizontalIcon,
   UsersIcon,
@@ -20,6 +21,7 @@ const ICONS = {
   servers: ServerIcon,
   hardware: CpuIcon,
   limits: SlidersHorizontalIcon,
+  media: RadioTowerIcon,
   keys: KeyRoundIcon,
   announcements: MegaphoneIcon,
 } as const
