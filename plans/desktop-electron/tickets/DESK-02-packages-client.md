@@ -3,7 +3,7 @@
 > Pontos: 8 · Depende de: DESK-01 · Branch `feature/desktop-client-package`, saída da `dev`
 
 ## Contexto
-Plano em `plans/08-desktop-electron.md`. O app desktop vai rodar o mesmo front-end do web. Para isso o código de `apps/web/src` sai do app e vira o pacote `@gameplay/client`, consumido pelo web agora e pelo desktop no DESK-05.
+Plano em `../02-tech-plan.md` (decisões, arquitetura e source tree alvo, seção 5). O app desktop vai rodar o mesmo front-end do web. Para isso o código de `apps/web/src` sai do app e vira o pacote `@gameplay/client`, consumido pelo web agora e pelo desktop no DESK-05.
 
 ## Escopo
 - Criar `packages/client` (`@gameplay/client`) e mover para ele, com `git mv` para manter o histórico: `src/app` (com `routes/` e `route-tree.gen.ts`), `src/modules`, `src/shared`, `src/fixtures`, `src/docs` e o tema que hoje está no `index.css`.

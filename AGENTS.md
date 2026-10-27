@@ -13,6 +13,8 @@ Planning docs are in Portuguese, in `plans/`. Write code, comments and commits i
 5. When done: tick the checklist, add a "Notas da execução" section to the ticket (what you did, and every assumption you made marked as *(suposição)*), set the status in `tickets/README.md` to `concluído`, and update `plans/PROGRESS.md`.
 6. **Stop after each ticket** so the user can review. Do not start the next one on your own.
 
+Each new plan gets its own directory, `plans/<plan>/`, with `00-requirements.md`, `01-epic-brief.md`, `02-tech-plan.md` and `tickets/` (a `README.md` with the status table plus one file per ticket). The files at the root of `plans/` and `plans/tickets/` are the original MVP plan. Current plan: `plans/desktop-electron/`.
+
 ## Git
 
 - Two long-lived branches: `dev` (integration) and `main` (release). Never commit or push straight to either.

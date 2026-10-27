@@ -1,25 +1,19 @@
-# 08. App desktop em Electron
+# 02 · Tech Plan: app desktop em Electron
 
-Plano do app desktop e da migração do front-end para um pacote compartilhado. Só plano: nada implementado.
+> Data: 2026-10-27. Base: `00-requirements.md` e `01-epic-brief.md`. Tickets em `tickets/`.
 
-## 1. Objetivo
-
-Compartilhar **janela, tela, jogo ou música com o áudio deles**, o que o browser não faz. O desktop existe para usar recursos do computador do usuário: captura de janelas com miniatura, áudio do sistema e áudio por processo, atalhos globais.
-
-A UI é a mesma do web. Nada de componente reescrito: o que é feito para o web sai no desktop, e a diferença fica nas **capacidades da plataforma**.
-
-## 2. Decisões (2026-10-27)
+## 1. Decisões técnicas (2026-10-27)
 
 - **Electron** como app desktop.
 - **A UI vai empacotada dentro do app**, não carregada da URL do servidor. Motivo: o app captura tela e áudio do computador. Uma página remota com acesso a essa ponte entregaria a captura a quem controlar o servidor (um servidor invadido ou um self-hosted mal-intencionado).
 - **`packages/client`** recebe o front-end inteiro que hoje está em `apps/web/src`: Model, ViewModels, Views, Screens, rotas, `shared/` e testes. Não só as Views: elas são a menor parte do código, e deixar o resto no web obrigaria o desktop a reescrever ViewModels, services e transportes.
 - **`apps/web`** e **`apps/desktop`** viram cascas finas sobre o `packages/client`.
 - **`packages/desktop-bridge`**: contrato tipado do IPC entre o renderer e o processo main.
-- **Scaffold: Electron Forge** (seção 3).
+- **Scaffold: Electron Forge** (seção 2).
 - **Linux é o primeiro sistema**; o Windows vem depois, para testar por lá. Áudio por aplicativo com **`@vencord/venmic`** e PipeWire.
-- **Ordem do trabalho**: primeiro a migração (pacotes, web consumindo o `packages/client`, desktop rodando o mesmo client), sem os recursos nativos de captura. Os recursos nativos vêm depois, com o projeto já normalizado (seção 9).
+- **Ordem do trabalho**: primeiro a migração (pacotes, web consumindo o `packages/client`, desktop rodando o mesmo client), sem os recursos nativos de captura. Os recursos nativos vêm depois, com o projeto já normalizado (`tickets/README.md`).
 
-## 3. Forge, Fiddle e alternativas
+## 2. Forge, Fiddle e alternativas
 
 **Electron Fiddle não é scaffold.** É um playground oficial para testar trechos de Electron, trocar de versão do Electron e reproduzir bugs. Não gera projeto, não empacota instalador, não publica. Serve para prototipar a captura (por exemplo, testar o `desktopCapturer` no Linux) antes de levar para o app.
 
@@ -31,7 +25,7 @@ A UI é a mesma do web. Nada de componente reescrito: o que é feito para o web 
 
 **electron-vite + electron-builder** (comunidade) fica como plano B: Vite nativo com HMR no main e no preload (electron-vite 6.0.0, 14/10/2026) e o electron-builder (26.18.0, 26/10/2026), maduro para empacotar e atualizar. São duas ferramentas de terceiros.
 
-## 4. Arquitetura
+## 3. Arquitetura
 
 ```
                  packages/contracts        (zod e eventos do Socket.IO, já existe)
@@ -50,7 +44,7 @@ A UI é a mesma do web. Nada de componente reescrito: o que é feito para o web 
                  └── packages/desktop-bridge  (canais IPC com zod, usado pelo preload, pelo main e pelo client)
 ```
 
-### 4.1 A porta `Platform`
+### 3.1 A porta `Platform`
 
 Interface no `packages/client` (`shared/platform/platform.ts`), entregue por um context na raiz do app. Cada casca injeta a sua implementação.
 
@@ -79,7 +73,7 @@ type Platform = {
 - O `acquireScreen` de hoje (`shared/media/screen-capture.ts`) vira a implementação browser de `capture.start`.
 - No Storybook e nos specs, uma `FakePlatform` (um arquivo, como os outros fakes) simula as duas plataformas.
 
-### 4.2 IPC tipado (`packages/desktop-bridge`)
+### 3.2 IPC tipado (`packages/desktop-bridge`)
 
 Cada canal tem schema zod de entrada e de saída. O tipo da ponte sai dos schemas.
 
@@ -101,7 +95,7 @@ export type DesktopBridge = {
 - **Client**: a `DesktopPlatform` chama `window.gameplayDesktop` e importa só tipos do `desktop-bridge`.
 - Helper próprio em vez de electron-trpc ou tipc: poucos canais, o mesmo padrão de zod do `contracts`, nenhuma dependência nova.
 
-### 4.3 Como a captura chega ao WebRTC
+### 3.3 Como a captura chega ao WebRTC
 
 O renderer continua usando o `getDisplayMedia` do Chromium. No desktop, o main intercepta o pedido com `session.setDisplayMediaRequestHandler` e responde com a fonte escolhida no nosso seletor (`desktopCapturer.getSources`). Assim `ShareSession`, `MeshTransport` e `SfuConnection` não mudam: recebem um `MediaStream` como hoje.
 
@@ -110,7 +104,7 @@ O renderer continua usando o `getDisplayMedia` do Chromium. No desktop, o main i
 - **Por janela ou processo**: não existe no Electron. Exige módulo nativo por sistema: WASAPI process loopback (Windows), ScreenCaptureKit (macOS), um nó do PipeWire por aplicativo (Linux). O áudio chega ao renderer como uma faixa extra, que o `ShareSession` junta ao vídeo.
 - **Linux**: com PipeWire o `desktopCapturer.getSources()` devolve uma fonte só, escolhida pelo seletor do sistema. Nosso seletor com miniaturas vale para Windows e macOS.
 
-### 4.4 Linux: o que o sistema oferece
+### 3.4 Linux: o que o sistema oferece
 
 Anotado para a fase 2; nada disso entra na migração.
 
@@ -120,7 +114,7 @@ Anotado para a fase 2; nada disso entra na migração.
 - **Áudio por aplicativo**: cada app que toca som é um nó no PipeWire, com `application.name` e `application.process.id`. O `@vencord/venmic` (7.2.3, módulo nativo, usado pelo Vesktop) cria um microfone virtual com o áudio dos apps escolhidos, sem o resto do sistema e sem a voz da call; o renderer captura esse microfone como uma faixa comum. Plano B sem módulo nativo: o main roda o `pw-record` no nó do app.
 - **Duas escolhas no Linux**: no Wayland não dá para ligar a janela do portal a um processo. O fluxo fica em duas etapas: a janela ou tela, e o áudio numa lista nossa com os apps que estão tocando (um ou vários). No Windows, janela e processo se ligam pelo PID e as etapas podem virar uma.
 
-## 5. O que muda no client para rodar no desktop
+## 4. O que muda no client para rodar no desktop
 
 1. **Endereço da API em tempo de execução.** Hoje `http.ts` usa `baseURL: '/api'`, o socket conecta no mesmo domínio e o Better Auth usa o domínio da página. No desktop a página vem do protocolo do app (`app://`), então os três passam a ler `platform.server.baseUrl()`. No web continua o mesmo domínio.
 2. **Autenticação por token no desktop.** O cookie de sessão não serve entre `app://` e `https://`. Proposta: plugin `bearer` do Better Auth na API, token guardado pelo main com `safeStorage`, enviado no `http`, no Better Auth client e no handshake do socket. O web segue com cookie. *(conferir a doc do Better Auth antes)*
@@ -130,9 +124,9 @@ Anotado para a fase 2; nada disso entra na migração.
 6. **Router**: o TanStack Router continua com rotas por arquivo, agora em `packages/client/src/app/routes`. No desktop o protocolo do app devolve o `index.html` para qualquer caminho, então o histórico do browser funciona.
 7. **Tailwind 4**: o CSS de cada casca aponta para o pacote (`@source "../../packages/client/src"`).
 
-## 6. Source tree
+## 5. Source tree
 
-### 6.1 Hoje
+### 5.1 Hoje
 
 ```
 gameplay/
@@ -158,7 +152,7 @@ gameplay/
 └── infra/
 ```
 
-### 6.2 Alvo
+### 5.2 Alvo
 
 ```
 gameplay/
@@ -227,7 +221,7 @@ Regras de dependência:
 - `apps/desktop/src/main` não importa nada do `packages/client`.
 - As regras de camada do MVVM (`AGENTS.md`) valem dentro do `packages/client`.
 
-## 7. Atualizações
+## 6. Atualizações
 
 O que muda define o caminho:
 - **Atualização completa** (instalador novo): versão do Electron (o Chromium traz correções de segurança a cada 8 semanas, mais ou menos), main, preload, módulo nativo de áudio, contrato do `desktop-bridge`.
@@ -248,7 +242,7 @@ Atualização completa por sistema:
 - **Windows e macOS**: `autoUpdater` do Electron com os makers do Forge (Squirrel, ZIP). `update.electronjs.org` serve repositório público no GitHub; a alternativa é o S3. No macOS exige app assinado e notarizado (conta Apple de US$ 99 por ano); no Windows funciona sem assinatura, com aviso do SmartScreen.
 - **Linux**: o `autoUpdater` do Electron não roda no Linux. deb e rpm se atualizam pelo gerenciador do sistema; atualização sozinha exige AppImage com o `electron-updater`. No começo, aviso de versão nova com link, e o OTA cobre a UI.
 
-## 8. Segurança do desktop
+## 7. Segurança do desktop
 
 - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`, `webSecurity` ligado.
 - CSP no protocolo do app: scripts só do próprio app; `connect-src` só para o servidor escolhido e a Cloudflare (TURN e SFU).
@@ -256,32 +250,7 @@ Atualização completa por sistema:
 - Fuses do Electron pelo Forge (`RunAsNode` desligado, integridade do ASAR).
 - O main valida toda entrada do IPC e só atende a janela do app.
 
-## 9. Fases e tickets
-
-Cada ticket deixa o web funcionando como hoje.
-
-**Fase 1: migração (agora).** Pacotes divididos, web e desktop consumindo o mesmo client. Sem recursos nativos de captura: no desktop, a transmissão usa o `getDisplayMedia` padrão do Chromium.
-
-| Ticket | O que é |
-|---|---|
-| DESK-01 | Este plano. |
-| DESK-02 | Mover `apps/web/src` para `packages/client` sem mudar comportamento. Storybook, Vitest, router plugin, Tailwind, shadcn, Dockerfile e Cypress ajustados. Todos os testes e stories passando, deploy do web igual. |
-| DESK-03 | Porta `Platform` no client, com a implementação browser (o `acquireScreen` de hoje) e a `FakePlatform` nos specs e stories. |
-| DESK-04 | Servidor em tempo de execução e autenticação por token: `platform.server` no `http`, no socket e no Better Auth client; plugin `bearer` na API; web continua com cookie. |
-| DESK-05 | `apps/desktop` com Forge e plugin Vite 8: janela, protocolo `app://`, segurança da seção 8, renderer montando o client e tela de escolha do servidor. |
-| DESK-06 | `packages/desktop-bridge` e o IPC tipado só com os canais do app (endereço do servidor, token no `safeStorage`). |
-
-**Fase 2: recursos nativos (depois, com o projeto normalizado).** Detalhar quando a fase 1 terminar.
-
-| Ticket | O que é |
-|---|---|
-| DESK-07 | Captura de janela e tela no Linux (portal no Wayland, seletor nosso no X11), canais `capture:*` e `setDisplayMediaRequestHandler`. |
-| DESK-08 | Áudio por aplicativo no Linux com `@vencord/venmic` e PipeWire, lista de apps tocando som. |
-| DESK-09 | Windows: seletor com miniaturas, loopback do sistema e áudio por processo (WASAPI). |
-| DESK-10 | Empacotamento, assinatura, atualização completa e versão mínima do app no `/api/health`. |
-| DESK-11 | OTA da UI assinado, com rollback (seção 7). |
-
-## 10. Pendências
+## 8. Pendências
 
 - **Token no desktop**: confirmar o plugin `bearer` do Better Auth e como ele convive com o 2FA e o admin.
 - **Distribuição**: onde publicar os instaladores e os bundles da UI (GitHub Releases ou o bucket S3) e se haverá assinatura de código no Windows e macOS (certificados custam).

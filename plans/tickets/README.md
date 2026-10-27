@@ -130,19 +130,3 @@ Base: `plans/media-transport-options.md` seção 7 e `plans/06-producao-aws.md` 
 | [SFU-03 Orçamento e qualidade de quem assiste](SFU-03-orcamento-e-qualidade.md) | 5 | 5 | concluído |
 
 Total: 32 pontos.
-
-## Desktop
-
-Base: `plans/08-desktop-electron.md`. Fase 1, a migração, sem recursos nativos de captura (decisão do usuário em 2026-10-27). Linux primeiro. Uma branch por ticket, saída da `dev`.
-
-| Ticket | Pontos | Onda | Status |
-|---|---|---|---|
-| DESK-01 Plano do app desktop (`08-desktop-electron.md`) | 3 | 0 | concluído |
-| [DESK-02 Front-end em `packages/client`](DESK-02-packages-client.md) | 8 | 1 | pendente |
-| DESK-03 Porta `Platform` no client | 3 | 2 | a detalhar |
-| DESK-04 Servidor em tempo de execução e token | 5 | 2 | a detalhar |
-| DESK-05 `apps/desktop` com Forge | 5 | 3 | a detalhar |
-| DESK-06 `packages/desktop-bridge` com os canais do app | 3 | 4 | a detalhar |
-
-A fase 2 (recursos nativos, DESK-07 a DESK-11) é detalhada quando a fase 1 terminar.
-
