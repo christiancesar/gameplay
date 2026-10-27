@@ -83,14 +83,14 @@ const mediaData = {
   exceptions: [{ serverId: 's2', serverName: 'Clan Zero', overrides: { sfu: false, mesh: null, turn: true } }],
 }
 
-// Last 24 hours in 15-minute buckets: SFU in the evening peaks, TURN a thin layer.
+// Last 24 hours in 15-minute buckets: SFU peaks in the evening; TURN, a hundred times smaller, in the morning.
 const DAY_START = Date.parse('2026-10-26T15:30:00Z')
 const usagePoints = Array.from({ length: 96 }, (_, index) => {
   const wave = Math.max(0, Math.sin((index / 96) * Math.PI * 2 - 1))
   return {
     at: new Date(DAY_START + index * 15 * 60_000).toISOString(),
     sfuBytes: Math.round(wave * 2_400_000_000 + (index % 7) * 40_000_000),
-    turnBytes: Math.round(wave * 300_000_000),
+    turnBytes: Math.round(Math.max(0, Math.sin((index / 96) * Math.PI * 2 + 2)) * 6_000_000),
   }
 })
 const sum = (key: 'sfuBytes' | 'turnBytes') => usagePoints.reduce((total, point) => total + point[key], 0)
@@ -545,12 +545,14 @@ export const MediaBudget: Story = {
   },
 }
 
-/** Consumo das últimas 24 horas: totais, gráfico de área empilhado e a franquia grátis do mês. */
+/** Consumo das últimas 24 horas: o total, um gráfico por recurso e a franquia grátis do mês. */
 export const MediaUsage: Story = {
   args: { initialTab: 'media' },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('heading', { name: 'Usage' })).toBeVisible()
     await expect(canvas.getByText(/775 GB of 1000 GB used/i)).toBeVisible()
+    // One chart per resource, each on its own scale.
+    await expect(canvas.getAllByRole('figure')).toHaveLength(2)
     await expect(canvas.getByRole('combobox', { name: /period/i })).toHaveTextContent(/last 24 hours/i)
   },
 }

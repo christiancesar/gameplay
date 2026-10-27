@@ -82,23 +82,29 @@ function MediaUsageView({
           />
         )}
 
-        <dl className="grid grid-cols-3 gap-4 text-sm">
-          {(
-            [
-              ['admin.media.resources.sfu.name', data?.sfu.cloudflareBytes],
-              ['admin.media.resources.turn.name', data?.turn.cloudflareBytes],
-              ['admin.media.usage.total', total],
-            ] as const
-          ).map(([label, value]) => (
-            <div key={label} className="flex flex-col gap-1">
-              <dt className="text-muted-foreground text-xs">{t(label)}</dt>
-              <dd className="font-medium tabular-nums">{bytes(value)}</dd>
-            </div>
-          ))}
+        <dl className="flex flex-col gap-1 text-sm">
+          <dt className="text-muted-foreground text-xs">{t('admin.media.usage.total')}</dt>
+          <dd className="font-medium tabular-nums">{bytes(total)}</dd>
         </dl>
 
         {data && data.points.length > 0 ? (
-          <MediaUsageChartView points={data.points} bucket={data.bucket} />
+          (
+            [
+              ['sfuBytes', 'admin.media.resources.sfu.name', data.sfu.cloudflareBytes, 'bg-emerald-500'],
+              ['turnBytes', 'admin.media.resources.turn.name', data.turn.cloudflareBytes, 'bg-amber-500'],
+            ] as const
+          )
+            .filter(([, , value]) => value !== null)
+            .map(([series, label, value, dot]) => (
+              <figure key={series} className="flex flex-col gap-2">
+                <figcaption className="flex items-center gap-2 text-xs">
+                  <span className={cn('size-2.5 rounded-[2px]', dot)} aria-hidden />
+                  <span className="text-muted-foreground">{t(label)}</span>
+                  <span className="font-medium tabular-nums">{bytes(value)}</span>
+                </figcaption>
+                <MediaUsageChartView points={data.points} bucket={data.bucket} series={series} />
+              </figure>
+            ))
         ) : (
           <p className="text-muted-foreground rounded-md border border-dashed px-3 py-8 text-center text-xs">
             {t('admin.media.usage.empty')}
