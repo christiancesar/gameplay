@@ -103,7 +103,7 @@ Decisão do usuário em 2026-10-26: enquanto o projeto é pequeno, tudo sai dest
 
 **Web** (`npm run deploy:web`, a escrever): build do Vite com as variáveis de produção, upload dos source maps para o Sentry e `wrangler deploy` para o Workers, com o login do `wrangler` desta máquina.
 
-**Acesso SSH** (a decidir): porta 22 liberada só para o IP desta casa, numa variável do Terraform, ou SSH pelo Cloudflare Tunnel com a porta fechada.
+**Acesso SSH** (decisão do usuário em 2026-10-26): porta 22 liberada só para o IPv4 desta casa (`TF_VAR_ssh_allowed_cidr`, /32). Produção não usa Cloudflare Tunnel; o túnel é só do `infra/self-hosted`. Se a operadora trocar o IP, atualizar a variável e rodar `terraform apply`.
 
 **Otimizar as imagens** (pedido do usuário; hoje API 651 MB e migração 2,42 GB):
 - Migração: estágio próprio só com o Prisma CLI, o schema, as migrações e o seed compilado, em vez de reaproveitar o estágio de build com o monorepo inteiro.
@@ -122,10 +122,10 @@ Levantamento de 2026-10-26. Nenhuma credencial foi criada ainda. Estado desta m�
 | Credencial | Onde criar | Permissões |
 |---|---|---|
 | Usuário IAM `gameplay-terraform` com chave de acesso (perfil `gameplay` no `aws configure`) | Console da AWS, com MFA no usuário root e alerta de orçamento ligado antes | Lightsail, S3 e IAM (criar o bucket e o usuário da aplicação). Nunca a chave do root. |
-| Token de API da Cloudflare `gameplay-terraform` | Painel da Cloudflare, token customizado, só na zona `oikos.company` | Zone DNS (edit), Zone Settings (edit, modo SSL), SSL and Certificates (edit, Origin CA), Workers Scripts e Workers Routes (edit, domínio do web); se o SSH for pelo túnel, Cloudflare Tunnel e Access Apps (edit) |
+| Token de API da Cloudflare `gameplay-terraform` | Painel da Cloudflare, token customizado, só na zona `oikos.company` | Zone DNS (edit), Zone Settings (edit, modo SSL), SSL and Certificates (edit, Origin CA), Workers Scripts e Workers Routes (edit, domínio do web). Sem Tunnel nem Access: produção não usa túnel. |
 | ID da conta e ID da zona `oikos.company` | Painel da Cloudflare | Entram como variáveis, não são segredo |
 | Chave SSH ed25519 (`~/.ssh/gameplay-lightsail`) | Esta máquina (`ssh-keygen`) | A pública vai para o Lightsail pelo Terraform |
-| IP desta casa | `curl ifconfig.me` | Só se o SSH for liberado por IP |
+| IPv4 desta casa | `curl -4 ifconfig.me` | Libera a porta 22 só para ele (/32) |
 
 **B. Criadas à mão**
 
