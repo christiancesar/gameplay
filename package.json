@@ -4,7 +4,8 @@
   "packageManager": "npm@11.18.0",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "infra/self-hosted"
   ],
   "scripts": {
     "dev": "turbo run dev",
@@ -17,9 +18,9 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "e2e": "turbo run e2e",
-    "host:start": "bash infra/self-hosted/start.sh",
-    "host:stop": "bash infra/self-hosted/stop.sh",
-    "host:logs": "docker compose --project-directory infra/self-hosted -f infra/self-hosted/docker-compose.yml --env-file infra/self-hosted/.env --profile quick --profile named --profile token logs -f --tail 100",
+    "host:start": "node infra/self-hosted/cli/main.ts start",
+    "host:stop": "node infra/self-hosted/cli/main.ts stop",
+    "host:logs": "node infra/self-hosted/cli/main.ts logs",
     "deploy": "bash infra/production/deploy.sh"
   },
   "devDependencies": {
