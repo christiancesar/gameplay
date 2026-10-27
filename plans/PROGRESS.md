@@ -1,6 +1,6 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-26 (backend e frontend completos; `feature/web-routing` fechada no PR para a `main`; próximo foco: observabilidade).
+> Última atualização: 2026-10-27 (tickets do SFU escritos na `feature/sfu`; próximo: SFU-01).
 
 ## Status das fases (workflow ágil)
 
@@ -26,6 +26,13 @@ Escopo mínimo para começar:
 5. **Todas as Views dos fluxos F1 a F13 estão no Storybook**, com stories de todos os estados e interaction tests (157 testes). A página "Introdução" do Storybook liga cada fluxo às stories.
 
 Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run storybook`, porta 6006) e depois seguir para `/prd-validate` e `/tech-plan`. ViewModels, Screens e rotas ainda não existem.
+
+## SFU, retomar daqui
+
+- 2026-10-27: branch `dev` criada; toda branch sai da `dev` e volta por PR para ela, e a `main` só recebe PR da `dev` (protegida no GitHub, só entra por PR).
+- 2026-10-27: tela pelo Cloudflare Realtime SFU por padrão, com o mesh como opção no diálogo de compartilhar; voz em mesh; sem RealtimeKit; um app do SFU só para desenvolvimento e produção. Desenho em `media-transport-options.md` seção 7.
+- Variáveis `CLOUDFLARE_SFU_APP_ID` e `CLOUDFLARE_SFU_APP_TOKEN` criadas nos `.env.example`, no schema da API, nos composes e no `deploy.sh` (branch `feature/sfu`). Os valores ficam com o usuário.
+- Tickets SFU-01 a SFU-03 escritos (`tickets/README.md`, seção SFU). Próximo: SFU-01, depois de o usuário revisar os tickets.
 
 ## Frontend (`apps/web`), retomar daqui
 
