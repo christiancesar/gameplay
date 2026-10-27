@@ -1,6 +1,4 @@
 export type HubNotification = { id: string; createdAt?: string } & (
-  | { type: 'browserUnsupported'; browser: { name: string; version: string } }
-  | { type: 'browserOutdated'; browser: { name: string; version: string }; minVersion: number }
   | { type: 'vpn' }
   | { type: 'accelerationOff' }
   | { type: 'monitorsPermission' }

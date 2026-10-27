@@ -12,13 +12,11 @@ const limitValue = (min: 0 | 1) => {
 
 /**
  * Configurações globais (2.2), o `PlatformSettings` da API: todo limite vale pelo menos 1.
- * `minChromiumVersion` é a versão abaixo da qual o app avisa que o navegador está desatualizado.
  */
 const globalLimitsSchema = z.object({
   serversPerUser: limitValue(1),
   membersPerServer: limitValue(1),
   roomsPerServer: limitValue(1),
-  minChromiumVersion: limitValue(1),
 })
 
 /**

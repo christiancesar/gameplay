@@ -29,6 +29,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 
 ## SFU, retomar daqui
 
+- 2026-10-27: removido o aviso de navegador (só Chromium e versão mínima), a pedido do usuário: em testes reais o app funcionou em qualquer navegador. Saíram o alerta do sign-in, os avisos do Hub, a configuração `minChromiumVersion` (admin e banco, migration `drop_min_chromium_version`) e a rota `GET /api/settings/public`. Os avisos de áudio da tela que citam Chrome e Edge continuam, porque descrevem um limite real do Firefox e do Safari. Branch `chore/remove-chromium-only-check`.
+
 - 2026-10-27: branch `dev` criada; toda branch sai da `dev` e volta por PR para ela, e a `main` só recebe PR da `dev` (protegida no GitHub, só entra por PR).
 - 2026-10-27: tela pelo Cloudflare Realtime SFU por padrão, com o mesh como opção no diálogo de compartilhar; voz em mesh; sem RealtimeKit; um app do SFU só para desenvolvimento e produção. Desenho em `media-transport-options.md` seção 7.
 - Variáveis `CLOUDFLARE_SFU_APP_ID` e `CLOUDFLARE_SFU_APP_TOKEN` criadas nos `.env.example`, no schema da API, nos composes e no `deploy.sh` (branch `feature/sfu`). Os valores ficam com o usuário.

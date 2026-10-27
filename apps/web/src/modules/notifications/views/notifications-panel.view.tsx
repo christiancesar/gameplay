@@ -4,9 +4,7 @@ import {
   BellIcon,
   CalendarClockIcon,
   CircleCheckIcon,
-  ExternalLinkIcon,
   GaugeIcon,
-  GlobeIcon,
   InfoIcon,
   MegaphoneIcon,
   MonitorIcon,
@@ -17,7 +15,6 @@ import {
 import type { ComponentType, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RECOMMENDED_BROWSERS } from '@/modules/browser-support/views/browser-support-alert.view'
 import { Button } from '@/shared/ui/button'
 import { IconButton } from '@/shared/ui/icon-button'
 import { formatRelativeTime } from '@/shared/ui/relative-time'
@@ -56,34 +53,6 @@ function NotificationsPanelView({
     notification: HubNotification,
   ): { icon: ComponentType<{ className?: string }>; tone: Tone; title: string; body?: ReactNode } => {
     switch (notification.type) {
-      case 'browserUnsupported':
-        return {
-          icon: GlobeIcon,
-          tone: 'warning',
-          title: t('browserSupport.unsupportedTitle', { browser: notification.browser.name }),
-          body: (
-            <>
-              <span className="block">{t('browserSupport.unsupportedDescription')}</span>
-              <span className="mt-2 flex flex-wrap gap-1.5">
-                {RECOMMENDED_BROWSERS.map((item) => (
-                  <Button key={item.name} asChild variant="outline" size="xs">
-                    <a href={item.url} target="_blank" rel="noreferrer">
-                      {item.name}
-                      <ExternalLinkIcon data-icon="inline-end" aria-hidden />
-                    </a>
-                  </Button>
-                ))}
-              </span>
-            </>
-          ),
-        }
-      case 'browserOutdated':
-        return {
-          icon: GlobeIcon,
-          tone: 'warning',
-          title: t('browserSupport.outdatedTitle', { browser: notification.browser.name }),
-          body: `${t('browserSupport.outdatedDescription', { version: notification.browser.version, min: notification.minVersion })} ${t('browserSupport.howToUpdate')}`,
-        }
       case 'vpn':
         return {
           icon: ShieldAlertIcon,

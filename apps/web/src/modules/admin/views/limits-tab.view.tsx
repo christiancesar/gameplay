@@ -20,7 +20,7 @@ type LimitsTabViewProps = {
   onSave: (values: GlobalLimits) => void
 }
 
-const FIELDS: GlobalLimitField[] = ['serversPerUser', 'membersPerServer', 'roomsPerServer', 'minChromiumVersion']
+const FIELDS: GlobalLimitField[] = ['serversPerUser', 'membersPerServer', 'roomsPerServer']
 
 function LimitsTabView({ values, isSaving, onSave }: LimitsTabViewProps) {
   const { t } = useTranslation()

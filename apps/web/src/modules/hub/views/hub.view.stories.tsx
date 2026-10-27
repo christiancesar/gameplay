@@ -150,7 +150,6 @@ export const JoinInvalidCode: Story = {
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString()
 
 const sampleNotifications: HubNotification[] = [
-  { id: 'n1', type: 'browserOutdated', browser: { name: 'Chrome', version: '109' }, minVersion: 130 },
   { id: 'n2', type: 'vpn' },
   { id: 'n3', type: 'monitorsPermission' },
   { id: 'n4', type: 'joinApproved', server: { id: 's2', name: 'Clan Zero' }, createdAt: minutesAgo(12) },

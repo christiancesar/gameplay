@@ -29,11 +29,9 @@ export {
 } from './admin/platform-admin.js'
 export {
   platformSettingsSchema,
-  publicSettingsSchema,
   serverLimitsSchema,
   userLimitsSchema,
   type PlatformSettings,
-  type PublicSettings,
   type ServerLimits,
   type UserLimits,
 } from './admin/platform-settings.js'

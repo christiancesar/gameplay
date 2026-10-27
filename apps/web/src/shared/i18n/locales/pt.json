@@ -205,7 +205,7 @@
         },
         "tab": {
           "label": "Aba do navegador",
-          "hint": "Uma aba do Chrome, com o áudio dela."
+          "hint": "Uma aba do navegador, com o áudio dela."
         }
       },
       "gameTip": "Jogos em tela cheia exclusiva podem aparecer pretos. Use o modo janela sem bordas.",
@@ -631,7 +631,6 @@
       "serversPerUser": "Servidores por usuário",
       "membersPerServer": "Membros por servidor",
       "roomsPerServer": "Salas por servidor",
-      "minChromiumVersion": "Versão mínima do Chromium",
       "saved": "Limites salvos.",
       "errors": {
         "atLeastOne": "Use um número inteiro, a partir de 1.",
@@ -847,15 +846,6 @@
     "connectionType": "Conexão",
     "plan": "Plano",
     "planValue": "↓ {{download}} Mbps · ↑ {{upload}} Mbps"
-  },
-  "browserSupport": {
-    "unsupportedTitle": "O {{browser}} não tem suporte completo",
-    "unsupportedDescription": "Voz e compartilhamento de tela são feitos e testados para navegadores Chromium. Aqui alguns recursos podem falhar ou ficar mais lentos.",
-    "outdatedTitle": "Seu {{browser}} está desatualizado",
-    "outdatedDescription": "Você está na versão {{version}}. O Gameplay precisa da {{min}} ou mais nova para voz e transmissão estáveis.",
-    "howToUpdate": "Abra o menu do navegador › Ajuda › Sobre para atualizar e depois reinicie.",
-    "recommended": "Navegadores recomendados",
-    "continueAnyway": "Continuar mesmo assim"
   },
   "notifications": {
     "title": "Notificações",

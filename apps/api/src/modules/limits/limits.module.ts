@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { PlatformSettingsController } from './controllers/platform-settings.controller'
-import { PublicSettingsController } from './controllers/public-settings.controller'
 import { ServerLimitsController } from './controllers/server-limits.controller'
 import { UserLimitsController } from './controllers/user-limits.controller'
 import { MediaSettingsRepository } from './repositories/media-settings.repository'
@@ -22,7 +21,7 @@ import { UpdatePlatformSettingsUseCase } from './use-cases/update-platform-setti
 // by the modules that create servers, invites and rooms. Also the media
 // resources (SFU, mesh, TURN), global and per server.
 @Module({
-  controllers: [PlatformSettingsController, UserLimitsController, ServerLimitsController, PublicSettingsController],
+  controllers: [PlatformSettingsController, UserLimitsController, ServerLimitsController],
   providers: [
     { provide: PlatformSettingsRepository, useClass: PrismaPlatformSettingsRepository },
     { provide: UserLimitsRepository, useClass: PrismaUserLimitsRepository },

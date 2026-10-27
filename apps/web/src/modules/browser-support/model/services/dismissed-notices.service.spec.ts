@@ -10,19 +10,19 @@ describe('createDismissedNotices', () => {
     expect(notices.isDismissed('vpn')).toBe(false)
     notices.dismiss('vpn')
     expect(notices.isDismissed('vpn')).toBe(true)
-    expect(notices.isDismissed('browser')).toBe(false)
+    expect(notices.isDismissed('acceleration')).toBe(false)
   })
 
   it('survives a new service over the same storage', () => {
     const { storage } = createFakeStorage()
-    createDismissedNotices(() => storage).dismiss('browser')
-    expect(createDismissedNotices(() => storage).isDismissed('browser')).toBe(true)
+    createDismissedNotices(() => storage).dismiss('vpn')
+    expect(createDismissedNotices(() => storage).isDismissed('vpn')).toBe(true)
   })
 
   it('never throws when the storage is blocked', () => {
     const { storage } = createFakeStorage({ broken: true })
     const notices = createDismissedNotices(() => storage)
-    expect(() => notices.dismiss('browser')).not.toThrow()
-    expect(notices.isDismissed('browser')).toBe(false)
+    expect(() => notices.dismiss('vpn')).not.toThrow()
+    expect(notices.isDismissed('vpn')).toBe(false)
   })
 })
