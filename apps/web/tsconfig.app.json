@@ -23,9 +23,9 @@
 
     /* Aliases */
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["../../packages/client/src/*"]
     },
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", ".storybook/preview.tsx"]
+  "include": ["src"]
 }

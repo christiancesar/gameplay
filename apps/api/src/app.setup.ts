@@ -1,3 +1,4 @@
+import { DESKTOP_APP_ORIGIN } from '@gameplay/contracts'
 import type { INestApplication } from '@nestjs/common'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 import { Logger } from 'nestjs-pino'
@@ -13,6 +14,14 @@ export async function setupApp(app: INestApplication) {
   // request.ip comes from X-Forwarded-For only through these proxy hops.
   ;(app as NestExpressApplication).set('trust proxy', env.get('TRUST_PROXY_HOPS'))
   app.enableShutdownHooks()
+
+  // The web page is on the same origin, so only the desktop app (and a dev page on another port) crosses origins.
+  // Credentials stay on: the session is a cookie there too (the app makes it cross-site).
+  app.enableCors({
+    origin: [env.get('WEB_ORIGIN'), DESKTOP_APP_ORIGIN],
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true,
+  })
 
   // In production nginx serves the upload directory.
   if (env.get('STORAGE_DRIVER') === 'local' && env.get('NODE_ENV') !== 'production') {

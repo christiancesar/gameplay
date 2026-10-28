@@ -6,7 +6,7 @@ Dashboards do Gameplay, versionados em JSON. Os dados chegam pela API (OTLP, ver
 |---|---|---|
 | `dashboards/api.json` | Gameplay · API | requisições, status, latência por rota, queries do banco, event loop e heap do Node, logs de warn e error |
 | `dashboards/realtime.json` | Gameplay · Realtime | sockets, usuários online, pessoas em sala, telas compartilhadas, desconexões por motivo, eventos do Socket.IO e logs de sala |
-| `dashboards/media.json` | Gameplay · Call quality | qualidade das calls medida nos navegadores (Faro, no Loki): fatia via TURN, RTT, jitter e perda da voz, fps e resolução da tela recebida e enviada, e Web Vitals (LCP, INP, CLS) |
+| `dashboards/media.json` | Gameplay · Call quality | (o Sentry vai substituir este painel, veja `infra/sentry/README.md`) qualidade das calls medida nos navegadores (Faro, no Loki): fatia via TURN, RTT, jitter e perda da voz, fps e resolução da tela recebida e enviada, e Web Vitals (LCP, INP, CLS) |
 
 Todos têm três variáveis no topo: fonte de métricas (Prometheus), fonte de logs (Loki) e ambiente (`host`, `development`).
 

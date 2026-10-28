@@ -95,7 +95,7 @@ describe('Screen share', () => {
 
       cy.findByRole('button', { name: 'Stop sharing' }).click()
       cy.findByRole('button', { name: 'Share screen' }).should('be.visible')
-      cy.task<string>('bot:url').should('not.contain', 'watch=')
+      cy.task('bot:waitForUrl', { text: 'watch=', present: false })
     })
   })
 })

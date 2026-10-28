@@ -1,4 +1,5 @@
 import { Controller, Get, Module } from '@nestjs/common'
+import { DESKTOP_APP_ORIGIN } from '@gameplay/contracts'
 import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { CurrentUser } from '../../src/common/auth/current-user.decorator'
@@ -150,6 +151,44 @@ describe('Authentication (e2e)', () => {
       await prisma.user.updateMany({ where: { email: body.email }, data: { role: 'admin', twoFactorEnabled: true } })
 
       expect((await agent.get('/api/auth-test/admin')).status).toBe(200)
+    })
+  })
+
+  describe('desktop app origin', () => {
+    it('signs in from app://gameplay: the session cookie comes back, with CORS and credentials', async () => {
+      const { body } = await signUp()
+
+      const signIn = await request(app.getHttpServer())
+        .post('/api/auth/sign-in/email')
+        .set('Origin', DESKTOP_APP_ORIGIN)
+        .send({ email: body.email, password: body.password })
+
+      expect(signIn.status).toBe(200)
+      expect(String(signIn.headers['set-cookie'])).toContain('gameplay.session_token')
+      expect(signIn.headers['access-control-allow-origin']).toBe(DESKTOP_APP_ORIGIN)
+      expect(signIn.headers['access-control-allow-credentials']).toBe('true')
+    })
+
+    it('answers the preflight of the desktop origin, with PATCH and credentials', async () => {
+      const response = await request(app.getHttpServer())
+        .options('/api/servers/any')
+        .set('Origin', DESKTOP_APP_ORIGIN)
+        .set('Access-Control-Request-Method', 'PATCH')
+        .set('Access-Control-Request-Headers', 'content-type')
+
+      expect(response.status).toBe(204)
+      expect(response.headers['access-control-allow-origin']).toBe(DESKTOP_APP_ORIGIN)
+      expect(response.headers['access-control-allow-methods']).toContain('PATCH')
+      expect(response.headers['access-control-allow-credentials']).toBe('true')
+    })
+
+    it('gives no CORS to another origin', async () => {
+      const response = await request(app.getHttpServer())
+        .options('/api/servers/any')
+        .set('Origin', 'https://evil.example')
+        .set('Access-Control-Request-Method', 'GET')
+
+      expect(response.headers['access-control-allow-origin']).toBeUndefined()
     })
   })
 

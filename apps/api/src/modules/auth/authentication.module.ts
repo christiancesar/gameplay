@@ -14,7 +14,11 @@ import { UpdateUserHook } from './hooks/update-user.hook'
   imports: [
     AuthModule.forRootAsync({
       inject: [PrismaService, EnvService],
-      useFactory: (prisma: PrismaService, env: EnvService) => ({ auth: createAuth(prisma, env) }),
+      // CORS is set in setupApp: the module's own one has no PATCH.
+      useFactory: (prisma: PrismaService, env: EnvService) => ({
+        auth: createAuth(prisma, env),
+        disableTrustedOriginsCors: true,
+      }),
     }),
     RegistrationInvitesModule,
     MembershipsModule,

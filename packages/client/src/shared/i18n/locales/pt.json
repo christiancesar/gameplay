@@ -1,0 +1,938 @@
+{
+  "common": {
+    "appName": "Gameplay",
+    "language": "Idioma",
+    "theme": {
+      "toLight": "Usar tema claro",
+      "toDark": "Usar tema escuro"
+    },
+    "settings": "Configurações",
+    "adminPanel": "Admin da plataforma",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Fechar",
+    "save": "Salvar",
+    "backToHub": "Voltar ao Hub",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "remove": "Remover",
+    "upload": "Enviar",
+    "change": "Trocar",
+    "saving": "Salvando…",
+    "never": "Nunca",
+    "unlimited": "Ilimitado",
+    "actions": "Ações",
+    "durations": {
+      "1h": "1 hora",
+      "1d": "1 dia",
+      "7d": "7 dias",
+      "30d": "30 dias"
+    },
+    "signOut": "Sair da conta",
+    "signOutTitle": "Sair da sua conta?",
+    "signOutDescription": "Você será desconectado de qualquer sala."
+  },
+  "auth": {
+    "signIn": {
+      "title": "Bem-vindo de volta",
+      "identifier": "Email ou username",
+      "password": "Senha",
+      "submit": "Entrar",
+      "noAccount": "Não tem conta?",
+      "signUpLink": "Cadastre-se",
+      "twoFactorTitle": "Verificação em duas etapas",
+      "twoFactorDescription": "Digite o código de 6 dígitos do seu app autenticador.",
+      "recoveryDescription": "Digite um dos seus códigos de recuperação.",
+      "twoFactorCode": "Código de autenticação",
+      "recoveryCode": "Código de recuperação",
+      "useRecoveryCode": "Usar um código de recuperação",
+      "useAuthenticatorCode": "Usar código do autenticador",
+      "verify": "Verificar",
+      "back": "Voltar ao login"
+    },
+    "signUp": {
+      "title": "Crie sua conta",
+      "invitedTo": "Você foi convidado para <strong>{{serverName}}</strong>",
+      "username": "Username",
+      "email": "Email",
+      "password": "Senha",
+      "confirmPassword": "Confirmar senha",
+      "inviteKey": "Key de convite",
+      "inviteKeyDescription": "6 letras ou números. Você pode colar a key inteira.",
+      "submit": "Criar conta",
+      "hasAccount": "Já tem conta?",
+      "signInLink": "Entrar"
+    },
+    "errors": {
+      "required": "Campo obrigatório.",
+      "invalidCredentials": "Credenciais inválidas. Confira o login e a senha.",
+      "accountSuspended": "Esta conta está suspensa. Fale com o admin da plataforma.",
+      "invalidTwoFactorCode": "Código inválido. Tente de novo.",
+      "usernameInvalid": "Use de 3 a 32 letras, números, pontos, hífens ou underscores.",
+      "usernameTaken": "Este username já está em uso.",
+      "invalidPassword": "A senha atual está errada.",
+      "emailInvalid": "Digite um email válido.",
+      "emailTaken": "Este email já está em uso.",
+      "passwordTooShort": "A senha precisa ter pelo menos 8 caracteres.",
+      "passwordMismatch": "As senhas não conferem.",
+      "inviteKeyIncomplete": "A key de convite tem 6 caracteres.",
+      "inviteKeyInvalid": "Esta key de convite não é válida. Ela pode ter expirado, sido revogada ou já usada.",
+      "tooManyAttempts": "Muitas tentativas. Aguarde um pouco e tente de novo.",
+      "unexpected": "Algo deu errado. Tente de novo.",
+      "twoFactorCodeIncomplete": "Digite os 6 dígitos do app autenticador."
+    }
+  },
+  "hub": {
+    "servers": "Seus servidores",
+    "createServer": "Crie seu servidor",
+    "createServerDescription": "Reúna seu clã e compartilhe sua gameplay",
+    "createServerLimit": "Limite atingido",
+    "createServerLimitDescription": "Você já tem o máximo permitido.",
+    "joinPlaceholder": "Código ou link do convite",
+    "join": "Entrar",
+    "joinErrors": {
+      "inviteNotFound": "Convite não encontrado. Confira o código.",
+      "inviteExpired": "Este convite expirou.",
+      "inviteExhausted": "Este convite já foi usado. Peça um novo.",
+      "requestPending": "Você já tem um pedido aguardando neste servidor.",
+      "unexpected": "Algo deu errado. Tente de novo.",
+      "codeRequired": "Digite um código de convite.",
+      "codeInvalid": "O código do convite tem 8 letras ou números."
+    },
+    "profile": "Perfil",
+    "joinTitle": "Entrar em um servidor",
+    "defaultRoomName": "Sala 1"
+  },
+  "server": {
+    "rooms": "Salas",
+    "ownedBy": "Owner: {{name}}",
+    "presence": {
+      "online": "Online ({{count}})",
+      "offline": "Offline ({{count}})",
+      "nobodyOnline": "Ninguém online."
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Membro"
+    },
+    "joinRoom": "Entrar em {{room}}",
+    "youAreHere": "Você está aqui",
+    "serverSettings": "Configurações do servidor",
+    "pendingRequests_one": "{{count}} pedido pendente",
+    "pendingRequests_other": "{{count}} pedidos pendentes",
+    "leaveServer": "Sair do servidor",
+    "leaveServerTitle": "Sair de {{server}}?",
+    "leaveServerDescription": "Você vai precisar de um novo convite para voltar.",
+    "leaveServerConfirm": "Sair",
+    "unavailable": "Você não tem mais acesso a este servidor.",
+    "leaveFailed": "Não foi possível sair do servidor. Tente de novo.",
+    "noRooms": "Nenhuma sala ainda.",
+    "toggleSidebar": "Expandir ou recolher a barra lateral",
+    "openSidebar": "Abrir a barra lateral",
+    "switcher": {
+      "label": "Trocar de servidor",
+      "search": "Buscar servidor...",
+      "empty": "Nenhum servidor encontrado.",
+      "confirmTitle": "Trocar para {{server}}?",
+      "confirmDescription": "Você está conectado em {{room}}. Entrar em outro servidor encerra sua conexão de voz e qualquer transmissão desta sala.",
+      "confirm": "Desconectar e trocar"
+    }
+  },
+  "voice": {
+    "mute": "Silenciar microfone",
+    "unmute": "Ativar microfone",
+    "deafen": "Desativar áudio",
+    "undeafen": "Ativar áudio",
+    "leaveRoom": "Sair da sala",
+    "muted": "Microfone silenciado",
+    "deafened": "Áudio desativado",
+    "speaking": "Falando",
+    "connecting": "Conectando…",
+    "connectionFailed": "Falha na conexão. Tentando de novo…",
+    "volumeFor": "Volume de {{name}}",
+    "you": "você",
+    "micDeniedTitle": "Microfone bloqueado",
+    "micDeniedDescription": "Você entrou só ouvindo. Libere o microfone na barra de endereço do browser e entre de novo na sala para falar.",
+    "roomEmpty": "Ninguém aqui ainda. Os outros vão te ver assim que entrarem.",
+    "notice": {
+      "otherTab": "Você entrou numa sala em outra aba, então esta foi encerrada.",
+      "roomDeleted": "A sala foi excluída.",
+      "joinFailed": "Não foi possível entrar na sala.",
+      "reconnectFailed": "A conexão caiu e você saiu da sala."
+    }
+  },
+  "share": {
+    "start": "Compartilhar tela",
+    "waitingPicker": "Escolha a tela, janela ou aba na janela do browser…",
+    "live": "Ao vivo",
+    "stop": "Parar de compartilhar",
+    "viewers_one": "{{count}} assistindo",
+    "viewers_other": "{{count}} assistindo",
+    "stats": {
+      "upload": "Envio",
+      "fps": "FPS",
+      "resolution": "Resolução",
+      "status": "Status"
+    },
+    "preview": {
+      "title": "Você está apresentando para todos",
+      "stop": "Parar apresentação",
+      "hide": "Ocultar prévia",
+      "show": "Mostrar prévia",
+      "hiddenHint": "Prévia oculta para evitar o efeito espelho ao compartilhar a tela inteira."
+    },
+    "watch": "Assistir",
+    "watching": "Assistindo",
+    "stopWatching": "Parar de assistir",
+    "fullscreen": "Tela cheia",
+    "toggleControls": "Mostrar ou ocultar controles",
+    "streamVolume": "Volume da transmissão",
+    "liveNow": "Ao vivo agora",
+    "isLive": "{{name}} está ao vivo",
+    "setup": {
+      "title": "Compartilhar sua tela",
+      "description": "Escolha o que compartilhar e a qualidade. Depois o browser pede para você escolher a tela, janela ou aba exata.",
+      "source": "O que compartilhar",
+      "sources": {
+        "screen": {
+          "label": "Tela inteira",
+          "hint": "Tudo de um monitor."
+        },
+        "window": {
+          "label": "Janela ou jogo",
+          "hint": "Um app só. Os jogos aparecem aqui."
+        },
+        "tab": {
+          "label": "Aba do navegador",
+          "hint": "Uma aba do navegador, com o áudio dela."
+        }
+      },
+      "gameTip": "Jogos em tela cheia exclusiva podem aparecer pretos. Use o modo janela sem bordas.",
+      "resolution": "Resolução",
+      "fps": "Taxa de quadros",
+      "priority": "Prioridade",
+      "priorities": {
+        "smooth": {
+          "label": "Fluido",
+          "hint": "Mantém a taxa de quadros. A resolução cai primeiro. Melhor para jogos e vídeo."
+        },
+        "sharp": {
+          "label": "Nítido",
+          "hint": "Mantém a resolução. A taxa de quadros cai primeiro. Melhor para texto e menus."
+        }
+      },
+      "audio": "Compartilhar áudio",
+      "audioSupport": {
+        "supported": "O browser oferece o áudio no seletor. Deixe a caixa de áudio marcada lá.",
+        "recentMac": "Áudio da tela precisa do macOS 14.2 ou mais novo. Deixe a caixa de áudio marcada no seletor.",
+        "windowUnsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba. Só o áudio do microfone será compartilhado.",
+        "tabOnly": "Neste sistema o browser não captura o áudio da tela inteira. Compartilhe uma aba para levar o som. Só o áudio do microfone será compartilhado.",
+        "browserUnsupported": "Este browser não compartilha áudio da tela. Para mandar o som do jogo, use Chrome ou Edge. Só o áudio do microfone será compartilhado.",
+        "apps": "Compartilhe o som dos aplicativos que você escolher abaixo."
+      },
+      "saveAsDefault": "Usar estas configurações da próxima vez",
+      "start": "Escolher e compartilhar",
+      "updateTitle": "Mudar qualidade",
+      "updateDescription": "Resolução e taxa de quadros mudam na hora, sem parar a transmissão.",
+      "apply": "Aplicar",
+      "audioApps": {
+        "title": "Aplicativos",
+        "refresh": "Atualizar",
+        "empty": "Nenhum aplicativo está tocando som. Abra o jogo ou o player e atualize.",
+        "idle": "(não está tocando agora)",
+        "none": "Escolha ao menos um aplicativo, ou a transmissão sai sem som."
+      }
+    },
+    "monitor": {
+      "target": "Alvo",
+      "delivering": "Entregando",
+      "onTarget": "No alvo",
+      "belowTarget": "Abaixo do alvo",
+      "limitedBy": {
+        "bandwidth": "Limitado pela sua rede",
+        "cpu": "Limitado pelo seu computador",
+        "other": "Limitado pelo browser"
+      },
+      "tips": {
+        "bandwidth": "Tente 720p ou 30 fps, ou feche downloads.",
+        "cpu": "Tente 30 fps ou feche apps pesados."
+      },
+      "perViewer": "Por espectador",
+      "details": "Detalhes",
+      "detailsTitle": "Qualidade da transmissão",
+      "detailsDescription": "Cada espectador recebe uma cópia separada da sua transmissão, então a qualidade pode variar entre eles.",
+      "viewer": "Espectador",
+      "noViewers": "Ninguém assistindo ainda. A qualidade é medida quando alguém assiste.",
+      "audio": "Áudio",
+      "audioStates": {
+        "off": "Desligado",
+        "missing": "Não veio",
+        "silent": "Em silêncio",
+        "active": "Com som"
+      },
+      "mode": "Transmitindo por",
+      "detailsDescriptionSfu": "Você envia uma vez para o servidor, que entrega a cada espectador a camada que a rede dele aguenta. O que chega para cada um, como eles informam:"
+    },
+    "stopShort": "Parar",
+    "changeQuality": "Mudar qualidade",
+    "loadingStream": "Conectando à transmissão…",
+    "watchFailed": "Não foi possível assistir a esta tela. Tente de novo.",
+    "notices": {
+      "unsupported": "Este navegador não consegue compartilhar a tela.",
+      "failed": "Não foi possível iniciar o compartilhamento.",
+      "start-failed": "Não foi possível avisar a sala sobre o compartilhamento.",
+      "not-in-call": "Entre em uma sala de voz para compartilhar a tela.",
+      "no-audio": "Transmitindo sem áudio: o browser não entregou o som. Marque a caixa de áudio no seletor ou use Chrome ou Edge.",
+      "disabled": "O admin da plataforma desligou este modo de transmissão. Sua transmissão foi encerrada.",
+      "fell-back": "Não deu para transmitir pelo servidor. Sua transmissão foi para o modo Direto (Mesh)."
+    },
+    "receiving": "O que chega para você",
+    "noStreamAudio": "Esta transmissão está sem áudio",
+    "people": "Pessoas",
+    "exitFullscreen": "Sair da tela cheia",
+    "mode": {
+      "label": "Transmitir por",
+      "sfu": {
+        "name": "Servidor (SFU)",
+        "description": "Melhor para várias pessoas assistindo. Você envia uma vez só para um servidor dedicado, e este servidor distribui cópias da sua transmissão sem dividir seu upload."
+      },
+      "mesh": {
+        "name": "Direto (Mesh)",
+        "description": "Melhor para 1:1, com menor atraso. Seu upload é dividido entre quem assiste."
+      },
+      "reasons": {
+        "disabled": "Desligado neste servidor.",
+        "not-configured": "Indisponível neste servidor.",
+        "budget-exhausted": "A cota de transmissão pelo servidor deste mês acabou."
+      },
+      "none": "O compartilhamento de tela está desligado neste servidor."
+    },
+    "uplink": "Enviado para o servidor",
+    "quality": {
+      "label": "Qualidade",
+      "levels": {
+        "auto": "Auto",
+        "high": "Alta",
+        "medium": "Média",
+        "low": "Baixa"
+      }
+    }
+  },
+  "image": {
+    "choose": "Escolher imagem",
+    "change": "Trocar imagem",
+    "remove": "Remover imagem",
+    "hint": "JPG, PNG ou WebP de até 2 MB.",
+    "errors": {
+      "tooLarge": "A imagem passa de 2 MB.",
+      "invalidType": "Use uma imagem JPG, PNG ou WebP.",
+      "uploadFailed": "Falha no envio. Tente de novo."
+    }
+  },
+  "createServer": {
+    "title": "Crie seu servidor",
+    "description": "Descrição e cover podem ser adicionados depois, nas configurações do servidor.",
+    "name": "Nome do servidor",
+    "icon": "Ícone",
+    "submit": "Criar servidor",
+    "errors": {
+      "nameRequired": "Dê um nome ao servidor.",
+      "nameTooLong": "Use até 40 caracteres.",
+      "limitReached": "Você atingiu seu limite de servidores.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    }
+  },
+  "serverSettings": {
+    "title": "Configurações do servidor",
+    "errors": {
+      "memberLimitReached": "O servidor está cheio. Libere uma vaga antes.",
+      "roomLimitReached": "O servidor atingiu o limite de salas.",
+      "roomNameTaken": "Já existe uma sala com esse nome.",
+      "roomNotFound": "Essa sala não existe mais.",
+      "permissionDenied": "Seu cargo não permite essa ação.",
+      "requestGone": "Esse pedido já foi respondido ou cancelado.",
+      "memberNotFound": "Essa pessoa não está mais no servidor.",
+      "inviteNotFound": "Esse convite não existe mais.",
+      "copyFailed": "Não foi possível copiar o link. Copie manualmente.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    },
+    "sections": {
+      "general": "Geral",
+      "invites": "Convites",
+      "requests": "Pedidos",
+      "members": "Membros",
+      "rooms": "Salas",
+      "danger": "Sair ou excluir"
+    },
+    "general": {
+      "name": "Nome",
+      "icon": "Ícone",
+      "cover": "Cover",
+      "coverHint": "16:9, exibido em 1280×720.",
+      "description": "Descrição",
+      "saved": "Alterações salvas."
+    },
+    "invites": {
+      "generate": "Gerar convite",
+      "expiresAt": "Expira {{date}}",
+      "revoke": "Revogar",
+      "revokeTitle": "Revogar o convite {{code}}?",
+      "revokeDescription": "O link para de funcionar na hora.",
+      "empty": "Nenhum convite ativo.",
+      "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Libere uma vaga para gerar convites.",
+      "copyLink": "Copiar link",
+      "autoApprove": "Aprovar novos membros automaticamente",
+      "autoApproveHint": "Quem entra por convite já entra na hora, enquanto houver vaga. Desligado: cada pedido espera um owner ou admin.",
+      "rules": "Cada convite vale para uma pessoa e expira em 1 hora.",
+      "active": "Ativos",
+      "history": "Histórico",
+      "createdBy": "Criado por {{name}}",
+      "statuses": {
+        "active": "Expira {{date}}",
+        "used": "Usado por {{name}} {{date}}",
+        "expired": "Expirou sem uso",
+        "revoked": "Revogado"
+      }
+    },
+    "requests": {
+      "approve": "Aprovar",
+      "decline": "Recusar",
+      "requestedAt": "Pediu {{date}}",
+      "empty": "Nenhum pedido pendente.",
+      "blockedFull": "O servidor está cheio ({{count}}/{{max}} membros). Aprovar fica bloqueado até abrir uma vaga.",
+      "autoApproveOn": "A auto aprovação está ligada. Pedidos só ficam aqui quando o servidor está cheio.",
+      "viaInvite": "Convidado por {{name}}"
+    },
+    "members": {
+      "count": "{{count}} de {{max}} membros",
+      "promote": "Tornar admin",
+      "demote": "Tornar membro",
+      "kick": "Remover",
+      "kickTitle": "Remover {{name}}?",
+      "kickDescription": "A pessoa sai do servidor agora e precisa de um novo convite para voltar.",
+      "you": "você",
+      "invitedBy": "Convidado por {{name}} · {{date}}",
+      "founder": "Criou o servidor"
+    },
+    "rooms": {
+      "count": "{{count}} de {{max}} salas",
+      "newRoom": "Nome da nova sala",
+      "create": "Criar sala",
+      "moveUp": "Subir",
+      "moveDown": "Descer",
+      "rename": "Renomear",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir {{name}}?",
+      "deleteDescription": "A sala não pode ser recuperada.",
+      "deleteOccupied_one": "{{count}} pessoa está nesta sala e será desconectada.",
+      "deleteOccupied_other": "{{count}} pessoas estão nesta sala e serão desconectadas.",
+      "blockedLimit": "Limite de salas atingido ({{count}}/{{max}}). Exclua uma sala para criar outra.",
+      "occupants_one": "{{count}} pessoa",
+      "occupants_other": "{{count}} pessoas",
+      "errors": {
+        "nameRequired": "Dê um nome à sala.",
+        "nameTaken": "Já existe uma sala com esse nome.",
+        "nameTooLong": "Use até 40 caracteres."
+      }
+    },
+    "danger": {
+      "leaveTitle": "Sair do servidor",
+      "leaveDescription": "Você deixa de ser admin e precisa de um novo convite para voltar.",
+      "leave": "Sair do servidor",
+      "deleteTitle": "Excluir servidor",
+      "deleteDescription": "Remove o servidor com todos os membros, salas e convites. Quem estiver conectado volta ao Hub. Não dá para desfazer.",
+      "delete": "Excluir servidor",
+      "confirmName": "Digite {{name}} para confirmar",
+      "ownerCantLeave": "O owner não pode sair. Exclua o servidor no lugar."
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "errors": {
+      "unexpected": "Algo deu errado. Tente de novo."
+    },
+    "sections": {
+      "profile": "Perfil",
+      "audio": "Áudio",
+      "appearance": "Aparência",
+      "account": "Conta",
+      "hardware": "Hardware"
+    },
+    "profile": {
+      "avatar": "Avatar",
+      "username": "Username",
+      "email": "Email",
+      "readOnly": "Peça ao admin da plataforma para trocar seu e-mail.",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirme a nova senha",
+      "changePassword": "Trocar senha",
+      "passwordChanged": "Senha trocada."
+    },
+    "audio": {
+      "microphone": "Microfone",
+      "output": "Saída",
+      "default": "Padrão do sistema",
+      "testMic": "Testar microfone",
+      "stopTest": "Parar teste",
+      "level": "Nível de entrada",
+      "testHint": "Fale e veja a barra se mexer.",
+      "permissionNeeded": "Libere o microfone para ver seus dispositivos.",
+      "allow": "Liberar microfone"
+    },
+    "appearance": {
+      "theme": "Tema",
+      "dark": "Escuro",
+      "light": "Claro",
+      "language": "Idioma",
+      "auto": "Automático"
+    }
+  },
+  "invite": {
+    "invitedTitle": "Você foi convidado para {{server}}",
+    "createAccount": "Criar conta",
+    "haveAccount": "Já tenho conta",
+    "keyHint": "Você precisa da key de convite enviada junto com este link.",
+    "confirmTitle": "Entrar em {{server}}?",
+    "confirmDescription_one": "{{count}} membro",
+    "confirmDescription_other": "{{count}} membros",
+    "join": "Entrar no servidor",
+    "requestSent": "Pedido enviado, aguarde a aprovação.",
+    "fullHint": "Este servidor está cheio. Seu pedido vai esperar uma vaga.",
+    "alreadyMemberTitle": "Você já está em {{server}}",
+    "openServer": "Abrir servidor",
+    "errors": {
+      "expired": "Este convite expirou.",
+      "exhausted": "Este convite já foi usado. Peça um novo.",
+      "requestPending": "Você já tem um pedido aguardando neste servidor.",
+      "notFound": "Este convite não existe ou foi revogado."
+    }
+  },
+  "realtime": {
+    "unknownServer": "este servidor"
+  },
+  "errors": {
+    "title": "Algo deu errado",
+    "description": "O app encontrou um erro inesperado. Recarregue a página para tentar de novo.",
+    "reload": "Recarregar"
+  },
+  "connection": {
+    "reconnecting": "Reconectando…",
+    "reconnected": "Conectado de novo.",
+    "offlineHint": "Você volta para a mesma sala."
+  },
+  "notices": {
+    "kicked": "Você foi removido de {{server}}.",
+    "serverDeleted": "{{server}} foi excluído.",
+    "promoted": "Agora você é admin de {{server}}.",
+    "demoted": "Você não é mais admin de {{server}}.",
+    "suspended": "Sua conta foi suspensa.",
+    "sessionEnded": "Sua sessão foi encerrada. Entre de novo.",
+    "joinApproved": "Seu pedido para entrar em {{server}} foi aprovado.",
+    "roomOtherTab": "Você entrou na sala em outra aba. Esta aba saiu da chamada.",
+    "roomDeleted": "{{room}} foi excluída. Você saiu da chamada.",
+    "leftServer": "Você saiu de {{server}} em outra aba."
+  },
+  "admin": {
+    "title": "Admin da plataforma",
+    "tabs": {
+      "users": "Usuários",
+      "servers": "Servidores",
+      "limits": "Limites",
+      "keys": "Keys de cadastro",
+      "hardware": "Hardware",
+      "announcements": "Avisos",
+      "media": "Mídia"
+    },
+    "search": "Buscar",
+    "empty": "Nada encontrado.",
+    "default": "padrão",
+    "notices": {
+      "suspended": "Conta suspensa.",
+      "reactivated": "Conta reativada.",
+      "sessionsEnded": "Sessões encerradas.",
+      "sessionEnded": "Sessão encerrada.",
+      "passwordReset": "Senha redefinida. Passe para a pessoa por um canal privado.",
+      "limitSaved": "Limite salvo.",
+      "serverDeleted": "Servidor excluído."
+    },
+    "errors": {
+      "twoFactorRequired": "Configure a autenticação em duas etapas para usar o painel admin.",
+      "cannotSuspendSelf": "Você não pode suspender a própria conta.",
+      "notFound": "Esse item não existe mais.",
+      "unexpected": "Algo deu errado. Tente de novo."
+    },
+    "setup": {
+      "title": "Configure a verificação em duas etapas",
+      "description": "O admin da plataforma precisa usar um app autenticador.",
+      "passwordDescription": "Admins da plataforma precisam usar um app autenticador. Confirme sua senha para começar.",
+      "password": "Senha",
+      "continue": "Continuar",
+      "scan": "1. Escaneie o QR code com seu app autenticador.",
+      "manual": "Ou digite esta chave:",
+      "verify": "2. Digite o código de 6 dígitos que aparece no app.",
+      "verifyButton": "Verificar",
+      "recoveryTitle": "Guarde seus códigos de recuperação",
+      "recoveryDescription": "Cada código funciona uma vez se você perder acesso ao app. Eles não serão mostrados de novo.",
+      "copyAll": "Copiar códigos",
+      "download": "Baixar .txt",
+      "saved": "Já guardei os códigos"
+    },
+    "users": {
+      "user": "Usuário",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline",
+      "suspended": "Suspenso",
+      "serverLimit": "Limite de servidores",
+      "sessions": "Sessões",
+      "viewSessions": "Ver sessões",
+      "suspend": "Suspender",
+      "reactivate": "Reativar",
+      "endSessions": "Encerrar todas as sessões",
+      "resetPassword": "Redefinir senha",
+      "editLimit": "Ajustar limite de servidores",
+      "suspendTitle": "Suspender {{name}}?",
+      "suspendDescription": "Bloqueia o login e derruba todas as sessões e conexões na hora.",
+      "endSessionsTitle": "Encerrar todas as sessões de {{name}}?",
+      "endSessionsDescription": "A pessoa sai da conta em todos os dispositivos.",
+      "viewHardware": "Ver hardware",
+      "limitTitle": "Limite de servidores de {{name}}"
+    },
+    "sessions": {
+      "title": "Sessões de {{name}}",
+      "ip": "IP",
+      "device": "Navegador",
+      "lastActive": "Última atividade",
+      "current": "ativa agora",
+      "end": "Encerrar",
+      "empty": "Nenhuma sessão ativa."
+    },
+    "resetPassword": {
+      "title": "Redefinir a senha de {{name}}",
+      "description": "As sessões da pessoa são encerradas. Envie a nova senha por um canal privado.",
+      "newPassword": "Nova senha",
+      "generate": "Gerar",
+      "submit": "Redefinir senha"
+    },
+    "limitDialog": {
+      "useDefault": "Usar o padrão global ({{value}})",
+      "override": "Valor próprio",
+      "save": "Salvar"
+    },
+    "servers": {
+      "server": "Servidor",
+      "owner": "Owner",
+      "members": "Membros",
+      "rooms": "Salas",
+      "editLimits": "Ajustar servidor",
+      "delete": "Excluir servidor",
+      "viewMembers": "Ver membros",
+      "membersTitle": "Membros de {{name}}",
+      "role": "Papel",
+      "joinedVia": "Como entrou",
+      "limitsTitle": "Ajustar {{name}}"
+    },
+    "limits": {
+      "description": "Padrões usados quando o usuário ou servidor não tem valor próprio. Mudanças valem sem redeploy.",
+      "serversPerUser": "Servidores por usuário",
+      "membersPerServer": "Membros por servidor",
+      "roomsPerServer": "Salas por servidor",
+      "saved": "Limites salvos.",
+      "errors": {
+        "atLeastOne": "Use um número inteiro, a partir de 1.",
+        "atLeastZero": "Use um número inteiro, a partir de 0."
+      }
+    },
+    "keys": {
+      "generate": "Gerar key",
+      "validity": "Validade",
+      "newKeyTitle": "Nova key de cadastro",
+      "newKeyDescription": "Copie agora. Só o hash é guardado, então ela não pode ser mostrada de novo.",
+      "key": "Key",
+      "created": "Criada",
+      "expires": "Expira",
+      "status": "Status",
+      "statuses": {
+        "active": "Ativa",
+        "used": "Usada por {{name}}",
+        "revoked": "Revogada",
+        "expired": "Expirada"
+      },
+      "revoke": "Revogar",
+      "revokeTitle": "Revogar esta key?",
+      "revokeDescription": "Ninguém mais vai conseguir se cadastrar com ela."
+    },
+    "hardware": {
+      "devices": "Dispositivos",
+      "minCores": "Menos núcleos",
+      "minMemory": "Menos memória",
+      "acceleration": "Com aceleração gráfica",
+      "h264": "Codificação H.264 por hardware",
+      "device": "Dispositivo",
+      "user": "Usuário",
+      "lastSeen": "Visto por último",
+      "deviceTitle": "Hardware de {{name}}",
+      "noDevices": "Nenhum dispositivo informado ainda."
+    },
+    "announcements": {
+      "description": "O aviso vai para as notificações do Hub de cada pessoa e aparece na hora para quem está online.",
+      "titleLabel": "Título",
+      "messageLabel": "Mensagem",
+      "remaining_one": "Resta {{count}} caractere",
+      "remaining_other": "Restam {{count}} caracteres",
+      "audience": "Enviar para",
+      "audiences": {
+        "everyone": "Todo mundo",
+        "server": "Membros de um servidor"
+      },
+      "server": "Servidor",
+      "serverPlaceholder": "Escolha um servidor",
+      "send": "Enviar aviso",
+      "sent_one": "Aviso enviado para {{count}} pessoa.",
+      "sent_other": "Aviso enviado para {{count}} pessoas.",
+      "errors": {
+        "required": "Preencha este campo.",
+        "titleTooLong": "Use até 80 caracteres.",
+        "messageTooLong": "Use até 500 caracteres.",
+        "serverRequired": "Escolha um servidor."
+      }
+    },
+    "media": {
+      "title": "Recursos de mídia",
+      "description": "Liga ou desliga os modos de transmissão e o relay TURN para a plataforma toda. Um servidor pode ter uma configuração própria em \"Ajustar servidor\".",
+      "on": "Ligado",
+      "off": "Desligado",
+      "choices": {
+        "global": "Padrão global ({{state}})",
+        "on": "Ligado neste servidor",
+        "off": "Desligado neste servidor"
+      },
+      "resources": {
+        "sfu": {
+          "name": "Servidor (SFU)",
+          "description": "Melhor para várias pessoas assistindo. Quem transmite envia uma vez só para um servidor dedicado, e este servidor distribui cópias da transmissão sem dividir o upload."
+        },
+        "mesh": {
+          "name": "Direto (Mesh)",
+          "description": "Melhor para 1:1, com menor atraso. O upload de quem transmite é dividido entre quem assiste."
+        },
+        "turn": {
+          "name": "Relay (TURN)",
+          "description": "Repassa a voz e as transmissões Diretas quando a conexão direta falha. Sem ele, parte das pessoas pode não conectar."
+        }
+      },
+      "provider": {
+        "ready": "{{name}}, configurado",
+        "notConfigured": "Sem credenciais no servidor",
+        "failing": "{{name}}, falhou na última verificação",
+        "none": "Sem provedor: roda direto entre os browsers"
+      },
+      "exceptions": {
+        "title": "Exceções por servidor",
+        "empty": "Todos os servidores seguem a configuração global.",
+        "adjust": "Ajustar"
+      },
+      "confirm": {
+        "title": "Desligar {{resources}}?",
+        "impact_one": "{{count}} pessoa numa sala de voz perde o recurso na hora.",
+        "impact_other": "{{count}} pessoas em salas de voz perdem o recurso na hora.",
+        "impactNone": "Ninguém está usando agora.",
+        "noticeTitle": "Título do aviso",
+        "noticeMessage": "Mensagem",
+        "audience": "Enviar para",
+        "audiences": {
+          "affected": "Só quem foi afetado",
+          "members": "Membros do servidor",
+          "everyone": "Todo mundo"
+        },
+        "defaultTitle": "{{resources}} desligado",
+        "defaultMessage": "O admin da plataforma desligou {{resources}} por enquanto.",
+        "notify": "Desligar e avisar",
+        "silent": "Desligar sem avisar"
+      },
+      "saved": "Configurações de mídia salvas.",
+      "budget": {
+        "usage": "{{used}} GB de {{budget}} GB usados em {{month}}. Passando do orçamento, as novas transmissões vão pelo Direto (Mesh).",
+        "label": "Orçamento mensal (GB)",
+        "save": "Salvar orçamento",
+        "saved": "Orçamento salvo.",
+        "errors": {
+          "invalid": "Use um número inteiro de 0 a 100000."
+        }
+      },
+      "usage": {
+        "title": "Consumo",
+        "total": "Total cobrado pela Cloudflare",
+        "notConfigured": "Os números da Cloudflare estão desligados: configure CLOUDFLARE_ACCOUNT_ID e CLOUDFLARE_ANALYTICS_TOKEN no servidor. Até lá o SFU conta só o que os espectadores informam, e o TURN não é medido.",
+        "failing": "Não foi possível ler os números da Cloudflare; mostrando os últimos.",
+        "checkedAt": "Números da Cloudflare, lidos {{when}}. Eles chegam com alguns minutos de atraso.",
+        "description": "SFU e TURN cobrados pela Cloudflare no período.",
+        "periodLabel": "Período",
+        "periods": {
+          "30m": "Últimos 30 minutos",
+          "6h": "Últimas 6 horas",
+          "12h": "Últimas 12 horas",
+          "24h": "Últimas 24 horas",
+          "7d": "Últimos 7 dias",
+          "30d": "Últimos 30 dias",
+          "custom": "Período personalizado"
+        },
+        "range": {
+          "from": "De",
+          "to": "Até",
+          "apply": "Aplicar",
+          "hint": "Dias em UTC, dentro dos últimos 30 dias. A Cloudflare não guarda nada mais antigo.",
+          "errors": {
+            "required": "Escolha as duas datas.",
+            "order": "A data inicial precisa vir antes da final.",
+            "outOfRange": "Escolha datas dentro dos últimos 30 dias."
+          }
+        },
+        "empty": "Sem números da Cloudflare para este período.",
+        "freeTier": "Franquia grátis de {{month}}: {{used}} GB de {{free}} GB usados (SFU e TURN juntos)."
+      }
+    }
+  },
+  "hardware": {
+    "title": "Hardware",
+    "errors": {
+      "collect": "Não foi possível coletar o hardware. Tente de novo.",
+      "saveManual": "Não foi possível salvar. Tente de novo."
+    },
+    "description": "O que este dispositivo informa ao browser. É enviado ao admin da plataforma para entender onde o Gameplay roda.",
+    "lastSent": "Enviado {{date}}",
+    "refresh": "Coletar de novo",
+    "groups": {
+      "system": "Sistema",
+      "cpu": "Processador",
+      "memory": "Memória",
+      "gpu": "Gráficos",
+      "encoding": "Codificação de vídeo (transmissão)",
+      "displays": "Monitores",
+      "network": "Rede",
+      "internet": "Plano de internet"
+    },
+    "os": "Sistema operacional",
+    "architecture": "Arquitetura",
+    "browser": "Navegador",
+    "cores": "Núcleos lógicos",
+    "memoryApprox": "≈ {{value}} GB",
+    "memoryHint": "Arredondado pelo browser, com teto.",
+    "gpu": "GPU",
+    "acceleration": "Aceleração por hardware",
+    "accelerationOn": "Ligada",
+    "accelerationOff": "Desligada (renderização por software)",
+    "accelerationOffHint": "Ative \"Usar aceleração gráfica\" nas configurações do Chrome para a transmissão ficar mais leve.",
+    "webgpu": "WebGPU",
+    "available": "Disponível",
+    "unavailable": "Indisponível",
+    "encoder": {
+      "hardware": "Hardware",
+      "software": "Software",
+      "unsupported": "Sem suporte"
+    },
+    "displayItem": "{{width}}×{{height}} · {{scale}}x",
+    "primary": "principal",
+    "displaysPermission": "Permita que o Gameplay veja todos os seus monitores (resolução e escala).",
+    "displaysDenied": "O acesso aos monitores foi bloqueado. Só a tela atual aparece.",
+    "allow": "Permitir",
+    "networkValue": "{{type}} · ≈ {{downlink}} Mbps · {{rtt}} ms",
+    "unknown": "Não informado",
+    "limits": "O browser não expõe modelo do processador, RAM exata, memória da GPU, disco ou placa-mãe.",
+    "banner": {
+      "title": "Ajude a entender seu equipamento",
+      "description": "Permita que o Gameplay veja seus monitores. O resto das informações de hardware é coletado sem pedir permissão.",
+      "notNow": "Agora não"
+    },
+    "userProvided": "informado pelo usuário",
+    "manual": {
+      "title": "Complementar manualmente",
+      "description": "Preencha o que o browser não consegue ver. Isso deixa os dados mais confiáveis para todos.",
+      "cpuModel": "Modelo do processador",
+      "cpuModelPlaceholder": "ex.: AMD Ryzen 7 5800X",
+      "ramGb": "RAM (GB)",
+      "gpuModel": "Placa de vídeo",
+      "gpuModelPlaceholder": "ex.: NVIDIA RTX 3070",
+      "vramGb": "VRAM (GB)",
+      "connection": "Conexão",
+      "connections": {
+        "wired": "Cabo (Ethernet)",
+        "wifi": "Wi-Fi",
+        "mobile": "Dados móveis",
+        "other": "Outra"
+      },
+      "downloadMbps": "Download (Mbps)",
+      "uploadMbps": "Upload (Mbps)",
+      "uploadHint": "O upload é o que mais pesa na transmissão: cada espectador recebe uma cópia separada.",
+      "save": "Salvar",
+      "saved": "Salvo",
+      "errors": {
+        "positiveNumber": "Digite um número maior que zero."
+      }
+    },
+    "vram": "Memória de vídeo",
+    "connectionType": "Conexão",
+    "plan": "Plano",
+    "planValue": "↓ {{download}} Mbps · ↑ {{upload}} Mbps"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "clearAll": "Limpar tudo",
+    "dismiss": "Dispensar",
+    "empty": "Nada novo por aqui.",
+    "vpn": {
+      "title": "Parece que você está usando VPN ou proxy",
+      "description": "Voz e transmissão podem ter mais atraso e passar pelo servidor de relay. Se puder, desligue enquanto joga."
+    },
+    "accelerationOff": {
+      "title": "Aceleração gráfica desligada",
+      "description": "A transmissão vai usar a CPU e pode perder qualidade. Ative \"Usar aceleração gráfica\" nas configurações do navegador."
+    },
+    "monitors": {
+      "title": "Permitir detecção dos monitores",
+      "description": "Deixa o Gameplay ver seus monitores para entender seu equipamento."
+    },
+    "joinApproved": {
+      "title": "Bem-vindo ao {{server}}",
+      "description": "Seu pedido de entrada foi aprovado."
+    },
+    "requestSent": {
+      "title": "Pedido enviado para {{server}}",
+      "description": "Aguarde um owner ou admin aprovar."
+    },
+    "inviteExpired": {
+      "title": "Seu convite para {{server}} expirou",
+      "description": "Ele venceu enquanto você se cadastrava. Peça um novo convite."
+    },
+    "kicked": {
+      "title": "Removido de {{server}}"
+    },
+    "serverDeleted": {
+      "title": "{{server}} foi excluído"
+    },
+    "promoted": {
+      "title": "Agora você é admin de {{server}}"
+    },
+    "demoted": {
+      "title": "Você não é mais admin de {{server}}"
+    },
+    "open": "Abrir"
+  },
+  "serverChoice": {
+    "title": "Escolha seu servidor",
+    "description": "Em qual servidor Gameplay a sua conta está?",
+    "label": "Endereço do servidor",
+    "placeholder": "play.exemplo.com",
+    "hint": "O endereço que você recebeu. Use https, ou localhost para um servidor nesta máquina.",
+    "submit": "Conectar",
+    "diagnostics": "Para corrigir problemas, este app envia relatórios de erro ao desenvolvedor. Eles não levam mensagens, áudio nem senhas.",
+    "errors": {
+      "required": "Informe o endereço do servidor.",
+      "invalid": "Informe um endereço válido, como play.exemplo.com.",
+      "unreachable": "Não foi possível acessar este servidor. Confira o endereço e a conexão.",
+      "notGameplay": "Este não é um servidor Gameplay."
+    }
+  }
+}

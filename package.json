@@ -13,7 +13,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "storybook": "turbo run storybook --filter=web",
+    "storybook": "turbo run storybook --filter=@gameplay/client",
     "build-storybook": "turbo run build-storybook",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
@@ -21,7 +21,10 @@
     "host:start": "turbo run build --filter=@gameplay/env --output-logs=errors-only && node infra/self-hosted/cli/main.ts start",
     "host:stop": "node infra/self-hosted/cli/main.ts stop",
     "host:logs": "node infra/self-hosted/cli/main.ts logs",
-    "deploy": "bash infra/production/deploy.sh"
+    "deploy": "bash infra/production/deploy.sh",
+    "desktop": "npm run start -w desktop",
+    "desktop:make": "npm run make -w desktop",
+    "desktop:publish": "npm run publish -w desktop"
   },
   "devDependencies": {
     "turbo": "^2.11.10"

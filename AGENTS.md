@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Gameplay: voice rooms and screen sharing for small groups (Discord alternative). Monorepo with npm workspaces + Turborepo: `apps/api` (NestJS 11, Prisma 7, Postgres, Better Auth, Socket.IO), `apps/web` (React 19, Vite 8, Tailwind 4, shadcn, Storybook 10), `packages/contracts` (zod schemas and typed Socket.IO events shared by both).
+Gameplay: voice rooms and screen sharing for small groups (Discord alternative). Monorepo with npm workspaces + Turborepo: `apps/api` (NestJS 11, Prisma 7, Postgres, Better Auth, Socket.IO), `apps/web` (thin Vite shell for the browser, plus the Cypress e2e), `packages/client` (the whole front-end: React 19, Vite 8, Tailwind 4, shadcn, Storybook 10, shared by the web and the future desktop app), `packages/contracts` (zod schemas and typed Socket.IO events shared by the API and the client).
 
 Planning docs are in Portuguese, in `plans/`. Write code, comments and commits in English. Write docs, plans and ticket notes in Portuguese.
 
@@ -13,6 +13,8 @@ Planning docs are in Portuguese, in `plans/`. Write code, comments and commits i
 5. When done: tick the checklist, add a "Notas da execução" section to the ticket (what you did, and every assumption you made marked as *(suposição)*), set the status in `tickets/README.md` to `concluído`, and update `plans/PROGRESS.md`.
 6. **Stop after each ticket** so the user can review. Do not start the next one on your own.
 
+Each new plan gets its own directory, `plans/<plan>/`, with `00-requirements.md`, `01-epic-brief.md`, `02-tech-plan.md` and `tickets/` (a `README.md` with the status table plus one file per ticket). The files at the root of `plans/` and `plans/tickets/` are the original MVP plan. Current plans: `plans/desktop-electron/`, `plans/api-realtime-boundaries/`.
+
 ## Git
 
 - Two long-lived branches: `dev` (integration) and `main` (release). Never commit or push straight to either.
@@ -23,7 +25,7 @@ Planning docs are in Portuguese, in `plans/`. Write code, comments and commits i
 
 ## Frontend architecture (MVVM, strict)
 
-MVVM is the architecture of the whole frontend, not just state management.
+MVVM is the architecture of the whole frontend, not just state management. The frontend lives in `packages/client`; every path below is relative to `packages/client/src`. `apps/web` only mounts the `App` of the client (`src/main.tsx`) and points the router plugin and Tailwind at the package.
 
 | Layer | Where | May use |
 |---|---|---|
@@ -32,7 +34,8 @@ MVVM is the architecture of the whole frontend, not just state management.
 | View | `modules/<m>/views/*.view.tsx` (already exist, with stories). Props and callbacks only. No query, store, axios, router or business rule. The View owns `useForm` with the Model schema and calls `onSubmit(values)`; server errors come by prop through `useServerErrors` (`shared/lib/form.ts`). | `shared/ui`, Model schemas |
 | Screen | `modules/<m>/screens/*.screen.tsx`. Thin glue: calls the ViewModel, passes the result to the View. | ViewModel, View |
 
-- Routes live in `apps/web/src/app/routes` (TanStack Router, file based). A route file only declares `validateSearch`, `beforeLoad`, `loader` and `component: XxxScreen`.
+- Routes live in `packages/client/src/app/routes` (TanStack Router, file based). A route file only declares `validateSearch`, `beforeLoad`, `loader` and `component: XxxScreen`.
+- What differs between hosts (browser, desktop) goes through the `Platform` port in `shared/platform` (`capabilities`, `capture`, and `server`: where the API is, read on every request by `http`, the socket and `authClient`; the session is a cookie on every host). The client only defines the `Platform` (and exports, from `@gameplay/client/platform`, the pieces a host with a browser inside shares); each host implements it in its own shell (`apps/web/src/browser-platform.ts`, `apps/desktop/src/renderer/desktop-platform.ts`). The `App` takes it as a prop; React code reads it with `usePlatform()`, controllers outside React with `currentPlatform()`. Never import a browser capture API or Electron in a ViewModel. Specs and stories use `FakePlatform`.
 - Views never use `Link` or `useNavigate`; navigation arrives as a callback. Storybook must keep working without a router.
 - Socket events only invalidate queries or update stores. REST stays the source of truth.
 - One component per file in our code (`shared/ui` from shadcn and `*.stories.tsx` are exempt).
@@ -44,11 +47,13 @@ MVVM is the architecture of the whole frontend, not just state management.
 
 - Keep data and factories apart: one fake class per file, seed data as plain constants in its own file, context or factory wiring in another. No setup helpers piling up inside specs.
 - API: unit specs use `test/<module>-context.ts` over `test/<module>-seed.ts`; e2e factories in `test/factories/`.
-- Web: ViewModels with `renderHook` in the `unit` Vitest project; services and transports tested with fakes.
+- Client: ViewModels with `renderHook` in the `unit` Vitest project; services and transports tested with fakes. Stories run in the `storybook` Vitest project. Both live in `packages/client` (`npm test` from the root runs them). Cypress e2e stays in `apps/web`.
 
 ## Commands
 
-From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`.
+From the repo root: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`, `npm run dev`, `npm run storybook`. `npm run e2e` (Cypress, in `apps/web`) needs the local API on 3333 and `npm run dev -w web` on 5173. Desktop app (`apps/desktop`; its channels to the main process are typed in `packages/desktop-bridge`): `npm run desktop` (Electron Forge, `apps/desktop`; the first run may need `node node_modules/electron/install.js` to fetch the binary) and `npm run desktop:make` (deb and zip for Linux, in `apps/desktop/out/make`). Run the app on a headless box with `xvfb-run`. App icons: one master in `packages/client/src/shared/assets/brand/icons/source.png`, one folder per platform generated with `npm run icons -w @gameplay/client`.
+
+Env files, one per thing that ships, each ignored by git with its `*.example` next to it: self-hosting has `infra/self-hosted/.env` (host: tunnel, ports, database), `.env.api` (the API container) and `.env.web` (the web image), read together by the `npm run host:*` CLI, which also splits an old single `.env` on the next start; the desktop app has `apps/desktop/.env` (its Sentry DSN, `VITE_APP_ENV` as `development` or `production`, and `VITE_SERVER_URL`, the server an installer is tied to; production requires it, development may leave it empty and the app asks). Run `docker compose` by hand only with the three `--env-file` flags.
 
 Local API for manual testing: `npm run db:up` in `apps/api` (dev-only Postgres on 5432 from `apps/api/docker-compose.yml`; the e2e tests create `gameplay_test` there), then `npm run dev` (API on 3333). Seeded admin: `admin@gameplay.local` / `admin-pass-123`. If `prisma migrate dev` hangs with no output, run it with `< /dev/null`.
 

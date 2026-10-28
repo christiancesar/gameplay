@@ -162,6 +162,7 @@ export {
   type UpdateSfuBudgetRequest,
   type UpdateServerMediaRequest,
 } from './admin/media-settings.js'
+export { DESKTOP_APP_ORIGIN, isLoopbackHost, isServerOrigin, serverOriginSchema } from './http/desktop.js'
 export { errorResponseSchema, type ErrorBody, type ErrorResponse } from './http/error.js'
 export type { Ack, AckResponse } from './realtime/ack.js'
 export {

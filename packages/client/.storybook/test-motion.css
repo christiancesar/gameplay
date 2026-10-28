@@ -1,0 +1,8 @@
+/* In an automated browser (the Vitest run) nothing animates: a dialog or a menu that is still fading in is not
+   yet visible or clickable, and the stories raced it when the machine was busy. */
+html[data-automated] *,
+html[data-automated] *::before,
+html[data-automated] *::after {
+  animation: none !important;
+  transition: none !important;
+}

@@ -9,11 +9,15 @@ export function useTemporaryDir() {
   afterEach(() => {
     for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
+  const create = (): string => {
+    const dir = mkdtempSync(join(tmpdir(), 'gameplay-host-'))
+    dirs.push(dir)
+    return dir
+  }
   return {
+    dir: create,
     path(name: string): string {
-      const dir = mkdtempSync(join(tmpdir(), 'gameplay-host-'))
-      dirs.push(dir)
-      return join(dir, name)
+      return join(create(), name)
     },
     file(name: string, contents: string): string {
       const path = this.path(name)
@@ -22,3 +26,5 @@ export function useTemporaryDir() {
     },
   }
 }
+
+export type TemporaryDir = ReturnType<typeof useTemporaryDir>

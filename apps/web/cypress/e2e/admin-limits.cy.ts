@@ -35,10 +35,10 @@ describe('Admin limits', () => {
 
     cy.findByRole('dialog').within(() => {
       cy.findByText(`Server limit of ${target.username}`).should('be.visible')
-      cy.findByRole('switch', { name: /Use the global default/ }).click()
+      cy.findByRole('checkbox', { name: /Use the global default/ }).click()
       cy.findByRole('spinbutton', { name: 'Server limit' }).clear()
       cy.findByRole('spinbutton', { name: 'Server limit' }).type('4')
-      cy.findByRole('button', { name: 'Save limit' }).click()
+      cy.findByRole('button', { name: 'Save' }).click()
     })
     cy.findByText('Limit saved.').should('be.visible')
     cy.task<{ maxServersOverride: number }>('db:getUser', target.username).its('maxServersOverride').should('eq', 4)
@@ -55,10 +55,10 @@ describe('Admin limits', () => {
     cy.findByRole('button', { name: `Actions: ${target.username}` }).click()
     cy.findByRole('menuitem', { name: 'Adjust server limit' }).click()
     cy.findByRole('dialog').within(() => {
-      cy.findByRole('switch', { name: 'Custom value' }).should('have.attr', 'aria-checked', 'true')
+      cy.findByRole('checkbox', { name: /Use the global default/ }).should('have.attr', 'aria-checked', 'false')
       cy.findByRole('spinbutton', { name: 'Server limit' }).should('have.value', '4')
-      cy.findByRole('switch', { name: 'Custom value' }).click()
-      cy.findByRole('button', { name: 'Save limit' }).click()
+      cy.findByRole('checkbox', { name: /Use the global default/ }).click()
+      cy.findByRole('button', { name: 'Save' }).click()
     })
     cy.findByText('Limit saved.').should('be.visible')
     cy.reload()

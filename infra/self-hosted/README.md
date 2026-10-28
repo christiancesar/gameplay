@@ -24,7 +24,7 @@ Na raiz do repositório:
 npm run host:start
 ```
 
-Na primeira vez o script cria `infra/self-hosted/.env` com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env`). Depois ele aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder. No fim imprime o endereço, `http://localhost:8080`.
+Na primeira vez o script cria os arquivos de ambiente (veja a seção abaixo) com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env.api`). Depois ele aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder. No fim imprime o endereço, `http://localhost:8080`.
 
 Nesse modo (`local`) nada vai para a internet e só esta máquina acessa. Microfone e compartilhamento de tela funcionam porque o navegador trata `localhost` como seguro. Outros aparelhos da rede não conseguem usar voz nem tela por `http://<ip>`, porque o navegador exige HTTPS fora do `localhost`.
 
@@ -51,22 +51,38 @@ docker compose --project-directory infra/self-hosted --profile quick --profile n
 
 ## Como os comandos funcionam
 
-Os comandos `host:*` chamam um pequeno CLI em TypeScript (`cli/`), que o Node 24 roda direto, sem build. Ele faz o que o `docker compose` sozinho não faz: cria o `.env`, descobre a URL do túnel, aplica as migrations, roda o seed do admin e espera a URL pública responder.
+Os comandos `host:*` chamam um pequeno CLI em TypeScript (`cli/`), que o Node 24 roda direto, sem build. Ele faz o que o `docker compose` sozinho não faz: cria os arquivos de ambiente, descobre a URL do túnel, aplica as migrations, roda o seed do admin e espera a URL pública responder.
 
-| Arquivo              | O que faz                                                                           |
-| -------------------- | ----------------------------------------------------------------------------------- |
-| `cli/main.ts`        | recebe o comando (`start`, `stop`, `logs`) e mostra os erros                        |
-| `cli/commands/`      | um arquivo por comando, com o fluxo em ordem                                        |
-| `cli/env-file.ts`    | lê e grava o `.env` (sempre com modo 600)                                           |
-| `cli/setup-env.ts`   | cria o `.env` na primeira vez, gera segredos, renomeia chaves antigas e valida tudo |
-| `cli/env-sources.ts` | de onde vem cada variável: gerada, padrão, derivada ou externa (com onde obter)     |
-| `cli/compose.ts`     | chama o `docker compose` deste diretório                                            |
-| `cli/tunnel.ts`      | descobre a URL do modo rápido                                                       |
-| `cli/database.ts`    | migrations e seed do admin                                                          |
+| Arquivo              | O que faz                                                                        |
+| -------------------- | -------------------------------------------------------------------------------- |
+| `cli/main.ts`        | recebe o comando (`start`, `stop`, `logs`) e mostra os erros                     |
+| `cli/commands/`      | um arquivo por comando, com o fluxo em ordem                                     |
+| `cli/env-file.ts`    | lê e grava um arquivo de ambiente (sempre com modo 600)                          |
+| `cli/env-layout.ts`  | em qual dos três arquivos fica cada variável                                     |
+| `cli/host-env.ts`    | os três arquivos lidos e gravados como um só                                     |
+| `cli/setup-env.ts`   | cria os arquivos, migra o `.env` antigo, gera segredos, renomeia chaves e valida |
+| `cli/env-sources.ts` | de onde vem cada variável: gerada, padrão, derivada ou externa (com onde obter)  |
+| `cli/compose.ts`     | chama o `docker compose` deste diretório                                         |
+| `cli/tunnel.ts`      | descobre a URL do modo rápido                                                    |
+| `cli/database.ts`    | migrations e seed do admin                                                       |
 
-O `.env` é validado com o schema do pacote `@gameplay/env` (`packages/env/src/self-hosted.ts`), o mesmo pacote que valida a API. O `host:start` gera os segredos que faltam e, se faltar algo que só você tem (por exemplo a chave do TURN com `ICE_PROVIDER=cloudflare`), para antes do build e lista todas as variáveis com problema, com onde conseguir cada uma.
+Os três arquivos, lidos como um só, são validados com o schema do pacote `@gameplay/env` (`packages/env/src/self-hosted.ts`), o mesmo pacote que valida a API. O `host:start` gera os segredos que faltam e, se faltar algo que só você tem (por exemplo a chave do TURN com `ICE_PROVIDER=cloudflare`), para antes do build e lista todas as variáveis com problema, com onde conseguir cada uma.
 
 Este diretório é um workspace (`@gameplay/self-hosted`), então `npm run typecheck`, `lint`, `test` e `format:check` na raiz também cobrem o CLI.
+
+## Arquivos de ambiente
+
+Cada coisa que se publica tem o seu arquivo. Os três ficam neste diretório, fora do git (`.gitignore`), cada um com o exemplo versionado ao lado (`*.example`):
+
+| Arquivo    | Guarda                                                                                                                             |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `.env`     | o host: `TUNNEL_MODE`, `APP_URL`, túnel, portas, `POSTGRES_PASSWORD` e `OTEL_DEPLOYMENT_ENVIRONMENT` (o que mais de um serviço lê) |
+| `.env.api` | o container da API: segredos de auth, admin, voz (TURN e SFU da Cloudflare), `LOG_LEVEL`, `DOCS_ENABLED` e o OTLP da API           |
+| `.env.web` | a imagem do web: `VITE_SENTRY_DSN`, `SENTRY_*` e `FARO_COLLECTOR_URL` (entram no build, então rebuilde ao mudar)                   |
+
+O `docker compose` lê os três juntos (`--env-file` repetido), então o `docker-compose.yml` continua usando `${VAR}` como antes. Por isso rode sempre pelo CLI (`npm run host:*`). Se precisar chamar o `docker compose` na mão, passe os três: `--env-file .env --env-file .env.api --env-file .env.web`.
+
+Quem tinha um `.env` único não precisa fazer nada: no próximo `npm run host:start` o CLI cria `.env.api` e `.env.web` e move para eles as variáveis de cada um, mantendo todos os valores (a senha do banco, os segredos e o token do Sentry). O app desktop tem o seu próprio arquivo em `apps/desktop/.env`.
 
 ## Modos de túnel
 
@@ -100,7 +116,7 @@ Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`npm run host:start --
 Muitos provedores brasileiros usam CGNAT e a conexão WebRTC direta falha neles. Por isso o padrão é `ICE_PROVIDER=cloudflare`, como em produção.
 
 1. No painel da Cloudflare, abra Realtime > TURN Server e crie uma TURN key. Anote o Key ID e o API token.
-2. No `.env`: `CLOUDFLARE_TURN_KEY_ID=...`, `CLOUDFLARE_TURN_API_TOKEN=...`.
+2. No `.env.api`: `CLOUDFLARE_TURN_KEY_ID=...`, `CLOUDFLARE_TURN_API_TOKEN=...`.
 3. Rode `npm run host:start` de novo (a API reinicia com a nova configuração).
 
 Sem TURN, use `ICE_PROVIDER=stun-only`. A voz pode não conectar entre algumas pessoas.
@@ -109,7 +125,7 @@ Sem TURN, use `ICE_PROVIDER=stun-only`. A voz pode não conectar entre algumas p
 
 O cadastro exige uma chave de registro.
 
-1. Entre como admin (e-mail e senha do `.env`, `ADMIN_EMAIL` e `ADMIN_PASSWORD`).
+1. Entre como admin (e-mail e senha do `.env.api`, `ADMIN_EMAIL` e `ADMIN_PASSWORD`).
 2. Ative o 2FA em `/admin/setup`. As rotas de admin recusam a conta até isso.
 3. Crie chaves em `/admin/keys` e mande a cada amigo o link da stack mais uma chave.
 4. Dentro do app, crie um servidor e compartilhe o link de convite dele (`/i/<código>`).
@@ -132,7 +148,7 @@ A documentação fica pública em `<APP_URL>/api/docs`: REST, rotas de autentica
 A API manda traces, métricas e logs por OTLP quando `OTEL_EXPORTER_OTLP_ENDPOINT` está preenchido. Sem ele a telemetria fica desligada.
 
 1. No Grafana Cloud, abra o stack > OpenTelemetry > Configure e gere um token. Copie o endpoint e o header `Authorization=Basic ...`.
-2. No `.env`: `OTEL_EXPORTER_OTLP_ENDPOINT` e `OTEL_EXPORTER_OTLP_HEADERS`. Os mesmos valores do `apps/api/.env` servem.
+2. No `.env.api`: `OTEL_EXPORTER_OTLP_ENDPOINT` e `OTEL_EXPORTER_OTLP_HEADERS`. Os mesmos valores do `apps/api/.env` servem.
 3. `npm run host:start` de novo.
 
 No Grafana, os dados deste servidor vêm com `deployment.environment.name=host` (`OTEL_DEPLOYMENT_ENVIRONMENT`), separados do dev.
@@ -154,7 +170,7 @@ Para restaurar o banco: `docker compose --project-directory infra/self-hosted ex
 ## Segurança
 
 - Só o nginx fica exposto, e apenas em `127.0.0.1:8080` no host. O acesso externo é pelo túnel. Postgres e API não publicam porta.
-- Mantenha o 2FA do admin ligado e guarde o `infra/self-hosted/.env` (está no `.gitignore`). Ele tem os segredos, a senha do admin e o token do túnel.
+- Mantenha o 2FA do admin ligado e guarde os arquivos `infra/self-hosted/.env*` (estão no `.gitignore`). Eles têm os segredos, a senha do admin e o token do túnel.
 - Trocar `BETTER_AUTH_SECRET` desloga todo mundo. Trocar `REGISTRATION_KEY_SECRET` invalida as chaves ainda não usadas.
 - O nginx repassa o IP real do cliente (`CF-Connecting-IP`) e a API confia em um único salto.
 - Quando não estiver testando, rode `npm run host:stop`: sem a stack o link público deixa de funcionar.
