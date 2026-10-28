@@ -6,6 +6,6 @@ import { createSentryTelemetry } from './create-sentry-telemetry'
 
 describe('createSentryTelemetry', () => {
   it('stays off without a DSN', () => {
-    expect(createSentryTelemetry(new FakePlatform().telemetry, '')).toBeNull()
+    expect(createSentryTelemetry(new FakePlatform().telemetry, '', {})).toBeNull()
   })
 })

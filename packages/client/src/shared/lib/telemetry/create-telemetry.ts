@@ -8,10 +8,10 @@ import type { Telemetry } from './telemetry'
 
 /**
  * The providers the config turns on, as one. `serverUrl` is the origin of the API (empty on the web): the paths of
- * the monitoring tunnels are on it.
+ * the monitoring tunnels are on it. `router` is the TanStack router, which Sentry follows for its traces.
  */
-function createTelemetry(config: TelemetryConfig, serverUrl: string): Telemetry {
-  const providers = [createSentryTelemetry(config, serverUrl), createFaroTelemetry(config, serverUrl)].filter(
+function createTelemetry(config: TelemetryConfig, serverUrl: string, router: unknown): Telemetry {
+  const providers = [createSentryTelemetry(config, serverUrl, router), createFaroTelemetry(config, serverUrl)].filter(
     (provider): provider is Telemetry => provider !== null,
   )
   return providers.length > 0 ? new CompositeTelemetry(providers) : new NoopTelemetry()

@@ -4,27 +4,39 @@ import type { Attributes, ErrorContext, LogLevel, Measurement, Telemetry } from 
 type SentrySdk = {
   captureException: (error: unknown, hint?: { extra?: ErrorContext }) => unknown
   setUser: (user: { id: string } | null) => void
+  logger: Record<LogLevel, (message: string, attributes?: Attributes) => void>
+  metrics: { distribution: (name: string, value: number, options?: { attributes?: Attributes }) => void }
 }
 
 /**
- * Sentry. Today it carries errors and the user id; logs, measurements and the view name join it with TEL-02, so
- * those three calls do nothing yet (Grafana Faro still has them).
+ * Sentry: errors, logs, metrics and the user id. Traces and the name of the view come from its tracing
+ * integration, which follows the router by itself, so `setView` has nothing to do.
  */
 export class SentryTelemetry implements Telemetry {
-  readonly measuring = false
+  readonly measuring = true
   private readonly sdk: SentrySdk
+  private readonly app: string
 
-  constructor(sdk: SentrySdk) {
+  /** `app` (web or desktop) goes on every log and metric, as the tag does on events. */
+  constructor(sdk: SentrySdk, app: string) {
     this.sdk = sdk
+    this.app = app
   }
 
   captureError(error: unknown, context?: ErrorContext): void {
     this.sdk.captureException(error, context ? { extra: context } : undefined)
   }
 
-  log(_level: LogLevel, _message: string, _attributes?: Attributes): void {}
+  log(level: LogLevel, message: string, attributes?: Attributes): void {
+    this.sdk.logger[level](message, { ...attributes, app: this.app })
+  }
 
-  measure(_measurement: Measurement): void {}
+  /** One distribution per value, named after the measurement: `webrtc.rtt_ms`. */
+  measure({ name, values, attributes }: Measurement): void {
+    for (const [key, value] of Object.entries(values)) {
+      this.sdk.metrics.distribution(`${name}.${key}`, value, { attributes: { ...attributes, app: this.app } })
+    }
+  }
 
   setUser(user: { id: string }): void {
     this.sdk.setUser({ id: user.id })

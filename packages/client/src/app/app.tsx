@@ -25,7 +25,7 @@ let telemetryStarted = false
 function startTelemetry(platform: Platform) {
   if (telemetryStarted) return
   telemetryStarted = true
-  installTelemetry(createTelemetry(platform.telemetry, platform.server.baseUrl()))
+  installTelemetry(createTelemetry(platform.telemetry, platform.server.baseUrl(), router))
   // The route pattern (/servers/$serverId), never the URL: no ids in the view names.
   const setView = () => {
     const routeId = router.state.matches.at(-1)?.routeId
@@ -44,7 +44,8 @@ export function App({ platform }: { platform: Platform }) {
   setCurrentPlatform(platform)
   const { chooser } = platform.server
   const [needsServer, setNeedsServer] = useState(() => chooser !== undefined && chooser.current() === null)
-  if (!needsServer) startTelemetry(platform)
+  // Not after the server is picked: the app reports to its own project, and the choice screen can fail too.
+  startTelemetry(platform)
 
   return (
     <PlatformProvider platform={platform}>

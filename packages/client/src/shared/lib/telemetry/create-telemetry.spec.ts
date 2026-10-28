@@ -9,7 +9,7 @@ describe('createTelemetry', () => {
   it('stays off when the config turns nothing on', () => {
     const { telemetry } = new FakePlatform()
 
-    const created = createTelemetry(telemetry, '')
+    const created = createTelemetry(telemetry, '', {})
 
     expect(created).toBeInstanceOf(NoopTelemetry)
     expect(created.measuring).toBe(false)
