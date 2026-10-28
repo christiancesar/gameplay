@@ -82,8 +82,8 @@ type Platform = {
 - **Dois jeitos de ler**, porque parte do código vive fora do React: `usePlatform()` (context, `PlatformProvider`) nos componentes e `currentPlatform()` (registro de módulo, preenchido pelo `App`) nos controllers como o `share.controller`. A plataforma não muda enquanto o app roda.
 - ViewModels usam a `Platform`. As Views continuam só com props: recebem as `capabilities` e a lista de fontes já prontas. A regra do MVVM não muda.
 - **Camada nova no lint**: `shared/platform` é o tipo `shared-platform` nas fronteiras do oxlint; `model-service`, `view-model` e `app` podem importá-lo, e ele só importa `shared-lib` e `shared-media`.
-- **A implementação do browser fica no client**, em `modules/screen-share/model/services/browser-platform.service.ts` (`createBrowserPlatform`, exportada pelo pacote), e não no `apps/web`: ela depende de regras internas do client (`audio-support`, `capture-platform`) e o desktop vai reaproveitar a captura do browser na fase 1. `capture.start` chama o `acquireScreen`; `windowAudio` e `systemAudio` saem de `audioSupportFor`; `listSources` devolve vazio.
-- **Onde mora cada `Platform` (DESK-05):** `createBrowserPlatform` mora no client e `createDesktopPlatform` no `apps/desktop`. A regra é: o client guarda o que **qualquer host com navegador** divide (as regras de captura e de áudio, o `acquireScreen`), e cada casca guarda o que é **só do seu host**. O desktop monta sobre a do browser (`{ ...browser, kind: 'desktop', server: { ..., chooser } }`) e acrescenta a escolha do servidor; com o DESK-06 vai ganhar a ponte do preload (`window.gameplayDesktop`), que o client não pode importar (só tipos do `desktop-bridge`). O web não tem arquivo próprio porque a plataforma dele **é** a do browser.
+- **O client define a interface; cada host a implementa** *(decisão do usuário em 2026-10-28, que corrigiu a primeira versão do DESK-03)*: `createBrowserPlatform` mora em `apps/web/src/browser-platform.ts` e `createDesktopPlatform` em `apps/desktop/src/renderer/desktop-platform.ts`, cada uma independente da outra. O client só conhece a `Platform`.
+- **Peças que um host com navegador dentro divide** (o web e o desktop, cujo renderer é o Chromium): o client as exporta numa entrada à parte, `@gameplay/client/platform` (para os specs de um host não carregarem o front-end inteiro): `acquireScreen` (a captura pelo `getDisplayMedia`), `audioCapabilitiesOf` (o áudio que o browser consegue compartilhar, lido do navegador e do sistema) e os tipos. São blocos, não uma `Platform` pronta. Um host que não usa navegador (ou o desktop na fase 2, com captura nativa) simplesmente não os usa.
 - No Storybook e nos specs, uma `FakePlatform` (`shared/platform/test/fake-platform.ts`, sem framework de teste dentro) simula as plataformas.
 
 ### 3.2 IPC tipado (`packages/desktop-bridge`)
@@ -179,7 +179,8 @@ gameplay/
 │   │   ├── cypress/               fica aqui: e2e roda contra o web
 │   │   ├── public/
 │   │   ├── src/
-│   │   │   ├── main.tsx           monta <App platform={browserPlatform} />
+│   │   │   ├── main.tsx           monta <App platform={createBrowserPlatform()} />
+│   │   │   ├── browser-platform.ts  a Platform do web, com o spec
 │   │   │   └── index.css          @import do tema do client, @source do pacote
 │   │   ├── index.html, vite.config.ts (React, Tailwind, router plugin apontando para o pacote, proxy /api)
 │   │   ├── Dockerfile             passa a copiar packages/client
@@ -198,7 +199,7 @@ gameplay/
 │       │   ├── preload/
 │       │   │   └── preload.ts     contextBridge com o contrato
 │       │   └── renderer/
-│       │       ├── main.tsx       monta <App platform={desktopPlatform} />
+│       │       ├── main.tsx       monta <App platform={createDesktopPlatform()} />
 │       │       ├── desktop-platform.ts
 │       │       └── index.css
 │       ├── forge.config.ts        makers, publishers, fuses, plugin Vite
@@ -214,9 +215,9 @@ gameplay/
 │   │   │   ├── app/               App (recebe a Platform), router, root-layout, routes/, route-tree.gen.ts
 │   │   │   ├── docs/
 │   │   │   ├── fixtures/
-│   │   │   ├── modules/           os mesmos módulos de hoje (+ browser-platform no screen-share, seletor de fontes e tela de servidor no desktop)
+│   │   │   ├── modules/           os mesmos módulos de hoje (+ `server-choice` para quem escolhe o servidor e, na fase 2, o seletor de fontes)
 │   │   │   ├── shared/
-│   │   │   │   ├── platform/      platform.ts (porta), current-platform.ts, platform-provider.tsx, use-platform.ts, test/fake-platform.ts
+│   │   │   │   ├── platform/      platform.ts (a interface), current-platform.ts, platform-provider.tsx, use-platform.ts, test/fake-platform.ts
 │   │   │   │   ├── ui/            shadcn
 │   │   │   │   ├── lib/           http, socket, auth-client lendo platform.server
 │   │   │   │   ├── media/         screen-capture vira a implementação browser
