@@ -51,11 +51,17 @@ export class EnvFile {
     this.write(lines)
   }
 
+  /** Drops the KEY= lines. */
+  delete(key: string): void {
+    if (!this.has(key)) return
+    this.write(this.lines().filter((line) => !line.startsWith(`${key}=`)))
+  }
+
   /** Renames a key and keeps its value; a non-empty new key wins over the old one. */
   rename(oldKey: string, newKey: string): void {
     if (!this.has(oldKey)) return
     if (!this.get(newKey)) this.set(newKey, this.get(oldKey))
-    this.write(this.lines().filter((line) => !line.startsWith(`${oldKey}=`)))
+    this.delete(oldKey)
   }
 
   private lines(): string[] {

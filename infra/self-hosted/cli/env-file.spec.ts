@@ -49,6 +49,17 @@ describe('EnvFile', () => {
     expect(statSync(path).mode & 0o777).toBe(0o600)
   })
 
+  it('drops a key, and does nothing for one that is not there', () => {
+    const path = temporary.file('.env', ENV_WITH_COMMENTS)
+    const env = new EnvFile(path)
+
+    env.delete('APP_URL')
+    env.delete('MISSING')
+
+    expect(env.has('APP_URL')).toBe(false)
+    expect(env.get('TUNNEL_MODE')).toBe('quick')
+  })
+
   it('renames a key and keeps its value', () => {
     const env = new EnvFile(temporary.file('.env', ENV_WITH_OLD_NAMES))
 

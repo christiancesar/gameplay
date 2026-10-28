@@ -2,9 +2,9 @@ import { existsSync } from 'node:fs'
 import { type SelfHostedEnv, TUNNEL_MODES, type TunnelMode } from '@gameplay/env'
 import { compose, composeOutput } from '../compose.ts'
 import { migrateDatabase, seedAdmin } from '../database.ts'
-import type { EnvFile } from '../env-file.ts'
 import { waitForHealth } from '../health.ts'
-import { ENV_EXAMPLE_FILE, ENV_FILE, HOST_DIR } from '../paths.ts'
+import type { HostEnv } from '../host-env.ts'
+import { ENV_EXAMPLE_PATHS, ENV_PATHS, HOST_DIR } from '../paths.ts'
 import { sentryEnvelopeUrl } from '../sentry.ts'
 import { prepareEnv, validateEnv } from '../setup-env.ts'
 import { hasCommand, HostError, output } from '../shell.ts'
@@ -18,7 +18,7 @@ function checkTools(): void {
 }
 
 /** The mode passed to the command wins over TUNNEL_MODE, and is saved for the next start. */
-function applyMode(requested: string | undefined, env: EnvFile): void {
+function applyMode(requested: string | undefined, env: HostEnv): void {
   if (!requested) return
   if (!TUNNEL_MODES.includes(requested as TunnelMode)) {
     throw new HostError(`unknown mode '${requested}' (use ${TUNNEL_MODES.join(', ')})`)
@@ -35,7 +35,7 @@ async function quickTunnelUrl(config: SelfHostedEnv): Promise<string> {
 }
 
 /** named and token modes: a fixed hostname, already required by the schema. */
-function fixedTunnelUrl(config: SelfHostedEnv, env: EnvFile): string {
+function fixedTunnelUrl(config: SelfHostedEnv, env: HostEnv): string {
   const appUrl = config.APP_URL ?? ''
   if (config.TUNNEL_MODE === 'named') {
     const credentials = config.CLOUDFLARE_TUNNEL_CREDENTIALS ?? ''
@@ -53,7 +53,7 @@ function fixedTunnelUrl(config: SelfHostedEnv, env: EnvFile): string {
 }
 
 /** Where people open the app: this machine, or the URL of the chosen tunnel. */
-async function appUrlFor(config: SelfHostedEnv, env: EnvFile): Promise<string> {
+async function appUrlFor(config: SelfHostedEnv, env: HostEnv): Promise<string> {
   switch (config.TUNNEL_MODE) {
     // localhost is a secure context, so voice and screen share work over plain http.
     case 'local':
@@ -90,8 +90,8 @@ function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassw
     '',
     `Admin account: ${config.ADMIN_EMAIL}`,
     generatedAdminPassword
-      ? `  Generated password (shown only now, also saved in ${ENV_FILE}): ${generatedAdminPassword}`
-      : `  Password: ADMIN_PASSWORD in ${ENV_FILE} if this start created the account.`,
+      ? `  Generated password (shown only now, also saved in ${ENV_PATHS.api}): ${generatedAdminPassword}`
+      : `  Password: ADMIN_PASSWORD in ${ENV_PATHS.api} if this start created the account.`,
     // The seed only promotes an account that already exists: it never changes its credentials.
     '  An account that already existed keeps its own username and password.',
     '',
@@ -112,7 +112,7 @@ function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassw
 
 /**
  * Starts the stack and prints the link to share.
- *   npm run host:start              mode from .env (TUNNEL_MODE, local by default)
+ *   npm run host:start              mode from the .env (TUNNEL_MODE, local by default)
  *   npm run host:start -- local     this machine only, http://localhost, no tunnel
  *   npm run host:start -- quick     temporary *.trycloudflare.com URL, no account
  *   npm run host:start -- named     fixed hostname, tunnel credentials file
@@ -120,7 +120,7 @@ function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassw
  */
 export async function start(requestedMode: string | undefined): Promise<void> {
   checkTools()
-  const { env, generatedAdminPassword } = prepareEnv(ENV_FILE, ENV_EXAMPLE_FILE)
+  const { env, generatedAdminPassword } = prepareEnv(ENV_PATHS, ENV_EXAMPLE_PATHS)
   applyMode(requestedMode, env)
   // Stops here, before any build, when something only you can provide is missing.
   const config = validateEnv(env)
