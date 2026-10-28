@@ -1,25 +1,21 @@
-# Releases the Linux and Windows apps. Run by hand (Actions > Desktop release > Run workflow) from main: the next 0.0.{x} is the
-# last v0.0.* tag plus one. The number is not committed anywhere: it exists for the build, and the tag the release
-# creates is what the next run reads. See apps/desktop/README.md.
+# Builds both desktop platforms before publishing one release. Run by hand from main.
+# The next 0.0.{x} comes from the latest v0.0.* tag; the tag is created only after both builds pass.
+# See apps/desktop/README.md.
 name: Desktop release
 
 on: workflow_dispatch
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: desktop-release
   cancel-in-progress: false
 
 jobs:
-  release:
+  checks:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    # The variables and the secret of the app live in this environment, which only main can use.
-    environment: electron-production
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - name: Only from main
         if: github.ref != 'refs/heads/main'
@@ -28,8 +24,43 @@ jobs:
           exit 1
 
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Tests of the desktop and what it shares
+        run: npx turbo run test --filter=desktop --filter=@gameplay/desktop-bridge --filter=@gameplay/contracts
+
+  version:
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Next version
+        id: next
+        run: |
+          last=$(git tag --list 'v0.0.*' --sort=-v:refname | head -n 1)
+          next=$(( ${last##*.} + 1 ))
+          echo "Last release: ${last:-none}. This one: 0.0.${next}"
+          echo "version=0.0.${next}" >> "$GITHUB_OUTPUT"
+
+  linux:
+    needs: version
+    runs-on: ubuntu-latest
+    environment: electron-production
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
@@ -41,25 +72,13 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y dpkg fakeroot
 
       - run: npm ci
+      - run: npm run build -w @gameplay/contracts
+      - name: Use the release version
+        run: npm pkg set version="${{ needs.version.outputs.version }}" -w desktop
 
-      - run: npm run typecheck
-      - run: npm run lint
-      - name: Tests of the desktop and what it shares
-        run: npx turbo run test --filter=desktop --filter=@gameplay/desktop-bridge --filter=@gameplay/contracts
-
-      - name: Next version
-        id: version
-        run: |
-          last=$(git tag --list 'v0.0.*' --sort=-v:refname | head -n 1)
-          next=$(( ${last##*.} + 1 ))
-          echo "Last release: ${last:-none}. This one: 0.0.${next}"
-          npm pkg set version="0.0.${next}" -w desktop
-          echo "version=0.0.${next}" >> "$GITHUB_OUTPUT"
-
-      - name: Make and publish
-        run: npm run publish -w desktop
+      - name: Make the Linux DEB and ZIP
+        run: npm run make -w desktop
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_APP_ENV: production
           VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
@@ -67,8 +86,17 @@ jobs:
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-linux
+          path: |
+            apps/desktop/out/make/deb/x64/*.deb
+            apps/desktop/out/make/zip/linux/x64/*.zip
+          if-no-files-found: error
+          compression-level: 0
+
   windows:
-    needs: release
+    needs: version
     runs-on: windows-latest
     environment: electron-production
     timeout-minutes: 45
@@ -94,10 +122,11 @@ jobs:
         run: '"${{ steps.msys2.outputs.msys2-location }}\ucrt64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append'
 
       - run: npm ci
-      - run: npm run typecheck -w desktop
-      - run: npm test -w desktop
+      # Turbo builds workspace dependencies, including @gameplay/contracts/dist, first.
+      - run: npx turbo run typecheck --filter=desktop
+      - run: npx turbo run test --filter=desktop
       - name: Use the release version
-        run: npm pkg set version="${{ needs.release.outputs.version }}" -w desktop
+        run: npm pkg set version="${{ needs.version.outputs.version }}" -w desktop
 
       - name: Make the Windows installer and ZIP
         run: npm run make -w desktop
@@ -110,9 +139,36 @@ jobs:
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
-      - name: Attach Windows builds to the release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows
+          path: |
+            apps/desktop/out/make/squirrel.windows/x64/*.exe
+            apps/desktop/out/make/zip/win32/x64/*.zip
+          if-no-files-found: error
+          compression-level: 0
+
+  publish:
+    needs: [version, linux, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Publish the complete release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
-          $version = "${{ needs.release.outputs.version }}"
-          gh release upload "v$version" "apps/desktop/out/make/squirrel.windows/x64/gameplay-$version Setup.exe" "apps/desktop/out/make/zip/win32/x64/gameplay-win32-x64-$version.zip" --clobber
+          mapfile -d '' assets < <(find release-assets -type f \( -name '*.deb' -o -name '*.zip' -o -name '*.exe' \) -print0)
+          if [ "${#assets[@]}" -ne 4 ]; then
+            echo "::error::Expected a Linux DEB and ZIP plus a Windows installer and ZIP; found ${#assets[@]}."
+            exit 1
+          fi
+          gh release create "v${VERSION}" "${assets[@]}" --target "$GITHUB_SHA" --title "v${VERSION}" --generate-notes

@@ -17,9 +17,9 @@ Any other `VITE_APP_ENV`, or none, stops the app and the packaging. The values a
 
 ## Release (Linux e Windows)
 
-Em Actions > **Desktop release** > Run workflow, escolha `main`. O job Linux roda typecheck, lint e testes, calcula a próxima versão `0.0.{x}` a partir da última tag `v0.0.*`, gera o DEB e o ZIP e cria o release. Em seguida, o job Windows usa a mesma versão, compila o auxiliar WASAPI com MinGW no runner Windows, gera o instalador Squirrel e o ZIP e os anexa ao mesmo release. Nenhuma versão é commitada: a tag registra a última versão, e `apps/desktop/package.json` permanece em `0.0.0`.
+Em Actions > **Desktop release** > Run workflow, escolha `main`. Primeiro passam typecheck, lint e testes. Depois o workflow calcula a próxima versão `0.0.{x}` a partir da última tag `v0.0.*`. Os jobs Linux e Windows rodam em paralelo: geram DEB e ZIP no Linux, instalador Squirrel e ZIP no Windows. O Windows compila o auxiliar WASAPI com MinGW e usa o Turborepo para construir `@gameplay/contracts` antes do typecheck. Só depois que os quatro arquivos estão prontos o job final cria a tag e publica o release com todos eles. Nenhuma versão é commitada: a tag registra a última versão, e `apps/desktop/package.json` permanece em `0.0.0`.
 
-O job Windows depende do sucesso do Linux. Se falhar por um motivo transitório depois que o release Linux for criado, execute novamente o job com falha no Actions; o upload substitui os arquivos Windows da mesma versão. Um workflow novo calcularia a próxima versão.
+Se um build falhar, não haverá tag nem release incompleto. Corrija a falha e execute novamente o workflow. Se apenas o job de publicação falhar, confira se a tag ou o release chegou a ser criado antes de repetir o job.
 
 The variables and the secret live in the GitHub environment `electron-production` (Settings > Environments), under the same names as in `.env`. Only `main` may use it.
 
