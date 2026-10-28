@@ -67,3 +67,11 @@ Suposições e pontos em aberto:
 - Pendente: **no Wayland do usuário**, escolher a janela no portal, marcar o aplicativo e ouvir o áudio do outro lado (manual).
 - *(suposição)* O modo `system` (tudo menos o app) existe no contrato e no provider, mas **não tem tela**: o diálogo só oferece aplicativos escolhidos.
 - *(suposição)* A seleção é por `application.name`, o nome que o PipeWire dá ao aplicativo: um navegador com várias abas aparece como um aplicativo só.
+
+### Log local do app (2026-10-28)
+
+Pedido do usuário depois do primeiro teste no Wayland, para depurar sem colar logs: o main process grava `main.log` em `app.getPath('logs')` (no Linux, `~/.config/Gameplay/logs/main.log`), uma linha JSON por evento, com `pino` sem transport (um transport precisaria de worker thread e arquivos extras no bundle). Rotação só na abertura (5 MB, 3 arquivos).
+- **Captura central, sem try/catch espalhado:** `uncaughtExceptionMonitor`, `unhandledRejection` e `warning` do `process`; `render-process-gone` e `child-process-gone` do `app`; e, para cada janela criada (`web-contents-created`), `console-message` (erro e aviso, o resto como debug), `did-fail-load`, `preload-error`, `unresponsive`. Erros não tratados do renderer chegam pelo console do Chromium.
+- **Eventos do app:** início (versões, sessão Wayland ou X11), PipeWire achado ou não, falha ao carregar o venmic, link e unlink do áudio, fonte escolhida no `getDisplayMedia`.
+- *(suposição)* `uncaughtExceptionMonitor` em vez de `uncaughtException`, para só observar e manter o comportamento padrão do Electron. Desligar o envio remoto (Grafana via API) ficou para um ticket de observabilidade do desktop.
+- Pendente: log do `getStats` do sender de áudio ao publicar, para saber se a faixa do microfone virtual manda pacotes (causa provável do `not_found_track_error` na Cloudflare).

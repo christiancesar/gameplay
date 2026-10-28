@@ -1,5 +1,6 @@
 import type { AudioApp, AudioShare } from '@gameplay/desktop-bridge'
 
+import { type Logger, silentLogger } from '../../../logging/logger'
 import { AppAudioProvider } from '../app-audio.provider'
 
 type Node = Record<string, string>
@@ -22,18 +23,24 @@ const BINARY = 'application.process.binary'
 export class VenmicAppAudioProvider extends AppAudioProvider {
   private readonly load: () => PatchBayConstructor | null
   private readonly selfBinary: string
+  private readonly logger: Logger
   private patchBay: PatchBayLike | null = null
+  private reported = false
 
-  constructor(load: () => PatchBayConstructor | null, selfBinary: string) {
+  constructor(load: () => PatchBayConstructor | null, selfBinary: string, logger: Logger = silentLogger) {
     super()
     this.load = load
     this.selfBinary = selfBinary
+    this.logger = logger
   }
 
   available(): boolean {
     try {
-      return this.load()?.hasPipeWire() ?? false
-    } catch {
+      const pipewire = this.load()?.hasPipeWire() ?? false
+      this.report(pipewire ? 'PipeWire found, app audio is available' : 'No PipeWire, app audio is off')
+      return pipewire
+    } catch (err) {
+      this.report('Could not check PipeWire, app audio is off', err)
       return false
     }
   }
@@ -48,6 +55,7 @@ export class VenmicAppAudioProvider extends AppAudioProvider {
       if (!name || binary === this.selfBinary) continue
       if (!apps.has(name)) apps.set(name, { name, binary })
     }
+    this.logger.debug({ apps: [...apps.keys()] }, 'Applications playing sound')
     return [...apps.values()]
   }
 
@@ -59,16 +67,28 @@ export class VenmicAppAudioProvider extends AppAudioProvider {
     const exclude = [{ [BINARY]: this.selfBinary }]
     const base = { exclude, ignore_devices: true, only_speakers: true }
     try {
-      return bay.link(
+      const linked = bay.link(
         target.mode === 'apps' ? { ...base, include: target.apps.map((name) => ({ [NAME]: name })) } : base,
       )
-    } catch {
+      this.logger.info({ target, linked }, 'Linked application audio to the virtual microphone')
+      return linked
+    } catch (err) {
+      this.logger.error({ err, target }, 'Could not link application audio')
       return false
     }
   }
 
   stop(): void {
     this.patchBay?.unlink()
+    this.logger.info('Unlinked application audio')
+  }
+
+  /** What the system offers does not change while the app runs, so it is said once. */
+  private report(message: string, err?: unknown): void {
+    if (this.reported) return
+    this.reported = true
+    if (err) this.logger.warn({ err }, message)
+    else this.logger.info(message)
   }
 
   private bay(): PatchBayLike | null {
