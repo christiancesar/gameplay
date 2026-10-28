@@ -6,21 +6,94 @@ import { Meta } from '@storybook/addon-docs/blocks'
 
 Todas as Views do app, por fluxo do `plans/02-core-flows.md`. Use a barra de cima para trocar **tema** (escuro/claro) e **idioma** (EN/PT).
 
-| Fluxo                            | Onde ver                                                             |
-| -------------------------------- | -------------------------------------------------------------------- |
-| F1 · SignIn                      | `Auth/SignIn`                                                        |
-| F2 · SignUp                      | `Auth/SignUp`                                                        |
-| F3 · Entrar por link de servidor | `Invites/InviteLanding`                                              |
-| F4 · Hub                         | `Hub/Hub`                                                            |
-| F5 · Criar servidor              | `Servers/CreateServerDialog`                                         |
-| F6 · Tela do servidor            | `Servers/ServerScreen`, `Servers/ServerSidebar`, `Servers/UserCard`  |
-| F7 · Modal do servidor           | `Servers/ServerSettings`                                             |
-| F8 · Sala e voz                  | `Rooms/RoomStage`, `Servers/ServerScreen` (InRoom, MicrophoneDenied) |
-| F9 · Compartilhar tela           | `ScreenShare/SharePanel`, `Servers/ServerScreen` (Sharing)           |
-| F10 · Assistir tela              | `ScreenShare/StreamViewer`, `Servers/ServerScreen` (WatchingStream)  |
-| F11 · Configurações              | `Settings/UserSettings`                                              |
-| F12 · Painel admin               | `Admin/TwoFactorSetup`, `Admin/AdminPanel`                           |
-| F13 · Desconexões e avisos       | `Connection/DisconnectsAndNotices`                                   |
+<table className="w-full border-collapse text-left">
+  <thead>
+    <tr>
+      <th className="border-b border-border p-2">Fluxo</th>
+      <th className="border-b border-border p-2">Onde ver</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td className="border-b border-border p-2">F1 · SignIn</td>
+      <td className="border-b border-border p-2">
+        <code>Auth/SignIn</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F2 · SignUp</td>
+      <td className="border-b border-border p-2">
+        <code>Auth/SignUp</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F3 · Entrar por link de servidor</td>
+      <td className="border-b border-border p-2">
+        <code>Invites/InviteLanding</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F4 · Hub</td>
+      <td className="border-b border-border p-2">
+        <code>Hub/Hub</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F5 · Criar servidor</td>
+      <td className="border-b border-border p-2">
+        <code>Servers/CreateServerDialog</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F6 · Tela do servidor</td>
+      <td className="border-b border-border p-2">
+        <code>Servers/ServerScreen</code>, <code>Servers/ServerSidebar</code>, <code>Servers/UserCard</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F7 · Modal do servidor</td>
+      <td className="border-b border-border p-2">
+        <code>Servers/ServerSettings</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F8 · Sala e voz</td>
+      <td className="border-b border-border p-2">
+        <code>Rooms/RoomStage</code>, <code>Servers/ServerScreen</code> (InRoom, MicrophoneDenied)
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F9 · Compartilhar tela</td>
+      <td className="border-b border-border p-2">
+        <code>ScreenShare/SharePanel</code>, <code>Servers/ServerScreen</code> (Sharing)
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F10 · Assistir tela</td>
+      <td className="border-b border-border p-2">
+        <code>ScreenShare/StreamViewer</code>, <code>Servers/ServerScreen</code> (WatchingStream)
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F11 · Configurações</td>
+      <td className="border-b border-border p-2">
+        <code>Settings/UserSettings</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F12 · Painel admin</td>
+      <td className="border-b border-border p-2">
+        <code>Admin/TwoFactorSetup</code>, <code>Admin/AdminPanel</code>
+      </td>
+    </tr>
+    <tr>
+      <td className="border-b border-border p-2">F13 · Desconexões e avisos</td>
+      <td className="border-b border-border p-2">
+        <code>Connection/DisconnectsAndNotices</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 Componentes compartilhados ficam em `Shared/UI`.
 

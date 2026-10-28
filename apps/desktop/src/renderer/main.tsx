@@ -6,12 +6,14 @@ import './index.css'
 import { createDesktopPlatform } from './desktop-platform'
 
 // What the main process knows comes before the first screen: the server (the user's choice, or the build's),
-// whether the system can share the sound of applications, and whether the app lists the screens and windows itself.
+// whether the system can share the sound of applications, whether the app lists the screens and windows itself, and
+// whether it can share the sound of the computer without its own.
 const bridge = window.gameplayDesktop
-const [server, appAudio, listSources] = await Promise.all([
+const [server, appAudio, listSources, systemAudio] = await Promise.all([
   bridge['server:get-url'](),
   bridge['audio:available'](),
   bridge['capture:can-list'](),
+  bridge['system-audio:available'](),
 ])
 
 createRoot(document.getElementById('root')!).render(
@@ -23,6 +25,7 @@ createRoot(document.getElementById('root')!).render(
         serverFixed: Boolean(import.meta.env.VITE_SERVER_URL?.trim()),
         appAudio,
         listSources,
+        systemAudio,
       })}
     />
   </StrictMode>,

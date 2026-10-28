@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { cp, mkdir } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -31,6 +32,10 @@ const NATIVE_PACKAGES = [
   { name: 'pkg-prebuilds', keep: ['package.json', 'bindings.js', 'lib'] },
 ]
 
+/** The Windows helper that captures the sound of the computer without the app (native/audio-capture). */
+const audioCaptureDir = path.resolve(import.meta.dirname, 'native/audio-capture')
+const audioCaptureExe = path.join(audioCaptureDir, 'build/gameplay-audio-capture.exe')
+
 const config: ForgeConfig = {
   packagerConfig: {
     name: 'gameplay',
@@ -40,6 +45,8 @@ const config: ForgeConfig = {
     // The packager adds the extension of the system it builds for: .ico on Windows, .icns on macOS. Linux has
     // none (the deb maker and the window carry the PNG).
     icon: path.join(icons, targetPlatform() === 'win32' ? 'windows/icon' : 'macos/icon'),
+    // The helper sits next to the app, outside the archive: it is a program, not a module.
+    extraResource: targetPlatform() === 'win32' ? [audioCaptureExe] : [],
   },
   hooks: {
     // What the build is (VITE_APP_ENV) and its server (VITE_SERVER_URL) come from the .env or the CI. A production
@@ -47,6 +54,9 @@ const config: ForgeConfig = {
     prePackage: async () => {
       const { VITE_APP_ENV, VITE_SERVER_URL } = loadEnv('production', import.meta.dirname, 'VITE_')
       fixedServerFrom(VITE_APP_ENV, VITE_SERVER_URL)
+      // The Windows package carries the audio helper, built with mingw-w64 (on Linux, or in an MSYS2 shell).
+      if (targetPlatform() === 'win32')
+        execFileSync('bash', [path.join(audioCaptureDir, 'build.sh')], { stdio: 'inherit' })
     },
     // The Vite plugin leaves node_modules out of the package: the native audio module (Linux only) and the loader
     // it needs are put back. On a system without them (Windows, macOS) there is nothing to copy.

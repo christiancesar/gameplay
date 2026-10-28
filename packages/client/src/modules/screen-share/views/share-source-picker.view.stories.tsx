@@ -11,6 +11,7 @@ const meta = {
   component: ShareSourcePickerView,
   args: {
     sources: captureSources,
+    kind: 'screen',
     selectedId: 'screen:0:0',
     onSelect: fn(),
     onRefresh: fn(),
@@ -35,20 +36,21 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Telas primeiro, depois as janelas; a escolhida fica marcada. */
+/** The screen section only lists screens. */
 export const Default: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('radio', { name: 'Entire screen' })).toBeChecked()
-    await expect(canvas.getAllByRole('radio')).toHaveLength(5)
+    await expect(canvas.getAllByRole('radio')).toHaveLength(2)
   },
 }
 
 export const ChooseAWindow: Story = {
+  args: { kind: 'window', selectedId: 'window:590528:0' },
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('radio', { name: 'Cyberpunk 2077' }))
     await expect(args.onSelect).toHaveBeenCalledWith('window:590528:0')
     await expect(canvas.getByRole('radio', { name: 'Cyberpunk 2077' })).toBeChecked()
-    await expect(canvas.getByRole('radio', { name: 'Entire screen' })).not.toBeChecked()
+    await expect(canvas.queryByRole('radio', { name: 'Entire screen' })).toBeNull()
   },
 }
 
@@ -67,7 +69,7 @@ export const WithoutPreviews: Story = {
 export const NothingFound: Story = {
   args: { sources: [], selectedId: null },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/no screen or window found/i)).toBeVisible()
+    await expect(canvas.getByText(/no source of this type found/i)).toBeVisible()
     await expect(canvas.queryByRole('radio')).toBeNull()
   },
 }

@@ -4,8 +4,16 @@ import '@sentry/electron/preload'
 import { createBridge } from '@gameplay/desktop-bridge/bridge'
 import { contextBridge, ipcRenderer } from 'electron'
 
-// The page gets one typed function per channel of the contract, and neither ipcRenderer nor anything else.
+// The page gets one typed function per channel of the contract, `on` for the events of the main process, and
+// neither ipcRenderer nor anything else.
 contextBridge.exposeInMainWorld(
   'gameplayDesktop',
-  createBridge((channel, input) => ipcRenderer.invoke(channel, input)),
+  createBridge(
+    (channel, input) => ipcRenderer.invoke(channel, input),
+    (event, listener) => {
+      const handler = (_event: unknown, payload: unknown) => (listener as (payload: unknown) => void)(payload)
+      ipcRenderer.on(event, handler)
+      return () => void ipcRenderer.removeListener(event, handler)
+    },
+  ),
 )

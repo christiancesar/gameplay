@@ -2,6 +2,7 @@ import type { AudioApp, AudioShare } from '@gameplay/desktop-bridge'
 
 import { type Logger, silentLogger } from '../../../logging/logger'
 import { AppAudioProvider } from '../app-audio.provider'
+import { x11WindowBinary } from './x11-window-binary'
 
 type Node = Record<string, string>
 
@@ -67,8 +68,13 @@ export class VenmicAppAudioProvider extends AppAudioProvider {
     const exclude = [{ [BINARY]: this.selfBinary }]
     const base = { exclude, ignore_devices: true, only_speakers: true }
     try {
+      const binary = target.mode === 'window' ? x11WindowBinary(target.sourceId) : null
       const linked = bay.link(
-        target.mode === 'apps' ? { ...base, include: target.apps.map((name) => ({ [NAME]: name })) } : base,
+        target.mode === 'apps'
+          ? { ...base, include: target.apps.map((name) => ({ [NAME]: name })) }
+          : target.mode === 'window' && binary && binary !== this.selfBinary
+            ? { ...base, include: [{ [BINARY]: binary }] }
+            : base,
       )
       this.logger.info({ target, linked }, 'Linked application audio to the virtual microphone')
       return linked

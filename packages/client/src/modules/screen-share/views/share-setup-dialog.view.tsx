@@ -25,10 +25,18 @@ const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
 /** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
 type SharePriority = (typeof SHARE_PRIORITIES)[number]
 
-type AudioSupport = 'apps' | 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
+type AudioSupport =
+  | 'apps'
+  | 'systemWithoutApp'
+  | 'windowApp'
+  | 'supported'
+  | 'recentMac'
+  | 'windowUnsupported'
+  | 'tabOnly'
+  | 'browserUnsupported'
 
 /** Where the browser gives screen audio. Elsewhere the switch is locked and the hint says only the microphone goes. */
-const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'supported', 'recentMac']
+const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'systemWithoutApp', 'windowApp', 'supported', 'recentMac']
 
 type ShareSettings = {
   source: ShareSource
@@ -68,7 +76,7 @@ type ShareSetupDialogViewProps = {
   audioSupport: AudioSupport
   /** Com `audioSupport` `apps`: o que está tocando agora e como atualizar a lista. */
   audioApps?: { available: readonly AudioAppOption[]; onRefresh: () => void }
-  /** O app lista telas e janelas: a grade no lugar dos três tipos, e iniciar espera uma escolha. */
+  /** O app lista telas e janelas abaixo dos cartões de tipo, e iniciar espera uma escolha. */
   sources?: SourceChoice
   /** O app não lista (Wayland): o sistema pergunta ao iniciar, e a seção só avisa isso. */
   systemPicker?: boolean
@@ -93,7 +101,6 @@ function ShareSetupDialogView({
   settings,
   priority,
   audioSupport,
-  audioApps,
   sources,
   systemPicker = false,
   saveAsDefault,
@@ -113,7 +120,10 @@ function ShareSetupDialogView({
   const audioAvailable = AUDIO_AVAILABLE.includes(audioSupport)
   const showModes = !isUpdate && Boolean(streamModes)
   const noMode = showModes && !streamModes?.sfu.available && !streamModes?.mesh.available
-  const noSource = !isUpdate && Boolean(sources) && !sources?.selectedId
+  const noSource =
+    !isUpdate &&
+    Boolean(sources) &&
+    !sources?.available.some((source) => source.id === sources.selectedId && source.kind === settings.source)
   const description = isUpdate
     ? 'share.setup.updateDescription'
     : sources
@@ -121,14 +131,6 @@ function ShareSetupDialogView({
       : systemPicker
         ? 'share.setup.descriptionSystem'
         : 'share.setup.description'
-  // What was chosen but is not playing now stays on the list, so it can be unticked.
-  const playing = audioApps?.available.map((app) => app.name) ?? []
-  const appRows = [
-    ...(audioApps?.available ?? []),
-    ...settings.audioApps.filter((name) => !playing.includes(name)).map((name) => ({ name, binary: null })),
-  ]
-  const toggleApp = (name: string, on: boolean) =>
-    set({ audioApps: on ? [...settings.audioApps, name] : settings.audioApps.filter((chosen) => chosen !== name) })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -139,15 +141,6 @@ function ShareSetupDialogView({
         </DialogHeader>
 
         <div className="flex flex-col gap-6">
-          {!isUpdate && sources && (
-            <ShareSourcePickerView
-              sources={sources.available}
-              selectedId={sources.selectedId}
-              onSelect={sources.onSelect}
-              onRefresh={sources.onRefresh}
-            />
-          )}
-
           {!isUpdate && !sources && systemPicker && (
             <fieldset className="flex flex-col gap-3">
               <legend className="mb-3 text-sm font-medium">{t('share.setup.source')}</legend>
@@ -158,11 +151,11 @@ function ShareSetupDialogView({
             </fieldset>
           )}
 
-          {!isUpdate && !sources && !systemPicker && (
+          {!isUpdate && !systemPicker && (
             <fieldset className="flex flex-col gap-3">
               <legend className="mb-3 text-sm font-medium">{t('share.setup.source')}</legend>
               <div role="radiogroup" aria-label={t('share.setup.source')} className="grid grid-cols-3 gap-2">
-                {SHARE_SOURCES.map((source) => {
+                {(sources ? SHARE_SOURCES.filter((source) => source !== 'tab') : SHARE_SOURCES).map((source) => {
                   const Icon = SOURCE_ICONS[source]
                   const selected = settings.source === source
                   return (
@@ -201,6 +194,16 @@ function ShareSetupDialogView({
                 </p>
               )}
             </fieldset>
+          )}
+
+          {!isUpdate && sources && settings.source !== 'tab' && (
+            <ShareSourcePickerView
+              sources={sources.available}
+              kind={settings.source}
+              selectedId={sources.selectedId}
+              onSelect={sources.onSelect}
+              onRefresh={sources.onRefresh}
+            />
           )}
 
           <div className="grid grid-cols-2 gap-4">
@@ -277,43 +280,6 @@ function ShareSetupDialogView({
                 onCheckedChange={(includeAudio) => set({ includeAudio })}
               />
             </div>
-          )}
-
-          {!isUpdate && audioSupport === 'apps' && settings.includeAudio && audioApps && (
-            <fieldset className="flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-2">
-                <legend className="text-sm font-medium">{t('share.setup.audioApps.title')}</legend>
-                <Button type="button" variant="ghost" size="xs" onClick={audioApps.onRefresh}>
-                  {t('share.setup.audioApps.refresh')}
-                </Button>
-              </div>
-              {appRows.length === 0 ? (
-                <p className="text-muted-foreground text-xs">{t('share.setup.audioApps.empty')}</p>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {appRows.map((app) => (
-                    <li key={app.name} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`share-audio-app-${app.name}`}
-                        checked={settings.audioApps.includes(app.name)}
-                        onCheckedChange={(value) => toggleApp(app.name, value === true)}
-                      />
-                      <Label htmlFor={`share-audio-app-${app.name}`} className="font-normal">
-                        {app.name}
-                        {!playing.includes(app.name) && (
-                          <span className="text-muted-foreground ml-1.5 text-xs">
-                            {t('share.setup.audioApps.idle')}
-                          </span>
-                        )}
-                      </Label>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {settings.audioApps.length === 0 && (
-                <p className="text-amber-500 text-xs">{t('share.setup.audioApps.none')}</p>
-              )}
-            </fieldset>
           )}
 
           {showModes && streamModes && (

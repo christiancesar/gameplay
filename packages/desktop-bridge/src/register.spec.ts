@@ -21,6 +21,9 @@ function setup(isTrustedPage = (url: string) => url.startsWith('app://gameplay/'
       { id: 'window:1:0', name: 'Game', kind: 'window', thumbnail: 'data:image/jpeg;base64,AAAA', appIcon: null },
     ]),
     'capture:select-source': vi.fn((_id: string | null) => undefined),
+    'system-audio:available': vi.fn(() => true),
+    'system-audio:start': vi.fn((_scope?: { scope: string }) => true),
+    'system-audio:stop': vi.fn(() => undefined),
   } satisfies ChannelHandlers
   registerChannels(ipc, handlers, isTrustedPage)
   const call = (channel: string, input?: unknown, page: string | null = 'app://gameplay/') =>
@@ -110,5 +113,18 @@ describe('registerChannels', () => {
       { id: 'window:1:0', name: 'x', kind: 'window', thumbnail: 'https://evil.example/a.png', appIcon: null },
     ])
     await expect(call('capture:list-sources')).rejects.toThrow()
+  })
+
+  it('starts the system audio for the whole computer or for a window, and nothing else', async () => {
+    const { call, handlers } = setup()
+
+    expect(await call('system-audio:start')).toBe(true)
+    expect(await call('system-audio:start', { scope: 'system' })).toBe(true)
+    expect(await call('system-audio:start', { scope: 'window', sourceId: 'window:590528:0' })).toBe(true)
+    await expect(call('system-audio:start', { scope: 'window' })).rejects.toThrow()
+    await expect(call('system-audio:start', { scope: 'window', sourceId: 'C:\\Windows' })).rejects.toThrow()
+    await expect(call('system-audio:start', { scope: 'everything' })).rejects.toThrow()
+
+    expect(handlers['system-audio:start']).toHaveBeenCalledTimes(3)
   })
 })

@@ -197,8 +197,10 @@
       "descriptionSystem": "Pick the quality. Next, the system asks you to choose the screen or window.",
       "systemPicker": "The system will ask which screen or window to share when you start.",
       "sourcePicker": {
+        "screen": "Screens",
+        "window": "Windows and games",
         "refresh": "Refresh",
-        "empty": "No screen or window found."
+        "empty": "No source of this type found."
       },
       "source": "What to share",
       "sources": {
@@ -236,7 +238,9 @@
         "windowUnsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab. Only your microphone will be shared.",
         "tabOnly": "On this system the browser doesn't capture the audio of the entire screen. Share a tab to send its sound. Only your microphone will be shared.",
         "browserUnsupported": "This browser doesn't share screen audio. To send the game sound, use Chrome or Edge. Only your microphone will be shared.",
-        "apps": "Share the sound of the applications you choose below."
+        "apps": "Share the sound of the applications you choose below.",
+        "systemWithoutApp": "Shares the sound of the computer, without the call: the viewers already hear the others from the app.",
+        "windowApp": "Shares the sound of this window's application, without the call."
       },
       "saveAsDefault": "Use these settings next time",
       "start": "Choose and share",

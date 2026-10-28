@@ -33,6 +33,8 @@ type PlatformCapabilities = {
   systemAudio: boolean
   /** The sound of chosen applications can be shared, whichever screen or window is. */
   appAudio: boolean
+  /** The sound of the computer can be shared without the app's own, so the call does not come back to the viewers. */
+  systemAudioWithoutApp: boolean
   /** Shortcuts that work with the app out of focus. */
   globalHotkeys: boolean
 }

@@ -9,6 +9,8 @@ import {
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 import { init as initElectronSentry } from '@sentry/electron/renderer'
 
+import { openSystemAudioTrack, type SystemAudioTrack } from './system-audio-track'
+
 /** What the releases of the app are called in Sentry, in the window and in the main process alike. */
 const RELEASE_NAME = 'gameplay-desktop'
 
@@ -74,6 +76,8 @@ type DesktopPlatformOptions = {
   appAudio: boolean
   /** Whether the app lists the screens and windows itself (Windows, X11); on Wayland the system picker chooses. */
   listSources: boolean
+  /** Whether the system can share its sound without the app's own (Windows, with the capture helper). */
+  systemAudio: boolean
 }
 
 /**
@@ -89,8 +93,10 @@ function createDesktopPlatform({
   serverFixed,
   appAudio,
   listSources,
+  systemAudio,
 }: DesktopPlatformOptions): Platform {
   let chosen = server
+  let systemAudioTrack: SystemAudioTrack | null = null
   return {
     kind: 'desktop',
     capabilities: {
@@ -98,17 +104,45 @@ function createDesktopPlatform({
       appAudio,
       globalHotkeys: false,
       ...audioCapabilitiesOf(navigator as unknown as CapturePlatformSource),
+      // Never the call: the sound that goes is the computer's without this app, and on Windows, for a window, that of
+      // the application that owns it.
+      systemAudioWithoutApp: systemAudio || appAudio,
+      windowAudio: systemAudio || (appAudio && listSources),
     },
     capture: {
       listSources: async () => (listSources ? bridge['capture:list-sources']() : []),
       start: async ({ options, sourceId, audioApps }) => {
         // The page cannot hand a source to `getDisplayMedia`: the main process answers it, so it is told first.
         if (listSources) await bridge['capture:select-source'](sourceId)
-        if (!appAudio || !audioApps?.length) return acquireScreen(options)
+        if (systemAudio && options.audio) {
+          // The sound of the computer without the app (the call plays inside it), through the capture helper.
+          const video = await acquireScreen({ ...options, audio: false })
+          if (!video.ok) return video
+          // A window carries the sound of its application; a screen, that of the computer without this app.
+          const scope = sourceId?.startsWith('window:')
+            ? ({ scope: 'window', sourceId } as const)
+            : ({ scope: 'system' } as const)
+          const opened = await openSystemAudioTrack(bridge, scope)
+          if (!opened) return video
+          systemAudioTrack?.close()
+          systemAudioTrack = opened
+          video.capture.stream.addTrack(opened.track)
+          return { ok: true, capture: { ...video.capture, audio: opened.track } }
+        }
+        // Linux: the sound is the applications' that the user chose (a setting for later), or else the computer's
+        // without this app, so the call never goes back to the viewers. Either way it comes through a virtual microphone.
+        const apps = appAudio ? (audioApps ?? []) : []
+        if (!appAudio || (apps.length === 0 && !options.audio)) return acquireScreen(options)
         // The video without audio of its own; the sound is the applications' one, added below.
         const video = await acquireScreen({ ...options, audio: false })
         if (!video.ok) return video
-        const shared = await bridge['audio:share']({ mode: 'apps', apps: [...audioApps] })
+        const shared = await bridge['audio:share'](
+          apps.length > 0
+            ? { mode: 'apps', apps: [...apps] }
+            : sourceId?.startsWith('window:')
+              ? { mode: 'window', sourceId }
+              : { mode: 'system' },
+        )
         const audio = shared ? await openVirtualMicrophone() : null
         if (!audio) {
           await bridge['audio:stop']()
@@ -119,6 +153,8 @@ function createDesktopPlatform({
       },
       stop: (capture) => {
         stopScreen(capture)
+        systemAudioTrack?.close()
+        systemAudioTrack = null
         // Without a share there is nothing to take down; the main process knows.
         void bridge['audio:stop']()
       },
