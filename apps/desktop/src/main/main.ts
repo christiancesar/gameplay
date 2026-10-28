@@ -55,7 +55,7 @@ if (!app.requestSingleInstanceLock()) {
 
   void app.whenReady().then(async () => {
     const server = createServerModule(app.getPath('userData'))
-    const audio = createAudioModule(process.execPath, logger)
+    const audio = createAudioModule(process.execPath, logger, telemetry)
     await server.service.load()
 
     serveApp(rendererRoot(), () => server.service.current())

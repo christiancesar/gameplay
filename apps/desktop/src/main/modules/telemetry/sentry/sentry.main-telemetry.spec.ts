@@ -6,6 +6,7 @@ function sdk() {
   return {
     captureException: vi.fn(),
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+    metrics: { distribution: vi.fn() },
     flush: vi.fn(async () => true),
   }
 }
@@ -27,6 +28,16 @@ describe('SentryMainTelemetry', () => {
 
     expect(fake.logger.warn).toHaveBeenCalledWith('No PipeWire', { reason: 'missing' })
     expect(fake.logger.info).not.toHaveBeenCalled()
+  })
+
+  it('sends each value of a measurement as a distribution, marked as the main process of the desktop app', () => {
+    const fake = sdk()
+
+    new SentryMainTelemetry(fake).measure({ name: 'audio_share', values: { linked: 1 }, attributes: { mode: 'apps' } })
+
+    expect(fake.metrics.distribution).toHaveBeenCalledWith('audio_share.linked', 1, {
+      attributes: { mode: 'apps', app: 'desktop', process: 'main' },
+    })
   })
 
   it('flushes with the time it was given', async () => {

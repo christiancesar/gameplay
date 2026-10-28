@@ -1,6 +1,7 @@
 import path from 'node:path'
 
 import type { Logger } from '../logging/logger'
+import type { MainTelemetry } from '../telemetry/main-telemetry'
 import { audioHandlers } from './audio.handlers'
 import { VenmicAppAudioProvider, type PatchBayConstructor } from './providers/venmic/venmic.app-audio.provider'
 import { AppAudioService } from './services/app-audio.service'
@@ -17,9 +18,9 @@ function loadVenmic(logger: Logger): PatchBayConstructor | null {
 }
 
 /** Puts the audio module together: PipeWire on Linux, with the binary of this app named so its own sound is left out. */
-export function createAudioModule(executablePath: string, logger: Logger) {
+export function createAudioModule(executablePath: string, logger: Logger, telemetry: MainTelemetry) {
   const service = new AppAudioService(
     new VenmicAppAudioProvider(() => loadVenmic(logger), path.basename(executablePath), logger),
   )
-  return { service, handlers: audioHandlers(service) }
+  return { service, handlers: audioHandlers(service, telemetry) }
 }

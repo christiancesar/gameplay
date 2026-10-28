@@ -27,6 +27,12 @@ Source maps do desktop (DESK-10). Opt-out nas configurações.
 - Ajustes no log local: `render-process-gone` com `clean-exit` (janela fechada normalmente) deixou de ser erro, e o ruído de `devtools://` saiu.
 - Fora do escopo e pendente: source maps do main e do renderer (DESK-10). O slug do projeto (`gameplay-electron`) já está no `apps/desktop/.env`. Não testado: um crash nativo de verdade (minidump).
 
+### Traces e métricas no main (2026-10-28)
+
+O README de início dizia que o main não tinha traces nem métricas. Era o que eu tinha implementado, e não um limite do SDK. Agora: `tracesSampleRate` 0.1 com `startupTracingIntegration()` (a abertura do app como trace), e `MainTelemetry.measure` (uma distribuição por valor, marcada `app: desktop` e `process: main`). A primeira métrica é `audio_share.linked` (o áudio de aplicativos ligou ou não, por modo), medida em `audioHandlers`. Verificado no app empacotado contra um servidor local: o app inicia sem erro e manda logs, sessão e eventos; o trace de abertura é amostrado (10%) e não apareceu nas duas execuções. Métricas só saem quando alguém compartilha.
+
+*(suposição)* A janela usa `@sentry/react` com o DSN direto, e não `@sentry/electron/renderer`. O caminho da documentação manda os eventos da janela pelo main, com a fila offline e o escopo do processo principal em comum. O nosso funciona e cabe no `Platform`, mas vale reavaliar se faltar correlação entre o que a janela e o main reportam.
+
 ### Controle do tamanho do log local (2026-10-28)
 
 Pedido do usuário: o `main.log` não pode crescer sem controle. Antes, a rotação só acontecia na abertura do app, então uma sessão longa ou um erro em laço podia encher o disco. Agora:

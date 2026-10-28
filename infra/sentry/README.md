@@ -16,9 +16,11 @@ Todo evento, log e métrica leva a tag (ou atributo) `app`: `web` ou `desktop`. 
 | O quê | Web | Desktop (janela) | Desktop (main) |
 |---|---|---|---|
 | Erros (com Replay no erro) | sim | sim | sim, e crash nativo (minidump) |
-| Traces (10% das cargas de página e navegações, nomeadas pela rota, e das chamadas `/api`) | sim | sim | não |
+| Traces (10% das amostras) | cargas de página e navegações, nomeadas pela rota, e as chamadas `/api` | idem | a abertura do app (`startupTracingIntegration`) |
 | Logs | `telemetry.log` | `telemetry.log` | o `main.log` de `info` para cima |
-| Métricas | `webrtc.*` e `screen_share_start.*` | idem | não |
+| Métricas | `webrtc.*` e `screen_share_start.*` | idem | `audio_share.linked` (o áudio de aplicativos ligou ou não, por modo) |
+
+O SDK do Electron suportaria mais no main (spans de IPC, de rede e de arquivos). Por enquanto só entra o que responde a uma pergunta: a abertura do app e se o áudio de aplicativos ligou. Dá para acrescentar quando surgir a dúvida.
 
 As chamadas `/api` levam os cabeçalhos `sentry-trace` e `baggage`, e `traceparent` quando o Faro está desligado, então a API (OTel, no Grafana Tempo) continua o trace do navegador.
 
