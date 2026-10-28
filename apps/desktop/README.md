@@ -19,13 +19,13 @@ Any other `VITE_APP_ENV`, or none, stops the app and the packaging. The values a
 
 Actions > **Desktop release** > Run workflow, from `main`. It runs typecheck, lint and the desktop tests, takes the next `0.0.{x}` after the last `v0.0.*` tag, builds the deb and zip and publishes them on GitHub Releases as `v0.0.{x}`. Nothing is committed: the tag is the record of the last version, and `apps/desktop/package.json` stays at `0.0.0`.
 
-What the repository needs (Settings > Secrets and variables > Actions):
+The variables and the secret live in the GitHub environment `electron-production` (Settings > Environments), under the same names as in `.env`. Only `main` may use it.
 
-| Name                                   | Kind      | What for                                                                             |
-| -------------------------------------- | --------- | ------------------------------------------------------------------------------------ |
-| `GAMEPLAY_SERVER_URL`                  | variable  | The server the installer is tied to (`VITE_SERVER_URL`). The build fails without it. |
-| `DESKTOP_SENTRY_DSN`                   | variable  | The Sentry project of the app. Empty keeps Sentry off.                               |
-| `SENTRY_ORG`, `DESKTOP_SENTRY_PROJECT` | variables | Where the source maps go.                                                            |
-| `SENTRY_AUTH_TOKEN`                    | secret    | Uploads the source maps. Without it, they are not made.                              |
+| Name | Kind | What for |
+|---|---|---|
+| `VITE_SERVER_URL` | variable | The server the installer is tied to. The build fails without it. |
+| `VITE_SENTRY_DSN` | variable | The Sentry project of the app. Empty keeps Sentry off. |
+| `SENTRY_ORG`, `SENTRY_PROJECT` | variables | Where the source maps go. |
+| `SENTRY_AUTH_TOKEN` | secret | Uploads the source maps. Without it, they are not made. |
 
-The workflow token (`GITHUB_TOKEN`) publishes the release; nothing else to set up. The production API must already run the code that accepts `app://gameplay` (CORS), or the installer opens on an error screen.
+Set or change them with `gh variable set NAME --env electron-production --body VALUE` and `gh secret set NAME --env electron-production`. `VITE_APP_ENV=production` is fixed in the workflow. The workflow token (`GITHUB_TOKEN`) publishes the release; nothing else to set up. The production API must already run the code that accepts `app://gameplay` (CORS), or the installer opens on an error screen.

@@ -15,6 +15,8 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # The variables and the secret of the app live in this environment, which only main can use.
+    environment: electron-production
     timeout-minutes: 30
     steps:
       - name: Only from main
@@ -57,8 +59,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_APP_ENV: production
-          VITE_SERVER_URL: ${{ vars.GAMEPLAY_SERVER_URL }}
-          VITE_SENTRY_DSN: ${{ vars.DESKTOP_SENTRY_DSN }}
+          VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}
+          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ vars.DESKTOP_SENTRY_PROJECT }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
