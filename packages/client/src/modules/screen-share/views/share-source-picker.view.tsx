@@ -17,33 +17,35 @@ type ShareSourceOption = {
 
 type ShareSourcePickerViewProps = {
   sources: readonly ShareSourceOption[]
+  kind: 'screen' | 'window'
   selectedId: string | null
   onSelect: (id: string) => void
   onRefresh: () => void
 }
 
 /** O seletor de telas e janelas do diálogo de compartilhar, para o host que as lista (Windows e X11). */
-function ShareSourcePickerView({ sources, selectedId, onSelect, onRefresh }: ShareSourcePickerViewProps) {
+function ShareSourcePickerView({ sources, kind, selectedId, onSelect, onRefresh }: ShareSourcePickerViewProps) {
   const { t } = useTranslation()
+  const visible = sources.filter((source) => source.kind === kind)
 
   return (
     <fieldset className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <legend className="text-sm font-medium">{t('share.setup.source')}</legend>
+        <legend className="text-sm font-medium">{t(`share.setup.sourcePicker.${kind}`)}</legend>
         <Button type="button" variant="ghost" size="xs" onClick={onRefresh}>
           <RefreshCwIcon data-icon="inline-start" aria-hidden />
           {t('share.setup.sourcePicker.refresh')}
         </Button>
       </div>
-      {sources.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="text-muted-foreground text-xs">{t('share.setup.sourcePicker.empty')}</p>
       ) : (
         <div
           role="radiogroup"
-          aria-label={t('share.setup.source')}
+          aria-label={t(`share.setup.sourcePicker.${kind}`)}
           className="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1"
         >
-          {sources.map((source) => {
+          {visible.map((source) => {
             const selected = source.id === selectedId
             const KindIcon = source.kind === 'screen' ? MonitorIcon : AppWindowIcon
             return (

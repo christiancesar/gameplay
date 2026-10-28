@@ -306,49 +306,23 @@ describe('useSharePanelViewModel', () => {
     })
   })
 
-  describe('on a host that shares the sound of applications', () => {
-    const playing = [{ name: 'Spotify', binary: 'spotify' }]
-    const desktop = { kind: 'desktop' as const, capabilities: { appAudio: true }, audioApps: playing }
+  describe('on a Linux host with PipeWire audio', () => {
+    const desktop = { kind: 'desktop' as const, capabilities: { appAudio: true, systemAudioWithoutApp: true } }
 
-    it('offers what is playing when the dialog opens, and again on request', async () => {
+    it('offers system audio without the call and hides the application list', () => {
       const { result } = setup(desktop)
-
       act(() => result.current.onStart())
-
-      expect(result.current.setup.audioSupport).toBe('apps')
-      await waitFor(() => expect(result.current.setup.audioApps?.available).toEqual(playing))
-      act(() => result.current.setup.audioApps?.onRefresh())
-      await waitFor(() => expect(result.current.setup.audioApps?.available).toEqual(playing))
+      expect(result.current.setup.audioSupport).toBe('systemWithoutApp')
+      expect(result.current.setup.audioApps).toBeUndefined()
     })
 
-    it('starts with the chosen applications, whatever the source', () => {
+    it('starts with system audio when no application was chosen', () => {
       const { result } = setup(desktop)
       act(() => result.current.onStart())
-      act(() =>
-        result.current.setup.onChange({
-          ...defaultShareSettings,
-          source: 'window',
-          includeAudio: true,
-          audioApps: ['Spotify'],
-        }),
-      )
+      act(() => result.current.setup.onChange({ ...defaultShareSettings, includeAudio: true }))
       act(() => result.current.setup.onStart())
-
       expect(fakeShareController.start).toHaveBeenCalledWith(
-        expect.objectContaining({ source: 'window', includeAudio: true, audioApps: ['Spotify'] }),
-        'smooth',
-        DIRECT,
-      )
-    })
-
-    it('starts without audio when no application is chosen', () => {
-      const { result } = setup(desktop)
-      act(() => result.current.onStart())
-      act(() => result.current.setup.onChange({ ...defaultShareSettings, includeAudio: true, audioApps: [] }))
-      act(() => result.current.setup.onStart())
-
-      expect(fakeShareController.start).toHaveBeenCalledWith(
-        expect.objectContaining({ includeAudio: false, audioApps: [] }),
+        expect.objectContaining({ includeAudio: true, audioApps: [] }),
         'smooth',
         DIRECT,
       )
@@ -389,23 +363,36 @@ describe('useSharePanelViewModel', () => {
       expect(result.current.setup.systemPicker).toBe(false)
     })
 
-    it('takes the first of the list when there is no screen', async () => {
+    it('keeps the selected type when there is no source of that type', async () => {
       const { result } = desktop([gameSource])
 
       act(() => result.current.onStart())
 
-      await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('window:590528:0'))
+      await waitFor(() => expect(result.current.setup.sources?.available).toHaveLength(1))
+      expect(result.current.setup.sources?.selectedId).toBeNull()
     })
 
-    it('changes the choice and the kind of source with it', async () => {
+    it('chooses the first source of a type when its card is clicked', async () => {
       const { result } = desktop()
       act(() => result.current.onStart())
       await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
 
-      act(() => result.current.setup.sources?.onSelect('window:262794:0'))
+      act(() => result.current.setup.onChange({ ...result.current.setup.settings, source: 'window' }))
 
-      expect(result.current.setup.sources?.selectedId).toBe('window:262794:0')
+      expect(result.current.setup.sources?.selectedId).toBe('window:590528:0')
       expect(result.current.setup.settings.source).toBe('window')
+    })
+
+    it('remembers one source per type while the dialog is open', async () => {
+      const { result } = desktop()
+      act(() => result.current.onStart())
+      await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
+      act(() => result.current.setup.onChange({ ...result.current.setup.settings, source: 'window' }))
+      act(() => result.current.setup.sources?.onSelect('window:262794:0'))
+      act(() => result.current.setup.onChange({ ...result.current.setup.settings, source: 'screen' }))
+      expect(result.current.setup.sources?.selectedId).toBe('screen:0:0')
+      act(() => result.current.setup.onChange({ ...result.current.setup.settings, source: 'window' }))
+      expect(result.current.setup.sources?.selectedId).toBe('window:262794:0')
     })
 
     it('ignores a source that is not on the list', async () => {
@@ -422,6 +409,7 @@ describe('useSharePanelViewModel', () => {
       const { result } = desktop()
       act(() => result.current.onStart())
       await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
+      act(() => result.current.setup.onChange({ ...result.current.setup.settings, source: 'window' }))
       act(() => result.current.setup.sources?.onSelect('window:590528:0'))
 
       act(() => result.current.setup.onStart())
@@ -438,6 +426,7 @@ describe('useSharePanelViewModel', () => {
       const { result } = desktop()
       act(() => result.current.onStart())
       await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
+      act(() => result.current.setup.onChange({ ...result.current.setup.settings, source: 'window' }))
       act(() => result.current.setup.sources?.onSelect('window:590528:0'))
 
       act(() => result.current.setup.sources?.onRefresh())

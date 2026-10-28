@@ -168,6 +168,29 @@ describe('createDesktopPlatform', () => {
       expect(result).toMatchObject({ ok: true, capture: { audio: track } })
     })
 
+    it('captures the application of the window when a window is shared, and the computer for a screen', async () => {
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: capture() })
+      mocks.openSystemAudioTrack.mockResolvedValue({ track, close: vi.fn() })
+      const host = platform(true)
+
+      await host.capture.start({ options: { video: true, audio: true }, sourceId: 'window:590528:0' })
+      expect(mocks.openSystemAudioTrack).toHaveBeenLastCalledWith(expect.anything(), {
+        scope: 'window',
+        sourceId: 'window:590528:0',
+      })
+
+      await host.capture.start({ options: { video: true, audio: true }, sourceId: 'screen:0:0' })
+      expect(mocks.openSystemAudioTrack).toHaveBeenLastCalledWith(expect.anything(), { scope: 'system' })
+
+      await host.capture.start({ options: { video: true, audio: true }, sourceId: null })
+      expect(mocks.openSystemAudioTrack).toHaveBeenLastCalledWith(expect.anything(), { scope: 'system' })
+    })
+
+    it('says a window has its own sound only where the helper can follow it', () => {
+      expect(platform(true).capabilities.windowAudio).toBe(true)
+      expect(platform(false).capabilities.windowAudio).toBe(false)
+    })
+
     it('shares the video alone when the helper does not start', async () => {
       const taken = capture()
       mocks.acquireScreen.mockResolvedValue({ ok: true, capture: taken })
@@ -199,6 +222,64 @@ describe('createDesktopPlatform', () => {
       if (result.ok) host.capture.stop(result.capture)
 
       expect(close).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe('the sound on Linux', () => {
+    const video = { stream: { addTrack: vi.fn() }, video: { id: 'video' } }
+    const linux = () => {
+      const bridge = {
+        'audio:share': vi.fn(async () => false),
+        'audio:stop': vi.fn(async () => undefined),
+      } as unknown as DesktopBridge
+      const platform = createDesktopPlatform({
+        bridge,
+        server: null,
+        serverFixed: false,
+        appAudio: true,
+        listSources: false,
+        systemAudio: false,
+      })
+      return { bridge, platform }
+    }
+
+    it('shares the sound of the computer without the app when audio is asked and no application was chosen', async () => {
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: video })
+      const { bridge, platform } = linux()
+
+      await platform.capture.start({ options: { video: true, audio: true }, sourceId: null })
+
+      expect(bridge['audio:share']).toHaveBeenCalledWith({ mode: 'system' })
+      expect(mocks.acquireScreen).toHaveBeenLastCalledWith({ video: true, audio: false })
+    })
+
+    it('shares the chosen applications when there are some', async () => {
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: video })
+      const { bridge, platform } = linux()
+
+      await platform.capture.start({ options: { video: true, audio: true }, sourceId: null, audioApps: ['Spotify'] })
+
+      expect(bridge['audio:share']).toHaveBeenCalledWith({ mode: 'apps', apps: ['Spotify'] })
+    })
+
+    it('asks for the selected window application on X11', async () => {
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: video })
+      const { bridge, platform } = linux()
+      await platform.capture.start({ options: { video: true, audio: true }, sourceId: 'window:590528:0' })
+      expect(bridge['audio:share']).toHaveBeenCalledWith({ mode: 'window', sourceId: 'window:590528:0' })
+    })
+
+    it('does not touch the sound when none is asked', async () => {
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: video })
+      const { bridge, platform } = linux()
+
+      await platform.capture.start({ options: { video: true }, sourceId: null })
+
+      expect(bridge['audio:share']).not.toHaveBeenCalled()
+    })
+
+    it('says it shares the sound without the call, and that a window has no sound of its own', () => {
+      expect(linux().platform.capabilities).toMatchObject({ systemAudioWithoutApp: true, windowAudio: false })
     })
   })
 })

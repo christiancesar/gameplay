@@ -104,7 +104,10 @@ function createDesktopPlatform({
       appAudio,
       globalHotkeys: false,
       ...audioCapabilitiesOf(navigator as unknown as CapturePlatformSource),
-      systemAudioWithoutApp: systemAudio,
+      // Never the call: the sound that goes is the computer's without this app, and on Windows, for a window, that of
+      // the application that owns it.
+      systemAudioWithoutApp: systemAudio || appAudio,
+      windowAudio: systemAudio || (appAudio && listSources),
     },
     capture: {
       listSources: async () => (listSources ? bridge['capture:list-sources']() : []),
@@ -115,18 +118,31 @@ function createDesktopPlatform({
           // The sound of the computer without the app (the call plays inside it), through the capture helper.
           const video = await acquireScreen({ ...options, audio: false })
           if (!video.ok) return video
-          const opened = await openSystemAudioTrack(bridge)
+          // A window carries the sound of its application; a screen, that of the computer without this app.
+          const scope = sourceId?.startsWith('window:')
+            ? ({ scope: 'window', sourceId } as const)
+            : ({ scope: 'system' } as const)
+          const opened = await openSystemAudioTrack(bridge, scope)
           if (!opened) return video
           systemAudioTrack?.close()
           systemAudioTrack = opened
           video.capture.stream.addTrack(opened.track)
           return { ok: true, capture: { ...video.capture, audio: opened.track } }
         }
-        if (!appAudio || !audioApps?.length) return acquireScreen(options)
+        // Linux: the sound is the applications' that the user chose (a setting for later), or else the computer's
+        // without this app, so the call never goes back to the viewers. Either way it comes through a virtual microphone.
+        const apps = appAudio ? (audioApps ?? []) : []
+        if (!appAudio || (apps.length === 0 && !options.audio)) return acquireScreen(options)
         // The video without audio of its own; the sound is the applications' one, added below.
         const video = await acquireScreen({ ...options, audio: false })
         if (!video.ok) return video
-        const shared = await bridge['audio:share']({ mode: 'apps', apps: [...audioApps] })
+        const shared = await bridge['audio:share'](
+          apps.length > 0
+            ? { mode: 'apps', apps: [...apps] }
+            : sourceId?.startsWith('window:')
+              ? { mode: 'window', sourceId }
+              : { mode: 'system' },
+        )
         const audio = shared ? await openVirtualMicrophone() : null
         if (!audio) {
           await bridge['audio:stop']()

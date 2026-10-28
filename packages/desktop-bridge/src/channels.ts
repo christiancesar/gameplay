@@ -11,6 +11,7 @@ export type AudioApp = z.infer<typeof audioAppSchema>
 export const audioShareSchema = z.discriminatedUnion('mode', [
   z.object({ mode: z.literal('apps'), apps: z.array(z.string().min(1).max(200)).min(1).max(20) }),
   z.object({ mode: z.literal('system') }),
+  z.object({ mode: z.literal('window'), sourceId: z.string().regex(/^window:\d+:0$/) }),
 ])
 export type AudioShare = z.infer<typeof audioShareSchema>
 
