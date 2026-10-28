@@ -16,8 +16,6 @@ import { isAppUrl } from './utils/app-url'
 import { contentSecurityPolicy } from './utils/content-security-policy'
 import { fixedServerFrom } from './utils/fixed-server'
 
-registerAppScheme()
-
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
@@ -28,6 +26,10 @@ if (!app.requestSingleInstanceLock()) {
     environment: import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.VITE_APP_ENV || 'development',
     release: `gameplay-desktop@${app.getVersion()}`,
   })
+  // After Sentry, which registers its own scheme with the same call and keeps later calls from undoing it. Before
+  // it, Sentry's registration replaced ours: `app://` lost `secure`, and a page that is not a secure context has no
+  // microphone (`navigator.mediaDevices` is undefined).
+  registerAppScheme()
   const { logger, file: logFile } = createLoggingModule({
     dir: app.getPath('logs'),
     echo: !app.isPackaged,
