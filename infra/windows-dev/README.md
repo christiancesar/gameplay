@@ -35,7 +35,13 @@ npm run windows:ssh -- 'C:\OEM\run-interactive.ps1 -Program powershell.exe -Argu
 scp -P 2222 -i infra/windows-dev/ssh/id_ed25519 dev@localhost:C:/OEM/screenshot.png .
 ```
 
-Numa VM que já estava instalada, o `install.bat` não roda sozinho. Ou recomece do zero (`windows:down` e `rm -rf infra/windows-dev/storage`), ou aplique à mão: copie `oem/` para `apps/desktop/out/oem` e, no PowerShell como administrador dentro do Windows, rode `Z:\oem\provision.ps1`.
+Numa VM que já estava instalada, o `install.bat` não roda sozinho. Ou recomece do zero (`windows:down` e `rm -rf infra/windows-dev/storage`), ou aplique à mão: copie `oem/` para `apps/desktop/out/oem` e, no PowerShell como administrador dentro do Windows, rode `powershell -ExecutionPolicy Bypass -File Z:\oem\provision.ps1`. O script copia a pasta para `C:\OEM` e libera a execução de `.ps1` na máquina.
+
+Dicas para quem manda comandos por SSH:
+- A pasta do host (`apps/desktop/out`) é `\\host.lan\Data`. Na sessão SSH a letra `Z:` não existe; use a UNC (`robocopy \\host.lan\Data\gameplay-win32-x64 C:\gameplay-test /MIR`).
+- Aspas se perdem no caminho do `npm run`. Para comandos com aspas, mande por entrada padrão: `bash infra/windows-dev/ssh.sh <<'EOF' ... EOF`.
+- O app abre de `C:\`, nunca de `Z:`.
+- A ISO é de avaliação ("Windows License is expired" na tela): o Windows pode reiniciar sozinho de tempos em tempos.
 
 ## Áudio e microfone
 

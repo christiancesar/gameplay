@@ -3,6 +3,15 @@
 $ErrorActionPreference = 'Stop'
 $oem = $PSScriptRoot
 
+# The helpers live in C:\OEM. On a VM installed before this folder existed, the script runs from the shared drive.
+if ($oem -ne 'C:\OEM') {
+  Copy-Item $oem 'C:\OEM' -Recurse -Force
+  $oem = 'C:\OEM'
+}
+
+# The helper scripts (run-interactive, screenshot) are .ps1 files; a fresh Windows refuses them. Dev VM only.
+Set-ExecutionPolicy Bypass -Scope LocalMachine -Force
+
 function Install-OpenSshServer {
   try {
     Add-WindowsCapability -Online -Name 'OpenSSH.Server~~~~0.0.1.0' | Out-Null
