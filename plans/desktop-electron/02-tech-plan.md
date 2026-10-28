@@ -189,13 +189,15 @@ gameplay/
 │   └── desktop/                   app Electron (Forge + plugin Vite)
 │       ├── src/
 │       │   ├── main/
-│       │   │   ├── main.ts        janela, protocolo app://, CSP, trava de navegação
-│       │   │   ├── ipc.ts         registra os canais de cada módulo com validação zod
+│       │   │   ├── main.ts        compõe tudo: módulos, janela, protocolo, IPC
+│       │   │   ├── lib/           o que é do Electron: window, app-protocol, navigation, permissions, ipc
+│       │   │   ├── utils/         funções puras, sem Electron: app-url, asset-path, uploads-url, content-security-policy
+│       │   │   ├── types/         declarações (assets.d.ts)
 │       │   │   └── modules/       um diretório por recurso do sistema
 │       │   │       ├── session/   cookie do servidor atravessando entre sites (cookie-policy.ts)
 │       │   │       ├── server/    o servidor escolhido, num arquivo do userData (handlers, services, providers, test)
-│       │   │       ├── capture/   hoje o handler mínimo do getDisplayMedia; fase 2: desktopCapturer, portal e o seletor do app
-│       │   │       ├── audio/     fase 2: áudio por aplicativo (venmic no Linux, WASAPI no Windows)
+│       │   │       ├── capture/   hoje o handler mínimo do getDisplayMedia; DESK-08: o seletor do app
+│       │   │       ├── audio/     áudio por aplicativo: porta, provider venmic (PipeWire), service, handlers (DESK-07); WASAPI no Windows (DESK-09)
 │       │   │       └── hardware/  futuro: CPU, GPU, RAM, aceleração por hardware
 │       │   ├── preload/
 │       │   │   └── preload.ts     contextBridge com o contrato

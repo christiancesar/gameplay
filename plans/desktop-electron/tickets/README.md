@@ -23,7 +23,7 @@ Ordem mudada em 2026-10-28, depois que o usuário testou o app no Wayland: escol
 
 | Ticket | Pontos | Status |
 |---|---|---|
-| [DESK-07 Áudio por aplicativo no Linux (venmic e PipeWire)](DESK-07-audio-por-aplicativo-linux.md) | 8 | pendente |
+| [DESK-07 Áudio por aplicativo no Linux (venmic e PipeWire)](DESK-07-audio-por-aplicativo-linux.md) | 8 | concluído (falta o teste do usuário no Wayland) |
 | DESK-08 Seletor de fontes do app (X11, Windows, macOS): `capture:list-sources`, miniaturas, `setDisplayMediaRequestHandler` com a escolha do usuário | 5 | a detalhar |
 | DESK-09 Windows: áudio do sistema pelo loopback e áudio por processo (WASAPI) | 5 | a detalhar |
 | DESK-10 Empacotamento, assinatura, atualização completa e versão mínima do app no `/api/health`; fechar o CSP na origem escolhida; `.ico` e `.icns` no empacotamento do Windows e do macOS | 5 | a detalhar |
