@@ -21,11 +21,11 @@ Actions > **Desktop release** > Run workflow, from `main`. It runs typecheck, li
 
 The variables and the secret live in the GitHub environment `electron-production` (Settings > Environments), under the same names as in `.env`. Only `main` may use it.
 
-| Name | Kind | What for |
-|---|---|---|
-| `VITE_SERVER_URL` | variable | The server the installer is tied to. The build fails without it. |
-| `VITE_SENTRY_DSN` | variable | The Sentry project of the app. Empty keeps Sentry off. |
-| `SENTRY_ORG`, `SENTRY_PROJECT` | variables | Where the source maps go. |
-| `SENTRY_AUTH_TOKEN` | secret | Uploads the source maps. Without it, they are not made. |
+| Name                           | Kind      | What for                                                         |
+| ------------------------------ | --------- | ---------------------------------------------------------------- |
+| `VITE_SERVER_URL`              | variable  | The server the installer is tied to. The build fails without it. |
+| `VITE_SENTRY_DSN`              | variable  | The Sentry project of the app. Empty keeps Sentry off.           |
+| `SENTRY_ORG`, `SENTRY_PROJECT` | variables | Where the source maps go.                                        |
+| `SENTRY_AUTH_TOKEN`            | secret    | Uploads the source maps. Without it, they are not made.          |
 
 Set or change them with `gh variable set NAME --env electron-production --body VALUE` and `gh secret set NAME --env electron-production`. `VITE_APP_ENV=production` is fixed in the workflow. The workflow token (`GITHUB_TOKEN`) publishes the release; nothing else to set up. The production API must already run the code that accepts `app://gameplay` (CORS), or the installer opens on an error screen.
