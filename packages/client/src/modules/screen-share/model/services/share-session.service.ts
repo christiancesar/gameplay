@@ -53,7 +53,12 @@ type ShareSessionDeps = {
   store: ShareStateStore
   /** The media of the voice call; screen share only exists inside it. */
   subscribeMedia: (handler: (media: CallMedia | null) => void) => () => void
-  acquireScreen: (options: DisplayMediaStreamOptions, audioApps: readonly string[]) => Promise<ScreenCaptureResult>
+  /** `sourceId`: the screen or window the user picked in the dialog (hosts that list them); null: the host's picker. */
+  acquireScreen: (
+    options: DisplayMediaStreamOptions,
+    audioApps: readonly string[],
+    sourceId: string | null,
+  ) => Promise<ScreenCaptureResult>
   stopScreen: (capture: ScreenCaptureHandle) => void
   publishToSfu: (tracks: OutgoingTrack[]) => Promise<SfuPublication>
   /** How often the viewers are measured. */
@@ -120,11 +125,15 @@ class ShareSession {
     this.teardown({ announce: false })
   }
 
-  /** Opens the picker and, if the user picks something, goes live. */
+  /**
+   * Opens the picker and, if the user picks something, goes live. With a `sourceId` the user already picked in the
+   * dialog, the host captures that and opens no picker.
+   */
   async start(
     settings: ShareSettings,
     priority: SharePriority,
     { mode, fallbackToMesh }: ShareStartMode = { mode: 'mesh', fallbackToMesh: false },
+    sourceId: string | null = null,
   ): Promise<void> {
     const { store } = this.deps
     if (store.getState().status !== 'idle') return
@@ -138,6 +147,7 @@ class ShareSession {
     const result = await this.deps.acquireScreen(
       displayMediaOptions(settings),
       settings.includeAudio ? settings.audioApps : [],
+      sourceId,
     )
     if (!result.ok) {
       store.setState({ ...idleShare, settings, priority, notice: result.reason === 'cancelled' ? null : result.reason })

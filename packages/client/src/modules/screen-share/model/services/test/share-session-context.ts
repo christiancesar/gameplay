@@ -4,7 +4,7 @@ import type { ScreenCaptureResult } from '@/shared/media/screen-capture'
 import type { OutgoingTrack } from '@/shared/media/sfu-connection'
 
 import { idleShare, type ShareSnapshot } from '../../entities/share'
-import { ShareSession } from '../share-session.service'
+import { ShareSession, type ShareSessionDeps } from '../share-session.service'
 import { FakeCallMediaSource } from './fake-call-media-source'
 import { FakeSessionStore } from './fake-session-store'
 import { FakeSfuPublication } from './fake-sfu-publication'
@@ -12,6 +12,7 @@ import { FakeStreamRealtime } from './fake-stream-realtime'
 import { makeCapture } from './screen-seed'
 
 type Capture = ReturnType<typeof makeCapture>
+type AcquireArgs = Parameters<ShareSessionDeps['acquireScreen']>
 
 /** A share session wired to fakes. `picker` decides what the browser's picker answers. */
 function makeShareSessionContext() {
@@ -21,7 +22,7 @@ function makeShareSessionContext() {
   const captures: Capture[] = []
   const picker = { answer: 'pick' as 'pick' | 'cancel' | 'unsupported' | 'fail', withAudio: true }
 
-  const acquireScreen = vi.fn(async (): Promise<ScreenCaptureResult> => {
+  const acquireScreen = vi.fn(async (..._asked: AcquireArgs): Promise<ScreenCaptureResult> => {
     if (picker.answer === 'cancel') return { ok: false, reason: 'cancelled' }
     if (picker.answer === 'unsupported') return { ok: false, reason: 'unsupported' }
     if (picker.answer === 'fail') return { ok: false, reason: 'failed' }

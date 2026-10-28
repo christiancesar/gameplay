@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor } from 'storybook/test'
 
+import { captureSources } from '@/fixtures/capture-sources'
+
 import {
   ShareSetupDialogView,
   type AudioSupport,
@@ -232,5 +234,45 @@ export const ApplicationAudioRemembered: Story = {
   play: async () => {
     await expect(await screen.findByLabelText(/old game/i)).toBeChecked()
     await expect(screen.getByText(/not playing now/i)).toBeVisible()
+  },
+}
+
+/** Desktop on Windows or X11: the app lists the screens and windows, and the dialog is where the user picks. */
+export const DesktopSourceList: Story = {
+  args: {
+    settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: false, audioApps: [] },
+    audioSupport: 'supported',
+    sources: { available: captureSources, selectedId: 'screen:0:0', onSelect: fn(), onRefresh: fn() },
+  },
+  play: async ({ args, userEvent }) => {
+    await expect(screen.getByRole('radio', { name: 'Entire screen' })).toBeChecked()
+    await expect(screen.queryByRole('radio', { name: /browser tab/i })).toBeNull()
+    await userEvent.click(screen.getByRole('radio', { name: 'Cyberpunk 2077' }))
+    await expect(args.sources?.onSelect).toHaveBeenCalledWith('window:590528:0')
+    await expect(screen.getByRole('button', { name: /choose and share/i })).toBeEnabled()
+  },
+}
+
+/** Nothing picked (an empty list): there is nothing to capture, so the share cannot start. */
+export const DesktopSourceListNothingToShare: Story = {
+  args: {
+    audioSupport: 'supported',
+    sources: { available: [], selectedId: null, onSelect: fn(), onRefresh: fn() },
+  },
+  play: async ({ args, userEvent }) => {
+    await expect(screen.getByText(/no screen or window found/i)).toBeVisible()
+    await expect(screen.getByRole('button', { name: /choose and share/i })).toBeDisabled()
+    await userEvent.click(screen.getByRole('button', { name: /refresh/i }))
+    await expect(args.sources?.onRefresh).toHaveBeenCalled()
+  },
+}
+
+/** Desktop on Wayland: the app cannot list, the system asks when the share starts. */
+export const DesktopSystemPicker: Story = {
+  args: { audioSupport: 'supported', systemPicker: true },
+  play: async () => {
+    await expect(screen.getByText(/the system will ask which screen or window/i)).toBeVisible()
+    await expect(screen.queryByRole('radio', { name: /browser tab/i })).toBeNull()
+    await expect(screen.getByRole('button', { name: /choose and share/i })).toBeEnabled()
   },
 }

@@ -193,6 +193,13 @@
     "setup": {
       "title": "Share your screen",
       "description": "Pick what you want to share and the quality. Next, the browser asks you to choose the exact screen, window or tab.",
+      "descriptionList": "Pick the screen or window to share, and the quality.",
+      "descriptionSystem": "Pick the quality. Next, the system asks you to choose the screen or window.",
+      "systemPicker": "The system will ask which screen or window to share when you start.",
+      "sourcePicker": {
+        "refresh": "Refresh",
+        "empty": "No screen or window found."
+      },
       "source": "What to share",
       "sources": {
         "screen": {

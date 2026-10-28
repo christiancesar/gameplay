@@ -42,7 +42,8 @@ function getShare(): ShareSession {
       store: useShareStore,
       subscribeMedia: voiceController.subscribeMedia,
       // The host decides how a screen is captured: the browser's picker on the web, its own on the desktop.
-      acquireScreen: (options, audioApps) => currentPlatform().capture.start({ options, sourceId: null, audioApps }),
+      acquireScreen: (options, audioApps, sourceId) =>
+        currentPlatform().capture.start({ options, sourceId, audioApps }),
       stopScreen: (capture) => currentPlatform().capture.stop(capture),
       publishToSfu: (tracks) => SfuConnection.publish(sfuDeps, tracks),
       report: telemetry.measuring

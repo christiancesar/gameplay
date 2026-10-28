@@ -7,6 +7,8 @@ type CaptureSource = {
   kind: 'screen' | 'window'
   /** Data URL of a small preview, when the host makes one. */
   thumbnail: string | null
+  /** Data URL of the icon of the application, for a window, when the host has it. */
+  appIcon: string | null
 }
 
 /** An application that is playing sound, by the name the system gives it. */
