@@ -1,3 +1,5 @@
+import type { SystemAudioScope } from '@gameplay/desktop-bridge'
+
 import type { SystemAudioProvider } from '../providers/system-audio.provider'
 
 /** The sound of the computer without the app, for a share: starts and stops the capture and hands the PCM on. */
@@ -16,13 +18,17 @@ export class SystemAudioService {
     return this.provider.available()
   }
 
-  /** Starts the capture, or restarts it; tells whether it runs. */
-  async start(): Promise<boolean> {
+  /** Starts the capture of the scope (the whole computer by default), or restarts it; tells whether it runs. */
+  async start(scope: SystemAudioScope = { scope: 'system' }): Promise<boolean> {
     if (!this.provider.available()) return false
     this.stop()
-    this.running = await this.provider.start(this.sink, () => {
-      this.running = false
-    })
+    this.running = await this.provider.start(
+      this.sink,
+      () => {
+        this.running = false
+      },
+      scope,
+    )
     return this.running
   }
 

@@ -1,7 +1,10 @@
+import type { SystemAudioScope } from '@gameplay/desktop-bridge'
+
 import { SystemAudioProvider } from '../providers/system-audio.provider'
 
 export class FakeSystemAudioProvider extends SystemAudioProvider {
   starts = 0
+  scopes: SystemAudioScope[] = []
   stops = 0
   private readonly isAvailable: boolean
   private readonly starts_: boolean
@@ -18,8 +21,9 @@ export class FakeSystemAudioProvider extends SystemAudioProvider {
     return this.isAvailable
   }
 
-  async start(onData: (chunk: Uint8Array) => void, onEnd: () => void): Promise<boolean> {
+  async start(onData: (chunk: Uint8Array) => void, onEnd: () => void, scope: SystemAudioScope): Promise<boolean> {
     this.starts += 1
+    this.scopes.push(scope)
     this.emit = onData
     this.ended = onEnd
     return this.starts_

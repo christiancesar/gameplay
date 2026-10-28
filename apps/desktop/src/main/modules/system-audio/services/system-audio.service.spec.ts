@@ -64,4 +64,13 @@ describe('SystemAudioService', () => {
 
     expect(provider.stops).toBe(0)
   })
+
+  it('starts for the whole computer by default, and for the scope it is given', async () => {
+    const { provider, service } = setup()
+
+    await service.start()
+    await service.start({ scope: 'window', sourceId: 'window:7:0' })
+
+    expect(provider.scopes).toEqual([{ scope: 'system' }, { scope: 'window', sourceId: 'window:7:0' }])
+  })
 })

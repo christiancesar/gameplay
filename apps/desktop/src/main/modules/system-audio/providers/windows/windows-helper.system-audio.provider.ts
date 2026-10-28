@@ -1,3 +1,5 @@
+import type { SystemAudioScope } from '@gameplay/desktop-bridge'
+
 import { SystemAudioProvider } from '../system-audio.provider'
 import type { Logger } from '../../../logging/logger'
 
@@ -14,6 +16,18 @@ export type LaunchHelper = (executable: string, args: string[]) => HelperProcess
 
 /** How long the helper has to say it is capturing before it counts as failed. */
 const START_TIMEOUT_MS = 3000
+
+/**
+ * The arguments of the helper for a scope: a window source (`window:<hwnd>:0`) is the application that owns the window;
+ * anything else is everything but this app.
+ */
+function helperArgs(scope: SystemAudioScope, ownPid: number): string[] {
+  if (scope.scope === 'window') {
+    const handle = scope.sourceId.split(':')[1]
+    if (scope.sourceId.startsWith('window:') && handle && /^\d+$/.test(handle)) return ['window', handle]
+  }
+  return ['exclude', String(ownPid)]
+}
 
 /**
  * The Windows capture helper (native/audio-capture): it captures everything but this app's process tree and writes the
@@ -48,10 +62,10 @@ export class WindowsHelperSystemAudioProvider extends SystemAudioProvider {
     return this.executable !== null && this.exists(this.executable)
   }
 
-  start(onData: (chunk: Uint8Array) => void, onEnd: () => void): Promise<boolean> {
+  start(onData: (chunk: Uint8Array) => void, onEnd: () => void, scope: SystemAudioScope): Promise<boolean> {
     if (!this.executable || !this.available()) return Promise.resolve(false)
     this.stop()
-    const child = this.launch(this.executable, ['exclude', String(this.ownPid)])
+    const child = this.launch(this.executable, helperArgs(scope, this.ownPid))
     this.child = child
 
     return new Promise<boolean>((resolve) => {

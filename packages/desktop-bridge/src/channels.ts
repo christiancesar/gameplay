@@ -33,6 +33,16 @@ export const captureSourceSchema = z.object({
 })
 export type CaptureSource = z.infer<typeof captureSourceSchema>
 
+/**
+ * What the shared sound is: everything the computer plays except this app (a screen), or only the application that
+ * owns the window being shared, which the id of the window source tells (a window).
+ */
+export const systemAudioScopeSchema = z.discriminatedUnion('scope', [
+  z.object({ scope: z.literal('system') }),
+  z.object({ scope: z.literal('window'), sourceId: captureSourceIdSchema }),
+])
+export type SystemAudioScope = z.infer<typeof systemAudioScopeSchema>
+
 /** What goes in and what comes back on each channel. The main process checks both. */
 export const desktopChannels = {
   /** The server the user chose, or null before the first choice. */
@@ -55,8 +65,8 @@ export const desktopChannels = {
   'capture:select-source': { input: captureSourceIdSchema.nullable(), output: z.void() },
   /** Whether this system can share its sound without the app's own (Windows, with the capture helper). */
   'system-audio:available': { input: z.undefined(), output: z.boolean() },
-  /** Starts capturing the sound of the computer without the app; the PCM comes as `system-audio:pcm`. False when it could not. */
-  'system-audio:start': { input: z.undefined(), output: z.boolean() },
+  /** Starts capturing the sound (no scope: the whole computer) without the app; the PCM comes as `system-audio:pcm`. False when it could not. */
+  'system-audio:start': { input: systemAudioScopeSchema.optional(), output: z.boolean() },
   /** Stops the capture. */
   'system-audio:stop': { input: z.undefined(), output: z.void() },
 } as const satisfies Record<DesktopChannel, { input: z.ZodType; output: z.ZodType }>

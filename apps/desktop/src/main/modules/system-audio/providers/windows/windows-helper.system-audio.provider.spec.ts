@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FakeHelperProcess } from '../../test/fake-helper-process'
 import { WindowsHelperSystemAudioProvider } from './windows-helper.system-audio.provider'
 
+const SYSTEM = { scope: 'system' } as const
 const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as never
 
 function setup({ executable = 'C:\\app\\helper.exe', exists = true } = {}) {
@@ -30,7 +31,7 @@ describe('WindowsHelperSystemAudioProvider', () => {
     const { provider, launch, processes } = setup()
     const onData = vi.fn()
 
-    const started = provider.start(onData, vi.fn())
+    const started = provider.start(onData, vi.fn(), SYSTEM)
     processes[0]!.say('capturing (exclude 4242)')
 
     expect(await started).toBe(true)
@@ -39,11 +40,25 @@ describe('WindowsHelperSystemAudioProvider', () => {
     expect(onData).toHaveBeenCalledWith(new Uint8Array([9, 9]))
   })
 
+  it('captures only the application that owns the window for a window source, and everything else for the rest', async () => {
+    const { provider, launch, processes } = setup()
+
+    void provider.start(vi.fn(), vi.fn(), { scope: 'window', sourceId: 'window:590528:0' })
+    expect(launch).toHaveBeenLastCalledWith('C:\\app\\helper.exe', ['window', '590528'])
+
+    void provider.start(vi.fn(), vi.fn(), { scope: 'window', sourceId: 'screen:0:0' })
+    expect(launch).toHaveBeenLastCalledWith('C:\\app\\helper.exe', ['exclude', '4242'])
+
+    void provider.start(vi.fn(), vi.fn(), { scope: 'window', sourceId: 'window:abc:0' })
+    expect(launch).toHaveBeenLastCalledWith('C:\\app\\helper.exe', ['exclude', '4242'])
+    expect(processes).toHaveLength(3)
+  })
+
   it('reports started on the first PCM, when the message on stderr does not come', async () => {
     const { provider, processes } = setup()
     const onData = vi.fn()
 
-    const started = provider.start(onData, vi.fn())
+    const started = provider.start(onData, vi.fn(), SYSTEM)
     processes[0]!.write(new Uint8Array([1, 2]))
 
     expect(await started).toBe(true)
@@ -53,7 +68,7 @@ describe('WindowsHelperSystemAudioProvider', () => {
   it('reports not started when the helper leaves before it captures', async () => {
     const { provider, processes } = setup()
 
-    const started = provider.start(vi.fn(), vi.fn())
+    const started = provider.start(vi.fn(), vi.fn(), SYSTEM)
     processes[0]!.say('activate failed: 0x80070057')
     processes[0]!.exit(1)
 
@@ -63,7 +78,7 @@ describe('WindowsHelperSystemAudioProvider', () => {
   it('reports not started, and stops the helper, when it says nothing in time', async () => {
     const { provider, processes } = setup()
 
-    const started = provider.start(vi.fn(), vi.fn())
+    const started = provider.start(vi.fn(), vi.fn(), SYSTEM)
     await vi.advanceTimersByTimeAsync(3001)
 
     expect(await started).toBe(false)
@@ -73,7 +88,7 @@ describe('WindowsHelperSystemAudioProvider', () => {
   it('reports not started when the helper cannot run at all', async () => {
     const { provider, processes } = setup()
 
-    const started = provider.start(vi.fn(), vi.fn())
+    const started = provider.start(vi.fn(), vi.fn(), SYSTEM)
     processes[0]!.events.emit('error', new Error('spawn EACCES'))
 
     expect(await started).toBe(false)
@@ -82,14 +97,14 @@ describe('WindowsHelperSystemAudioProvider', () => {
   it('tells when the helper ends on its own, and not when it was stopped', async () => {
     const { provider, processes } = setup()
     const onEnd = vi.fn()
-    const started = provider.start(vi.fn(), onEnd)
+    const started = provider.start(vi.fn(), onEnd, SYSTEM)
     processes[0]!.say('capturing')
     await started
 
     processes[0]!.exit(0)
     expect(onEnd).toHaveBeenCalledOnce()
 
-    const second = provider.start(vi.fn(), onEnd)
+    const second = provider.start(vi.fn(), onEnd, SYSTEM)
     processes[1]!.say('capturing')
     await second
     provider.stop()
@@ -99,7 +114,7 @@ describe('WindowsHelperSystemAudioProvider', () => {
 
   it('closes the helper input and kills it on stop, so it never stays behind', async () => {
     const { provider, processes } = setup()
-    const started = provider.start(vi.fn(), vi.fn())
+    const started = provider.start(vi.fn(), vi.fn(), SYSTEM)
     processes[0]!.say('capturing')
     await started
 
@@ -112,7 +127,7 @@ describe('WindowsHelperSystemAudioProvider', () => {
   it('does not launch where there is no helper', async () => {
     const { provider, launch } = setup({ exists: false })
 
-    expect(await provider.start(vi.fn(), vi.fn())).toBe(false)
+    expect(await provider.start(vi.fn(), vi.fn(), SYSTEM)).toBe(false)
     expect(launch).not.toHaveBeenCalled()
   })
 })

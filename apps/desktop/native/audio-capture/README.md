@@ -5,6 +5,7 @@ Helper of the Windows app: the sound of the computer without the Gameplay itself
 ```
 gameplay-audio-capture exclude <pid>   everything except that process and its children
 gameplay-audio-capture include <pid>   only that process and its children
+gameplay-audio-capture window <hwnd>   only the process that owns that window, and its children
 ```
 
 - Output: PCM s16le, 48000 Hz, 2 channels, until stdin is closed.

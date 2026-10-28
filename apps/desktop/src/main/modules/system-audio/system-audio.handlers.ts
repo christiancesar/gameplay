@@ -10,9 +10,13 @@ export function systemAudioHandlers(
 ): Pick<ChannelHandlers, 'system-audio:available' | 'system-audio:start' | 'system-audio:stop'> {
   return {
     'system-audio:available': () => service.available(),
-    'system-audio:start': async () => {
-      const started = await service.start()
-      telemetry.measure({ name: 'system_audio_start', values: { started: started ? 1 : 0 } })
+    'system-audio:start': async (scope) => {
+      const started = await service.start(scope)
+      telemetry.measure({
+        name: 'system_audio_start',
+        values: { started: started ? 1 : 0 },
+        attributes: { scope: scope?.scope ?? 'system' },
+      })
       return started
     },
     'system-audio:stop': () => service.stop(),

@@ -3,10 +3,12 @@ export {
   audioAppSchema,
   audioShareSchema,
   captureSourceSchema,
+  systemAudioScopeSchema,
   desktopChannels,
   type AudioApp,
   type AudioShare,
   type CaptureSource,
+  type SystemAudioScope,
   type DesktopChannels,
   type DesktopEvents,
 } from './channels'

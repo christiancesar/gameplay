@@ -2,6 +2,7 @@
 //
 //   gameplay-audio-capture exclude <pid>    everything except that process and its children
 //   gameplay-audio-capture include <pid>    only that process and its children
+//   gameplay-audio-capture window <hwnd>    only the process that owns that window, and its children
 //
 // Output: PCM s16le, 48000 Hz, 2 channels, until stdin is closed (the app that started it is gone or stopped it).
 // Messages go to stderr, one per line. Exit code 0 on a clean stop, 1 when the capture could not start.
@@ -119,12 +120,24 @@ static bool writeAll(HANDLE out, const BYTE* data, DWORD size) {
 }
 
 int main(int argc, char** argv) {
-  if (argc < 3 || (strcmp(argv[1], "include") != 0 && strcmp(argv[1], "exclude") != 0)) {
-    fprintf(stderr, "usage: gameplay-audio-capture <include|exclude> <pid>\n");
+  const bool windowMode = argc >= 3 && strcmp(argv[1], "window") == 0;
+  if (argc < 3 || (!windowMode && strcmp(argv[1], "include") != 0 && strcmp(argv[1], "exclude") != 0)) {
+    fprintf(stderr, "usage: gameplay-audio-capture <include|exclude> <pid> | window <hwnd>\n");
     return 2;
   }
-  const bool include = argv[1][0] == 'i';
-  const DWORD pid = static_cast<DWORD>(atoi(argv[2]));
+  const bool include = windowMode || argv[1][0] == 'i';
+  DWORD pid = 0;
+  if (windowMode) {
+    // The id of a window source of the app is `window:<hwnd>:0`: the process that owns that window is the target.
+    const HWND window = reinterpret_cast<HWND>(static_cast<UINT_PTR>(strtoull(argv[2], nullptr, 10)));
+    GetWindowThreadProcessId(window, &pid);
+    if (pid == 0) {
+      fprintf(stderr, "no process for window %s\n", argv[2]);
+      return 1;
+    }
+  } else {
+    pid = static_cast<DWORD>(atoi(argv[2]));
+  }
   CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
   IAudioClient* client = activate(pid, include);
@@ -154,7 +167,7 @@ int main(int argc, char** argv) {
   HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
   CreateThread(nullptr, 0, watchStdin, nullptr, 0, nullptr);
   client->Start();
-  fprintf(stderr, "capturing (%s %lu)\n", argv[1], static_cast<unsigned long>(pid));
+  fprintf(stderr, "capturing (%s %lu)\n", windowMode ? "include" : argv[1], static_cast<unsigned long>(pid));
   fflush(stderr);
 
   static BYTE silence[48000 * 4];
