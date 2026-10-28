@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import { FusesPlugin } from '@electron-forge/plugin-fuses'
 import { MakerDeb } from '@electron-forge/maker-deb'
+import { MakerSquirrel } from '@electron-forge/maker-squirrel'
 import { MakerZIP } from '@electron-forge/maker-zip'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import type { ForgeConfig } from '@electron-forge/shared-types'
@@ -55,9 +56,15 @@ const config: ForgeConfig = {
       }
     },
   },
-  // Linux only for now; the other systems and the signing come with the packaging ticket.
+  // Linux and Windows; macOS and the signing come with the packaging ticket. The Squirrel installer is built on
+  // Windows (the CI), or on Linux with wine and mono; the zip of the packaged app builds anywhere.
   makers: [
-    new MakerZIP({}, ['linux']),
+    new MakerZIP({}, ['linux', 'win32']),
+    new MakerSquirrel({
+      // CamelCase, no spaces: it names the NuGet package. The installer file takes productName.
+      name: 'Gameplay',
+      setupIcon: path.join(icons, 'windows/icon.ico'),
+    }),
     new MakerDeb({
       options: {
         name: 'gameplay',

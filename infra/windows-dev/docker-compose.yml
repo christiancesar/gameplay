@@ -1,0 +1,28 @@
+# Windows VM (QEMU/KVM inside Docker) to run and test the desktop app on Windows
+# without rebooting. Dev only, production Windows builds come from GitHub Actions.
+services:
+  windows:
+    image: docker.io/dockurr/windows
+    container_name: gameplay-windows
+    environment:
+      VERSION: "10l"
+      DISK_SIZE: "40G"
+      RAM_SIZE: "8G"
+      CPU_CORES: "6"
+      USERNAME: "dev"
+      PASSWORD: "dev"
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "127.0.0.1:8006:8006"
+      - "127.0.0.1:3389:3389/tcp"
+      - "127.0.0.1:3389:3389/udp"
+    volumes:
+      - ./storage:/storage
+      # Forge output (apps/desktop/out) shows up as drive Z: inside Windows.
+      - ../../apps/desktop/out:/shared
+    stop_grace_period: 2m
+    restart: "no"
