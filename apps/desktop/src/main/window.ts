@@ -1,7 +1,8 @@
 import path from 'node:path'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, nativeImage } from 'electron'
 
 import { lockNavigation } from './security'
+import iconDataUrl from '../../../../packages/client/src/shared/assets/brand/favicon.png?inline'
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined
 declare const MAIN_WINDOW_VITE_NAME: string
@@ -19,6 +20,8 @@ function createMainWindow(): BrowserWindow {
     minHeight: 600,
     title: 'Gameplay',
     backgroundColor: '#0a0a0a',
+    // The same icon as the web: one file, in the client package, for every host.
+    icon: nativeImage.createFromDataURL(iconDataUrl),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
