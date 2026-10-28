@@ -45,4 +45,28 @@ describe('ServerAddressService', () => {
     expect(service.isOnServer('https://other.example.com/api/health')).toBe(false)
     expect(service.isOnServer('nonsense')).toBe(false)
   })
+
+  describe('in a build tied to a server', () => {
+    it('talks to that server only, whatever the data folder kept', async () => {
+      const provider = new FakeServerAddressProvider('https://old.example.com')
+      const service = new ServerAddressService(provider, 'https://play.example.com')
+
+      await service.load()
+
+      expect(service.current()).toBe('https://play.example.com')
+      expect(service.isOnServer('https://play.example.com/api/health')).toBe(true)
+      expect(service.isOnServer('https://old.example.com/api/health')).toBe(false)
+    })
+
+    it('refuses to set another server and keeps nothing', async () => {
+      const provider = new FakeServerAddressProvider()
+      const service = new ServerAddressService(provider, 'https://play.example.com')
+      await service.load()
+
+      await expect(service.set('https://other.example.com')).rejects.toThrow('one server only')
+
+      expect(service.current()).toBe('https://play.example.com')
+      expect(provider.writes).toEqual([])
+    })
+  })
 })

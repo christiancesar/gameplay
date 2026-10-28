@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { CONTENT_SECURITY_POLICY } from './content-security-policy'
+import { contentSecurityPolicy } from './content-security-policy'
 import { isAppUrl, isWebUrl } from './app-url'
 
 describe('isAppUrl', () => {
@@ -30,11 +30,30 @@ describe('isWebUrl', () => {
   })
 })
 
-describe('CONTENT_SECURITY_POLICY', () => {
+describe('contentSecurityPolicy', () => {
   it('keeps scripts, objects and frames to the app itself', () => {
-    expect(CONTENT_SECURITY_POLICY).toContain("script-src 'self'")
-    expect(CONTENT_SECURITY_POLICY).toContain("object-src 'none'")
-    expect(CONTENT_SECURITY_POLICY).toContain("frame-ancestors 'none'")
-    expect(CONTENT_SECURITY_POLICY).not.toContain("'unsafe-eval'")
+    for (const policy of [contentSecurityPolicy(null), contentSecurityPolicy('https://play.example.com')]) {
+      expect(policy).toContain("script-src 'self'")
+      expect(policy).toContain("object-src 'none'")
+      expect(policy).toContain("frame-ancestors 'none'")
+      expect(policy).not.toContain("'unsafe-eval'")
+    }
+  })
+
+  it('stays open to https and to this machine while the user picks the server', () => {
+    const policy = contentSecurityPolicy(null)
+    expect(policy).toContain("connect-src 'self' https: wss:")
+    expect(policy).toContain("img-src 'self' data: blob: https:")
+  })
+
+  it('closes the connections and images on the server the build is tied to', () => {
+    const policy = contentSecurityPolicy('https://play.example.com')
+    expect(policy).toContain("connect-src 'self' https://play.example.com wss://play.example.com")
+    expect(policy).toContain("img-src 'self' data: blob: https://play.example.com;")
+    expect(policy).not.toContain(' https: ')
+  })
+
+  it('uses the plain socket scheme for a server on this machine', () => {
+    expect(contentSecurityPolicy('http://localhost:3333')).toContain('http://localhost:3333 ws://localhost:3333')
   })
 })

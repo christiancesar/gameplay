@@ -13,30 +13,53 @@ O endereço **não é constante no código**. O repositório é aberto a quem qu
 - Renderer: com endereço fixo, `createDesktopPlatform` não monta o `chooser`, então a tela de escolha não aparece. Sem endereço fixo (desenvolvimento), tudo como hoje.
 - Canal `server:set-url` continua no contrato (o dev usa), mas o main o recusa quando o endereço é fixo.
 - Empacotar sem `VITE_SERVER_URL` falha com mensagem clara (hook do Forge em `forge.config.ts`): nunca sai um instalador com a tela de escolha. `npm run desktop` (dev) continua aceitando a env vazia.
-- CSP em `content-security-policy.ts`: com o endereço fixo, `connect-src` e `img-src` fecham nessa origem (mais a Cloudflare, para TURN e SFU), no lugar de `https:` e `wss:` abertos. Sem endereço fixo (dev), o CSP fica como hoje.
+- CSP em `content-security-policy.ts`: com o endereço fixo, `connect-src` e `img-src` fecham nessa origem (a Cloudflare, para TURN e SFU, não entra: o WebRTC não passa pelo `connect-src`), no lugar de `https:` e `wss:` abertos. Sem endereço fixo (dev), o CSP fica como hoje.
 - Specs do service (com e sem endereço fixo), do CSP e do `desktop-platform` (sem `chooser` quando fixo).
 
 ## Fora do escopo
 Release, versão e GitHub Actions (DESK-11). Trocar de servidor dentro do app empacotado. Qualquer coisa de Windows.
 
 ## Checklist
-- [ ] `VITE_SERVER_URL` no `.env.example`, validada, embutida no main e no renderer
-- [ ] `ServerAddressService` com endereço fixo (`current`, `set` recusado, arquivo ignorado) e specs
-- [ ] `desktop-platform` sem `chooser` quando fixo, com spec
-- [ ] Hook do Forge que recusa empacotar sem a env
-- [ ] CSP fechado na origem fixa, com spec
-- [ ] Commit a cada passo verde
+- [x] `VITE_SERVER_URL` no `.env.example`, validada, embutida no main e no renderer
+- [x] `ServerAddressService` com endereço fixo (`current`, `set` recusado, arquivo ignorado) e specs
+- [x] `desktop-platform` sem `chooser` quando fixo, com spec
+- [x] Hook do Forge que recusa empacotar sem a env
+- [x] CSP fechado na origem fixa, com spec
+- [x] Commit a cada passo verde
 
 ## Checklist de validação
-- [ ] `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` verdes
-- [ ] `npm run desktop` sem a env: abre a tela de escolha como antes
-- [ ] `npm run desktop:make` sem a env: falha com a mensagem pedindo `VITE_SERVER_URL`
-- [ ] `npm run desktop:make` com a env: o app empacotado abre direto no login do servidor, sem tela de escolha, mesmo com um `server.json` antigo apontando para outro endereço
-- [ ] No app empacotado, `window.gameplayDesktop['server:set-url']('https://outro.example.com')` rejeita
-- [ ] No DevTools do app empacotado, uma requisição a outra origem é bloqueada pelo CSP
+- [x] `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` verdes
+- [x] `npm run desktop` sem a env: abre a tela de escolha como antes
+- [x] `npm run desktop:make` sem a env: falha com a mensagem pedindo `VITE_SERVER_URL`
+- [x] `npm run desktop:make` com a env: o app empacotado abre direto no login do servidor, sem tela de escolha, mesmo com um `server.json` antigo apontando para outro endereço
+- [x] No app empacotado, `window.gameplayDesktop['server:set-url']('https://outro.example.com')` rejeita
+- [x] No DevTools do app empacotado, uma requisição a outra origem é bloqueada pelo CSP
 
 ## Critério de aceite
 O instalador distribuído só conversa com o servidor definido na env do build, e a tela de escolha só existe em desenvolvimento.
 
 ## Notas da execução
-(preencher ao concluir, com as suposições marcadas como *(suposição)*)
+## Notas da execução (2026-10-28)
+
+Feito na `feature/desktop-app`.
+
+O que foi feito:
+- `VITE_SERVER_URL` no `.env.example`, embutida no main (`define` no `vite.main.config.ts`) e lida pelo renderer (o Vite já expõe os `VITE_*`). `fixedServerFrom` (`utils/fixed-server.ts`) valida com `serverOriginSchema`: vazio é "sem servidor", valor inválido para o app na partida.
+- `ServerAddressService` ganhou o endereço fixo: `load()` não lê o `server.json`, `set()` recusa (`This build talks to one server only`). O canal `server:set-url` continua no contrato, mas o main o recusa.
+- `createDesktopPlatform` recebe `serverFixed` e não monta o `chooser`; sem `chooser`, o `App` não mostra a tela de escolha.
+- `contentSecurityPolicy(fixedServer)` no lugar da constante: com servidor fixo, `connect-src` e `img-src` ficam só no servidor e no `ws`/`wss` dele; sem servidor (dev) fica aberto como antes.
+- Hook `prePackage` no `forge.config.ts` recusa empacotar sem `VITE_SERVER_URL`. Ele lê o `.env` e as variáveis do ambiente (`loadEnv`), então o CI só precisa exportar a variável.
+- Specs: `fixed-server` (3), CSP (4), service com servidor fixo (2), plataforma com e sem `chooser` (2). Desktop com 66 testes; typecheck, lint e format verdes. Client passou 1300/1300 sozinho (2 falhas na primeira rodada completa, flaky sob carga, sem relação com a mudança).
+
+Validação no app empacotado (Xvfb, porta de depuração):
+- Sem a env, `npm run package` falha com a mensagem pedindo `VITE_SERVER_URL`.
+- Com `VITE_SERVER_URL=http://localhost:3333` e um `server.json` antigo apontando para `old.example.com`: o app ignorou o arquivo, abriu direto no login, `server:get-url` devolveu `http://localhost:3333`, `server:set-url('https://other.example.com')` foi rejeitado e um `fetch('https://example.com')` foi bloqueado pelo CSP.
+- Com `VITE_SERVER_URL=https://gameplay.oikos.company`: o app aponta para a produção, mas **a API de produção ainda bloqueia o app por CORS** (`PreflightMissingAllowOriginHeader` para `app://gameplay`). A produção roda a release `4041a26`, anterior ao CORS do desktop do DESK-04, que está na `feature/desktop-app`. Sem fazer deploy da API com esse código, o instalador de produção abre em "Algo deu errado". **Isso precisa acontecer antes da primeira release do DESK-11.**
+
+Achado fora do escopo, já existia antes desta mudança: o CSP bloqueia a criação de um worker a partir de `blob:` (`script-src 'self'`, sem `worker-src`). Não identifiquei quem o cria (talvez o Sentry). Não mexi, porque liberar `worker-src blob:` muda a postura de segurança; fica para decidir.
+
+Suposições:
+- *(suposição)* A Cloudflare não entra no CSP: TURN e SFU são WebRTC e passam pela API, que não é restringida pelo `connect-src`. Conferido só até o login; a chamada de voz e a transmissão não foram refeitas.
+- *(suposição)* `npm run package` exercita o mesmo hook que o `make`; rodei o `package` por ser mais rápido.
+- *(suposição)* Um servidor `http://localhost` fixo no build é aceito (a regra do `serverOriginSchema`), para testar localmente.
+

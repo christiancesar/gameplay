@@ -66,8 +66,10 @@ async function openVirtualMicrophone(): Promise<MediaStreamTrack | null> {
 
 type DesktopPlatformOptions = {
   bridge: DesktopBridge
-  /** The server the user chose before, or null. */
+  /** The server the user chose before, or the one the build is tied to; null before a choice. */
   server: string | null
+  /** Whether the build is tied to its server: there is nothing to choose. */
+  serverFixed: boolean
   /** Whether the system can share the sound of applications (Linux with PipeWire). */
   appAudio: boolean
 }
@@ -75,10 +77,10 @@ type DesktopPlatformOptions = {
 /**
  * The desktop host. Its video capture is the Chromium inside Electron (the main process answers the request); the
  * sound of the applications the user picks comes through a virtual microphone the main process makes. The user
- * picks the server, which the main process keeps between runs and uses for the images and for the cookie. The
- * session is a cookie, as on the web: the main process makes the cookie of the server travel between sites.
+ * picks the server, which the main process keeps between runs and uses for the images and for the cookie; a
+ * build tied to a server (`VITE_SERVER_URL`) has no choice to offer. The session is a cookie, as on the web: the main process makes the cookie of the server travel between sites.
  */
-function createDesktopPlatform({ bridge, server, appAudio }: DesktopPlatformOptions): Platform {
+function createDesktopPlatform({ bridge, server, serverFixed, appAudio }: DesktopPlatformOptions): Platform {
   let chosen = server
   return {
     kind: 'desktop',
@@ -113,13 +115,15 @@ function createDesktopPlatform({ bridge, server, appAudio }: DesktopPlatformOpti
     },
     server: {
       baseUrl: () => chosen ?? '',
-      chooser: {
-        current: () => chosen,
-        choose: async (origin) => {
-          await bridge['server:set-url'](origin)
-          chosen = origin
-        },
-      },
+      chooser: serverFixed
+        ? undefined
+        : {
+            current: () => chosen,
+            choose: async (origin) => {
+              await bridge['server:set-url'](origin)
+              chosen = origin
+            },
+          },
     },
     telemetry: telemetryFromBuild(import.meta.env),
   }

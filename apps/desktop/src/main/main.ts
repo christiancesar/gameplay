@@ -13,6 +13,8 @@ import { createTelemetryModule } from './modules/telemetry/telemetry.module'
 import { installCookiePolicy } from './modules/session/cookie-policy'
 import { createServerModule } from './modules/server/server.module'
 import { isAppUrl } from './utils/app-url'
+import { contentSecurityPolicy } from './utils/content-security-policy'
+import { fixedServerFrom } from './utils/fixed-server'
 
 registerAppScheme()
 
@@ -54,11 +56,12 @@ if (!app.requestSingleInstanceLock()) {
   })
 
   void app.whenReady().then(async () => {
-    const server = createServerModule(app.getPath('userData'))
+    const fixedServer = fixedServerFrom(import.meta.env.VITE_SERVER_URL)
+    const server = createServerModule(app.getPath('userData'), fixedServer)
     const audio = createAudioModule(process.execPath, logger, telemetry)
     await server.service.load()
 
-    serveApp(rendererRoot(), () => server.service.current())
+    serveApp(rendererRoot(), () => server.service.current(), contentSecurityPolicy(fixedServer))
     installCookiePolicy(session.defaultSession, (url) => server.service.isOnServer(url))
     limitPermissions(session.defaultSession, devServerUrl())
     installDisplayMediaHandler(session.defaultSession, logger)

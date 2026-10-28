@@ -7,6 +7,7 @@ import { MakerZIP } from '@electron-forge/maker-zip'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import type { ForgeConfig } from '@electron-forge/shared-types'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
+import { loadEnv } from 'vite'
 
 // One master in the client package, one folder per platform (see packages/client: npm run icons).
 const icons = path.resolve(import.meta.dirname, '../../packages/client/src/shared/assets/brand/icons')
@@ -30,6 +31,14 @@ const config: ForgeConfig = {
     icon: path.join(icons, process.platform === 'win32' ? 'windows/icon' : 'macos/icon'),
   },
   hooks: {
+    // An installer is tied to one server (VITE_SERVER_URL, from the .env or the CI): without it the app would ask the
+    // user which server to talk to, which only development does.
+    prePackage: async () => {
+      const { VITE_SERVER_URL } = loadEnv('production', import.meta.dirname, 'VITE_')
+      if (!VITE_SERVER_URL?.trim()) {
+        throw new Error('VITE_SERVER_URL is empty: set it in apps/desktop/.env (see .env.example) before packaging.')
+      }
+    },
     // The Vite plugin leaves node_modules out of the package: the native audio module (Linux only) and the loader
     // it needs are put back. On a system without them (Windows, macOS) there is nothing to copy.
     packageAfterCopy: async (_forgeConfig, buildPath) => {

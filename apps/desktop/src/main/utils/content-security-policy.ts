@@ -1,17 +1,33 @@
-/**
- * What the pages of the app may load. The server is chosen at run time, so the connections it makes are open
- * to https and to this machine; everything else (scripts, frames, plugins) is the app's own.
- */
-export const CONTENT_SECURITY_POLICY = [
+const COMMON = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https: http://localhost:* http://127.0.0.1:*",
   "media-src 'self' blob:",
   "font-src 'self' data:",
-  "connect-src 'self' https: wss: http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*",
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
   "frame-ancestors 'none'",
-].join('; ')
+]
+
+/** The same origin on the socket scheme: https becomes wss, http becomes ws. */
+function socketOrigin(origin: string): string {
+  return origin.replace(/^http/, 'ws')
+}
+
+/**
+ * What the pages of the app may load. The scripts, frames and plugins are the app's own. The connections depend on
+ * the build: with a server fixed in it they stay on that server; without one (development) the user picks the
+ * server at run time, so they are open to https and to this machine.
+ */
+function contentSecurityPolicy(fixedServer: string | null): string {
+  const policy = fixedServer
+    ? [`img-src 'self' data: blob: ${fixedServer}`, `connect-src 'self' ${fixedServer} ${socketOrigin(fixedServer)}`]
+    : [
+        "img-src 'self' data: blob: https: http://localhost:* http://127.0.0.1:*",
+        "connect-src 'self' https: wss: http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*",
+      ]
+  return [...COMMON, ...policy].join('; ')
+}
+
+export { contentSecurityPolicy }

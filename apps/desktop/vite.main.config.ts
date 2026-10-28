@@ -2,12 +2,14 @@ import { defineConfig, loadEnv } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // The main bundle gets the Sentry settings of apps/desktop/.env, as the window does.
+  // The main bundle gets the Sentry settings and the server of apps/desktop/.env, as the window does.
   const env = loadEnv(mode, import.meta.dirname, 'VITE_')
   return {
     define: {
       'import.meta.env.VITE_SENTRY_DSN': JSON.stringify(env.VITE_SENTRY_DSN ?? ''),
       'import.meta.env.VITE_SENTRY_ENVIRONMENT': JSON.stringify(env.VITE_SENTRY_ENVIRONMENT ?? ''),
+      // The server this build is tied to; empty in development.
+      'import.meta.env.VITE_SERVER_URL': JSON.stringify(env.VITE_SERVER_URL ?? ''),
     },
     build: {
       // Native and Linux only: it stays out of the bundle and is loaded from node_modules when the app runs.

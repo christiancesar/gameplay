@@ -5,7 +5,6 @@ import { net, protocol } from 'electron'
 
 import { APP_HOST, APP_SCHEME } from '../utils/app-url'
 import { looksLikeFile, resolveAssetPath } from '../utils/asset-path'
-import { CONTENT_SECURITY_POLICY } from '../utils/content-security-policy'
 import { uploadsUrl } from '../utils/uploads-url'
 
 /** Before the app is ready: makes `app://` a scheme like https (fetch, cookies, storage per origin). */
@@ -25,9 +24,9 @@ async function isFile(target: string): Promise<boolean> {
 
 /**
  * Serves the built front-end on `app://gameplay/`, with the entry page for any route that is not a file, and asks
- * the server (`currentServer`) for the images and files under `/uploads/`.
+ * the server (`currentServer`) for the images and files under `/uploads/`. Every page carries the given policy.
  */
-function serveApp(root: string, currentServer: () => string | null): void {
+function serveApp(root: string, currentServer: () => string | null, contentSecurityPolicy: string): void {
   protocol.handle(APP_SCHEME, async (request) => {
     const { host, pathname } = new URL(request.url)
     if (host !== APP_HOST) return new Response('Not found', { status: 404 })
@@ -44,7 +43,7 @@ function serveApp(root: string, currentServer: () => string | null): void {
     const response = await net.fetch(pathToFileURL(file).toString())
     if (!file.endsWith('.html')) return response
     const headers = new Headers(response.headers)
-    headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY)
+    headers.set('Content-Security-Policy', contentSecurityPolicy)
     return new Response(response.body, { status: response.status, headers })
   })
 }
