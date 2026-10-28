@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 import pkg from './package.json' with { type: 'json' }
+import { sentrySourceMaps, sourceMapMode } from './sentry-source-maps'
 
 // The front-end lives in packages/client: the router plugin reads its routes and `@/` points to its src.
 const clientSrc = path.resolve(import.meta.dirname, '../../packages/client/src')
@@ -26,6 +27,9 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
+    // Last plugin: it reads the maps the build wrote.
+    ...sentrySourceMaps('.vite/renderer/**/*.map'),
   ],
+  build: { sourcemap: sourceMapMode() },
   resolve: { alias: { '@': clientSrc } },
 })

@@ -27,7 +27,7 @@ Ordem mudada em 2026-10-28, depois que o usuário testou o app no Wayland: escol
 | DESK-08 Seletor de fontes do app (X11 e Windows): `capture:list-sources`, miniaturas, `setDisplayMediaRequestHandler` com a escolha do usuário | 5 | a detalhar |
 | DESK-09 Windows: áudio do sistema pelo loopback e áudio por processo (WASAPI) | 5 | a detalhar |
 | [DESK-10 Servidor de produção embutido no build](DESK-10-servidor-embutido-no-build.md) | 3 | concluído |
-| [DESK-11 Release do Linux pelo GitHub Actions](DESK-11-release-linux-github-actions.md) | 5 | a fazer |
+| [DESK-11 Release do Linux pelo GitHub Actions](DESK-11-release-linux-github-actions.md) | 5 | escrito, falta o primeiro disparo |
 | DESK-12 Windows: empacotamento, assinatura, atualização completa, `.ico` e versão mínima do app no `/api/health` | 5 | a detalhar |
 | DESK-13 OTA da UI assinado, com rollback (seção 6 do tech plan) | 5 | a detalhar |
 

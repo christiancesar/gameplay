@@ -1,0 +1,64 @@
+# Releases the Linux app. Run by hand (Actions > Desktop release > Run workflow) from main: the next 0.0.{x} is the
+# last v0.0.* tag plus one. The number is not committed anywhere: it exists for the build, and the tag the release
+# creates is what the next run reads. See apps/desktop/README.md.
+name: Desktop release
+
+on: workflow_dispatch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Only from main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::The desktop release runs from main, not from ${GITHUB_REF_NAME}."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # The deb maker needs them.
+      - name: Packaging tools
+        run: sudo apt-get update && sudo apt-get install -y dpkg fakeroot
+
+      - run: npm ci
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Tests of the desktop and what it shares
+        run: npx turbo run test --filter=desktop --filter=@gameplay/desktop-bridge --filter=@gameplay/contracts
+
+      - name: Next version
+        id: version
+        run: |
+          last=$(git tag --list 'v0.0.*' --sort=-v:refname | head -n 1)
+          next=$(( ${last##*.} + 1 ))
+          echo "Last release: ${last:-none}. This one: 0.0.${next}"
+          npm pkg set version="0.0.${next}" -w desktop
+          echo "version=0.0.${next}" >> "$GITHUB_OUTPUT"
+
+      - name: Make and publish
+        run: npm run publish -w desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_APP_ENV: production
+          VITE_SERVER_URL: ${{ vars.GAMEPLAY_SERVER_URL }}
+          VITE_SENTRY_DSN: ${{ vars.DESKTOP_SENTRY_DSN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.DESKTOP_SENTRY_PROJECT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

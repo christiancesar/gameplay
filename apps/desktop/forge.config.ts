@@ -68,6 +68,19 @@ const config: ForgeConfig = {
       },
     }),
   ],
+  // `npm run publish`: makes the installers and attaches them to a GitHub release tagged v{version}, with the token of
+  // the workflow (GITHUB_TOKEN). Published at once (the Forge default is a draft), with the notes GitHub writes.
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: { owner: 'christiancesar', name: 'gameplay' },
+        draft: false,
+        prerelease: false,
+        generateReleaseNotes: true,
+      },
+    },
+  ],
   plugins: [
     new VitePlugin({
       build: [

@@ -24,13 +24,13 @@
 Windows, macOS, assinatura, `autoUpdater`, aviso de versão nova no app, versão mínima no `/api/health` e OTA (DESK-12 e DESK-13). CI de PR (typecheck e testes a cada PR): não existe hoje e é outro assunto.
 
 ## Checklist
-- [ ] Workflow com o disparo manual, a trava de `main` e o cálculo da versão pela última tag
-- [ ] Typecheck, lint e testes antes do build, no workflow
-- [ ] Env do build (servidor, Sentry) lida de variáveis e secrets do repositório
-- [ ] `publisher-github` configurado e deb e zip anexados ao release, com notas geradas
-- [ ] Source maps enviados ao Sentry sem entrar no pacote
-- [ ] Documentação de como disparar e do que o repositório precisa
-- [ ] Commit a cada passo verde
+- [x] Workflow com o disparo manual, a trava de `main` e o cálculo da versão pela última tag
+- [x] Typecheck, lint e testes antes do build, no workflow
+- [x] Env do build (servidor, Sentry) lida de variáveis e secrets do repositório
+- [x] `publisher-github` configurado e deb e zip anexados ao release, com notas geradas
+- [x] Source maps enviados ao Sentry sem entrar no pacote
+- [x] Documentação de como disparar e do que o repositório precisa
+- [x] Commit a cada passo verde
 
 ## Checklist de validação
 - [ ] Disparo pela primeira vez: cria a tag `v0.0.1` e o release com deb e zip
@@ -39,13 +39,40 @@ Windows, macOS, assinatura, `autoUpdater`, aviso de versão nova no app, versão
 - [ ] Instalar o deb baixado do release numa máquina Linux: o app abre direto no login do servidor de produção (DESK-10), com a versão do release em Sobre ou nos logs, e o sandbox do Chromium ativo
 - [ ] A versão que o Sentry mostra (release) bate com a tag
 - [ ] Transmitir com o áudio de um aplicativo no app instalado (DESK-07) continua funcionando
-- [ ] `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` verdes
+- [x] `npm run typecheck`, `npm run lint`, `npm run format:check`, testes do desktop verdes
 
 ## Critério de aceite
 Um disparo manual do workflow, a partir da `main`, publica no GitHub Releases um deb e um zip do Linux na versão `0.0.{x}` seguinte, apontando para o servidor definido pelas variáveis do repositório.
 
 ## Notas da execução
-(preencher ao concluir, com as suposições marcadas como *(suposição)*)
+
+
+## Notas da execução (2026-10-28)
+
+Escrito na `feature/desktop-app`. **A parte que roda no GitHub (os itens de validação ainda abertos acima) só pode ser conferida no primeiro disparo**, que depende deste código estar na `main` e das variáveis do repositório. O que foi conferido localmente está marcado.
+
+O que foi feito:
+- `.github/workflows/desktop-release.yml`: `workflow_dispatch`, trava de `main`, `fetch-depth: 0`, Node 24, `dpkg` e `fakeroot`, `npm ci`, typecheck, lint, testes (`turbo run test` filtrado em `desktop`, `desktop-bridge` e `contracts`), cálculo da versão pela última tag `v0.0.*` (ordenação numérica: `v0.0.10` vem depois de `v0.0.2`; sem tag, começa em `0.0.1`), `npm pkg set version` só no runner e `npm run publish -w desktop`.
+- `@electron-forge/publisher-github` (8.0.1) em `forge.config.ts`: repositório `christiancesar/gameplay`, `draft: false` (o padrão do Forge é rascunho), `generateReleaseNotes`, tag no padrão `v{versão}`. O Forge cria a tag no HEAD da branch padrão, que é a `main` de onde o disparo sai.
+- Scripts `publish` (desktop) e `desktop:publish` (raiz).
+- Source maps: `sentry-source-maps.ts` (`@sentry/vite-plugin`, o mesmo do web) ligado nos Vite do main e do renderer. Só age com `SENTRY_AUTH_TOKEN`: gera maps `hidden`, envia ao release `gameplay-desktop@{versão}` (o mesmo nome que o app usa) e apaga os maps.
+- `apps/desktop/README.md`: as duas envs, o disparo, as variáveis e o secret que o repositório precisa.
+
+Conferido localmente:
+- `make` com `VITE_APP_ENV=production`, servidor e um token falso: gera `gameplay_0.0.0_amd64.deb` e o zip; o deb leva o `chrome-sandbox` com SUID root (`-rwsr-xr-x`), o que fecha em pacote a pendência do DESK-05; nenhum `.map` ficou no pacote.
+- O cálculo da versão num repositório de teste (`v0.0.1`, `v0.0.2`, `v0.0.10` dá `0.0.11`; sem tags dá `0.0.1`).
+- Typecheck, lint, format e 69 testes do desktop.
+
+Não conferido:
+- O envio real dos source maps e a publicação no GitHub (o token do Sentry de verdade não foi usado de propósito, para não poluir o projeto).
+- O app do deb instalado numa máquina Linux (o sandbox só foi visto no pacote, não em execução).
+- Os testes do `client` e da API não rodam no workflow (o client usa Playwright; não existe CI de PR no repositório). Os do desktop, da ponte e dos contratos rodam.
+
+Suposições:
+- *(suposição)* Nomes das variáveis do repositório: `GAMEPLAY_SERVER_URL`, `DESKTOP_SENTRY_DSN`, `SENTRY_ORG`, `DESKTOP_SENTRY_PROJECT` e o secret `SENTRY_AUTH_TOKEN`. Podem ser trocados no workflow.
+- *(suposição)* Node 24, igual ao da máquina de desenvolvimento.
+- *(suposição)* O preload fica sem source map (o Vite dele não gera); é um arquivo de 1 KB.
+- *(suposição)* O release sai publicado, não como rascunho, porque o disparo já é a decisão de publicar.
 
 ## Suposições a confirmar
 - Decidido pelo usuário: a release sai da `main`, e o `publisher-github` do Forge publica (sem custo; o `GITHUB_TOKEN` do workflow basta).

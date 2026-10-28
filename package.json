@@ -23,7 +23,8 @@
     "host:logs": "node infra/self-hosted/cli/main.ts logs",
     "deploy": "bash infra/production/deploy.sh",
     "desktop": "npm run start -w desktop",
-    "desktop:make": "npm run make -w desktop"
+    "desktop:make": "npm run make -w desktop",
+    "desktop:publish": "npm run publish -w desktop"
   },
   "devDependencies": {
     "turbo": "^2.11.10"
