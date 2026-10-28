@@ -16,7 +16,7 @@ Um app desktop do Gameplay, em Electron, para usar recursos do computador do usu
 ### 2.2 Sistemas
 - **Linux primeiro**, que é o ambiente do usuário. Áudio por aplicativo com **`@vencord/venmic`** e PipeWire, com o que o sistema oferecer.
 - **Windows depois**, para testar por lá.
-- macOS sem data.
+- macOS sem data, e fora do plano (decisão de 2026-10-28). A primeira versão distribuída é só Linux.
 
 ### 2.3 Mesma UI no web e no desktop
 - Todo o front-end (telas, ViewModels, services, transportes, i18n, testes e stories) é compartilhado entre o web e o desktop.

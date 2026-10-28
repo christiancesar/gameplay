@@ -19,7 +19,7 @@
 - Makers só para Linux nesta fase (deb e zip), sem assinatura e sem atualização.
 
 ## Fora do escopo
-IPC e `safeStorage` (DESK-06). Captura nativa e áudio (fase 2). Assinatura, publicação e atualização (DESK-10 e DESK-11).
+IPC e `safeStorage` (DESK-06). Captura nativa e áudio (fase 2). Servidor embutido e release do Linux (DESK-10 e DESK-11); assinatura e atualização (DESK-12 e DESK-13).
 
 ## Checklist
 - [x] Teste do cookie reescrito feito (sessão, 2FA e socket sem token) e a decisão, Bearer fora ou dentro, anotada
@@ -66,7 +66,7 @@ Suposições:
 - *(suposição)* **O handler de `getDisplayMedia` é um quebra-galho:** sem ele o Chromium dentro do Electron recusa a captura (`NotSupportedError`), e o ticket exige transmitir tela. Ele usa o seletor do sistema onde existe (Wayland pelo portal, macOS 15) e, fora disso, a primeira tela, sem áudio. O seletor do app, com janelas, miniaturas e áudio por aplicativo, é o DESK-07. Em X11 e no Windows isso captura a tela inteira sem perguntar qual.
 - *(suposição)* O endereço do servidor fica no `localStorage` do renderer até o DESK-06 (o ticket dizia "em memória"; assim o app não pergunta a cada abertura).
 - *(suposição)* O CSP abre `connect-src` para `https:`, `wss:` e `localhost`/`127.0.0.1`, porque o servidor é escolhido em tempo de execução. No DESK-06, com o endereço no main, dá para fechar na origem escolhida.
-- *(suposição)* No `.deb` o `chrome-sandbox` precisa ser SUID para o sandbox do Chromium; os testes rodaram com `--no-sandbox`. O instalador do deb cuida disso no `postinst`; confirmar numa instalação real (DESK-10).
+- *(suposição)* No `.deb` o `chrome-sandbox` precisa ser SUID para o sandbox do Chromium; os testes rodaram com `--no-sandbox`. O instalador do deb cuida disso no `postinst`; confirmar numa instalação real (DESK-11).
 - *(suposição)* O `electron` não baixa o binário no `npm install` com o bloqueio de scripts do npm 11; foi preciso `node node_modules/electron/install.js` uma vez (anotado no `AGENTS.md`).
 - *(suposição)* Nos testes do client, o Vitest passou a usar no máximo 6 workers: com todos os núcleos nos arquivos jsdom o Chromium das stories ficava sem CPU e histórias que esperam animações do Radix falhavam ao acaso (`pointer-events: none`). Com o limite, 3 rodadas seguidas passaram. A história `Delete Server` também ganhou um `waitFor`.
 - Não validado: o Wayland real (o portal de captura) e o Windows; os testes foram em X11 (Xvfb). Quem usa Wayland deve abrir `npm run desktop` e conferir a transmissão com o seletor do portal.

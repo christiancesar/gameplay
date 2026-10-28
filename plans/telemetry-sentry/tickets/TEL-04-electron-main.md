@@ -10,7 +10,7 @@ Depende do PR #26 (`feature/desktop-app`) e do TEL-03.
 - Validar Replay no renderer do Electron; se der problema, desligar só no desktop.
 
 ## Fora do escopo
-Source maps do desktop (DESK-10). Opt-out nas configurações.
+Source maps do desktop (DESK-11). Opt-out nas configurações.
 
 ## Checklist
 - [x] Erro forçado no main aparece no Sentry
@@ -25,7 +25,7 @@ Source maps do desktop (DESK-10). Opt-out nas configurações.
 - Privacidade: `dataCollection: { userInfo: false, cookies: false }`, `server_name` e dados de usuário removidos no `beforeSend`. O Sentry dá a instalação um id anônimo próprio. Sem DSN no build o main não envia nada.
 - Verificado com o app empacotado contra um servidor local: chegaram o log de início, a sessão e os eventos de processo filho do Chromium (`'GPU' process exited`, porque o teste foi num Xvfb sem GPU).
 - Ajustes no log local: `render-process-gone` com `clean-exit` (janela fechada normalmente) deixou de ser erro, e o ruído de `devtools://` saiu.
-- Fora do escopo e pendente: source maps do main e do renderer (DESK-10). O slug do projeto (`gameplay-electron`) já está no `apps/desktop/.env`. Não testado: um crash nativo de verdade (minidump).
+- Fora do escopo e pendente: source maps do main e do renderer (DESK-11). O slug do projeto (`gameplay-electron`) já está no `apps/desktop/.env`. Não testado: um crash nativo de verdade (minidump).
 
 ### Traces e métricas no main (2026-10-28)
 

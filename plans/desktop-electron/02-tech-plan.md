@@ -269,8 +269,8 @@ Regras:
 - O bundle vem só do nosso canal de releases (GitHub Releases ou o bucket S3), **nunca do servidor ao qual o usuário se conecta**. Um self-hosted não empurra UI para o app.
 
 Atualização completa por sistema:
-- **Windows e macOS**: `autoUpdater` do Electron com os makers do Forge (Squirrel, ZIP). `update.electronjs.org` serve repositório público no GitHub; a alternativa é o S3. No macOS exige app assinado e notarizado (conta Apple de US$ 99 por ano); no Windows funciona sem assinatura, com aviso do SmartScreen.
-- **Linux**: o `autoUpdater` do Electron não roda no Linux. deb e rpm se atualizam pelo gerenciador do sistema; atualização sozinha exige AppImage com o `electron-updater`. No começo, aviso de versão nova com link, e o OTA cobre a UI.
+- **Windows** (macOS fora do plano): `autoUpdater` do Electron com os makers do Forge (Squirrel, ZIP). `update.electronjs.org` serve repositório público no GitHub; a alternativa é o S3. No macOS exige app assinado e notarizado (conta Apple de US$ 99 por ano); no Windows funciona sem assinatura, com aviso do SmartScreen.
+- **Linux**: o `autoUpdater` do Electron não roda no Linux. deb e rpm se atualizam pelo gerenciador do sistema; atualização sozinha exige AppImage com o `electron-updater`. Na primeira release não há atualização no app: o usuário baixa o deb novo no GitHub Releases. Aviso de versão nova com link e o OTA da UI vêm depois.
 
 ## 7. Segurança do desktop
 
@@ -284,5 +284,7 @@ Atualização completa por sistema:
 
 - **Servidor self-hosted em `http` fora desta máquina** não funciona no desktop (o cookie `Secure` exige HTTPS). Se for preciso, a alternativa é voltar ao token (ver o histórico do DESK-04) ou pôr HTTPS no servidor.
 - **Rastreamento do Faro no desktop**: o Faro só propaga os headers de trace para a mesma origem; entre `app://` e o servidor seria preciso `propagateTraceHeaderCorsUrls`.
-- **Distribuição**: onde publicar os instaladores e os bundles da UI (GitHub Releases ou o bucket S3) e se haverá assinatura de código no Windows e macOS (certificados custam).
+- **Distribuição** (decidido em 2026-10-28): instaladores no GitHub Releases, gerados pelo GitHub Actions. Primeira versão só Linux (deb e zip), sem assinatura. macOS fora do plano; Windows e a assinatura dele ficam para o DESK-12. Os bundles do OTA (DESK-13) seguem para o mesmo canal.
+- **Servidor do app**: o build empacotado fala com um servidor fixo, lido da env `VITE_SERVER_URL` na hora do build (nunca uma constante no código, para quem quiser montar o próprio app). A tela de escolha só existe em desenvolvimento (DESK-10).
+- **Versão**: `0.0.{x}`. Quem sobe é um disparo manual (`workflow_dispatch`) do workflow de release, que calcula a próxima a partir da última tag `desktop-v*` (DESK-11). O `apps/desktop/package.json` continua em `0.0.0` no repositório.
 - **Push-to-talk global** (atalho fora da janela): entra depois, como mais uma capacidade da `Platform`.

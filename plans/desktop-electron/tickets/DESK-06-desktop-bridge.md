@@ -57,6 +57,6 @@ Validação:
 
 Suposições:
 - *(suposição)* O arquivo do servidor é `userData/server.json`, sem cifra: o endereço não é segredo.
-- *(suposição)* O CSP continua aberto para `https:`, `wss:` e `localhost`: fechar na origem escolhida exigiria a verificação do servidor (`/api/health`) passar para o main e recarregar a página depois da escolha, porque o CSP é decidido quando a página carrega. Fica para o endurecimento (DESK-10).
+- *(suposição)* O CSP continua aberto para `https:`, `wss:` e `localhost`: fechar na origem escolhida exigiria a verificação do servidor (`/api/health`) passar para o main e recarregar a página depois da escolha, porque o CSP é decidido quando a página carrega. Fica para o DESK-10: com o servidor fixo no build, a origem é conhecida antes da página carregar.
 - *(suposição)* O teste `/uploads/../api/health` dá 200 porque o navegador resolve os pontos antes de a requisição sair (chega como `/api/health`, que cai no `index.html`); a proteção contra `..` está testada em `uploads-url` e `asset-path`.
 - O app não valida o ponto em que o usuário **troca** de servidor depois da primeira escolha: não há tela para isso ainda (apagar o `server.json` faz o app perguntar de novo).

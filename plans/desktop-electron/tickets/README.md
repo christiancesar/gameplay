@@ -24,7 +24,11 @@ Ordem mudada em 2026-10-28, depois que o usuário testou o app no Wayland: escol
 | Ticket | Pontos | Status |
 |---|---|---|
 | [DESK-07 Áudio por aplicativo no Linux (venmic e PipeWire)](DESK-07-audio-por-aplicativo-linux.md) | 8 | concluído |
-| DESK-08 Seletor de fontes do app (X11, Windows, macOS): `capture:list-sources`, miniaturas, `setDisplayMediaRequestHandler` com a escolha do usuário | 5 | a detalhar |
+| DESK-08 Seletor de fontes do app (X11 e Windows): `capture:list-sources`, miniaturas, `setDisplayMediaRequestHandler` com a escolha do usuário | 5 | a detalhar |
 | DESK-09 Windows: áudio do sistema pelo loopback e áudio por processo (WASAPI) | 5 | a detalhar |
-| DESK-10 Empacotamento, assinatura, atualização completa e versão mínima do app no `/api/health`; fechar o CSP na origem escolhida; `.ico` e `.icns` no empacotamento do Windows e do macOS | 5 | a detalhar |
-| DESK-11 OTA da UI assinado, com rollback (seção 6 do tech plan) | 5 | a detalhar |
+| [DESK-10 Servidor de produção embutido no build](DESK-10-servidor-embutido-no-build.md) | 3 | a fazer |
+| [DESK-11 Release do Linux pelo GitHub Actions](DESK-11-release-linux-github-actions.md) | 5 | a fazer |
+| DESK-12 Windows: empacotamento, assinatura, atualização completa, `.ico` e versão mínima do app no `/api/health` | 5 | a detalhar |
+| DESK-13 OTA da UI assinado, com rollback (seção 6 do tech plan) | 5 | a detalhar |
+
+**Ordem decidida em 2026-10-28:** a primeira versão distribuída é só Linux (deb e zip). Por isso o DESK-10 e o DESK-11 passam na frente do DESK-08 e do DESK-09. **macOS fica fora por tempo indeterminado** (sem ticket); o que era dele no DESK-10 antigo (`.icns`, notarização, DMG) sai do plano até o usuário pedir. O DESK-12 e o DESK-13 só começam depois de uma release do Linux no ar.

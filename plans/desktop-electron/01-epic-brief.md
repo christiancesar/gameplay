@@ -26,8 +26,10 @@ O web já transmite tela em boa qualidade, mas o browser não deixa capturar o �
 
 **Fase 2, recursos nativos:**
 - Captura de janela e tela no Linux, e áudio por aplicativo com `@vencord/venmic` e PipeWire.
-- Windows: seletor com miniaturas, áudio do sistema e por processo.
-- Empacotamento, atualização completa e OTA assinado da UI.
+- Servidor de produção embutido no build (a tela de escolha só em desenvolvimento) e release do Linux pelo GitHub Actions, com a versão `0.0.{x}` subindo por um disparo manual.
+- Windows: seletor com miniaturas, áudio do sistema e por processo, empacotamento e atualização completa.
+- OTA assinado da UI.
+- macOS fora do plano por enquanto.
 
 ## Critério de sucesso
 
@@ -43,4 +45,4 @@ Componentes de UI separados para o desktop. UI carregada do servidor. Push-to-ta
 - **Wayland**: o app não lista as janelas de outros programas; a escolha passa pelo seletor do sistema. Muda o fluxo de escolha no Linux.
 - **Áudio nativo**: depende de módulo nativo (`venmic`) e do PipeWire da máquina.
 - **Autenticação**: o desktop não usa cookie de sessão; depende do plugin `bearer` do Better Auth convivendo com o 2FA e o admin.
-- **Distribuição**: assinatura de código no Windows e no macOS tem custo.
+- **Distribuição**: assinatura de código no Windows tem custo. O macOS saiu do plano.
