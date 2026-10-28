@@ -7,6 +7,8 @@ type CaptureSource = {
   kind: 'screen' | 'window'
   /** Data URL of a small preview, when the host makes one. */
   thumbnail: string | null
+  /** Data URL of the icon of the application, for a window, when the host has it. */
+  appIcon: string | null
 }
 
 /** An application that is playing sound, by the name the system gives it. */
@@ -31,6 +33,8 @@ type PlatformCapabilities = {
   systemAudio: boolean
   /** The sound of chosen applications can be shared, whichever screen or window is. */
   appAudio: boolean
+  /** The sound of the computer can be shared without the app's own, so the call does not come back to the viewers. */
+  systemAudioWithoutApp: boolean
   /** Shortcuts that work with the app out of focus. */
   globalHotkeys: boolean
 }

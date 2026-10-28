@@ -9,6 +9,8 @@ import { Label } from '@/shared/ui/label'
 import { Switch } from '@/shared/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
+import { ShareSourcePickerView, type ShareSourceOption } from './share-source-picker.view'
+
 const SHARE_SOURCES = ['screen', 'window', 'tab'] as const
 /** Tipo de fonte. Vira a dica `displaySurface` do getDisplayMedia; a escolha exata acontece no seletor do browser. */
 type ShareSource = (typeof SHARE_SOURCES)[number]
@@ -23,10 +25,18 @@ const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
 /** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
 type SharePriority = (typeof SHARE_PRIORITIES)[number]
 
-type AudioSupport = 'apps' | 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
+type AudioSupport =
+  | 'apps'
+  | 'systemWithoutApp'
+  | 'windowApp'
+  | 'supported'
+  | 'recentMac'
+  | 'windowUnsupported'
+  | 'tabOnly'
+  | 'browserUnsupported'
 
 /** Where the browser gives screen audio. Elsewhere the switch is locked and the hint says only the microphone goes. */
-const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'supported', 'recentMac']
+const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'systemWithoutApp', 'windowApp', 'supported', 'recentMac']
 
 type ShareSettings = {
   source: ShareSource
@@ -50,6 +60,14 @@ type StreamModeOptions = {
 /** Um aplicativo que está tocando som. */
 type AudioAppOption = { name: string; binary: string | null }
 
+/** As telas e janelas que o app lista (Windows e X11) e a escolhida. Sem isto, o seletor é o do browser ou do sistema. */
+type SourceChoice = {
+  available: readonly ShareSourceOption[]
+  selectedId: string | null
+  onSelect: (id: string) => void
+  onRefresh: () => void
+}
+
 type ShareSetupDialogViewProps = {
   open: boolean
   settings: ShareSettings
@@ -58,6 +76,10 @@ type ShareSetupDialogViewProps = {
   audioSupport: AudioSupport
   /** Com `audioSupport` `apps`: o que está tocando agora e como atualizar a lista. */
   audioApps?: { available: readonly AudioAppOption[]; onRefresh: () => void }
+  /** O app lista telas e janelas abaixo dos cartões de tipo, e iniciar espera uma escolha. */
+  sources?: SourceChoice
+  /** O app não lista (Wayland): o sistema pergunta ao iniciar, e a seção só avisa isso. */
+  systemPicker?: boolean
   saveAsDefault: boolean
   /** `update`: changing resolution and frame rate of a share already running; the source and audio are fixed. */
   mode?: 'start' | 'update'
@@ -79,7 +101,8 @@ function ShareSetupDialogView({
   settings,
   priority,
   audioSupport,
-  audioApps,
+  sources,
+  systemPicker = false,
   saveAsDefault,
   mode = 'start',
   onOpenChange,
@@ -97,31 +120,42 @@ function ShareSetupDialogView({
   const audioAvailable = AUDIO_AVAILABLE.includes(audioSupport)
   const showModes = !isUpdate && Boolean(streamModes)
   const noMode = showModes && !streamModes?.sfu.available && !streamModes?.mesh.available
-  // What was chosen but is not playing now stays on the list, so it can be unticked.
-  const playing = audioApps?.available.map((app) => app.name) ?? []
-  const appRows = [
-    ...(audioApps?.available ?? []),
-    ...settings.audioApps.filter((name) => !playing.includes(name)).map((name) => ({ name, binary: null })),
-  ]
-  const toggleApp = (name: string, on: boolean) =>
-    set({ audioApps: on ? [...settings.audioApps, name] : settings.audioApps.filter((chosen) => chosen !== name) })
+  const noSource =
+    !isUpdate &&
+    Boolean(sources) &&
+    !sources?.available.some((source) => source.id === sources.selectedId && source.kind === settings.source)
+  const description = isUpdate
+    ? 'share.setup.updateDescription'
+    : sources
+      ? 'share.setup.descriptionList'
+      : systemPicker
+        ? 'share.setup.descriptionSystem'
+        : 'share.setup.description'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onOpenAutoFocus={(event) => event.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{isUpdate ? t('share.setup.updateTitle') : t('share.setup.title')}</DialogTitle>
-          <DialogDescription>
-            {isUpdate ? t('share.setup.updateDescription') : t('share.setup.description')}
-          </DialogDescription>
+          <DialogDescription>{t(description)}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-6">
-          {!isUpdate && (
+          {!isUpdate && !sources && systemPicker && (
+            <fieldset className="flex flex-col gap-3">
+              <legend className="mb-3 text-sm font-medium">{t('share.setup.source')}</legend>
+              <p className="text-muted-foreground flex items-start gap-1.5 text-xs">
+                <InfoIcon className="mt-px size-3.5 shrink-0" aria-hidden />
+                {t('share.setup.systemPicker')}
+              </p>
+            </fieldset>
+          )}
+
+          {!isUpdate && !systemPicker && (
             <fieldset className="flex flex-col gap-3">
               <legend className="mb-3 text-sm font-medium">{t('share.setup.source')}</legend>
               <div role="radiogroup" aria-label={t('share.setup.source')} className="grid grid-cols-3 gap-2">
-                {SHARE_SOURCES.map((source) => {
+                {(sources ? SHARE_SOURCES.filter((source) => source !== 'tab') : SHARE_SOURCES).map((source) => {
                   const Icon = SOURCE_ICONS[source]
                   const selected = settings.source === source
                   return (
@@ -160,6 +194,16 @@ function ShareSetupDialogView({
                 </p>
               )}
             </fieldset>
+          )}
+
+          {!isUpdate && sources && settings.source !== 'tab' && (
+            <ShareSourcePickerView
+              sources={sources.available}
+              kind={settings.source}
+              selectedId={sources.selectedId}
+              onSelect={sources.onSelect}
+              onRefresh={sources.onRefresh}
+            />
           )}
 
           <div className="grid grid-cols-2 gap-4">
@@ -238,43 +282,6 @@ function ShareSetupDialogView({
             </div>
           )}
 
-          {!isUpdate && audioSupport === 'apps' && settings.includeAudio && audioApps && (
-            <fieldset className="flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-2">
-                <legend className="text-sm font-medium">{t('share.setup.audioApps.title')}</legend>
-                <Button type="button" variant="ghost" size="xs" onClick={audioApps.onRefresh}>
-                  {t('share.setup.audioApps.refresh')}
-                </Button>
-              </div>
-              {appRows.length === 0 ? (
-                <p className="text-muted-foreground text-xs">{t('share.setup.audioApps.empty')}</p>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {appRows.map((app) => (
-                    <li key={app.name} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`share-audio-app-${app.name}`}
-                        checked={settings.audioApps.includes(app.name)}
-                        onCheckedChange={(value) => toggleApp(app.name, value === true)}
-                      />
-                      <Label htmlFor={`share-audio-app-${app.name}`} className="font-normal">
-                        {app.name}
-                        {!playing.includes(app.name) && (
-                          <span className="text-muted-foreground ml-1.5 text-xs">
-                            {t('share.setup.audioApps.idle')}
-                          </span>
-                        )}
-                      </Label>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {settings.audioApps.length === 0 && (
-                <p className="text-amber-500 text-xs">{t('share.setup.audioApps.none')}</p>
-              )}
-            </fieldset>
-          )}
-
           {showModes && streamModes && (
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-2 text-sm font-medium">{t('share.mode.label')}</legend>
@@ -332,7 +339,7 @@ function ShareSetupDialogView({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t('common.cancel')}
           </Button>
-          <Button variant="success" onClick={onStart} disabled={noMode}>
+          <Button variant="success" onClick={onStart} disabled={noMode || noSource}>
             {!isUpdate && <MonitorUpIcon data-icon="inline-start" aria-hidden />}
             {isUpdate ? t('share.setup.apply') : t('share.setup.start')}
           </Button>
@@ -344,6 +351,8 @@ function ShareSetupDialogView({
 
 export { SHARE_FPS, SHARE_PRIORITIES, SHARE_RESOLUTIONS, SHARE_SOURCES, STREAM_MODES, ShareSetupDialogView }
 export type {
+  ShareSourceOption,
+  SourceChoice,
   AudioSupport,
   ShareFps,
   SharePriority,

@@ -8,3 +8,7 @@
 **/.env.*
 !**/.env.example
 .git
+apps/desktop/out
+apps/desktop/native/audio-capture/build
+infra/windows-dev
+infra/terraform

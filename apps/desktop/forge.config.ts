@@ -1,8 +1,10 @@
+import { execFileSync } from 'node:child_process'
 import { cp, mkdir } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { FusesPlugin } from '@electron-forge/plugin-fuses'
 import { MakerDeb } from '@electron-forge/maker-deb'
+import { MakerSquirrel } from '@electron-forge/maker-squirrel'
 import { MakerZIP } from '@electron-forge/maker-zip'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import type { ForgeConfig } from '@electron-forge/shared-types'
@@ -16,11 +18,23 @@ const icons = path.resolve(import.meta.dirname, '../../packages/client/src/share
 
 const require = createRequire(import.meta.url)
 
+/** The system being packaged for, which is not the one running Forge when cross-building (--platform win32 on Linux). */
+function targetPlatform(): NodeJS.Platform {
+  const index = process.argv.findIndex((arg) => arg === '--platform' || arg.startsWith('--platform='))
+  if (index === -1) return process.platform
+  const arg = process.argv[index]!
+  return (arg.includes('=') ? arg.split('=')[1] : process.argv[index + 1]) as NodeJS.Platform
+}
+
 /** What of each package the app needs when it runs (the rest is source and build files). */
 const NATIVE_PACKAGES = [
   { name: '@vencord/venmic', keep: ['package.json', 'lib', 'prebuilds'] },
   { name: 'pkg-prebuilds', keep: ['package.json', 'bindings.js', 'lib'] },
 ]
+
+/** The Windows helper that captures the sound of the computer without the app (native/audio-capture). */
+const audioCaptureDir = path.resolve(import.meta.dirname, 'native/audio-capture')
+const audioCaptureExe = path.join(audioCaptureDir, 'build/gameplay-audio-capture.exe')
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -30,7 +44,9 @@ const config: ForgeConfig = {
     asar: { unpack: '**/*.node' },
     // The packager adds the extension of the system it builds for: .ico on Windows, .icns on macOS. Linux has
     // none (the deb maker and the window carry the PNG).
-    icon: path.join(icons, process.platform === 'win32' ? 'windows/icon' : 'macos/icon'),
+    icon: path.join(icons, targetPlatform() === 'win32' ? 'windows/icon' : 'macos/icon'),
+    // The helper sits next to the app, outside the archive: it is a program, not a module.
+    extraResource: targetPlatform() === 'win32' ? [audioCaptureExe] : [],
   },
   hooks: {
     // What the build is (VITE_APP_ENV) and its server (VITE_SERVER_URL) come from the .env or the CI. A production
@@ -38,6 +54,9 @@ const config: ForgeConfig = {
     prePackage: async () => {
       const { VITE_APP_ENV, VITE_SERVER_URL } = loadEnv('production', import.meta.dirname, 'VITE_')
       fixedServerFrom(VITE_APP_ENV, VITE_SERVER_URL)
+      // The Windows package carries the audio helper, built with mingw-w64 (on Linux, or in an MSYS2 shell).
+      if (targetPlatform() === 'win32')
+        execFileSync('bash', [path.join(audioCaptureDir, 'build.sh')], { stdio: 'inherit' })
     },
     // The Vite plugin leaves node_modules out of the package: the native audio module (Linux only) and the loader
     // it needs are put back. On a system without them (Windows, macOS) there is nothing to copy.
@@ -55,9 +74,15 @@ const config: ForgeConfig = {
       }
     },
   },
-  // Linux only for now; the other systems and the signing come with the packaging ticket.
+  // Linux and Windows; macOS and the signing come with the packaging ticket. The Squirrel installer is built on
+  // Windows (the CI), or on Linux with wine and mono; the zip of the packaged app builds anywhere.
   makers: [
-    new MakerZIP({}, ['linux']),
+    new MakerZIP({}, ['linux', 'win32']),
+    new MakerSquirrel({
+      // CamelCase, no spaces: it names the NuGet package. The installer file takes productName.
+      name: 'Gameplay',
+      setupIcon: path.join(icons, 'windows/icon.ico'),
+    }),
     new MakerDeb({
       options: {
         name: 'gameplay',

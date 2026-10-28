@@ -15,9 +15,11 @@ The Electron app: the same front-end as the web (`packages/client`), with what a
 
 Any other `VITE_APP_ENV`, or none, stops the app and the packaging. The values are baked in at build time. To make your own app, point `VITE_SERVER_URL` at your own server.
 
-## Release (Linux)
+## Release (Linux e Windows)
 
-Actions > **Desktop release** > Run workflow, from `main`. It runs typecheck, lint and the desktop tests, takes the next `0.0.{x}` after the last `v0.0.*` tag, builds the deb and zip and publishes them on GitHub Releases as `v0.0.{x}`. Nothing is committed: the tag is the record of the last version, and `apps/desktop/package.json` stays at `0.0.0`.
+Em Actions > **Desktop release** > Run workflow, escolha `main`. O job Linux roda typecheck, lint e testes, calcula a próxima versão `0.0.{x}` a partir da última tag `v0.0.*`, gera o DEB e o ZIP e cria o release. Em seguida, o job Windows usa a mesma versão, compila o auxiliar WASAPI com MinGW no runner Windows, gera o instalador Squirrel e o ZIP e os anexa ao mesmo release. Nenhuma versão é commitada: a tag registra a última versão, e `apps/desktop/package.json` permanece em `0.0.0`.
+
+O job Windows depende do sucesso do Linux. Se falhar por um motivo transitório depois que o release Linux for criado, execute novamente o job com falha no Actions; o upload substitui os arquivos Windows da mesma versão. Um workflow novo calcularia a próxima versão.
 
 The variables and the secret live in the GitHub environment `electron-production` (Settings > Environments), under the same names as in `.env`. Only `main` may use it.
 

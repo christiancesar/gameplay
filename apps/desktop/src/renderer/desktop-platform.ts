@@ -9,6 +9,8 @@ import {
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 import { init as initElectronSentry } from '@sentry/electron/renderer'
 
+import { openSystemAudioTrack, type SystemAudioTrack } from './system-audio-track'
+
 /** What the releases of the app are called in Sentry, in the window and in the main process alike. */
 const RELEASE_NAME = 'gameplay-desktop'
 
@@ -72,32 +74,75 @@ type DesktopPlatformOptions = {
   serverFixed: boolean
   /** Whether the system can share the sound of applications (Linux with PipeWire). */
   appAudio: boolean
+  /** Whether the app lists the screens and windows itself (Windows, X11); on Wayland the system picker chooses. */
+  listSources: boolean
+  /** Whether the system can share its sound without the app's own (Windows, with the capture helper). */
+  systemAudio: boolean
 }
 
 /**
- * The desktop host. Its video capture is the Chromium inside Electron (the main process answers the request); the
+ * The desktop host. Its video capture is the Chromium inside Electron (the main process answers the request, with
+ * the source the user picked in the dialog where the app lists them); the
  * sound of the applications the user picks comes through a virtual microphone the main process makes. The user
  * picks the server, which the main process keeps between runs and uses for the images and for the cookie; a
  * build tied to a server (`VITE_SERVER_URL`) has no choice to offer. The session is a cookie, as on the web: the main process makes the cookie of the server travel between sites.
  */
-function createDesktopPlatform({ bridge, server, serverFixed, appAudio }: DesktopPlatformOptions): Platform {
+function createDesktopPlatform({
+  bridge,
+  server,
+  serverFixed,
+  appAudio,
+  listSources,
+  systemAudio,
+}: DesktopPlatformOptions): Platform {
   let chosen = server
+  let systemAudioTrack: SystemAudioTrack | null = null
   return {
     kind: 'desktop',
     capabilities: {
-      listSources: false,
+      listSources,
       appAudio,
       globalHotkeys: false,
       ...audioCapabilitiesOf(navigator as unknown as CapturePlatformSource),
+      // Never the call: the sound that goes is the computer's without this app, and on Windows, for a window, that of
+      // the application that owns it.
+      systemAudioWithoutApp: systemAudio || appAudio,
+      windowAudio: systemAudio || (appAudio && listSources),
     },
     capture: {
-      listSources: async () => [],
-      start: async ({ options, audioApps }) => {
-        if (!appAudio || !audioApps?.length) return acquireScreen(options)
+      listSources: async () => (listSources ? bridge['capture:list-sources']() : []),
+      start: async ({ options, sourceId, audioApps }) => {
+        // The page cannot hand a source to `getDisplayMedia`: the main process answers it, so it is told first.
+        if (listSources) await bridge['capture:select-source'](sourceId)
+        if (systemAudio && options.audio) {
+          // The sound of the computer without the app (the call plays inside it), through the capture helper.
+          const video = await acquireScreen({ ...options, audio: false })
+          if (!video.ok) return video
+          // A window carries the sound of its application; a screen, that of the computer without this app.
+          const scope = sourceId?.startsWith('window:')
+            ? ({ scope: 'window', sourceId } as const)
+            : ({ scope: 'system' } as const)
+          const opened = await openSystemAudioTrack(bridge, scope)
+          if (!opened) return video
+          systemAudioTrack?.close()
+          systemAudioTrack = opened
+          video.capture.stream.addTrack(opened.track)
+          return { ok: true, capture: { ...video.capture, audio: opened.track } }
+        }
+        // Linux: the sound is the applications' that the user chose (a setting for later), or else the computer's
+        // without this app, so the call never goes back to the viewers. Either way it comes through a virtual microphone.
+        const apps = appAudio ? (audioApps ?? []) : []
+        if (!appAudio || (apps.length === 0 && !options.audio)) return acquireScreen(options)
         // The video without audio of its own; the sound is the applications' one, added below.
         const video = await acquireScreen({ ...options, audio: false })
         if (!video.ok) return video
-        const shared = await bridge['audio:share']({ mode: 'apps', apps: [...audioApps] })
+        const shared = await bridge['audio:share'](
+          apps.length > 0
+            ? { mode: 'apps', apps: [...apps] }
+            : sourceId?.startsWith('window:')
+              ? { mode: 'window', sourceId }
+              : { mode: 'system' },
+        )
         const audio = shared ? await openVirtualMicrophone() : null
         if (!audio) {
           await bridge['audio:stop']()
@@ -108,6 +153,8 @@ function createDesktopPlatform({ bridge, server, serverFixed, appAudio }: Deskto
       },
       stop: (capture) => {
         stopScreen(capture)
+        systemAudioTrack?.close()
+        systemAudioTrack = null
         // Without a share there is nothing to take down; the main process knows.
         void bridge['audio:stop']()
       },

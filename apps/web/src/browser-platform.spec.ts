@@ -21,7 +21,12 @@ describe('createBrowserPlatform', () => {
     const platform = platformOf()
 
     expect(platform.kind).toBe('browser')
-    expect(platform.capabilities).toMatchObject({ listSources: false, appAudio: false, globalHotkeys: false })
+    expect(platform.capabilities).toMatchObject({
+      listSources: false,
+      appAudio: false,
+      systemAudioWithoutApp: false,
+      globalHotkeys: false,
+    })
     expect(await platform.capture.listSources()).toEqual([])
     expect(await platform.capture.listAudioApps()).toEqual([])
     expect(platform.server.baseUrl()).toBe('')

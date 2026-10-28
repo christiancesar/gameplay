@@ -55,6 +55,7 @@ class FakePlatform implements Platform {
       windowAudio: false,
       systemAudio: false,
       appAudio: false,
+      systemAudioWithoutApp: false,
       globalHotkeys: false,
       ...capabilities,
     }

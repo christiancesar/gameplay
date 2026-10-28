@@ -193,6 +193,15 @@
     "setup": {
       "title": "Compartilhar sua tela",
       "description": "Escolha o que compartilhar e a qualidade. Depois o browser pede para você escolher a tela, janela ou aba exata.",
+      "descriptionList": "Escolha a tela ou janela que vai compartilhar e a qualidade.",
+      "descriptionSystem": "Escolha a qualidade. Depois o sistema pergunta qual tela ou janela compartilhar.",
+      "systemPicker": "O sistema vai perguntar qual tela ou janela compartilhar quando você iniciar.",
+      "sourcePicker": {
+        "screen": "Telas",
+        "window": "Janelas e jogos",
+        "refresh": "Atualizar",
+        "empty": "Nenhuma fonte desse tipo encontrada."
+      },
       "source": "O que compartilhar",
       "sources": {
         "screen": {
@@ -229,7 +238,9 @@
         "windowUnsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba. Só o áudio do microfone será compartilhado.",
         "tabOnly": "Neste sistema o browser não captura o áudio da tela inteira. Compartilhe uma aba para levar o som. Só o áudio do microfone será compartilhado.",
         "browserUnsupported": "Este browser não compartilha áudio da tela. Para mandar o som do jogo, use Chrome ou Edge. Só o áudio do microfone será compartilhado.",
-        "apps": "Compartilhe o som dos aplicativos que você escolher abaixo."
+        "apps": "Compartilhe o som dos aplicativos que você escolher abaixo.",
+        "systemWithoutApp": "Compartilha o som do computador, sem a call: quem assiste já ouve os outros pelo app.",
+        "windowApp": "Compartilha o som do aplicativo desta janela, sem a call."
       },
       "saveAsDefault": "Usar estas configurações da próxima vez",
       "start": "Escolher e compartilhar",

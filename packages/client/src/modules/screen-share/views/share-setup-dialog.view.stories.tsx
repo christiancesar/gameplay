@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { expect, fn, screen, waitFor } from 'storybook/test'
 
+import { captureSources } from '@/fixtures/capture-sources'
+
 import {
   ShareSetupDialogView,
   type AudioSupport,
@@ -13,7 +15,8 @@ import {
 
 // Regra de exemplo só para a story (Chrome no Windows, ou no Linux com `tabOnly`); a real fica no Model e considera browser e sistema.
 const audioSupportFor = (settings: ShareSettings, base: AudioSupport): AudioSupport => {
-  if (base === 'browserUnsupported' || base === 'apps') return base
+  if (base === 'browserUnsupported' || base === 'apps' || base === 'systemWithoutApp' || base === 'windowApp')
+    return base
   if (settings.source === 'tab') return 'supported'
   if (settings.source === 'window') return 'windowUnsupported'
   return base === 'tabOnly' ? 'tabOnly' : 'supported'
@@ -189,48 +192,75 @@ export const SharingTurnedOff: Story = {
   },
 }
 
-const PLAYING = [
-  { name: 'Spotify', binary: 'spotify' },
-  { name: 'Cyberpunk 2077', binary: 'cyberpunk' },
-]
-
-/** Desktop on Linux: the sound is the applications', chosen from what is playing, whichever source is shared. */
-export const ApplicationAudio: Story = {
-  args: {
-    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: ['Spotify'] },
-    audioSupport: 'apps',
-    audioApps: { available: PLAYING, onRefresh: fn() },
+/** A window carries its application's audio, without the call. */
+export const WindowApplicationAudio: Story = {
+  args: { audioSupport: 'windowApp' },
+  play: async () => {
+    await expect(screen.getByText(/sound of this window's application/i)).toBeVisible()
+    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeEnabled()
   },
-  play: async ({ userEvent, args }) => {
-    await expect(screen.getByLabelText('Spotify')).toBeChecked()
-    await userEvent.click(screen.getByLabelText('Cyberpunk 2077'))
-    await waitFor(() => expect(screen.getByLabelText('Cyberpunk 2077')).toBeChecked())
+}
+
+/** Desktop on Windows or X11: the app lists the screens and windows, and the dialog is where the user picks. */
+export const DesktopSourceList: Story = {
+  args: {
+    settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: false, audioApps: [] },
+    audioSupport: 'supported',
+    sources: { available: captureSources, selectedId: 'screen:0:0', onSelect: fn(), onRefresh: fn() },
+  },
+  play: async ({ args, userEvent }) => {
+    await expect(screen.getAllByRole('radio', { name: /entire screen/i })[0]).toBeChecked()
+    await expect(screen.queryByRole('radio', { name: /browser tab/i })).toBeNull()
+    await userEvent.click(screen.getByRole('radio', { name: /window or game/i }))
+    await expect(args.onChange).toHaveBeenCalledWith(expect.objectContaining({ source: 'window' }))
+  },
+}
+
+export const DesktopWindowList: Story = {
+  args: {
+    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+    audioSupport: 'windowApp',
+    sources: { available: captureSources, selectedId: 'window:590528:0', onSelect: fn(), onRefresh: fn() },
+  },
+  play: async ({ args, userEvent }) => {
+    await userEvent.click(screen.getByRole('radio', { name: 'Cyberpunk 2077' }))
+    await expect(args.sources?.onSelect).toHaveBeenCalledWith('window:590528:0')
+    await expect(screen.getByRole('button', { name: /choose and share/i })).toBeEnabled()
+  },
+}
+
+/** Nothing picked (an empty list): there is nothing to capture, so the share cannot start. */
+export const DesktopSourceListNothingToShare: Story = {
+  args: {
+    audioSupport: 'supported',
+    sources: { available: [], selectedId: null, onSelect: fn(), onRefresh: fn() },
+  },
+  play: async ({ args, userEvent }) => {
+    await expect(screen.getByText(/no source of this type found/i)).toBeVisible()
+    await expect(screen.getByRole('button', { name: /choose and share/i })).toBeDisabled()
     await userEvent.click(screen.getByRole('button', { name: /refresh/i }))
-    await expect(args.audioApps?.onRefresh).toHaveBeenCalled()
+    await expect(args.sources?.onRefresh).toHaveBeenCalled()
   },
 }
 
-export const ApplicationAudioNothingPlaying: Story = {
-  args: {
-    settings: { source: 'screen', resolution: '1080p', fps: 30, includeAudio: true, audioApps: [] },
-    audioSupport: 'apps',
-    audioApps: { available: [], onRefresh: fn() },
-  },
+/** Desktop on Wayland: the app cannot list, the system asks when the share starts. */
+export const DesktopSystemPicker: Story = {
+  args: { audioSupport: 'supported', systemPicker: true },
   play: async () => {
-    await expect(await screen.findByText(/no application is playing sound/i)).toBeVisible()
-    await expect(screen.getByText(/at least one application/i)).toBeVisible()
+    await expect(screen.getByText(/the system will ask which screen or window/i)).toBeVisible()
+    await expect(screen.queryByRole('radio', { name: /browser tab/i })).toBeNull()
+    await expect(screen.getByRole('button', { name: /choose and share/i })).toBeEnabled()
   },
 }
 
-/** Chosen before and not playing now: it stays on the list, so it can be unticked. */
-export const ApplicationAudioRemembered: Story = {
+/** Desktop on Windows: the sound of the computer without the call, whichever source is shared. */
+export const DesktopSystemAudioWithoutApp: Story = {
   args: {
-    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: ['Old game'] },
-    audioSupport: 'apps',
-    audioApps: { available: PLAYING, onRefresh: fn() },
+    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+    audioSupport: 'systemWithoutApp',
   },
   play: async () => {
-    await expect(await screen.findByLabelText(/old game/i)).toBeChecked()
-    await expect(screen.getByText(/not playing now/i)).toBeVisible()
+    await expect(screen.getByText(/without the call/i)).toBeVisible()
+    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeEnabled()
   },
 }

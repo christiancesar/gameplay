@@ -1,10 +1,14 @@
+import path from 'node:path'
+
 import { app, BrowserWindow, ipcMain, session } from 'electron'
+import squirrelStartup from 'electron-squirrel-startup'
 
 import { registerAppScheme, serveApp } from './lib/app-protocol'
 import { registerIpc } from './lib/ipc'
 import { limitPermissions } from './lib/permissions'
 import { createMainWindow, devServerUrl, rendererRoot } from './lib/window'
 import { createAudioModule } from './modules/audio/audio.module'
+import { createCaptureModule } from './modules/capture/capture.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
 import { captureErrors } from './modules/logging/error-capture'
 import { createLoggingModule } from './modules/logging/logging.module'
@@ -12,11 +16,13 @@ import { pinoTelemetryStream } from './modules/telemetry/pino-telemetry-stream'
 import { createTelemetryModule } from './modules/telemetry/telemetry.module'
 import { installCookiePolicy } from './modules/session/cookie-policy'
 import { createServerModule } from './modules/server/server.module'
+import { createSystemAudioModule } from './modules/system-audio/system-audio.module'
 import { isAppUrl } from './utils/app-url'
 import { contentSecurityPolicy } from './utils/content-security-policy'
 import { fixedServerFrom } from './utils/fixed-server'
 
-if (!app.requestSingleInstanceLock()) {
+// The Windows installer starts the app with --squirrel-* flags to make or remove shortcuts: handle them and leave.
+if (squirrelStartup || !app.requestSingleInstanceLock()) {
   app.quit()
 } else {
   // Only the instance that stays opens the log: a second one quits at once and must not rotate it.
@@ -61,16 +67,30 @@ if (!app.requestSingleInstanceLock()) {
     const fixedServer = fixedServerFrom(import.meta.env.VITE_APP_ENV, import.meta.env.VITE_SERVER_URL)
     const server = createServerModule(app.getPath('userData'), fixedServer)
     const audio = createAudioModule(process.execPath, logger, telemetry)
+    const capture = createCaptureModule()
+    // The Windows capture helper: next to the app once packaged, in the project folder while developing.
+    const systemAudio = createSystemAudioModule(
+      app.isPackaged
+        ? path.join(process.resourcesPath, 'gameplay-audio-capture.exe')
+        : path.join(app.getAppPath(), 'native/audio-capture/build/gameplay-audio-capture.exe'),
+      logger,
+      telemetry,
+    )
     await server.service.load()
 
     serveApp(rendererRoot(), () => server.service.current(), contentSecurityPolicy(fixedServer))
     installCookiePolicy(session.defaultSession, (url) => server.service.isOnServer(url))
     limitPermissions(session.defaultSession, devServerUrl())
-    installDisplayMediaHandler(session.defaultSession, logger)
-    registerIpc(ipcMain, { ...server.handlers, ...audio.handlers }, (url) => isAppUrl(url, devServerUrl()))
+    installDisplayMediaHandler(session.defaultSession, capture.service, logger)
+    registerIpc(
+      ipcMain,
+      { ...server.handlers, ...audio.handlers, ...capture.handlers, ...systemAudio.handlers },
+      (url) => isAppUrl(url, devServerUrl()),
+    )
     // The virtual microphone must not outlive the app.
     app.on('before-quit', () => {
       audio.service.stop()
+      systemAudio.service.stop()
       logger.info('Gameplay closing')
       void telemetry.flush(2000)
     })

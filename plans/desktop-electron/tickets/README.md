@@ -24,8 +24,9 @@ Ordem mudada em 2026-10-28, depois que o usuário testou o app no Wayland: escol
 | Ticket | Pontos | Status |
 |---|---|---|
 | [DESK-07 Áudio por aplicativo no Linux (venmic e PipeWire)](DESK-07-audio-por-aplicativo-linux.md) | 8 | concluído |
-| DESK-08 Seletor de fontes do app (X11 e Windows): `capture:list-sources`, miniaturas, `setDisplayMediaRequestHandler` com a escolha do usuário | 5 | a detalhar |
-| DESK-09 Windows: áudio do sistema pelo loopback e áudio por processo (WASAPI) | 5 | a detalhar |
+| [DESK-08 Seletor de fontes do app (X11 e Windows)](DESK-08-seletor-de-fontes.md) | 5 | concluído (falta conferir no Wayland e no diálogo) |
+| [DESK-09 Windows: áudio do sistema sem o Gameplay (WASAPI)](DESK-09-audio-do-sistema-windows.md) | 8 | concluído (falta conferir o diálogo e o áudio no ar) |
+| [DESK-14 Fonte e áudio por tipo de compartilhamento](DESK-14-fonte-e-audio-por-tipo.md) | 8 | concluído (falta conferir áudio no Windows e X11 numa chamada real) |
 | [DESK-10 Servidor de produção embutido no build](DESK-10-servidor-embutido-no-build.md) | 3 | concluído |
 | [DESK-11 Release do Linux pelo GitHub Actions](DESK-11-release-linux-github-actions.md) | 5 | concluído (`v0.0.1` publicado) |
 | DESK-12 Windows: empacotamento, assinatura, atualização completa, `.ico` e versão mínima do app no `/api/health` | 5 | a detalhar |

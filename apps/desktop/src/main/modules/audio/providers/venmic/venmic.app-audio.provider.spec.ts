@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { type PatchBayConstructor, type PatchBayLike, VenmicAppAudioProvider } from './venmic.app-audio.provider'
+import { x11WindowBinary } from './x11-window-binary'
+
+vi.mock('./x11-window-binary', () => ({ x11WindowBinary: vi.fn() }))
 
 function setup({ pipewire = true, nodes = [] as Record<string, string>[] } = {}) {
   const bay = { list: vi.fn(() => nodes), link: vi.fn(() => true), unlink: vi.fn() } satisfies PatchBayLike
@@ -61,6 +64,24 @@ describe('VenmicAppAudioProvider', () => {
     provider.share({ mode: 'system' })
 
     expect(bay.link).toHaveBeenCalledWith({
+      exclude: [{ 'application.process.binary': 'gameplay' }],
+      ignore_devices: true,
+      only_speakers: true,
+    })
+  })
+
+  it('links only the chosen window application and falls back to system audio if it cannot identify it', () => {
+    const { provider, bay } = setup()
+    vi.mocked(x11WindowBinary).mockReturnValueOnce('game.exe').mockReturnValueOnce(null)
+    provider.share({ mode: 'window', sourceId: 'window:590528:0' })
+    expect(bay.link).toHaveBeenLastCalledWith({
+      include: [{ 'application.process.binary': 'game.exe' }],
+      exclude: [{ 'application.process.binary': 'gameplay' }],
+      ignore_devices: true,
+      only_speakers: true,
+    })
+    provider.share({ mode: 'window', sourceId: 'window:590528:0' })
+    expect(bay.link).toHaveBeenLastCalledWith({
       exclude: [{ 'application.process.binary': 'gameplay' }],
       ignore_devices: true,
       only_speakers: true,
