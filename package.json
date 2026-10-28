@@ -24,7 +24,10 @@
     "deploy": "bash infra/production/deploy.sh",
     "desktop": "npm run start -w desktop",
     "desktop:make": "npm run make -w desktop",
-    "desktop:publish": "npm run publish -w desktop"
+    "desktop:publish": "npm run publish -w desktop",
+    "windows:up": "docker compose -f infra/windows-dev/docker-compose.yml up -d",
+    "windows:down": "docker compose -f infra/windows-dev/docker-compose.yml down",
+    "windows:rdp": "xfreerdp3 /v:localhost:3389 /u:dev /p:dev /dynamic-resolution /sound /microphone +clipboard"
   },
   "devDependencies": {
     "turbo": "^2.11.10"

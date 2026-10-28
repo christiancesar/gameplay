@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, session } from 'electron'
+import squirrelStartup from 'electron-squirrel-startup'
 
 import { registerAppScheme, serveApp } from './lib/app-protocol'
 import { registerIpc } from './lib/ipc'
@@ -16,7 +17,8 @@ import { isAppUrl } from './utils/app-url'
 import { contentSecurityPolicy } from './utils/content-security-policy'
 import { fixedServerFrom } from './utils/fixed-server'
 
-if (!app.requestSingleInstanceLock()) {
+// The Windows installer starts the app with --squirrel-* flags to make or remove shortcuts: handle them and leave.
+if (squirrelStartup || !app.requestSingleInstanceLock()) {
   app.quit()
 } else {
   // Only the instance that stays opens the log: a second one quits at once and must not rotate it.
