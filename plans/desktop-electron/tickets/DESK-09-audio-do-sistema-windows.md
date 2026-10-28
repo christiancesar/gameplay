@@ -31,18 +31,29 @@
 Áudio por aplicativo no Windows, listar e incluir processos (DESK-14). macOS. Assinatura do auxiliar (DESK-12). Job `windows-latest` do release (DESK-12).
 
 ## Checklist
-- [ ] Auxiliar nativo compilando com `mingw-w64`, saindo quando a entrada padrão fecha
-- [ ] Auxiliar empacotado no app do Windows
-- [ ] Canais `system-audio:*` e evento `system-audio:pcm` no bridge, com specs
-- [ ] Módulo `system-audio` no main: porta, provider, service, handlers, fake, specs
-- [ ] Faixa de áudio do PCM na página (worklet), sem tocar no alto-falante
-- [ ] `capture.start` e `capture.stop` do desktop com o áudio do sistema
-- [ ] `systemAudioWithoutApp` e `systemWithoutApp` no client, com specs e stories
-- [ ] i18n em inglês e português
-- [ ] `npm run typecheck`, `lint`, `format:check` e `npm test` verdes
-- [ ] Conferido na VM Windows: só o som externo chega, as vozes do app não, e o auxiliar some ao parar
+- [x] Auxiliar nativo compilando com `mingw-w64`, saindo quando a entrada padrão fecha
+- [x] Auxiliar empacotado no app do Windows
+- [x] Canais `system-audio:*` e evento `system-audio:pcm` no bridge, com specs
+- [x] Módulo `system-audio` no main: porta, provider, service, handlers, fake, specs
+- [x] Faixa de áudio do PCM na página (worklet), sem tocar no alto-falante
+- [x] `capture.start` e `capture.stop` do desktop com o áudio do sistema
+- [x] `systemAudioWithoutApp` e `systemWithoutApp` no client, com specs e stories
+- [x] i18n em inglês e português
+- [x] `npm run typecheck`, `lint`, `format:check` e `npm test` verdes
+- [x] Conferido na VM Windows: só o som externo chega, as vozes do app não, e o auxiliar some ao parar
 
 ## Suposições
 - *(suposição)* Formato fixo do PCM: s16le, 48 kHz, estéreo. O `AUTOCONVERTPCM` da WASAPI converte o que for preciso.
 - *(suposição)* Excluir o PID do processo main cobre os processos filhos do Chromium, inclusive o serviço de áudio.
 - *(suposição)* Se o auxiliar falhar ao iniciar, a transmissão sai sem áudio e o aviso "sem áudio" que já existe aparece.
+
+## Notas da execução
+- Quatro commits: auxiliar e empacotamento (`9666ee9`), bridge e main (`ac9a6e2`), client (`f17f9dc`) e a correção do CSP e do sinal de início (último commit).
+- **Conferido na VM Windows 10 (build 19044), no app empacotado, ponta a ponta** (auxiliar, evento de PCM, worklet e faixa): com 880 Hz tocando em outro processo e 440 Hz tocando dentro do app (as vozes), a faixa trouxe **880 Hz a -38 dB e 440 Hz a -158 dB**, que é o nível do ruído de fundo (-153 dB). O auxiliar fica em 1 processo durante a captura, 0 depois do stop e 0 depois de matar o app sem aviso.
+- **Dois defeitos achados nessa conferência, já corrigidos:** (1) o Vite embutia o worklet como `data:text/javascript;base64,...`, que o CSP (`script-src 'self'`) bloquearia; a importação passou a `?url&no-inline`, e o worklet sai como arquivo próprio. (2) A mensagem "capturing" do auxiliar não chegava ao `stderr` em pipe dentro de 3 s e o provider matava o auxiliar; agora o auxiliar dá `fflush` e o primeiro PCM recebido também conta como início.
+- **Não conferido:** o diálogo na tela com o interruptor de áudio (exige login e call), e áudio de verdade na transmissão para outro participante. A VM não tem como ouvir o resultado. A latência (50 a 100 ms prevista) não foi medida.
+- O modo por evento da WASAPI falha na build 19044 (`0x88890021`); o auxiliar usa só polling. Numa máquina com Windows 11 o modo por evento pode funcionar, mas não foi preciso.
+- O auxiliar é compilado no `prePackage` do Forge quando o alvo é Windows e exige `mingw-w64` (`sudo apt install mingw-w64`). O workflow `desktop-release.yml` hoje só gera Linux, então não precisa mudar; o job do Windows (DESK-12) vai precisar do `mingw-w64` ou de um MSYS2.
+- *(suposição)* PCM s16le, 48 kHz, estéreo; excluir o PID do processo main cobre os filhos do Chromium (confirmado pelo teste: o tom tocado dentro do app saiu).
+- *(suposição)* Se o auxiliar não inicia, a transmissão sai sem áudio e o aviso "sem áudio" que já existe aparece.
+- *(suposição)* O diálogo mostra o texto "o som do computador, sem a call" no Windows, e o interruptor de áudio vale para qualquer fonte (tela ou janela), pois o áudio é do computador todo menos o app.

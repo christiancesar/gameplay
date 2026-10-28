@@ -39,6 +39,17 @@ describe('WindowsHelperSystemAudioProvider', () => {
     expect(onData).toHaveBeenCalledWith(new Uint8Array([9, 9]))
   })
 
+  it('reports started on the first PCM, when the message on stderr does not come', async () => {
+    const { provider, processes } = setup()
+    const onData = vi.fn()
+
+    const started = provider.start(onData, vi.fn())
+    processes[0]!.write(new Uint8Array([1, 2]))
+
+    expect(await started).toBe(true)
+    expect(onData).toHaveBeenCalledWith(new Uint8Array([1, 2]))
+  })
+
   it('reports not started when the helper leaves before it captures', async () => {
     const { provider, processes } = setup()
 

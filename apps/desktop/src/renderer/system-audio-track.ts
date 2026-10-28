@@ -1,6 +1,7 @@
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 
-import workletUrl from './pcm-player.worklet.js?url'
+// `?url&no-inline`: a small file would be embedded as a data URL, which the CSP does not let a worklet load.
+import workletUrl from './pcm-player.worklet.js?url&no-inline'
 
 /** The sound of the computer without the app, as a track, and how to let go of it. */
 type SystemAudioTrack = { track: MediaStreamTrack; close: () => void }

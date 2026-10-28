@@ -17,7 +17,8 @@ const START_TIMEOUT_MS = 3000
 
 /**
  * The Windows capture helper (native/audio-capture): it captures everything but this app's process tree and writes the
- * PCM on its stdout. It prints "capturing" on stderr once it runs, and stops when its stdin closes.
+ * PCM on its stdout. It prints "capturing" on stderr once it runs (the first PCM counts as well), and stops when its
+ * stdin closes.
  */
 export class WindowsHelperSystemAudioProvider extends SystemAudioProvider {
   private readonly executable: string | null
@@ -64,7 +65,11 @@ export class WindowsHelperSystemAudioProvider extends SystemAudioProvider {
         settle(false)
       }, START_TIMEOUT_MS)
 
-      child.stdout?.on('data', onData)
+      child.stdout?.on('data', (chunk) => {
+        // Sound coming is proof enough that it captures, whether or not the message on stderr got here first.
+        settle(true)
+        onData(chunk)
+      })
       child.stderr?.on('data', (chunk) => {
         const text = Buffer.from(chunk).toString().trim()
         this.logger.info({ helper: text }, 'Audio capture helper')

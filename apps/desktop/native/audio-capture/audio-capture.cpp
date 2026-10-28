@@ -155,6 +155,7 @@ int main(int argc, char** argv) {
   CreateThread(nullptr, 0, watchStdin, nullptr, 0, nullptr);
   client->Start();
   fprintf(stderr, "capturing (%s %lu)\n", argv[1], static_cast<unsigned long>(pid));
+  fflush(stderr);
 
   static BYTE silence[48000 * 4];
   while (!g_stop) {
