@@ -16,9 +16,9 @@ function useServerChoiceViewModel({ onChosen }: { onChosen: () => void }) {
       const result = await checkServer(origin)
       return result === 'ok' ? { origin } : { error: result }
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (!('origin' in result)) return
-      server.chooser?.choose(result.origin)
+      await server.chooser?.choose(result.origin)
       onChosen()
     },
   })

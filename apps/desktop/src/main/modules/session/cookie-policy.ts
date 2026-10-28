@@ -21,11 +21,11 @@ function withCrossSiteCookies(headers: Headers): Headers {
   return name ? { ...headers, [name]: headers[name].map(toCrossSiteCookie) } : headers
 }
 
-/** Rewrites the cookies of every answer that does not come from the app itself. */
-function installCookiePolicy(session: Session, isFromApp: (url: string) => boolean): void {
+/** Rewrites the cookies of the answers of the server the app talks to; those of any other site are left as they are. */
+function installCookiePolicy(session: Session, isFromServer: (url: string) => boolean): void {
   session.webRequest.onHeadersReceived((details, callback) => {
     const headers = details.responseHeaders as Headers | undefined
-    callback({ responseHeaders: headers && !isFromApp(details.url) ? withCrossSiteCookies(headers) : headers })
+    callback({ responseHeaders: headers && isFromServer(details.url) ? withCrossSiteCookies(headers) : headers })
   })
 }
 

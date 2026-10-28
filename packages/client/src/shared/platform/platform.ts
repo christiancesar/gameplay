@@ -38,7 +38,8 @@ type PlatformServer = {
    */
   chooser?: {
     current: () => string | null
-    choose: (origin: string) => void
+    /** Keeps the server; the app moves on when it is done (a host that stores it elsewhere answers late). */
+    choose: (origin: string) => void | Promise<void>
   }
 }
 

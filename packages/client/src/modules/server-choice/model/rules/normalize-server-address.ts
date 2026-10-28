@@ -1,4 +1,4 @@
-const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]'])
+import { isLoopbackHost, isServerOrigin } from '@gameplay/contracts'
 
 /**
  * The origin of the server a user typed: "play.example.com" becomes `https://play.example.com`, and a path,
@@ -11,20 +11,19 @@ function normalizeServerAddress(input: string): string | null {
   const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(typed)
     ? typed
     : `${isLoopback(typed) ? 'http' : 'https'}://${typed}`
-  let url: URL
+  let origin: string
   try {
-    url = new URL(withScheme)
+    origin = new URL(withScheme).origin
   } catch {
     return null
   }
-  if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
-  if (url.protocol === 'http:' && !LOOPBACK_HOSTS.has(url.hostname)) return null
-  return url.origin
+  return isServerOrigin(origin) ? origin : null
 }
 
+/** A bare `localhost:8080` or `127.0.0.1` is this machine: the scheme left out means http. */
 function isLoopback(typed: string): boolean {
   const host = typed.replace(/[/?#].*$/, '').replace(/:\d+$/, '')
-  return LOOPBACK_HOSTS.has(host)
+  return isLoopbackHost(host)
 }
 
 export { normalizeServerAddress }

@@ -1,9 +1,10 @@
-import { app, BrowserWindow, session } from 'electron'
+import { app, BrowserWindow, ipcMain, session } from 'electron'
 
 import { registerAppScheme, serveApp } from './app-protocol'
 import { registerIpc } from './ipc'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
 import { installCookiePolicy } from './modules/session/cookie-policy'
+import { createServerModule } from './modules/server/server.module'
 import { isAppUrl, limitPermissions } from './security'
 import { createMainWindow, devServerUrl, rendererRoot } from './window'
 
@@ -19,12 +20,15 @@ if (!app.requestSingleInstanceLock()) {
     window.focus()
   })
 
-  void app.whenReady().then(() => {
-    serveApp(rendererRoot())
-    installCookiePolicy(session.defaultSession, (url) => isAppUrl(url, devServerUrl()))
+  void app.whenReady().then(async () => {
+    const server = createServerModule(app.getPath('userData'))
+    await server.service.load()
+
+    serveApp(rendererRoot(), () => server.service.current())
+    installCookiePolicy(session.defaultSession, (url) => server.service.isOnServer(url))
     limitPermissions(session.defaultSession, devServerUrl())
     installDisplayMediaHandler(session.defaultSession)
-    registerIpc()
+    registerIpc(ipcMain, { ...server.handlers }, (url) => isAppUrl(url, devServerUrl()))
     createMainWindow()
 
     app.on('activate', () => {
