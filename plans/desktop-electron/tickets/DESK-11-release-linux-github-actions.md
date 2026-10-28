@@ -33,7 +33,7 @@ Windows, macOS, assinatura, `autoUpdater`, aviso de versão nova no app, versão
 - [x] Commit a cada passo verde
 
 ## Checklist de validação
-- [ ] Disparo pela primeira vez: cria a tag `v0.0.1` e o release com deb e zip
+- [x] Disparo pela primeira vez: cria a tag `v0.0.1` e o release com deb e zip
 - [ ] Segundo disparo: sobe para `v0.0.2`, sem commit novo em nenhuma branch
 - [ ] Disparo a partir de outra branch que não a `main`: o workflow recusa
 - [ ] Instalar o deb baixado do release numa máquina Linux: o app abre direto no login do servidor de produção (DESK-10), com a versão do release em Sobre ou nos logs, e o sandbox do Chromium ativo
@@ -49,7 +49,7 @@ Um disparo manual do workflow, a partir da `main`, publica no GitHub Releases um
 
 ## Notas da execução (2026-10-28)
 
-Escrito na `feature/desktop-app`. **A parte que roda no GitHub (os itens de validação ainda abertos acima) só pode ser conferida no primeiro disparo**, que depende deste código estar na `main` e das variáveis do repositório. O que foi conferido localmente está marcado.
+Escrito na `feature/desktop-app`. O primeiro disparo rodou em 2026-10-28, a partir da `main`, e publicou o `v0.0.1` (itens de validação do GitHub abaixo). O que foi conferido localmente está marcado.
 
 O que foi feito:
 - `.github/workflows/desktop-release.yml`: `workflow_dispatch`, trava de `main`, `fetch-depth: 0`, Node 24, `dpkg` e `fakeroot`, `npm ci`, typecheck, lint, testes (`turbo run test` filtrado em `desktop`, `desktop-bridge` e `contracts`), cálculo da versão pela última tag `v0.0.*` (ordenação numérica: `v0.0.10` vem depois de `v0.0.2`; sem tag, começa em `0.0.1`), `npm pkg set version` só no runner e `npm run publish -w desktop`.
@@ -63,9 +63,14 @@ Conferido localmente:
 - O cálculo da versão num repositório de teste (`v0.0.1`, `v0.0.2`, `v0.0.10` dá `0.0.11`; sem tags dá `0.0.1`).
 - Typecheck, lint, format e 69 testes do desktop.
 
-Não conferido:
-- O envio real dos source maps e a publicação no GitHub (o token do Sentry de verdade não foi usado de propósito, para não poluir o projeto).
-- O app do deb instalado numa máquina Linux (o sandbox só foi visto no pacote, não em execução).
+Primeiro release (2026-10-28, depois do deploy da API e do web de produção, `ba7835a`):
+- O workflow terminou verde e criou o release `v0.0.1` com `gameplay_0.0.1_amd64.deb` (95 MB) e `gameplay-linux-x64-0.0.1.zip` (126 MB), publicado (não rascunho) e marcado como Latest. A tag `v0.0.1` e a versão dos pacotes batem.
+- O preflight de CORS da produção com `Origin: app://gameplay` responde 204 com o cabeçalho certo, o que o instalador precisa.
+- O release `gameplay-desktop@0.0.1` existe no projeto `gameplay-electron` do Sentry.
+
+Ainda não conferido:
+- O envio dos source maps: o log do Actions não mostra linhas do plugin e a API de arquivos do release volta vazia (as versões novas usam artifact bundles, que ela não lista). Confirmar forçando um erro no app instalado e vendo o stack trace legível no Sentry.
+- O deb baixado do release instalado numa máquina Linux: abrir direto no login de produção, com o sandbox ativo (só foi visto no pacote). A conferência de segunda execução (`v0.0.2` sem commit novo) e a recusa de disparo fora da `main` também não foram exercitadas.
 - Os testes do `client` e da API não rodam no workflow (o client usa Playwright; não existe CI de PR no repositório). Os do desktop, da ponte e dos contratos rodam.
 
 Suposições:
