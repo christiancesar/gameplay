@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import { app, BrowserWindow, ipcMain, session } from 'electron'
 import squirrelStartup from 'electron-squirrel-startup'
 
@@ -14,6 +16,7 @@ import { pinoTelemetryStream } from './modules/telemetry/pino-telemetry-stream'
 import { createTelemetryModule } from './modules/telemetry/telemetry.module'
 import { installCookiePolicy } from './modules/session/cookie-policy'
 import { createServerModule } from './modules/server/server.module'
+import { createSystemAudioModule } from './modules/system-audio/system-audio.module'
 import { isAppUrl } from './utils/app-url'
 import { contentSecurityPolicy } from './utils/content-security-policy'
 import { fixedServerFrom } from './utils/fixed-server'
@@ -65,18 +68,29 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     const server = createServerModule(app.getPath('userData'), fixedServer)
     const audio = createAudioModule(process.execPath, logger, telemetry)
     const capture = createCaptureModule()
+    // The Windows capture helper: next to the app once packaged, in the project folder while developing.
+    const systemAudio = createSystemAudioModule(
+      app.isPackaged
+        ? path.join(process.resourcesPath, 'gameplay-audio-capture.exe')
+        : path.join(app.getAppPath(), 'native/audio-capture/build/gameplay-audio-capture.exe'),
+      logger,
+      telemetry,
+    )
     await server.service.load()
 
     serveApp(rendererRoot(), () => server.service.current(), contentSecurityPolicy(fixedServer))
     installCookiePolicy(session.defaultSession, (url) => server.service.isOnServer(url))
     limitPermissions(session.defaultSession, devServerUrl())
     installDisplayMediaHandler(session.defaultSession, capture.service, logger)
-    registerIpc(ipcMain, { ...server.handlers, ...audio.handlers, ...capture.handlers }, (url) =>
-      isAppUrl(url, devServerUrl()),
+    registerIpc(
+      ipcMain,
+      { ...server.handlers, ...audio.handlers, ...capture.handlers, ...systemAudio.handlers },
+      (url) => isAppUrl(url, devServerUrl()),
     )
     // The virtual microphone must not outlive the app.
     app.on('before-quit', () => {
       audio.service.stop()
+      systemAudio.service.stop()
       logger.info('Gameplay closing')
       void telemetry.flush(2000)
     })

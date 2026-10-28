@@ -21,6 +21,9 @@ function setup(isTrustedPage = (url: string) => url.startsWith('app://gameplay/'
       { id: 'window:1:0', name: 'Game', kind: 'window', thumbnail: 'data:image/jpeg;base64,AAAA', appIcon: null },
     ]),
     'capture:select-source': vi.fn((_id: string | null) => undefined),
+    'system-audio:available': vi.fn(() => true),
+    'system-audio:start': vi.fn(() => true),
+    'system-audio:stop': vi.fn(() => undefined),
   } satisfies ChannelHandlers
   registerChannels(ipc, handlers, isTrustedPage)
   const call = (channel: string, input?: unknown, page: string | null = 'app://gameplay/') =>

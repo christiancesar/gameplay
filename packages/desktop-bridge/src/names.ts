@@ -9,6 +9,14 @@ export const DESKTOP_CHANNELS = [
   'capture:can-list',
   'capture:list-sources',
   'capture:select-source',
+  'system-audio:available',
+  'system-audio:start',
+  'system-audio:stop',
 ] as const
 
 export type DesktopChannel = (typeof DESKTOP_CHANNELS)[number]
+
+/** What the main process sends to the page on its own, with no call before it. */
+export const DESKTOP_EVENTS = ['system-audio:pcm'] as const
+
+export type DesktopEvent = (typeof DESKTOP_EVENTS)[number]

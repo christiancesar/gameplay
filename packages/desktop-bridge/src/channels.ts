@@ -53,6 +53,15 @@ export const desktopChannels = {
   'capture:list-sources': { input: z.undefined(), output: z.array(captureSourceSchema) },
   /** The source the next screen capture takes; null forgets the choice. It holds for one capture, shortly. */
   'capture:select-source': { input: captureSourceIdSchema.nullable(), output: z.void() },
+  /** Whether this system can share its sound without the app's own (Windows, with the capture helper). */
+  'system-audio:available': { input: z.undefined(), output: z.boolean() },
+  /** Starts capturing the sound of the computer without the app; the PCM comes as `system-audio:pcm`. False when it could not. */
+  'system-audio:start': { input: z.undefined(), output: z.boolean() },
+  /** Stops the capture. */
+  'system-audio:stop': { input: z.undefined(), output: z.void() },
 } as const satisfies Record<DesktopChannel, { input: z.ZodType; output: z.ZodType }>
 
 export type DesktopChannels = typeof desktopChannels
+
+/** What comes with each event. `system-audio:pcm`: PCM s16le, 48 kHz, 2 channels, interleaved, in small pieces. */
+export type DesktopEvents = { 'system-audio:pcm': Uint8Array }
