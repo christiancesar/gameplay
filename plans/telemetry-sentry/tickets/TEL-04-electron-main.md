@@ -40,3 +40,7 @@ Pedido do usuário: o `main.log` não pode crescer sem controle. Antes, a rotaç
 - O arquivo recebe só `info` para cima (o `debug` do console do renderer não chega a ele).
 - `RateLimiter`: no máximo 30 erros ou avisos do console por minuto e por janela; o resto é descartado, e o log diz quantos ficaram de fora. Mensagens passam a ser cortadas em 2000 caracteres.
 - O mesmo limite vale para o que sobe ao Sentry como log, que sai do mesmo fluxo.
+
+## Correção depois do primeiro release (2026-10-28)
+
+O `@sentry/electron` registra o esquema `sentry-ipc` com `protocol.registerSchemesAsPrivileged` na inicialização e **substitui** o registro anterior; só protege as chamadas seguintes (ele troca a função por um proxy que junta os esquemas). O `registerAppScheme()` rodava antes do Sentry, então o `app://` perdeu o `secure`: a página deixou de ser contexto seguro (`isSecureContext` falso) e `navigator.mediaDevices` ficou indefinido, o que aparecia como "Você entrou só ouvindo" (microfone). Corrigido chamando `registerAppScheme()` **depois** do `createTelemetryModule`, ainda antes do `ready`. Conferido no app empacotado: `isSecureContext` verdadeiro e `getUserMedia({ audio: true })` devolve a faixa. Regra: qualquer SDK que registre esquemas privilegiados tem de iniciar antes do nosso registro.

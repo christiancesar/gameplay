@@ -46,11 +46,12 @@ describe('contentSecurityPolicy', () => {
     expect(policy).toContain("img-src 'self' data: blob: https:")
   })
 
-  it('closes the connections and images on the server the build is tied to', () => {
+  it('closes the connections on the server the build is tied to, and lets images come from https', () => {
     const policy = contentSecurityPolicy('https://play.example.com')
     expect(policy).toContain("connect-src 'self' https://play.example.com wss://play.example.com")
-    expect(policy).toContain("img-src 'self' data: blob: https://play.example.com;")
-    expect(policy).not.toContain(' https: ')
+    expect(policy).toContain("img-src 'self' data: blob: https:;")
+    expect(policy).toContain("worker-src 'self' blob:")
+    expect(policy).not.toContain("connect-src 'self' https: ")
   })
 
   it('uses the plain socket scheme for a server on this machine', () => {
