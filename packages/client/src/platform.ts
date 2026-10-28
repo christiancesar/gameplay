@@ -11,4 +11,5 @@ export type {
   Platform,
   PlatformCapabilities,
   PlatformServer,
+  TelemetryConfig,
 } from './shared/platform/platform'

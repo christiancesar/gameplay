@@ -1,13 +1,7 @@
 import type { ErrorEvent } from '@sentry/react'
 import { describe, expect, it } from 'vitest'
 
-import { initSentry, scrubEvent } from './sentry'
-
-describe('initSentry', () => {
-  it('stays off without a DSN', () => {
-    expect(initSentry()).toBe(false)
-  })
-})
+import { scrubEvent } from './scrub-event'
 
 describe('scrubEvent', () => {
   it('drops cookies, auth headers and user details but keeps the id', () => {

@@ -1,6 +1,13 @@
 import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
 
-import type { AudioApp, CaptureRequest, CaptureSource, Platform, PlatformCapabilities } from '../platform'
+import type {
+  AudioApp,
+  CaptureRequest,
+  CaptureSource,
+  Platform,
+  PlatformCapabilities,
+  TelemetryConfig,
+} from '../platform'
 
 type FakePlatformOptions = {
   kind?: Platform['kind']
@@ -14,6 +21,8 @@ type FakePlatformOptions = {
   baseUrl?: string
   /** Makes the host one where the user picks the server; `chosen` is the one picked so far. */
   serverChoice?: { chosen: string | null }
+  /** Telemetry is off by default, as in a build with no DSN. */
+  telemetry?: Partial<TelemetryConfig>
 }
 
 /** A host that records what was asked of it. No test framework inside, so Storybook can use it too. */
@@ -24,6 +33,7 @@ class FakePlatform implements Platform {
   readonly stopped: ScreenCaptureHandle[] = []
   chosen: string | null
   readonly server: Platform['server']
+  readonly telemetry: TelemetryConfig
   private baseUrl: string
   private readonly sources: CaptureSource[]
   private readonly playing: AudioApp[]
@@ -37,6 +47,7 @@ class FakePlatform implements Platform {
     result,
     baseUrl = '',
     serverChoice,
+    telemetry = {},
   }: FakePlatformOptions = {}) {
     this.kind = kind
     this.capabilities = {
@@ -47,6 +58,7 @@ class FakePlatform implements Platform {
       globalHotkeys: false,
       ...capabilities,
     }
+    this.telemetry = { app: 'web', environment: 'test', release: 'test', sentry: null, faro: null, ...telemetry }
     this.sources = sources
     this.playing = audioApps
     this.result = result ?? { ok: false, reason: 'unsupported' }

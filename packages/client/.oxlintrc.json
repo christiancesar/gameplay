@@ -332,6 +332,22 @@
       }
     },
     {
+      "files": ["src/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@sentry/*", "@grafana/*"],
+                "message": "Report through shared/lib/telemetry; only its providers import an SDK."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "files": ["src/modules/*/views/**"],
       "rules": {
         "no-restricted-imports": [
@@ -356,6 +372,12 @@
               {
                 "name": "@sentry/react"
               }
+            ],
+            "patterns": [
+              {
+                "group": ["@sentry/*", "@grafana/*"],
+                "message": "Report through shared/lib/telemetry; only its providers import an SDK."
+              }
             ]
           }
         ]
@@ -363,6 +385,12 @@
     },
     {
       "files": ["**/*.stories.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": ["src/shared/lib/telemetry/sentry/**", "src/shared/lib/telemetry/faro/**"],
       "rules": {
         "no-restricted-imports": "off"
       }

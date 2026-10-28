@@ -5,6 +5,7 @@ import {
   type CapturePlatformSource,
   type GetDisplayMedia,
   type Platform,
+  type TelemetryConfig,
 } from '@gameplay/client/platform'
 
 type BrowserPlatformDeps = {
@@ -12,6 +13,19 @@ type BrowserPlatformDeps = {
   getDisplayMedia?: GetDisplayMedia
   /** Replaces the `navigator` the capabilities are read from. */
   readBrowser?: () => CapturePlatformSource
+  /** Replaces what the build was given, for specs. */
+  telemetry?: TelemetryConfig
+}
+
+/** Vite bakes the `VITE_*` values of the web's env file into the build; empty ones keep that destination off. */
+function telemetryFromBuild(env: ImportMetaEnv): TelemetryConfig {
+  return {
+    app: 'web',
+    environment: env.VITE_SENTRY_ENVIRONMENT || env.MODE,
+    release: env.VITE_SENTRY_RELEASE || '',
+    sentry: env.VITE_SENTRY_DSN ? { dsn: env.VITE_SENTRY_DSN, tunnel: env.VITE_SENTRY_TUNNEL || undefined } : null,
+    faro: env.VITE_FARO_URL ? { url: env.VITE_FARO_URL } : null,
+  }
 }
 
 /**
@@ -21,6 +35,7 @@ type BrowserPlatformDeps = {
 function createBrowserPlatform({
   getDisplayMedia,
   readBrowser = () => navigator as unknown as CapturePlatformSource,
+  telemetry = telemetryFromBuild(import.meta.env),
 }: BrowserPlatformDeps = {}): Platform {
   return {
     kind: 'browser',
@@ -33,7 +48,8 @@ function createBrowserPlatform({
       listAudioApps: async () => [],
     },
     server: { baseUrl: () => '' },
+    telemetry,
   }
 }
 
-export { createBrowserPlatform }
+export { createBrowserPlatform, telemetryFromBuild }

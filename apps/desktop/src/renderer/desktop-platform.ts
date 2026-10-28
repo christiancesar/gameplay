@@ -94,6 +94,14 @@ function createDesktopPlatform({ bridge, server, appAudio }: DesktopPlatformOpti
         },
       },
     },
+    // Not sending yet: the Sentry project of the app is wired in with its own ticket (TEL-03).
+    telemetry: {
+      app: 'desktop',
+      environment: import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.MODE,
+      release: '',
+      sentry: null,
+      faro: null,
+    },
   }
 }
 

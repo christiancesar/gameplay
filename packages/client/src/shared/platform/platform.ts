@@ -51,6 +51,22 @@ type PlatformServer = {
 }
 
 /**
+ * Where the host sends errors and measurements. Each host reads it from its own build (the web from `VITE_*` of its
+ * env file, the desktop app from its own), so the client never reads the environment itself.
+ */
+type TelemetryConfig = {
+  /** Which application is sending: a tag on everything, next to the project. */
+  app: 'web' | 'desktop'
+  /** Where it runs: `development`, `production`, `host`. Not the app, which has its own tag. */
+  environment: string
+  release: string
+  /** Absent: Sentry stays off. `tunnel` is a path of the server (the web) or a full URL. */
+  sentry: { dsn: string; tunnel?: string } | null
+  /** Absent: Grafana Faro stays off. A path of the server (the tunnel) or a full URL. */
+  faro: { url: string } | null
+}
+
+/**
  * The host the front-end runs in. The web and the desktop app each inject their own, so ViewModels never import
  * a browser API or Electron to capture a screen.
  */
@@ -66,6 +82,7 @@ type Platform = {
     listAudioApps: () => Promise<AudioApp[]>
   }
   server: PlatformServer
+  telemetry: TelemetryConfig
 }
 
-export type { AudioApp, CaptureRequest, CaptureSource, Platform, PlatformCapabilities, PlatformServer }
+export type { AudioApp, CaptureRequest, CaptureSource, Platform, PlatformCapabilities, PlatformServer, TelemetryConfig }

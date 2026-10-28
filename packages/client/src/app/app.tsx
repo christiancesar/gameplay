@@ -9,8 +9,8 @@ import { ServerChoiceScreen } from '@/modules/server-choice/screens/server-choic
 import { TooltipProvider } from '@/shared/ui/tooltip'
 import { queryClient } from '@/shared/lib/query-client'
 import { ThemeSync } from './theme-sync'
-import { initFaro } from '@/shared/lib/faro'
-import { initSentry } from '@/shared/lib/sentry'
+import { installTelemetry, telemetry } from '@/shared/lib/telemetry/current-telemetry'
+import { createTelemetry } from '@/shared/lib/telemetry/create-telemetry'
 import type { Platform } from '@/shared/platform/platform'
 import { PlatformProvider } from '@/shared/platform/platform-provider'
 import { setCurrentPlatform } from '@/shared/platform/current-platform'
@@ -19,14 +19,20 @@ import { createRouterContext } from './router-context'
 
 const router = createRouter(createRouterContext(queryClient))
 
-let monitoringStarted = false
+let telemetryStarted = false
 
-/** Needs the platform: the monitoring tunnels are paths of the server the app talks to. */
-function startMonitoring(serverUrl: string) {
-  if (monitoringStarted) return
-  monitoringStarted = true
-  initSentry(serverUrl)
-  initFaro(router, serverUrl)
+/** Needs the platform: the config comes from the host, and the tunnels are paths of the server the app talks to. */
+function startTelemetry(platform: Platform) {
+  if (telemetryStarted) return
+  telemetryStarted = true
+  installTelemetry(createTelemetry(platform.telemetry, platform.server.baseUrl()))
+  // The route pattern (/servers/$serverId), never the URL: no ids in the view names.
+  const setView = () => {
+    const routeId = router.state.matches.at(-1)?.routeId
+    if (routeId) telemetry.setView(routeId)
+  }
+  setView()
+  router.subscribe('onResolved', setView)
 }
 
 /**
@@ -38,7 +44,7 @@ export function App({ platform }: { platform: Platform }) {
   setCurrentPlatform(platform)
   const { chooser } = platform.server
   const [needsServer, setNeedsServer] = useState(() => chooser !== undefined && chooser.current() === null)
-  if (!needsServer) startMonitoring(platform.server.baseUrl())
+  if (!needsServer) startTelemetry(platform)
 
   return (
     <PlatformProvider platform={platform}>

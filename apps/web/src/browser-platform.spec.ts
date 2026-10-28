@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createBrowserPlatform } from './browser-platform'
+import { createBrowserPlatform, telemetryFromBuild } from './browser-platform'
 
 const CHROME_WINDOWS =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
@@ -61,6 +61,40 @@ describe('createBrowserPlatform', () => {
     expect(await platformOf(closed).capture.start({ options: {}, sourceId: null })).toEqual({
       ok: false,
       reason: 'cancelled',
+    })
+  })
+})
+
+describe('telemetryFromBuild', () => {
+  const env = (values: Record<string, string>) => ({ MODE: 'production', ...values }) as unknown as ImportMetaEnv
+
+  it('is off when the build was given nothing, named by the mode of the build', () => {
+    expect(telemetryFromBuild(env({}))).toEqual({
+      app: 'web',
+      environment: 'production',
+      release: '',
+      sentry: null,
+      faro: null,
+    })
+  })
+
+  it('turns Sentry and Faro on with their settings, as the web app', () => {
+    expect(
+      telemetryFromBuild(
+        env({
+          VITE_SENTRY_DSN: 'https://key@o1.ingest.sentry.io/2',
+          VITE_SENTRY_TUNNEL: '/monitoring/sentry',
+          VITE_SENTRY_ENVIRONMENT: 'host',
+          VITE_SENTRY_RELEASE: 'abc123',
+          VITE_FARO_URL: '/monitoring/faro',
+        }),
+      ),
+    ).toEqual({
+      app: 'web',
+      environment: 'host',
+      release: 'abc123',
+      sentry: { dsn: 'https://key@o1.ingest.sentry.io/2', tunnel: '/monitoring/sentry' },
+      faro: { url: '/monitoring/faro' },
     })
   })
 })
