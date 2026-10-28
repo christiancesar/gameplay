@@ -16,6 +16,17 @@ Na primeira vez ele baixa a ISO (~4,6 GB) e instala sozinho, leva uns 10 a 20 mi
 - Desligar: `docker compose down` (espera o Windows fechar). O disco fica em `infra/windows-dev/storage/` (esparso, até 40 GB).
 - Recomeçar do zero: `docker compose down && rm -rf storage`.
 
+## Áudio e microfone
+
+O dockur não tem placa de som: o `AUDIO: "Y"` do compose manda só a saída (som) para o visualizador web, em Settings, Advanced, Audio. Microfone não passa pelo navegador. Para testar voz, conecte por RDP redirecionando o microfone do seu Linux:
+
+```bash
+sudo apt install -y freerdp3-x11
+xfreerdp3 /v:localhost:3389 /u:dev /p:dev /dynamic-resolution /sound /microphone +clipboard
+```
+
+O Windows passa a ter "Remote Audio" como saída e entrada. O app só vê o microfone dentro dessa sessão RDP.
+
 ## Gerar o build para testar
 
 O empacotamento do Windows roda no Linux, sem Wine:

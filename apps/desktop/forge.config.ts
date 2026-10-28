@@ -17,6 +17,14 @@ const icons = path.resolve(import.meta.dirname, '../../packages/client/src/share
 
 const require = createRequire(import.meta.url)
 
+/** The system being packaged for, which is not the one running Forge when cross-building (--platform win32 on Linux). */
+function targetPlatform(): NodeJS.Platform {
+  const index = process.argv.findIndex((arg) => arg === '--platform' || arg.startsWith('--platform='))
+  if (index === -1) return process.platform
+  const arg = process.argv[index]!
+  return (arg.includes('=') ? arg.split('=')[1] : process.argv[index + 1]) as NodeJS.Platform
+}
+
 /** What of each package the app needs when it runs (the rest is source and build files). */
 const NATIVE_PACKAGES = [
   { name: '@vencord/venmic', keep: ['package.json', 'lib', 'prebuilds'] },
@@ -31,7 +39,7 @@ const config: ForgeConfig = {
     asar: { unpack: '**/*.node' },
     // The packager adds the extension of the system it builds for: .ico on Windows, .icns on macOS. Linux has
     // none (the deb maker and the window carry the PNG).
-    icon: path.join(icons, process.platform === 'win32' ? 'windows/icon' : 'macos/icon'),
+    icon: path.join(icons, targetPlatform() === 'win32' ? 'windows/icon' : 'macos/icon'),
   },
   hooks: {
     // What the build is (VITE_APP_ENV) and its server (VITE_SERVER_URL) come from the .env or the CI. A production

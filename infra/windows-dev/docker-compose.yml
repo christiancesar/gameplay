@@ -11,6 +11,8 @@ services:
       CPU_CORES: "6"
       USERNAME: "dev"
       PASSWORD: "dev"
+      # Sound out to the web viewer. The microphone only comes through RDP (see README).
+      AUDIO: "Y"
     devices:
       - /dev/kvm
       - /dev/net/tun
