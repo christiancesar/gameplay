@@ -25,7 +25,7 @@ const startSentry = (options: object, frameworkInit: (options: never) => void): 
 function telemetryFromBuild(env: ImportMetaEnv): TelemetryConfig {
   return {
     app: 'desktop',
-    environment: env.VITE_SENTRY_ENVIRONMENT || env.MODE,
+    environment: env.VITE_SENTRY_ENVIRONMENT || env.VITE_APP_ENV || env.MODE,
     release: `${RELEASE_NAME}@${env.VITE_APP_VERSION}`,
     // The window's events go through the main process, which holds the DSN: the Electron renderer SDK wraps the
     // React one, as the documentation of Sentry for Electron says.

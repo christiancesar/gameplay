@@ -8,7 +8,8 @@ export default defineConfig(({ mode }) => {
     define: {
       'import.meta.env.VITE_SENTRY_DSN': JSON.stringify(env.VITE_SENTRY_DSN ?? ''),
       'import.meta.env.VITE_SENTRY_ENVIRONMENT': JSON.stringify(env.VITE_SENTRY_ENVIRONMENT ?? ''),
-      // The server this build is tied to; empty in development.
+      // What kind of build this is, and the server it is tied to (empty only in development).
+      'import.meta.env.VITE_APP_ENV': JSON.stringify(env.VITE_APP_ENV ?? ''),
       'import.meta.env.VITE_SERVER_URL': JSON.stringify(env.VITE_SERVER_URL ?? ''),
     },
     build: {

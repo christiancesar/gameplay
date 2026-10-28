@@ -12,7 +12,7 @@
 - Passos: checkout com histórico e tags; Node da versão do projeto; `npm ci`; `npm run typecheck`, `npm run lint`, `npm test`; calcular a versão e gravá-la no `apps/desktop/package.json`; `npm run publish -w desktop` (`electron-forge publish`, que faz o `make` e envia o deb e o zip como assets do release).
 - O workflow recusa rodar fora da `main`: a release sai do que já foi para a `main` (decidido pelo usuário em 2026-10-28).
 - Publisher: `@electron-forge/publisher-github` em `forge.config.ts` (`publishers`), autenticado pelo `GITHUB_TOKEN` do próprio workflow; sem custo extra. Config: `repository` `christiancesar/gameplay`, `generateReleaseNotes: true`, `draft: false`. A tag segue o padrão do Forge, `v{versão}` (decidido pelo usuário). Conferir que ela aponta para o commit do disparo.
-- Env do build vinda do GitHub: variável `GAMEPLAY_SERVER_URL` do repositório vira `VITE_SERVER_URL`; `VITE_SENTRY_DSN`, `VITE_SENTRY_ENVIRONMENT=production` e os `SENTRY_*` de source maps vêm de variáveis e secrets. Sem os de Sentry, o Sentry fica desligado; sem `GAMEPLAY_SERVER_URL`, o build falha (DESK-10).
+- Env do build vinda do GitHub: `VITE_APP_ENV=production` fixo no workflow; variável `GAMEPLAY_SERVER_URL` do repositório vira `VITE_SERVER_URL`; `VITE_SENTRY_DSN` e os `SENTRY_*` de source maps vêm de variáveis e secrets. Sem os de Sentry, o Sentry fica desligado; sem `GAMEPLAY_SERVER_URL`, o build falha (DESK-10).
 - Source maps do main e do renderer enviados ao projeto do Electron no Sentry durante o build (pendência do TEL-04), sem entrarem no pacote.
 - Notas da release geradas pelo GitHub (`generateReleaseNotes`).
 - `npm run desktop:make` local continua como está.

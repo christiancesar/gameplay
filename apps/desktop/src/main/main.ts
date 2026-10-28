@@ -25,7 +25,7 @@ if (!app.requestSingleInstanceLock()) {
   // Sentry starts first, so what goes wrong while the app starts is seen. Without a DSN in the build it reports nowhere.
   const telemetry = createTelemetryModule({
     dsn: import.meta.env.VITE_SENTRY_DSN,
-    environment: import.meta.env.VITE_SENTRY_ENVIRONMENT || (app.isPackaged ? 'production' : 'development'),
+    environment: import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.VITE_APP_ENV || 'development',
     release: `gameplay-desktop@${app.getVersion()}`,
   })
   const { logger, file: logFile } = createLoggingModule({
@@ -56,7 +56,7 @@ if (!app.requestSingleInstanceLock()) {
   })
 
   void app.whenReady().then(async () => {
-    const fixedServer = fixedServerFrom(import.meta.env.VITE_SERVER_URL)
+    const fixedServer = fixedServerFrom(import.meta.env.VITE_APP_ENV, import.meta.env.VITE_SERVER_URL)
     const server = createServerModule(app.getPath('userData'), fixedServer)
     const audio = createAudioModule(process.execPath, logger, telemetry)
     await server.service.load()
