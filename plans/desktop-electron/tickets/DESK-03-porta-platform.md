@@ -49,7 +49,11 @@ Validação:
 - Cypress `screen-share` (4) e `voice` (5), 9 de 9: a captura real (stream falso do Chrome) passa pela porta.
 
 Suposições:
-- *(suposição)* A implementação do browser mora no client e não em `apps/web/src/browser-platform.ts`, como o ticket dizia: ela usa regras internas do client, e o `apps/web` só importa o que o pacote exporta. O desktop também vai reaproveitá-la na fase 1.
+- *(suposição, desfeita no DESK-05, ver a revisão abaixo)* A implementação do browser mora no client e não em `apps/web/src/browser-platform.ts`, como o ticket dizia: ela usa regras internas do client, e o `apps/web` só importa o que o pacote exporta. O desktop também vai reaproveitá-la na fase 1.
 - *(suposição)* `capture.start` recebe `{ options, sourceId }` com as opções que o `ShareSession` já monta, e não `{ sourceId, audio, video }` como no rascunho do tech plan. Assim a captura do browser não muda; o tech plan foi corrigido.
 - *(suposição)* O registro `currentPlatform()` existe junto com o context porque o `share.controller` vive fora do React. O `App` o preenche no corpo do componente (uma atribuição idempotente).
 - *(suposição)* As capabilities ainda não são lidas por nenhum ViewModel: o `audioSupportFor` continua decidindo o áudio. Elas passam a valer no desktop (DESK-07 em diante).
+
+## Revisão no DESK-05 (2026-10-28)
+
+O usuário apontou que a suposição acima estava errada: o client define a interface e **cada host a implementa**. `createBrowserPlatform` foi para `apps/web/src/browser-platform.ts` (commit `740a95f`), e a plataforma do desktop é independente dela. O client passou a exportar, na entrada `@gameplay/client/platform`, só a interface e as peças que um host com navegador dentro divide: `acquireScreen` e a nova regra `audioCapabilitiesOf` (com spec), que saiu do antigo `createBrowserPlatform`. O spec da plataforma do browser foi para o `apps/web`, que ganhou Vitest (4 testes). O motivo da primeira versão (usar regras internas do client) se resolveu exportando essas peças em vez de uma `Platform` pronta.

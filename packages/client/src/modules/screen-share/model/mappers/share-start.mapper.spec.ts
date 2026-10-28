@@ -9,9 +9,9 @@ describe('toShareStartMeasurement', () => {
       { engine: 'firefox', chromiumMajor: 0, os: 'windows', browser: 'Firefox' },
     )
     expect(measurement).toEqual({
-      type: 'screen_share_start',
+      name: 'screen_share_start',
       values: { audio_requested: 1, audio_received: 0 },
-      context: {
+      attributes: {
         source: 'screen',
         surface: 'monitor',
         browser: 'Firefox',

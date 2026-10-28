@@ -12,7 +12,7 @@ import { getIceConfig } from '@/shared/media/ice.service'
 import { serverIceConfigQueryOptions } from '@/shared/media/ice.query'
 import { MeshTransport } from '@/shared/media/mesh-transport'
 import { acquireMicrophone, stopMicrophone } from '@/shared/media/microphone'
-import { monitoring } from '@/shared/lib/monitoring'
+import { telemetry } from '@/shared/lib/telemetry/current-telemetry'
 import { SpeakingDetector } from '@/shared/media/speaking-detector'
 
 import { useAudioPreferencesStore } from './stores/audio-preferences.store'
@@ -58,12 +58,12 @@ function getSession(): VoiceSession {
     createSpeakingWatcher: (engine, onChange) =>
       new SpeakingDetector({ createMeter: (stream) => engine.createMeter(stream), onChange }),
   })
-  // Call quality goes to Grafana (Faro); without it there is nothing to read the stats for.
-  if (monitoring.measuring) {
+  // Call quality goes to whoever receives measurements; without one there is nothing to read the stats for.
+  if (telemetry.measuring) {
     const current = session
     new CallQualityReporter({
       subscribeMedia: (handler) => current.subscribeMedia(handler),
-      report: ({ values, context }) => monitoring.measure({ type: 'webrtc', values, context }),
+      report: ({ values, context }) => telemetry.measure({ name: 'webrtc', values, attributes: context }),
     }).start()
   }
   return session

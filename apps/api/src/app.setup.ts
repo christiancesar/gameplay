@@ -15,13 +15,12 @@ export async function setupApp(app: INestApplication) {
   ;(app as NestExpressApplication).set('trust proxy', env.get('TRUST_PROXY_HOPS'))
   app.enableShutdownHooks()
 
-  // The web page is on the same origin, so only the desktop app (and a dev page on another port) crosses
-  // origins. Credentials stay on for the two-factor cookie; the session itself goes by bearer token.
+  // The web page is on the same origin, so only the desktop app (and a dev page on another port) crosses origins.
+  // Credentials stay on: the session is a cookie there too (the app makes it cross-site).
   app.enableCors({
     origin: [env.get('WEB_ORIGIN'), DESKTOP_APP_ORIGIN],
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
-    exposedHeaders: ['set-auth-token'],
   })
 
   // In production nginx serves the upload directory.

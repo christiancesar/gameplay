@@ -41,7 +41,7 @@
         ├─ preload   (contextBridge: expõe só o contrato do desktop-bridge)
         └─ main      (desktopCapturer, áudio nativo, atalhos, janela, update)
                  ▲
-                 └── packages/desktop-bridge  (canais IPC com zod, usado pelo preload, pelo main e pelo client)
+                 └── packages/desktop-bridge  (canais IPC com zod, usado pelo preload e pelo main; o client só importa tipos)
 ```
 
 ### 3.1 A porta `Platform`
@@ -73,8 +73,8 @@ type Platform = {
   server: {
     /** Origem da API, sem barra final. Vazia no web (página e API no mesmo domínio). */
     baseUrl: () => string
-    /** Token da sessão de quem não tem cookie (o desktop). Síncrono; o web não tem token. */
-    session: { getToken: () => string | null; setToken: (token: string) => void; clearToken: () => void }
+    /** Presente onde o usuário escolhe o servidor (o desktop): `current` é null até a primeira escolha. */
+    chooser?: { current: () => string | null; choose: (origin: string) => void }
   }
 }
 ```
@@ -82,30 +82,32 @@ type Platform = {
 - **Dois jeitos de ler**, porque parte do código vive fora do React: `usePlatform()` (context, `PlatformProvider`) nos componentes e `currentPlatform()` (registro de módulo, preenchido pelo `App`) nos controllers como o `share.controller`. A plataforma não muda enquanto o app roda.
 - ViewModels usam a `Platform`. As Views continuam só com props: recebem as `capabilities` e a lista de fontes já prontas. A regra do MVVM não muda.
 - **Camada nova no lint**: `shared/platform` é o tipo `shared-platform` nas fronteiras do oxlint; `model-service`, `view-model` e `app` podem importá-lo, e ele só importa `shared-lib` e `shared-media`.
-- **A implementação do browser fica no client**, em `modules/screen-share/model/services/browser-platform.service.ts` (`createBrowserPlatform`, exportada pelo pacote), e não no `apps/web`: ela depende de regras internas do client (`audio-support`, `capture-platform`) e o desktop vai reaproveitar a captura do browser na fase 1. `capture.start` chama o `acquireScreen`; `windowAudio` e `systemAudio` saem de `audioSupportFor`; `listSources` devolve vazio.
+- **O client define a interface; cada host a implementa** *(decisão do usuário em 2026-10-28, que corrigiu a primeira versão do DESK-03)*: `createBrowserPlatform` mora em `apps/web/src/browser-platform.ts` e `createDesktopPlatform` em `apps/desktop/src/renderer/desktop-platform.ts`, cada uma independente da outra. O client só conhece a `Platform`.
+- **Peças que um host com navegador dentro divide** (o web e o desktop, cujo renderer é o Chromium): o client as exporta numa entrada à parte, `@gameplay/client/platform` (para os specs de um host não carregarem o front-end inteiro): `acquireScreen` (a captura pelo `getDisplayMedia`), `audioCapabilitiesOf` (o áudio que o browser consegue compartilhar, lido do navegador e do sistema) e os tipos. São blocos, não uma `Platform` pronta. Um host que não usa navegador (ou o desktop na fase 2, com captura nativa) simplesmente não os usa.
 - No Storybook e nos specs, uma `FakePlatform` (`shared/platform/test/fake-platform.ts`, sem framework de teste dentro) simula as plataformas.
 
 ### 3.2 IPC tipado (`packages/desktop-bridge`)
 
-Cada canal tem schema zod de entrada e de saída. O tipo da ponte sai dos schemas.
+*(feito no DESK-06; o que está abaixo é o que existe no código.)* Cada canal tem schema zod de entrada e de saída; o tipo da ponte sai dos schemas.
 
 ```ts
+// packages/desktop-bridge/src/names.ts: só os nomes, para o preload não carregar zod
+export const DESKTOP_CHANNELS = ['server:get-url', 'server:set-url'] as const
+
 // packages/desktop-bridge/src/channels.ts
 export const desktopChannels = {
-  'capture:list-sources': { input: z.object({}), output: z.array(captureSourceSchema) },
-  'capture:select-source': { input: z.object({ sourceId: z.string(), audio: z.boolean() }), output: z.object({ ok: z.boolean() }) },
-  'app:server-url': { input: z.object({}), output: z.object({ url: z.url().nullable() }) },
-} as const
-type Channels = typeof desktopChannels
-export type DesktopBridge = {
-  [K in keyof Channels]: (input: z.input<Channels[K]['input']>) => Promise<z.output<Channels[K]['output']>>
-}
+  'server:get-url': { input: z.undefined(), output: serverOriginSchema.nullable() },
+  'server:set-url': { input: serverOriginSchema, output: z.void() },
+} as const satisfies Record<DesktopChannel, { input: z.ZodType; output: z.ZodType }>
 ```
 
-- **Preload**: `contextBridge.exposeInMainWorld('gameplayDesktop', bridge)`, montado a partir do contrato. Expõe funções, nunca o `ipcRenderer`.
-- **Main**: um helper registra cada `ipcMain.handle` pelo contrato, **valida a entrada com zod** e confere o `senderFrame` (só a janela do app, só o protocolo do app).
-- **Client**: a `DesktopPlatform` chama `window.gameplayDesktop` e importa só tipos do `desktop-bridge`.
+- **Arquivos do pacote:** `names.ts`, `channels.ts` (schemas), `bridge.ts` (`createBridge` e o tipo `DesktopBridge`, uma função por canal, indexada pelo nome do canal: `bridge['server:get-url']()`), `register.ts` (`registerChannels`, do lado do main). Exporta o código-fonte, sem build; o preload importa só `@gameplay/desktop-bridge/bridge`.
+- **`serverOriginSchema`** vem de `@gameplay/contracts` (`isServerOrigin`): exatamente uma origem, `https`, ou `http` só para esta máquina. A tela de escolha do client usa a mesma regra.
+- **Preload** (`src/preload/preload.ts`): `contextBridge.exposeInMainWorld('gameplayDesktop', createBridge(ipcRenderer.invoke))`. Expõe uma função por canal e nada mais, nunca o `ipcRenderer`.
+- **Main:** `registerChannels` registra só os canais do contrato, recusa a chamada que não vem do app (confere o `senderFrame`) e valida a entrada e a resposta com os schemas. O tipo `ChannelHandlers` pede um handler para cada canal do contrato, então um canal sem resposta não compila. Cada módulo de `main/modules/` traz os seus handlers.
+- **Client:** a plataforma do desktop recebe a ponte (`window.gameplayDesktop`); o client só importa tipos.
 - Helper próprio em vez de electron-trpc ou tipc: poucos canais, o mesmo padrão de zod do `contracts`, nenhuma dependência nova.
+- **O que o main faz com o servidor escolhido** (`modules/server`): guarda em `userData/server.json`; o cookie só é reescrito para as respostas dele (`isOnServer`); e `app://gameplay/uploads/*` é buscado nele (as imagens que a API devolve têm URL relativa à página, que no desktop não leva a lugar nenhum).
 
 ### 3.3 Como a captura chega ao WebRTC
 
@@ -129,13 +131,11 @@ Anotado para a fase 2; nada disso entra na migração.
 ## 4. O que muda no client para rodar no desktop
 
 1. **Endereço da API em tempo de execução** *(feito no DESK-04)*. Antes, `http.ts` usa `baseURL: '/api'`, o socket conecta no mesmo domínio e o Better Auth usa o domínio da página. No desktop a página vem do protocolo do app (`app://`), então os três passam a ler `platform.server.baseUrl()`. No web continua o mesmo domínio.
-2. **Autenticação por token no desktop** (decisão do usuário em 2026-10-27). O Better Auth client continua **no renderer**, com o mesmo código do web: login, 2FA, sessão e admin não mudam. O main só **guarda o token**.
-   - Por quê: no web a sessão é um cookie `HttpOnly`. No desktop a página vem de `app://` e a API de `https://`, então o cookie seria de terceiro (exigiria `SameSite=None` e CORS com credenciais). Sem cookie, o lugar do renderer seria o `localStorage`, em texto puro no disco e legível por qualquer script da página. O `safeStorage` criptografa com o cofre do sistema (keyring no Linux, DPAPI no Windows, Keychain no macOS).
-   - Fluxo: com o plugin `bearer` na API, o login devolve o token; o renderer manda para o main (`auth:set-token`), que criptografa e grava. Na abertura, o renderer pede o token (`auth:get-token`) e configura o Better Auth client, o `http` e o handshake do socket com `Authorization: Bearer`. O logout apaga (`auth:clear-token`).
-   - O web segue com cookie.
-   - **Decisão em aberto, resolvida no DESK-05:** o Bearer só existe porque o cookie não volta entre `app://` e `https://`. Como o desafio de 2FA (cookie `two_factor`) precisa da mesma correção, o main reescrevendo o `Set-Cookie` para `SameSite=None; Secure` pode servir a sessão inteira e dispensar o Bearer. O DESK-05 testa isso primeiro; se funcionar, o Bearer sai (um mecanismo só, igual ao web), senão fica e a reescrita cobre só o 2FA. Limite do cookie: só vale em HTTPS ou `localhost` e `127.0.0.1`.
-   - *(feito no DESK-04, a manter ou remover conforme essa decisão)* API: plugin `bearer` do Better Auth (o login responde o token no header `set-auth-token`, e `Authorization: Bearer` vale por cookie em qualquer rota), `app://gameplay` (`DESKTOP_APP_ORIGIN` em `@gameplay/contracts`) em `trustedOrigins`, CORS próprio no `setupApp` (o do módulo do Better Auth não tem PATCH) e o handshake do Socket.IO aceitando o token em `auth`. Client: `http`, socket e `authClient` leem a plataforma a cada chamada; o `authClient` guarda o `set-auth-token` e apaga no sign-out.
-   - O `getToken` é síncrono porque cada request o pede. No desktop, o main guarda o token cifrado e o renderer mantém uma cópia em memória, carregada antes de montar o app (DESK-06).
+2. **Sessão por cookie no desktop, igual ao web** *(decidido no DESK-05)*. O Better Auth client continua **no renderer**, com o mesmo código do web: login, 2FA, sessão e admin não mudam.
+   - O problema: a página (`app://gameplay`) e o servidor (`https://...`) são de sites diferentes, então o cookie `SameSite=Lax` da sessão e o do desafio de 2FA (`two_factor`) não voltam.
+   - A solução: o processo main reescreve o `Set-Cookie` das respostas que não são do app para `SameSite=None; Secure` (`session.webRequest.onHeadersReceived`, `modules/session/cookie-policy.ts`), sem mexer nos cookies do web. A API confia na origem `app://gameplay` (`DESKTOP_APP_ORIGIN` em `@gameplay/contracts`, em `trustedOrigins`) e responde com CORS e credenciais, no HTTP e no Socket.IO.
+   - **Teste no Electron real (Xvfb, `app://gameplay` contra a API local):** escolha do servidor, login, desafio de 2FA do admin, sessão, `/api/*` e socket funcionaram só por cookie, sem erro. Por isso o **plugin `bearer` e o token saíram** (DESK-04 foi feito e depois desfeito no DESK-05): um mecanismo só, igual ao web, e sem token para guardar.
+   - Limite: o cookie `Secure` só vale em HTTPS, `localhost` e `127.0.0.1`. Por isso o endereço do servidor aceita `http` só para esta máquina (`normalizeServerAddress`). Um servidor self-hosted em `http://<ip da rede>` não funciona no desktop; o web segue funcionando.
 3. **Primeira abertura do desktop**: tela para informar o servidor (produção ou um self-hosted). Nova View e nova rota, com story.
 4. **Versões diferentes entre app e servidor.** O `/api/health` passa a informar a versão mínima de app aceita; o desktop pede atualização quando estiver abaixo.
 5. **Variáveis `VITE_*`** (Sentry, Faro): os tunnels `/monitoring/*` viram URLs absolutas do servidor no desktop.
@@ -180,7 +180,8 @@ gameplay/
 │   │   ├── cypress/               fica aqui: e2e roda contra o web
 │   │   ├── public/
 │   │   ├── src/
-│   │   │   ├── main.tsx           monta <App platform={browserPlatform} />
+│   │   │   ├── main.tsx           monta <App platform={createBrowserPlatform()} />
+│   │   │   ├── browser-platform.ts  a Platform do web, com o spec
 │   │   │   └── index.css          @import do tema do client, @source do pacote
 │   │   ├── index.html, vite.config.ts (React, Tailwind, router plugin apontando para o pacote, proxy /api)
 │   │   ├── Dockerfile             passa a copiar packages/client
@@ -188,18 +189,20 @@ gameplay/
 │   └── desktop/                   app Electron (Forge + plugin Vite)
 │       ├── src/
 │       │   ├── main/
-│       │   │   ├── main.ts        janela, protocolo app://, CSP, trava de navegação
-│       │   │   ├── ipc.ts         registra os canais de cada módulo com validação zod
+│       │   │   ├── main.ts        compõe tudo: módulos, janela, protocolo, IPC
+│       │   │   ├── lib/           o que é do Electron: window, app-protocol, navigation, permissions, ipc
+│       │   │   ├── utils/         funções puras, sem Electron: app-url, asset-path, uploads-url, content-security-policy
+│       │   │   ├── types/         declarações (assets.d.ts)
 │       │   │   └── modules/       um diretório por recurso do sistema
-│       │   │       ├── auth/      token da sessão no safeStorage (o Better Auth client fica no renderer)
-│       │   │       ├── server/    endereço do servidor escolhido
-│       │   │       ├── capture/   fase 2: desktopCapturer, portal e setDisplayMediaRequestHandler
-│       │   │       ├── audio/     fase 2: áudio por aplicativo (venmic no Linux, WASAPI no Windows)
+│       │   │       ├── session/   cookie do servidor atravessando entre sites (cookie-policy.ts)
+│       │   │       ├── server/    o servidor escolhido, num arquivo do userData (handlers, services, providers, test)
+│       │   │       ├── capture/   hoje o handler mínimo do getDisplayMedia; DESK-08: o seletor do app
+│       │   │       ├── audio/     áudio por aplicativo: porta, provider venmic (PipeWire), service, handlers (DESK-07); WASAPI no Windows (DESK-09)
 │       │   │       └── hardware/  futuro: CPU, GPU, RAM, aceleração por hardware
 │       │   ├── preload/
 │       │   │   └── preload.ts     contextBridge com o contrato
 │       │   └── renderer/
-│       │       ├── main.tsx       monta <App platform={desktopPlatform} />
+│       │       ├── main.tsx       monta <App platform={createDesktopPlatform()} />
 │       │       ├── desktop-platform.ts
 │       │       └── index.css
 │       ├── forge.config.ts        makers, publishers, fuses, plugin Vite
@@ -215,9 +218,9 @@ gameplay/
 │   │   │   ├── app/               App (recebe a Platform), router, root-layout, routes/, route-tree.gen.ts
 │   │   │   ├── docs/
 │   │   │   ├── fixtures/
-│   │   │   ├── modules/           os mesmos módulos de hoje (+ browser-platform no screen-share, seletor de fontes e tela de servidor no desktop)
+│   │   │   ├── modules/           os mesmos módulos de hoje (+ `server-choice` para quem escolhe o servidor e, na fase 2, o seletor de fontes)
 │   │   │   ├── shared/
-│   │   │   │   ├── platform/      platform.ts (porta), current-platform.ts, platform-provider.tsx, use-platform.ts, test/fake-platform.ts
+│   │   │   │   ├── platform/      platform.ts (a interface), current-platform.ts, platform-provider.tsx, use-platform.ts, test/fake-platform.ts
 │   │   │   │   ├── ui/            shadcn
 │   │   │   │   ├── lib/           http, socket, auth-client lendo platform.server
 │   │   │   │   ├── media/         screen-capture vira a implementação browser
@@ -266,8 +269,8 @@ Regras:
 - O bundle vem só do nosso canal de releases (GitHub Releases ou o bucket S3), **nunca do servidor ao qual o usuário se conecta**. Um self-hosted não empurra UI para o app.
 
 Atualização completa por sistema:
-- **Windows e macOS**: `autoUpdater` do Electron com os makers do Forge (Squirrel, ZIP). `update.electronjs.org` serve repositório público no GitHub; a alternativa é o S3. No macOS exige app assinado e notarizado (conta Apple de US$ 99 por ano); no Windows funciona sem assinatura, com aviso do SmartScreen.
-- **Linux**: o `autoUpdater` do Electron não roda no Linux. deb e rpm se atualizam pelo gerenciador do sistema; atualização sozinha exige AppImage com o `electron-updater`. No começo, aviso de versão nova com link, e o OTA cobre a UI.
+- **Windows** (macOS fora do plano): `autoUpdater` do Electron com os makers do Forge (Squirrel, ZIP). `update.electronjs.org` serve repositório público no GitHub; a alternativa é o S3. No macOS exige app assinado e notarizado (conta Apple de US$ 99 por ano); no Windows funciona sem assinatura, com aviso do SmartScreen.
+- **Linux**: o `autoUpdater` do Electron não roda no Linux. deb e rpm se atualizam pelo gerenciador do sistema; atualização sozinha exige AppImage com o `electron-updater`. Na primeira release não há atualização no app: o usuário baixa o deb novo no GitHub Releases. Aviso de versão nova com link e o OTA da UI vêm depois.
 
 ## 7. Segurança do desktop
 
@@ -279,7 +282,9 @@ Atualização completa por sistema:
 
 ## 8. Pendências
 
-- **2FA e sessão no desktop, cookie de terceiro** *(primeiro item do DESK-05)*: o plugin `bearer` e o admin funcionam por token (testado na API), mas o desafio de 2FA do Better Auth usa um cookie assinado (`two_factor`) que o login grava e o `verify-totp` devolve. No desktop a página (`app://`) e a API (`https://`) são de sites diferentes, e o cookie `SameSite=Lax` não volta. Para validar com o Electron de verdade (DESK-05 e DESK-06). Caminho provável: o main reescreve o `Set-Cookie` das respostas do servidor para `SameSite=None; Secure` (`webRequest.onHeadersReceived`), sem mexer nos cookies do web. Mudar o atributo na API quebraria o 2FA de quem acessa por `http://<ip>`.
+- **Servidor self-hosted em `http` fora desta máquina** não funciona no desktop (o cookie `Secure` exige HTTPS). Se for preciso, a alternativa é voltar ao token (ver o histórico do DESK-04) ou pôr HTTPS no servidor.
 - **Rastreamento do Faro no desktop**: o Faro só propaga os headers de trace para a mesma origem; entre `app://` e o servidor seria preciso `propagateTraceHeaderCorsUrls`.
-- **Distribuição**: onde publicar os instaladores e os bundles da UI (GitHub Releases ou o bucket S3) e se haverá assinatura de código no Windows e macOS (certificados custam).
+- **Distribuição** (decidido em 2026-10-28): instaladores no GitHub Releases, gerados pelo GitHub Actions. Primeira versão só Linux (deb e zip), sem assinatura. macOS fora do plano; Windows e a assinatura dele ficam para o DESK-12. Os bundles do OTA (DESK-13) seguem para o mesmo canal.
+- **Servidor do app**: o build empacotado fala com um servidor fixo, lido da env `VITE_SERVER_URL` na hora do build (nunca uma constante no código, para quem quiser montar o próprio app). `VITE_APP_ENV` (`development` ou `production`) diz o tipo de build: em produção a URL é obrigatória; em desenvolvimento pode ficar vazia e a tela de escolha pergunta (DESK-10).
+- **Versão**: `0.0.{x}`. Quem sobe é um disparo manual (`workflow_dispatch`) do workflow de release, que calcula a próxima a partir da última tag `v*` (DESK-11). O `apps/desktop/package.json` continua em `0.0.0` no repositório.
 - **Push-to-talk global** (atalho fora da janela): entra depois, como mais uma capacidade da `Platform`.

@@ -28,7 +28,13 @@ describe('preset rules', () => {
   })
 
   it('asks the picker for the surface, size and rate, with the surface as a hint', () => {
-    const options = displayMediaOptions({ source: 'tab', resolution: '720p', fps: 60, includeAudio: false })
+    const options = displayMediaOptions({
+      source: 'tab',
+      resolution: '720p',
+      fps: 60,
+      includeAudio: false,
+      audioApps: [],
+    })
     expect(options.video).toEqual({
       displaySurface: 'browser',
       width: { ideal: 1280 },
@@ -37,26 +43,44 @@ describe('preset rules', () => {
     })
     expect(options.audio).toBe(false)
     expect(
-      displayMediaOptions({ source: 'screen', resolution: '720p', fps: 60, includeAudio: false }).video,
+      displayMediaOptions({ source: 'screen', resolution: '720p', fps: 60, includeAudio: false, audioApps: [] }).video,
     ).toMatchObject({
       displaySurface: 'monitor',
     })
     expect(
-      displayMediaOptions({ source: 'window', resolution: '720p', fps: 60, includeAudio: false }).video,
+      displayMediaOptions({ source: 'window', resolution: '720p', fps: 60, includeAudio: false, audioApps: [] }).video,
     ).toMatchObject({
       displaySurface: 'window',
     })
   })
 
   it('keeps the voice filters off the game audio', () => {
-    const options = displayMediaOptions({ source: 'tab', resolution: '1080p', fps: 30, includeAudio: true })
+    const options = displayMediaOptions({
+      source: 'tab',
+      resolution: '1080p',
+      fps: 30,
+      includeAudio: true,
+      audioApps: [],
+    })
     expect(options.audio).toMatchObject({ echoCancellation: false, noiseSuppression: false, autoGainControl: false })
   })
 
   it('offers system audio for a screen only when audio is asked', () => {
-    const withAudio = displayMediaOptions({ source: 'screen', resolution: '1080p', fps: 60, includeAudio: true })
+    const withAudio = displayMediaOptions({
+      source: 'screen',
+      resolution: '1080p',
+      fps: 60,
+      includeAudio: true,
+      audioApps: [],
+    })
     expect(withAudio).toMatchObject({ systemAudio: 'include' })
-    const without = displayMediaOptions({ source: 'screen', resolution: '1080p', fps: 60, includeAudio: false })
+    const without = displayMediaOptions({
+      source: 'screen',
+      resolution: '1080p',
+      fps: 60,
+      includeAudio: false,
+      audioApps: [],
+    })
     expect(without).toMatchObject({ systemAudio: 'exclude' })
   })
 

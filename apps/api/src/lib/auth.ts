@@ -1,7 +1,7 @@
 import { DESKTOP_APP_ORIGIN, PASSWORD_MIN_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { admin, bearer, openAPI, twoFactor, username } from 'better-auth/plugins'
+import { admin, openAPI, twoFactor, username } from 'better-auth/plugins'
 import { isDocsEnabled } from '../docs/docs-enabled'
 import type { EnvService } from '../env/env.service'
 import { DISABLED_AUTH_PATHS, disabledAuthPrefixes } from './auth-disabled-paths'
@@ -60,9 +60,6 @@ export function createAuth(prisma: PrismaService, env: EnvService) {
       // role "admin" is the platform admin; everyone else is "user".
       admin(),
       twoFactor({ issuer: 'Gameplay' }),
-      // The desktop app has no session cookie: sign-in also answers the token (`set-auth-token` header), and
-      // `Authorization: Bearer <token>` stands for the cookie in every route.
-      bearer(),
       disabledAuthPrefixes(BASE_PATH),
       // OpenAPI of the auth routes, shown in /api/docs next to the app's.
       ...(isDocsEnabled(env) ? [openAPI({ disableDefaultReference: true })] : []),

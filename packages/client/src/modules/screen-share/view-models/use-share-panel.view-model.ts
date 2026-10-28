@@ -1,6 +1,6 @@
 import type { StreamMode } from '@gameplay/contracts'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -17,6 +17,8 @@ import {
 import { audioSupportFor, canShareAudio } from '@/modules/screen-share/model/rules/audio-support'
 import { serverMediaQueryOptions } from '@/modules/screen-share/model/services/server-media.query'
 import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
+import type { AudioApp } from '@/shared/platform/platform'
+import { usePlatform } from '@/shared/platform/use-platform'
 
 import { useSharePreferencesStore } from './stores/share-preferences.store'
 import { useShareStore } from './stores/share.store'
@@ -28,10 +30,14 @@ type Dialog = 'closed' | 'start' | 'update'
 function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>>) {
   const { t } = useTranslation()
   const snapshot = useShareStore()
+  const { capabilities, capture } = usePlatform()
+  const appAudio = capabilities.appAudio
   const saved = useSharePreferencesStore((state) => state.saved)
   const savedPriority = useSharePreferencesStore((state) => state.savedPriority)
   const [dialog, setDialog] = useState<Dialog>('closed')
-  const [draft, setDraft] = useState<ShareSettings>(saved ?? defaultShareSettings)
+  // `saved` may come from before `audioApps` existed.
+  const [draft, setDraft] = useState<ShareSettings>({ ...defaultShareSettings, ...saved })
+  const [audioApps, setAudioApps] = useState<AudioApp[]>([])
   const [draftPriority, setDraftPriority] = useState<SharePriority>(saved ? savedPriority : 'smooth')
   const [saveAsDefault, setSaveAsDefault] = useState(saved !== null)
   const [detailsOpen, setDetailsOpen] = useState(false)
@@ -60,8 +66,13 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   // The details table has nothing to show once the share is over.
   const live = snapshot.status === 'live'
 
+  const refreshAudioApps = useCallback(() => {
+    capture.listAudioApps().then(setAudioApps, () => setAudioApps([]))
+  }, [capture])
+
   function openSetup() {
-    setDraft(saved ?? defaultShareSettings)
+    setDraft({ ...defaultShareSettings, ...saved })
+    if (appAudio) refreshAudioApps()
     setDraftPriority(saved ? savedPriority : 'smooth')
     setSaveAsDefault(saved !== null)
     setPickedMode(null)
@@ -70,10 +81,16 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   }
 
   function start() {
-    // A locked switch keeps its saved value; the share asks for no audio the browser cannot give.
+    // A locked switch keeps its saved value; the share asks for no audio the host cannot give. Where the sound is
+    // the applications', it is only asked for with at least one chosen.
     const settings = {
       ...draft,
-      includeAudio: draft.includeAudio && canShareAudio(audioSupportFor(draft.source, shareController.platform())),
+      includeAudio:
+        draft.includeAudio &&
+        (appAudio
+          ? draft.audioApps.length > 0
+          : canShareAudio(audioSupportFor(draft.source, shareController.platform()))),
+      audioApps: appAudio ? draft.audioApps : [],
     }
     const { save, clear } = useSharePreferencesStore.getState()
     if (saveAsDefault) save(settings, draftPriority)
@@ -108,12 +125,17 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
       mode: dialog === 'update' ? ('update' as const) : ('start' as const),
       settings: draft,
       priority: draftPriority,
-      audioSupport: audioSupportFor(draft.source, shareController.platform()),
+      audioSupport: appAudio ? ('apps' as const) : audioSupportFor(draft.source, shareController.platform()),
+      audioApps: appAudio ? { available: audioApps, onRefresh: refreshAudioApps } : undefined,
       saveAsDefault,
       onOpenChange: (open: boolean) => {
         if (!open) setDialog('closed')
       },
-      onChange: setDraft,
+      onChange: (next: ShareSettings) => {
+        // The list is read when the switch goes on: an application may have started playing since the dialog opened.
+        if (appAudio && next.includeAudio && !draft.includeAudio) refreshAudioApps()
+        setDraft(next)
+      },
       onPriorityChange: setDraftPriority,
       onSaveAsDefaultChange: setSaveAsDefault,
       streamMode: streamMode ?? undefined,

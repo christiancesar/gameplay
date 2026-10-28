@@ -1,5 +1,4 @@
 import './shared/i18n'
 
+// The app takes a Platform (see ./platform.ts); each host builds its own.
 export { App } from './app/app'
-export { createBrowserPlatform } from './modules/screen-share/model/services/browser-platform.service'
-export type { CaptureRequest, CaptureSource, Platform, PlatformCapabilities } from './shared/platform/platform'

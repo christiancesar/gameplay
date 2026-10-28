@@ -13,7 +13,7 @@ import {
 
 // Regra de exemplo só para a story (Chrome no Windows, ou no Linux com `tabOnly`); a real fica no Model e considera browser e sistema.
 const audioSupportFor = (settings: ShareSettings, base: AudioSupport): AudioSupport => {
-  if (base === 'browserUnsupported') return base
+  if (base === 'browserUnsupported' || base === 'apps') return base
   if (settings.source === 'tab') return 'supported'
   if (settings.source === 'window') return 'windowUnsupported'
   return base === 'tabOnly' ? 'tabOnly' : 'supported'
@@ -24,7 +24,7 @@ const meta = {
   component: ShareSetupDialogView,
   args: {
     open: true,
-    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true },
+    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
     priority: 'smooth',
     audioSupport: 'windowUnsupported',
     saveAsDefault: true,
@@ -75,11 +75,11 @@ type Story = StoryObj<typeof meta>
 export const WindowOrGame: Story = {}
 
 export const EntireScreen: Story = {
-  args: { settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true } },
+  args: { settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] } },
 }
 
 export const BrowserTab: Story = {
-  args: { settings: { source: 'tab', resolution: '720p', fps: 30, includeAudio: true } },
+  args: { settings: { source: 'tab', resolution: '720p', fps: 30, includeAudio: true, audioApps: [] } },
 }
 
 export const ChooseAndStart: Story = {
@@ -92,6 +92,7 @@ export const ChooseAndStart: Story = {
       resolution: '720p',
       fps: 30,
       includeAudio: true,
+      audioApps: [],
     })
     await expect(screen.getByRole('switch', { name: /share audio/i })).toBeEnabled()
     await userEvent.click(screen.getByRole('button', { name: /choose and share/i }))
@@ -120,7 +121,10 @@ export const WindowAudioUnavailable: Story = {
 
 /** Tela inteira no Linux: o browser só tem áudio de aba. Switch travado, só o microfone vai. */
 export const ScreenAudioUnavailable: Story = {
-  args: { audioSupport: 'tabOnly', settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true } },
+  args: {
+    audioSupport: 'tabOnly',
+    settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+  },
   play: async () => {
     await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
     await expect(screen.getByText(/entire screen/i, { selector: 'p' })).toHaveClass('text-amber-500')
@@ -182,5 +186,51 @@ export const SharingTurnedOff: Story = {
   play: async () => {
     await waitFor(() => expect(screen.getByText(/screen sharing is turned off for this server/i)).toBeVisible())
     await expect(screen.getByRole('button', { name: /choose and share/i })).toBeDisabled()
+  },
+}
+
+const PLAYING = [
+  { name: 'Spotify', binary: 'spotify' },
+  { name: 'Cyberpunk 2077', binary: 'cyberpunk' },
+]
+
+/** Desktop on Linux: the sound is the applications', chosen from what is playing, whichever source is shared. */
+export const ApplicationAudio: Story = {
+  args: {
+    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: ['Spotify'] },
+    audioSupport: 'apps',
+    audioApps: { available: PLAYING, onRefresh: fn() },
+  },
+  play: async ({ userEvent, args }) => {
+    await expect(screen.getByLabelText('Spotify')).toBeChecked()
+    await userEvent.click(screen.getByLabelText('Cyberpunk 2077'))
+    await waitFor(() => expect(screen.getByLabelText('Cyberpunk 2077')).toBeChecked())
+    await userEvent.click(screen.getByRole('button', { name: /refresh/i }))
+    await expect(args.audioApps?.onRefresh).toHaveBeenCalled()
+  },
+}
+
+export const ApplicationAudioNothingPlaying: Story = {
+  args: {
+    settings: { source: 'screen', resolution: '1080p', fps: 30, includeAudio: true, audioApps: [] },
+    audioSupport: 'apps',
+    audioApps: { available: [], onRefresh: fn() },
+  },
+  play: async () => {
+    await expect(await screen.findByText(/no application is playing sound/i)).toBeVisible()
+    await expect(screen.getByText(/at least one application/i)).toBeVisible()
+  },
+}
+
+/** Chosen before and not playing now: it stays on the list, so it can be unticked. */
+export const ApplicationAudioRemembered: Story = {
+  args: {
+    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: ['Old game'] },
+    audioSupport: 'apps',
+    audioApps: { available: PLAYING, onRefresh: fn() },
+  },
+  play: async () => {
+    await expect(await screen.findByLabelText(/old game/i)).toBeChecked()
+    await expect(screen.getByText(/not playing now/i)).toBeVisible()
   },
 }

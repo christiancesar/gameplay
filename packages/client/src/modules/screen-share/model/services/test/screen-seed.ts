@@ -11,8 +11,14 @@ import type { ShareSettings } from '../../entities/share'
 
 const selfId = 'u1'
 
-const gameSettings: ShareSettings = { source: 'window', resolution: '1080p', fps: 60, includeAudio: true }
-const tabSettings: ShareSettings = { source: 'tab', resolution: '720p', fps: 30, includeAudio: false }
+const gameSettings: ShareSettings = {
+  source: 'window',
+  resolution: '1080p',
+  fps: 60,
+  includeAudio: true,
+  audioApps: [],
+}
+const tabSettings: ShareSettings = { source: 'tab', resolution: '720p', fps: 30, includeAudio: false, audioApps: [] }
 
 /** `outbound-rtp` video entry as Chrome reports it. */
 const outbound = (overrides: Record<string, unknown> = {}): StatsRecord => ({

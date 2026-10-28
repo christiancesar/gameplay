@@ -11,6 +11,8 @@ type ShareSettings = {
   resolution: ShareResolution
   fps: ShareFps
   includeAudio: boolean
+  /** On a host that shares the sound of applications: their names. Empty: no application sound. */
+  audioApps: string[]
 }
 
 /** `smooth` keeps the frame rate and lets the resolution drop first (games); `sharp` does the opposite (text). */
@@ -71,7 +73,13 @@ type ShareStateStore = {
   setState(partial: Partial<ShareSnapshot>): void
 }
 
-const defaultShareSettings: ShareSettings = { source: 'screen', resolution: '1080p', fps: 30, includeAudio: false }
+const defaultShareSettings: ShareSettings = {
+  source: 'screen',
+  resolution: '1080p',
+  fps: 30,
+  includeAudio: false,
+  audioApps: [],
+}
 
 const idleShare: ShareSnapshot = {
   status: 'idle',

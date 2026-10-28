@@ -14,17 +14,21 @@ Pacotes divididos, web e desktop consumindo o mesmo client. Sem recursos nativos
 | [DESK-02 Front-end em `packages/client`](DESK-02-packages-client.md) | 8 | 1 | concluído |
 | [DESK-03 Porta `Platform` no client](DESK-03-porta-platform.md) | 3 | 2 | concluído |
 | [DESK-04 Servidor em tempo de execução e token](DESK-04-servidor-e-token.md) | 5 | 3 | concluído |
-| [DESK-05 `apps/desktop` com Electron Forge](DESK-05-apps-desktop.md) | 5 | 4 | pendente |
-| [DESK-06 `packages/desktop-bridge` e o IPC tipado](DESK-06-desktop-bridge.md) | 3 | 5 | pendente |
+| [DESK-05 `apps/desktop` com Electron Forge](DESK-05-apps-desktop.md) | 5 | 4 | concluído |
+| [DESK-06 `packages/desktop-bridge` e o IPC tipado](DESK-06-desktop-bridge.md) | 3 | 5 | concluído |
 
-## Fase 2: recursos nativos (depois, com o projeto normalizado)
+## Fase 2: recursos nativos
 
-Detalhada quando a fase 1 terminar.
+Ordem mudada em 2026-10-28, depois que o usuário testou o app no Wayland: escolher a janela já funciona (o portal do sistema abre o seletor dele), e o que falta é o **áudio** da transmissão. Por isso o áudio por aplicativo passou a ser o DESK-07.
 
-| Ticket | O que é |
-|---|---|
-| DESK-07 | Captura de janela e tela no Linux (portal no Wayland, seletor nosso no X11), canais `capture:*` e `setDisplayMediaRequestHandler`. |
-| DESK-08 | Áudio por aplicativo no Linux com `@vencord/venmic` e PipeWire, lista de apps tocando som. |
-| DESK-09 | Windows: seletor com miniaturas, loopback do sistema e áudio por processo (WASAPI). |
-| DESK-10 | Empacotamento, assinatura, atualização completa e versão mínima do app no `/api/health`. |
-| DESK-11 | OTA da UI assinado, com rollback (seção 6 do tech plan). |
+| Ticket | Pontos | Status |
+|---|---|---|
+| [DESK-07 Áudio por aplicativo no Linux (venmic e PipeWire)](DESK-07-audio-por-aplicativo-linux.md) | 8 | concluído |
+| DESK-08 Seletor de fontes do app (X11 e Windows): `capture:list-sources`, miniaturas, `setDisplayMediaRequestHandler` com a escolha do usuário | 5 | a detalhar |
+| DESK-09 Windows: áudio do sistema pelo loopback e áudio por processo (WASAPI) | 5 | a detalhar |
+| [DESK-10 Servidor de produção embutido no build](DESK-10-servidor-embutido-no-build.md) | 3 | concluído |
+| [DESK-11 Release do Linux pelo GitHub Actions](DESK-11-release-linux-github-actions.md) | 5 | escrito, falta o primeiro disparo |
+| DESK-12 Windows: empacotamento, assinatura, atualização completa, `.ico` e versão mínima do app no `/api/health` | 5 | a detalhar |
+| DESK-13 OTA da UI assinado, com rollback (seção 6 do tech plan) | 5 | a detalhar |
+
+**Ordem decidida em 2026-10-28:** a primeira versão distribuída é só Linux (deb e zip). Por isso o DESK-10 e o DESK-11 passam na frente do DESK-08 e do DESK-09. **macOS fica fora por tempo indeterminado** (sem ticket); o que era dele no DESK-10 antigo (`.icns`, notarização, DMG) sai do plano até o usuário pedir. O DESK-12 e o DESK-13 só começam depois de uma release do Linux no ar.

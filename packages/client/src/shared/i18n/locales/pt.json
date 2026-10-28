@@ -228,13 +228,21 @@
         "recentMac": "Áudio da tela precisa do macOS 14.2 ou mais novo. Deixe a caixa de áudio marcada no seletor.",
         "windowUnsupported": "O browser não captura áudio de uma janela só. Compartilhe a tela inteira (Windows) ou uma aba. Só o áudio do microfone será compartilhado.",
         "tabOnly": "Neste sistema o browser não captura o áudio da tela inteira. Compartilhe uma aba para levar o som. Só o áudio do microfone será compartilhado.",
-        "browserUnsupported": "Este browser não compartilha áudio da tela. Para mandar o som do jogo, use Chrome ou Edge. Só o áudio do microfone será compartilhado."
+        "browserUnsupported": "Este browser não compartilha áudio da tela. Para mandar o som do jogo, use Chrome ou Edge. Só o áudio do microfone será compartilhado.",
+        "apps": "Compartilhe o som dos aplicativos que você escolher abaixo."
       },
       "saveAsDefault": "Usar estas configurações da próxima vez",
       "start": "Escolher e compartilhar",
       "updateTitle": "Mudar qualidade",
       "updateDescription": "Resolução e taxa de quadros mudam na hora, sem parar a transmissão.",
-      "apply": "Aplicar"
+      "apply": "Aplicar",
+      "audioApps": {
+        "title": "Aplicativos",
+        "refresh": "Atualizar",
+        "empty": "Nenhum aplicativo está tocando som. Abra o jogo ou o player e atualize.",
+        "idle": "(não está tocando agora)",
+        "none": "Escolha ao menos um aplicativo, ou a transmissão sai sem som."
+      }
     },
     "monitor": {
       "target": "Alvo",
@@ -911,5 +919,20 @@
       "title": "Você não é mais admin de {{server}}"
     },
     "open": "Abrir"
+  },
+  "serverChoice": {
+    "title": "Escolha seu servidor",
+    "description": "Em qual servidor Gameplay a sua conta está?",
+    "label": "Endereço do servidor",
+    "placeholder": "play.exemplo.com",
+    "hint": "O endereço que você recebeu. Use https, ou localhost para um servidor nesta máquina.",
+    "submit": "Conectar",
+    "diagnostics": "Para corrigir problemas, este app envia relatórios de erro ao desenvolvedor. Eles não levam mensagens, áudio nem senhas.",
+    "errors": {
+      "required": "Informe o endereço do servidor.",
+      "invalid": "Informe um endereço válido, como play.exemplo.com.",
+      "unreachable": "Não foi possível acessar este servidor. Confira o endereço e a conexão.",
+      "notGameplay": "Este não é um servidor Gameplay."
+    }
   }
 }

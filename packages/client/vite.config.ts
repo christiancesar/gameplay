@@ -28,6 +28,9 @@ export default defineConfig({
     },
   },
   test: {
+    // The unit files (jsdom) and the stories (Chromium) run together: with every core taken by the unit workers the
+    // browser starves, and the stories that wait on Radix animations time out.
+    maxWorkers: 6,
     projects: [
       {
         extends: true,

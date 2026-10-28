@@ -57,20 +57,14 @@ describe('Realtime gateway (e2e)', () => {
     await expect(connectSocket(app, 'gameplay.session_token=forged')).rejects.toThrow('UNAUTHENTICATED')
   })
 
-  it('accepts the session token in the handshake instead of the cookie, as the desktop app sends it', async () => {
-    const { token } = await signedIn(app)
-    const socket = await connectSocket(app, undefined, token)
-    sockets.push(socket)
-    expect(socket.connected).toBe(true)
-
-    await expect(connectSocket(app, undefined, 'forged')).rejects.toThrow('UNAUTHENTICATED')
-  })
-
   it('lets the desktop origin open the polling transport, and no other', async () => {
     const polling = (origin: string) =>
       request(app.getHttpServer()).get('/socket.io/?EIO=4&transport=polling').set('Origin', origin)
 
-    expect((await polling(DESKTOP_APP_ORIGIN)).headers['access-control-allow-origin']).toBe(DESKTOP_APP_ORIGIN)
+    const desktop = await polling(DESKTOP_APP_ORIGIN)
+    expect(desktop.headers['access-control-allow-origin']).toBe(DESKTOP_APP_ORIGIN)
+    // The session cookie goes with the handshake, so the answer must allow credentials.
+    expect(desktop.headers['access-control-allow-credentials']).toBe('true')
     expect((await polling('https://evil.example')).headers['access-control-allow-origin']).toBeUndefined()
   })
 
