@@ -17,14 +17,14 @@ Pacotes divididos, web e desktop consumindo o mesmo client. Sem recursos nativos
 | [DESK-05 `apps/desktop` com Electron Forge](DESK-05-apps-desktop.md) | 5 | 4 | concluído |
 | [DESK-06 `packages/desktop-bridge` e o IPC tipado](DESK-06-desktop-bridge.md) | 3 | 5 | concluído |
 
-## Fase 2: recursos nativos (depois, com o projeto normalizado)
+## Fase 2: recursos nativos
 
-Detalhada quando a fase 1 terminar.
+Ordem mudada em 2026-10-28, depois que o usuário testou o app no Wayland: escolher a janela já funciona (o portal do sistema abre o seletor dele), e o que falta é o **áudio** da transmissão. Por isso o áudio por aplicativo passou a ser o DESK-07.
 
-| Ticket | O que é |
-|---|---|
-| DESK-07 | Captura de janela e tela no Linux (portal no Wayland, seletor nosso no X11), canais `capture:*` e `setDisplayMediaRequestHandler`. |
-| DESK-08 | Áudio por aplicativo no Linux com `@vencord/venmic` e PipeWire, lista de apps tocando som. |
-| DESK-09 | Windows: seletor com miniaturas, loopback do sistema e áudio por processo (WASAPI). |
-| DESK-10 | Empacotamento, assinatura, atualização completa e versão mínima do app no `/api/health`. |
-| DESK-11 | OTA da UI assinado, com rollback (seção 6 do tech plan). |
+| Ticket | Pontos | Status |
+|---|---|---|
+| [DESK-07 Áudio por aplicativo no Linux (venmic e PipeWire)](DESK-07-audio-por-aplicativo-linux.md) | 8 | pendente |
+| DESK-08 Seletor de fontes do app (X11, Windows, macOS): `capture:list-sources`, miniaturas, `setDisplayMediaRequestHandler` com a escolha do usuário | 5 | a detalhar |
+| DESK-09 Windows: áudio do sistema pelo loopback e áudio por processo (WASAPI) | 5 | a detalhar |
+| DESK-10 Empacotamento, assinatura, atualização completa e versão mínima do app no `/api/health`; fechar o CSP na origem escolhida; `.ico` e `.icns` no empacotamento do Windows e do macOS | 5 | a detalhar |
+| DESK-11 OTA da UI assinado, com rollback (seção 6 do tech plan) | 5 | a detalhar |
