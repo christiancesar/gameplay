@@ -20,6 +20,7 @@ import { createQueryClientContext } from '@/shared/test/query-client-context'
 import { useSharePreferencesStore } from './stores/share-preferences.store'
 import { useShareStore } from './stores/share.store'
 import { fakeShareController } from './test/fake-share-controller'
+import { browserSource, gameSource, screenSource } from './test/source-seed'
 import { useSharePanelViewModel } from './use-share-panel.view-model'
 
 const profiles = { u2: { name: 'Ana' } }
@@ -371,5 +372,97 @@ describe('useSharePanelViewModel', () => {
     act(() => result.current.onStart())
 
     expect(result.current.setup.audioApps).toBeUndefined()
+  })
+
+  describe('the screens and windows', () => {
+    const desktop = (sources = [gameSource, screenSource, browserSource]) =>
+      setup({ kind: 'desktop', capabilities: { listSources: true }, sources })
+
+    it('lists them when the dialog opens and picks the first screen, the kind of it going to the settings', async () => {
+      const { result } = desktop()
+
+      act(() => result.current.onStart())
+
+      await waitFor(() => expect(result.current.setup.sources?.available).toHaveLength(3))
+      expect(result.current.setup.sources?.selectedId).toBe('screen:0:0')
+      expect(result.current.setup.settings.source).toBe('screen')
+      expect(result.current.setup.systemPicker).toBe(false)
+    })
+
+    it('takes the first of the list when there is no screen', async () => {
+      const { result } = desktop([gameSource])
+
+      act(() => result.current.onStart())
+
+      await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('window:590528:0'))
+    })
+
+    it('changes the choice and the kind of source with it', async () => {
+      const { result } = desktop()
+      act(() => result.current.onStart())
+      await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
+
+      act(() => result.current.setup.sources?.onSelect('window:262794:0'))
+
+      expect(result.current.setup.sources?.selectedId).toBe('window:262794:0')
+      expect(result.current.setup.settings.source).toBe('window')
+    })
+
+    it('ignores a source that is not on the list', async () => {
+      const { result } = desktop()
+      act(() => result.current.onStart())
+      await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
+
+      act(() => result.current.setup.sources?.onSelect('window:1:0'))
+
+      expect(result.current.setup.sources?.selectedId).toBe('screen:0:0')
+    })
+
+    it('starts the share with the chosen source', async () => {
+      const { result } = desktop()
+      act(() => result.current.onStart())
+      await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
+      act(() => result.current.setup.sources?.onSelect('window:590528:0'))
+
+      act(() => result.current.setup.onStart())
+
+      expect(fakeShareController.start).toHaveBeenCalledWith(
+        expect.objectContaining({ source: 'window' }),
+        'smooth',
+        DIRECT,
+        'window:590528:0',
+      )
+    })
+
+    it('keeps the choice on refresh while it is still on the list', async () => {
+      const { result } = desktop()
+      act(() => result.current.onStart())
+      await waitFor(() => expect(result.current.setup.sources?.selectedId).toBe('screen:0:0'))
+      act(() => result.current.setup.sources?.onSelect('window:590528:0'))
+
+      act(() => result.current.setup.sources?.onRefresh())
+      await waitFor(() => expect(result.current.setup.sources?.available).toHaveLength(3))
+      expect(result.current.setup.sources?.selectedId).toBe('window:590528:0')
+    })
+
+    it('leaves the choice to the system picker where the app cannot list, with no grid', () => {
+      const { result } = setup({ kind: 'desktop', capabilities: { listSources: false } })
+
+      act(() => result.current.onStart())
+      expect(result.current.setup.sources).toBeUndefined()
+      expect(result.current.setup.systemPicker).toBe(true)
+
+      act(() => result.current.setup.onStart())
+      expect(fakeShareController.start).toHaveBeenCalledWith(expect.anything(), 'smooth', DIRECT)
+    })
+
+    it('keeps the three kinds of the browser, which has its own picker', () => {
+      const { result } = setup()
+
+      act(() => result.current.onStart())
+
+      expect(result.current.setup.sources).toBeUndefined()
+      expect(result.current.setup.systemPicker).toBe(false)
+    })
   })
 })

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import type { CaptureSource } from './channels'
 import { registerChannels, type ChannelHandlers, type IpcMainLike } from './register'
 import { DESKTOP_CHANNELS } from './names'
 
@@ -15,6 +16,11 @@ function setup(isTrustedPage = (url: string) => url.startsWith('app://gameplay/'
     'audio:list-apps': vi.fn((): { name: string; binary: string | null }[] => [{ name: 'Spotify', binary: 'spotify' }]),
     'audio:share': vi.fn(async () => true),
     'audio:stop': vi.fn(() => undefined),
+    'capture:can-list': vi.fn(() => true),
+    'capture:list-sources': vi.fn((): CaptureSource[] => [
+      { id: 'window:1:0', name: 'Game', kind: 'window', thumbnail: 'data:image/jpeg;base64,AAAA', appIcon: null },
+    ]),
+    'capture:select-source': vi.fn((_id: string | null) => undefined),
   } satisfies ChannelHandlers
   registerChannels(ipc, handlers, isTrustedPage)
   const call = (channel: string, input?: unknown, page: string | null = 'app://gameplay/') =>
@@ -80,5 +86,29 @@ describe('registerChannels', () => {
     expect(await call('audio:list-apps')).toEqual([{ name: 'Spotify', binary: 'spotify' }])
     handlers['audio:list-apps'].mockReturnValue([{ name: '', binary: null }])
     await expect(call('audio:list-apps')).rejects.toThrow()
+  })
+
+  it('takes a source id of the capturer or null, and nothing else', async () => {
+    const { call, handlers } = setup()
+
+    await call('capture:select-source', 'screen:0:0')
+    await call('capture:select-source', 'window:590528:0')
+    await call('capture:select-source', null)
+    await expect(call('capture:select-source', 'file:///etc/passwd')).rejects.toThrow()
+    await expect(call('capture:select-source', '')).rejects.toThrow()
+    await expect(call('capture:select-source', 'window:1 0')).rejects.toThrow()
+
+    expect(handlers['capture:select-source']).toHaveBeenCalledTimes(3)
+  })
+
+  it('answers the sources and refuses a preview that is not an image data URL', async () => {
+    const { call, handlers } = setup()
+
+    expect(await call('capture:list-sources')).toHaveLength(1)
+
+    handlers['capture:list-sources'].mockReturnValue([
+      { id: 'window:1:0', name: 'x', kind: 'window', thumbnail: 'https://evil.example/a.png', appIcon: null },
+    ])
+    await expect(call('capture:list-sources')).rejects.toThrow()
   })
 })

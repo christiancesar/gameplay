@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 
@@ -33,7 +33,13 @@ describe('createDesktopPlatform', () => {
   const bridge = {} as DesktopBridge
 
   it('lets the user choose the server in development', () => {
-    const platform = createDesktopPlatform({ bridge, server: null, serverFixed: false, appAudio: false })
+    const platform = createDesktopPlatform({
+      bridge,
+      server: null,
+      serverFixed: false,
+      appAudio: false,
+      listSources: false,
+    })
 
     expect(platform.server.chooser?.current()).toBeNull()
   })
@@ -44,9 +50,77 @@ describe('createDesktopPlatform', () => {
       server: 'https://play.example.com',
       serverFixed: true,
       appAudio: false,
+      listSources: false,
     })
 
     expect(platform.server.chooser).toBeUndefined()
     expect(platform.server.baseUrl()).toBe('https://play.example.com')
+  })
+
+  describe('the screens and windows', () => {
+    const source = { id: 'window:7:0', name: 'Game', kind: 'window' as const, thumbnail: null, appIcon: null }
+    const listing = () =>
+      ({
+        'capture:list-sources': vi.fn(async () => [source]),
+        'capture:select-source': vi.fn(async () => undefined),
+      }) as unknown as DesktopBridge
+
+    it('lists them through the main process where the app can, and says so', async () => {
+      const platform = createDesktopPlatform({
+        bridge: listing(),
+        server: null,
+        serverFixed: false,
+        appAudio: false,
+        listSources: true,
+      })
+
+      expect(platform.capabilities.listSources).toBe(true)
+      expect(await platform.capture.listSources()).toEqual([source])
+    })
+
+    it('lists nothing and does not ask the main process where the system picker chooses', async () => {
+      const bridge = listing()
+      const platform = createDesktopPlatform({
+        bridge,
+        server: null,
+        serverFixed: false,
+        appAudio: false,
+        listSources: false,
+      })
+
+      expect(platform.capabilities.listSources).toBe(false)
+      expect(await platform.capture.listSources()).toEqual([])
+      expect(bridge['capture:list-sources']).not.toHaveBeenCalled()
+    })
+
+    it('tells the main process the source before it asks for the screen', async () => {
+      const bridge = listing()
+      const platform = createDesktopPlatform({
+        bridge,
+        server: null,
+        serverFixed: false,
+        appAudio: false,
+        listSources: true,
+      })
+
+      await platform.capture.start({ options: { video: true }, sourceId: 'window:7:0' }).catch(() => undefined)
+
+      expect(bridge['capture:select-source']).toHaveBeenCalledWith('window:7:0')
+    })
+
+    it('does not talk to the main process about sources where the system picker chooses', async () => {
+      const bridge = listing()
+      const platform = createDesktopPlatform({
+        bridge,
+        server: null,
+        serverFixed: false,
+        appAudio: false,
+        listSources: false,
+      })
+
+      await platform.capture.start({ options: { video: true }, sourceId: null }).catch(() => undefined)
+
+      expect(bridge['capture:select-source']).not.toHaveBeenCalled()
+    })
   })
 })

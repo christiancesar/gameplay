@@ -27,6 +27,15 @@ describe('ShareSession', () => {
   }
 
   describe('start', () => {
+    it('hands the host the source picked in the dialog, and none when the host picks', async () => {
+      await ctx.session.start(gameSettings, 'smooth', undefined, 'window:7:0')
+      expect(ctx.acquireScreen.mock.calls[0]?.[2]).toBe('window:7:0')
+
+      await ctx.session.stop()
+      await ctx.session.start(gameSettings, 'smooth')
+      expect(ctx.acquireScreen.mock.calls[1]?.[2]).toBeNull()
+    })
+
     it('opens the picker with the preset as constraints, then announces the stream', async () => {
       const pending = ctx.session.start(gameSettings, 'smooth')
       expect(ctx.store.state.status).toBe('picking')
