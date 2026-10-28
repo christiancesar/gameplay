@@ -72,27 +72,38 @@ type DesktopPlatformOptions = {
   serverFixed: boolean
   /** Whether the system can share the sound of applications (Linux with PipeWire). */
   appAudio: boolean
+  /** Whether the app lists the screens and windows itself (Windows, X11); on Wayland the system picker chooses. */
+  listSources: boolean
 }
 
 /**
- * The desktop host. Its video capture is the Chromium inside Electron (the main process answers the request); the
+ * The desktop host. Its video capture is the Chromium inside Electron (the main process answers the request, with
+ * the source the user picked in the dialog where the app lists them); the
  * sound of the applications the user picks comes through a virtual microphone the main process makes. The user
  * picks the server, which the main process keeps between runs and uses for the images and for the cookie; a
  * build tied to a server (`VITE_SERVER_URL`) has no choice to offer. The session is a cookie, as on the web: the main process makes the cookie of the server travel between sites.
  */
-function createDesktopPlatform({ bridge, server, serverFixed, appAudio }: DesktopPlatformOptions): Platform {
+function createDesktopPlatform({
+  bridge,
+  server,
+  serverFixed,
+  appAudio,
+  listSources,
+}: DesktopPlatformOptions): Platform {
   let chosen = server
   return {
     kind: 'desktop',
     capabilities: {
-      listSources: false,
+      listSources,
       appAudio,
       globalHotkeys: false,
       ...audioCapabilitiesOf(navigator as unknown as CapturePlatformSource),
     },
     capture: {
-      listSources: async () => [],
-      start: async ({ options, audioApps }) => {
+      listSources: async () => (listSources ? bridge['capture:list-sources']() : []),
+      start: async ({ options, sourceId, audioApps }) => {
+        // The page cannot hand a source to `getDisplayMedia`: the main process answers it, so it is told first.
+        if (listSources) await bridge['capture:select-source'](sourceId)
         if (!appAudio || !audioApps?.length) return acquireScreen(options)
         // The video without audio of its own; the sound is the applications' one, added below.
         const video = await acquireScreen({ ...options, audio: false })
