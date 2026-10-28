@@ -17,6 +17,8 @@ interface Telemetry {
 
 `Measurement` passa a ser `{ name: string; value: number; unit?: string; attributes?: Record<string, string> }`. Hoje ele é `{ type, values, context }` e mora em `faro.ts`; o mapper `toShareStartMeasurement` e o `voice.controller` são adaptados.
 
+A configuração que o `Platform` entrega a `createTelemetry` é `{ dsn, environment, release, app, tunnel? }`. **`environment`** diz onde rodou (`development`, `production`, `host`) e **`app`** diz qual aplicativo mandou (`web` ou `desktop`). O provedor grava `app` como tag em todo evento, log e métrica (no Sentry, `setTag('app', ...)`; no Faro, um atributo global). Decisão do usuário (2026-10-28): nada de `production-web` ou `development-desktop` no nome do ambiente, porque os filtros por ambiente ficam simples e a origem já aparece no projeto e na tag.
+
 Provedores, um arquivo por classe: `SentryTelemetry`, `FaroTelemetry` (o código atual do `faro.ts`, movido), `NoopTelemetry` e `CompositeTelemetry` (escreve em vários, usado na transição). `createTelemetry(config)` escolhe.
 
 O `monitoring` atual (`createMonitoring`) é a base: ele já separa as ViewModels do SDK. A mudança é ampliar a interface e tirar o Faro do tipo.
