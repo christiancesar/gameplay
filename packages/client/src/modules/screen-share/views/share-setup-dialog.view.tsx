@@ -25,10 +25,17 @@ const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
 /** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
 type SharePriority = (typeof SHARE_PRIORITIES)[number]
 
-type AudioSupport = 'apps' | 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
+type AudioSupport =
+  | 'apps'
+  | 'systemWithoutApp'
+  | 'supported'
+  | 'recentMac'
+  | 'windowUnsupported'
+  | 'tabOnly'
+  | 'browserUnsupported'
 
 /** Where the browser gives screen audio. Elsewhere the switch is locked and the hint says only the microphone goes. */
-const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'supported', 'recentMac']
+const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'systemWithoutApp', 'supported', 'recentMac']
 
 type ShareSettings = {
   source: ShareSource

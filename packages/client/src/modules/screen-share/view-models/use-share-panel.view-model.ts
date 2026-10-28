@@ -32,6 +32,8 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   const snapshot = useShareStore()
   const { kind, capabilities, capture } = usePlatform()
   const appAudio = capabilities.appAudio
+  // The desktop on Windows: the sound of the computer without the app, whichever source is shared.
+  const systemWithoutApp = capabilities.systemAudioWithoutApp
   // A host that lists screens and windows gets a grid; the desktop without the list (Wayland) leaves it to the system.
   const listSources = capabilities.listSources
   const systemPicker = kind === 'desktop' && !listSources
@@ -128,7 +130,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
         draft.includeAudio &&
         (appAudio
           ? draft.audioApps.length > 0
-          : canShareAudio(audioSupportFor(draft.source, shareController.platform()))),
+          : systemWithoutApp || canShareAudio(audioSupportFor(draft.source, shareController.platform()))),
       audioApps: appAudio ? draft.audioApps : [],
     }
     const { save, clear } = useSharePreferencesStore.getState()
@@ -168,7 +170,11 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
       mode: dialog === 'update' ? ('update' as const) : ('start' as const),
       settings: draft,
       priority: draftPriority,
-      audioSupport: appAudio ? ('apps' as const) : audioSupportFor(draft.source, shareController.platform()),
+      audioSupport: appAudio
+        ? ('apps' as const)
+        : systemWithoutApp
+          ? ('systemWithoutApp' as const)
+          : audioSupportFor(draft.source, shareController.platform()),
       audioApps: appAudio ? { available: audioApps, onRefresh: refreshAudioApps } : undefined,
       sources: listSources
         ? { available: sources, selectedId: sourceId, onSelect: selectSource, onRefresh: refreshSources }

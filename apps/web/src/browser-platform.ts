@@ -39,7 +39,13 @@ function createBrowserPlatform({
 }: BrowserPlatformDeps = {}): Platform {
   return {
     kind: 'browser',
-    capabilities: { listSources: false, appAudio: false, globalHotkeys: false, ...audioCapabilitiesOf(readBrowser()) },
+    capabilities: {
+      listSources: false,
+      appAudio: false,
+      systemAudioWithoutApp: false,
+      globalHotkeys: false,
+      ...audioCapabilitiesOf(readBrowser()),
+    },
     capture: {
       listSources: async () => [],
       // A browser has no source to pick by id: `sourceId` is for hosts that list them.

@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+const mocks = vi.hoisted(() => ({ acquireScreen: vi.fn(), stopScreen: vi.fn(), openSystemAudioTrack: vi.fn() }))
+vi.mock('@gameplay/client/platform', async (original) => ({
+  ...(await original<typeof import('@gameplay/client/platform')>()),
+  acquireScreen: mocks.acquireScreen,
+  stopScreen: mocks.stopScreen,
+}))
+vi.mock('./system-audio-track', () => ({ openSystemAudioTrack: mocks.openSystemAudioTrack }))
+
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 
 import { createDesktopPlatform, telemetryFromBuild } from './desktop-platform'
@@ -39,6 +47,7 @@ describe('createDesktopPlatform', () => {
       serverFixed: false,
       appAudio: false,
       listSources: false,
+      systemAudio: false,
     })
 
     expect(platform.server.chooser?.current()).toBeNull()
@@ -51,6 +60,7 @@ describe('createDesktopPlatform', () => {
       serverFixed: true,
       appAudio: false,
       listSources: false,
+      systemAudio: false,
     })
 
     expect(platform.server.chooser).toBeUndefined()
@@ -72,6 +82,7 @@ describe('createDesktopPlatform', () => {
         serverFixed: false,
         appAudio: false,
         listSources: true,
+        systemAudio: false,
       })
 
       expect(platform.capabilities.listSources).toBe(true)
@@ -86,6 +97,7 @@ describe('createDesktopPlatform', () => {
         serverFixed: false,
         appAudio: false,
         listSources: false,
+        systemAudio: false,
       })
 
       expect(platform.capabilities.listSources).toBe(false)
@@ -101,6 +113,7 @@ describe('createDesktopPlatform', () => {
         serverFixed: false,
         appAudio: false,
         listSources: true,
+        systemAudio: false,
       })
 
       await platform.capture.start({ options: { video: true }, sourceId: 'window:7:0' }).catch(() => undefined)
@@ -116,11 +129,76 @@ describe('createDesktopPlatform', () => {
         serverFixed: false,
         appAudio: false,
         listSources: false,
+        systemAudio: false,
       })
 
       await platform.capture.start({ options: { video: true }, sourceId: null }).catch(() => undefined)
 
       expect(bridge['capture:select-source']).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('the sound of the computer without the app', () => {
+    const track = { id: 'system-audio' } as MediaStreamTrack
+    const capture = () => ({ stream: { addTrack: vi.fn() }, video: { id: 'video' } })
+    const platform = (systemAudio: boolean, bridge = {} as DesktopBridge) =>
+      createDesktopPlatform({
+        bridge,
+        server: null,
+        serverFixed: false,
+        appAudio: false,
+        listSources: false,
+        systemAudio,
+      })
+
+    it('says the host shares it only where the capture helper is', () => {
+      expect(platform(true).capabilities.systemAudioWithoutApp).toBe(true)
+      expect(platform(false).capabilities.systemAudioWithoutApp).toBe(false)
+    })
+
+    it('takes the video without audio and adds the track of the helper when audio is asked', async () => {
+      const taken = capture()
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: taken })
+      mocks.openSystemAudioTrack.mockResolvedValue({ track, close: vi.fn() })
+
+      const result = await platform(true).capture.start({ options: { video: true, audio: true }, sourceId: null })
+
+      expect(mocks.acquireScreen).toHaveBeenCalledWith({ video: true, audio: false })
+      expect(taken.stream.addTrack).toHaveBeenCalledWith(track)
+      expect(result).toMatchObject({ ok: true, capture: { audio: track } })
+    })
+
+    it('shares the video alone when the helper does not start', async () => {
+      const taken = capture()
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: taken })
+      mocks.openSystemAudioTrack.mockResolvedValue(null)
+
+      const result = await platform(true).capture.start({ options: { video: true, audio: true }, sourceId: null })
+
+      expect(taken.stream.addTrack).not.toHaveBeenCalled()
+      expect(result).toMatchObject({ ok: true, capture: taken })
+    })
+
+    it('does not start the helper when no audio is asked', async () => {
+      mocks.openSystemAudioTrack.mockClear()
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: capture() })
+
+      await platform(true).capture.start({ options: { video: true }, sourceId: null })
+
+      expect(mocks.openSystemAudioTrack).not.toHaveBeenCalled()
+    })
+
+    it('lets go of the track when the share stops', async () => {
+      const close = vi.fn()
+      mocks.acquireScreen.mockResolvedValue({ ok: true, capture: capture() })
+      mocks.openSystemAudioTrack.mockResolvedValue({ track, close })
+      const bridge = { 'audio:stop': vi.fn(async () => undefined) } as unknown as DesktopBridge
+      const host = platform(true, bridge)
+      const result = await host.capture.start({ options: { video: true, audio: true }, sourceId: null })
+
+      if (result.ok) host.capture.stop(result.capture)
+
+      expect(close).toHaveBeenCalledOnce()
     })
   })
 })

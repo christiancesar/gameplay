@@ -465,4 +465,42 @@ describe('useSharePanelViewModel', () => {
       expect(result.current.setup.systemPicker).toBe(false)
     })
   })
+
+  describe('the sound of the computer without the app', () => {
+    const windows = () => setup({ kind: 'desktop', capabilities: { systemAudioWithoutApp: true } })
+
+    it('offers it whichever source is shared, which the browser rule would not for a window', () => {
+      const { result } = windows()
+
+      act(() => result.current.onStart())
+      act(() => result.current.setup.onChange({ ...result.current.setup.settings, source: 'window' }))
+
+      expect(result.current.setup.audioSupport).toBe('systemWithoutApp')
+      expect(result.current.setup.audioApps).toBeUndefined()
+    })
+
+    it('asks for the audio when the switch is on, with a window', () => {
+      const { result } = windows()
+      act(() => result.current.onStart())
+      act(() =>
+        result.current.setup.onChange({ ...result.current.setup.settings, source: 'window', includeAudio: true }),
+      )
+
+      act(() => result.current.setup.onStart())
+
+      expect(fakeShareController.start).toHaveBeenCalledWith(
+        expect.objectContaining({ source: 'window', includeAudio: true, audioApps: [] }),
+        'smooth',
+        DIRECT,
+      )
+    })
+
+    it('keeps the rule of the browser where the host does not have it', () => {
+      const { result } = setup()
+
+      act(() => result.current.onStart())
+
+      expect(result.current.setup.audioSupport).not.toBe('systemWithoutApp')
+    })
+  })
 })

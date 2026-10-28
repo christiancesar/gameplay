@@ -15,7 +15,7 @@ import {
 
 // Regra de exemplo só para a story (Chrome no Windows, ou no Linux com `tabOnly`); a real fica no Model e considera browser e sistema.
 const audioSupportFor = (settings: ShareSettings, base: AudioSupport): AudioSupport => {
-  if (base === 'browserUnsupported' || base === 'apps') return base
+  if (base === 'browserUnsupported' || base === 'apps' || base === 'systemWithoutApp') return base
   if (settings.source === 'tab') return 'supported'
   if (settings.source === 'window') return 'windowUnsupported'
   return base === 'tabOnly' ? 'tabOnly' : 'supported'
@@ -274,5 +274,17 @@ export const DesktopSystemPicker: Story = {
     await expect(screen.getByText(/the system will ask which screen or window/i)).toBeVisible()
     await expect(screen.queryByRole('radio', { name: /browser tab/i })).toBeNull()
     await expect(screen.getByRole('button', { name: /choose and share/i })).toBeEnabled()
+  },
+}
+
+/** Desktop on Windows: the sound of the computer without the call, whichever source is shared. */
+export const DesktopSystemAudioWithoutApp: Story = {
+  args: {
+    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+    audioSupport: 'systemWithoutApp',
+  },
+  play: async () => {
+    await expect(screen.getByText(/without the call/i)).toBeVisible()
+    await expect(screen.getByRole('switch', { name: /share audio/i })).toBeEnabled()
   },
 }
