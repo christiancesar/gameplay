@@ -34,7 +34,7 @@ npx electron-forge package --platform win32 --arch x64
 
 Sai `apps/desktop/out/gameplay-win32-x64/`. Na VM, copie a pasta de `Z:` para `C:\` e abra `C:\gameplay-win32-x64\gameplay.exe`. Rodar direto de `Z:` não funciona: ela é um compartilhamento de rede e o app abre e fecha na hora.
 
-O `Setup.exe` do Squirrel sai com `npx electron-forge make --platform win32 --arch x64 --targets @electron-forge/maker-squirrel` (precisa de `wine` e `mono-complete` no Linux). Também copie para `C:\` antes de executar.
+O `Setup.exe` do Squirrel sai com `npx electron-forge make --platform win32 --arch x64` (em `apps/desktop`; sem `--targets`, que faz o Forge ignorar o `name` e o `setupIcon` do `forge.config.ts` e o instalador sai com o ícone do Squirrel) (precisa de `wine` e `mono-complete` no Linux). Também copie para `C:\` antes de executar.
 
 O `VITE_SERVER_URL` precisa ser uma origem sem barra no final (`https://gameplay.oikos.company`). Com a barra o empacotamento recusa.
 
