@@ -5,25 +5,21 @@ Roda um Windows 10 LTSC dentro do Docker (QEMU + KVM) para abrir e testar o inst
 ## Uso
 
 ```bash
-cd infra/windows-dev
-docker compose up -d
+npm run windows:up    # starts the VM
+npm run windows:rdp   # opens it over RDP (needs freerdp3-x11), with sound and microphone
+npm run windows:down  # shuts it down
 ```
 
 Na primeira vez ele baixa a ISO (~4,6 GB) e instala sozinho, leva uns 10 a 20 minutos. Acompanhe em http://localhost:8006. Depois disso a VM sobe em menos de um minuto.
 
-- Tela: http://localhost:8006 (navegador) ou RDP em `localhost:3389` (usuário `dev`, senha `dev`).
-- A pasta `apps/desktop/out/make` aparece dentro do Windows como `Z:`. Jogue o instalador ou o zip ali e rode.
-- Desligar: `docker compose down` (espera o Windows fechar). O disco fica em `infra/windows-dev/storage/` (esparso, até 40 GB).
+- Tela: `npm run windows:rdp` (recomendado, bem mais fluido) ou http://localhost:8006 no navegador, que serve para acompanhar a instalação. Usuário `dev`, senha `dev`.
+- A pasta `apps/desktop/out` aparece dentro do Windows como `Z:`. Copie o que quiser testar para `C:\` e rode de lá.
+- Desligar: `npm run windows:down` (espera o Windows fechar). O disco fica em `infra/windows-dev/storage/` (esparso, até 40 GB).
 - Recomeçar do zero: `docker compose down && rm -rf storage`.
 
 ## Áudio e microfone
 
-O dockur não tem placa de som: o `AUDIO: "Y"` do compose manda só a saída (som) para o visualizador web, em Settings, Advanced, Audio. Microfone não passa pelo navegador. Para testar voz, conecte por RDP redirecionando o microfone do seu Linux:
-
-```bash
-sudo apt install -y freerdp3-x11
-xfreerdp3 /v:localhost:3389 /u:dev /p:dev /dynamic-resolution /sound /microphone +clipboard
-```
+O dockur não tem placa de som: o `AUDIO: "Y"` do compose manda só a saída (som) para o visualizador web, em Settings, Advanced, Audio. Microfone não passa pelo navegador. Para testar voz, use o `npm run windows:rdp`, que redireciona o microfone do seu Linux. Precisa do cliente: `sudo apt install -y freerdp3-x11`.
 
 O Windows passa a ter "Remote Audio" como saída e entrada. O app só vê o microfone dentro dessa sessão RDP.
 
