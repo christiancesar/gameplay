@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { BrowserWindow, nativeImage } from 'electron'
 
-import { lockNavigation } from './security'
-import linuxIcon from '../../../../packages/client/src/shared/assets/brand/icons/linux/icon.png?inline'
+import linuxIcon from '../../../../../packages/client/src/shared/assets/brand/icons/linux/icon.png?inline'
+import { lockNavigation } from './navigation'
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined
 declare const MAIN_WINDOW_VITE_NAME: string

@@ -6,7 +6,7 @@ import { toSharePanelState, toViewerQualities } from './share-panel.mapper'
 const live: ShareSnapshot = {
   ...idleShare,
   status: 'live',
-  settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true },
+  settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
   audio: 'active',
   viewerIds: ['u2', 'u3', 'u4'],
   stats: {

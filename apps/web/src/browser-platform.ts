@@ -1,6 +1,7 @@
 import {
   acquireScreen,
   audioCapabilitiesOf,
+  stopScreen,
   type CapturePlatformSource,
   type GetDisplayMedia,
   type Platform,
@@ -23,11 +24,13 @@ function createBrowserPlatform({
 }: BrowserPlatformDeps = {}): Platform {
   return {
     kind: 'browser',
-    capabilities: { listSources: false, globalHotkeys: false, ...audioCapabilitiesOf(readBrowser()) },
+    capabilities: { listSources: false, appAudio: false, globalHotkeys: false, ...audioCapabilitiesOf(readBrowser()) },
     capture: {
       listSources: async () => [],
       // A browser has no source to pick by id: `sourceId` is for hosts that list them.
       start: ({ options }) => acquireScreen(options, getDisplayMedia),
+      stop: stopScreen,
+      listAudioApps: async () => [],
     },
     server: { baseUrl: () => '' },
   }

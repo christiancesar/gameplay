@@ -1,13 +1,14 @@
 import { app, BrowserWindow, ipcMain, session } from 'electron'
 
-import { registerAppScheme, serveApp } from './app-protocol'
-import { registerIpc } from './ipc'
+import { registerAppScheme, serveApp } from './lib/app-protocol'
+import { registerIpc } from './lib/ipc'
+import { limitPermissions } from './lib/permissions'
+import { createMainWindow, devServerUrl, rendererRoot } from './lib/window'
 import { createAudioModule } from './modules/audio/audio.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
 import { installCookiePolicy } from './modules/session/cookie-policy'
 import { createServerModule } from './modules/server/server.module'
-import { isAppUrl, limitPermissions } from './security'
-import { createMainWindow, devServerUrl, rendererRoot } from './window'
+import { isAppUrl } from './utils/app-url'
 
 registerAppScheme()
 

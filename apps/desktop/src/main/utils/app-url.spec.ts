@@ -1,8 +1,7 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-vi.mock('electron', () => ({ shell: { openExternal: vi.fn() } }))
-
-import { CONTENT_SECURITY_POLICY, isAppUrl, isWebUrl } from './security'
+import { CONTENT_SECURITY_POLICY } from './content-security-policy'
+import { isAppUrl, isWebUrl } from './app-url'
 
 describe('isAppUrl', () => {
   it('takes only the pages the app serves', () => {

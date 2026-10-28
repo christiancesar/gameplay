@@ -21,8 +21,9 @@ describe('createBrowserPlatform', () => {
     const platform = platformOf()
 
     expect(platform.kind).toBe('browser')
-    expect(platform.capabilities).toMatchObject({ listSources: false, globalHotkeys: false })
+    expect(platform.capabilities).toMatchObject({ listSources: false, appAudio: false, globalHotkeys: false })
     expect(await platform.capture.listSources()).toEqual([])
+    expect(await platform.capture.listAudioApps()).toEqual([])
     expect(platform.server.baseUrl()).toBe('')
     expect(platform.server.chooser).toBeUndefined()
   })
@@ -41,6 +42,17 @@ describe('createBrowserPlatform', () => {
 
     expect(getDisplayMedia).toHaveBeenCalledWith(options)
     expect(result).toEqual({ ok: true, capture: { stream, video, audio: null } })
+  })
+
+  it('lets go of a capture by stopping its tracks', () => {
+    const video = track()
+    const audio = track()
+    const stream = streamOf([video], [audio])
+
+    platformOf().capture.stop({ stream, video, audio })
+
+    expect(video.stop).toHaveBeenCalled()
+    expect(audio.stop).toHaveBeenCalled()
   })
 
   it('reads a closed picker as a cancel', async () => {

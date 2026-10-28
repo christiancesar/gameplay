@@ -1,4 +1,5 @@
-import { act, cleanup, renderHook } from '@testing-library/react'
+import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -11,6 +12,8 @@ vi.mock('./share.controller', async () => ({
 
 import { defaultShareSettings, idleShare } from '@/modules/screen-share/model/entities/share'
 import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
+import { PlatformProvider } from '@/shared/platform/platform-provider'
+import { FakePlatform, type FakePlatformOptions } from '@/shared/platform/test/fake-platform'
 import { fakeHttp } from '@/shared/test/fake-http'
 import { createQueryClientContext } from '@/shared/test/query-client-context'
 
@@ -23,12 +26,24 @@ const profiles = { u2: { name: 'Ana' } }
 const live = {
   ...idleShare,
   status: 'live' as const,
-  settings: { source: 'window' as const, resolution: '1080p' as const, fps: 60 as const, includeAudio: true },
+  settings: {
+    source: 'window' as const,
+    resolution: '1080p' as const,
+    fps: 60 as const,
+    includeAudio: true,
+    audioApps: [],
+  },
   viewerIds: ['u2'],
   stats: { u2: { width: 1280, height: 720, fps: 42, kbps: 2100, limitation: 'bandwidth' as const } },
 }
 
-const setup = () => renderHook(() => useSharePanelViewModel(profiles), { wrapper: createQueryClientContext().wrapper })
+const setup = (platformOptions: FakePlatformOptions = {}) => {
+  const { wrapper: queryWrapper } = createQueryClientContext()
+  const platform = new FakePlatform(platformOptions)
+  const wrapper = ({ children }: { children: ReactNode }) =>
+    queryWrapper({ children: <PlatformProvider platform={platform}>{children}</PlatformProvider> })
+  return renderHook(() => useSharePanelViewModel(profiles), { wrapper })
+}
 
 /** Without a call the server's media is unknown: the share goes Direct, as before the SFU. */
 const DIRECT = { mode: 'mesh', fallbackToMesh: true }
@@ -59,7 +74,13 @@ describe('useSharePanelViewModel', () => {
   })
 
   it('opens the dialog with the settings saved for next time', () => {
-    const saved = { source: 'tab' as const, resolution: '720p' as const, fps: 30 as const, includeAudio: true }
+    const saved = {
+      source: 'tab' as const,
+      resolution: '720p' as const,
+      fps: 30 as const,
+      includeAudio: true,
+      audioApps: [],
+    }
     useSharePreferencesStore.setState({ saved })
     const { result } = setup()
     act(() => result.current.onStart())
@@ -84,10 +105,12 @@ describe('useSharePanelViewModel', () => {
   it('starts sharing with the chosen settings and closes the dialog', () => {
     const { result } = setup()
     act(() => result.current.onStart())
-    act(() => result.current.setup.onChange({ source: 'tab', resolution: '720p', fps: 60, includeAudio: true }))
+    act(() =>
+      result.current.setup.onChange({ source: 'tab', resolution: '720p', fps: 60, includeAudio: true, audioApps: [] }),
+    )
     act(() => result.current.setup.onStart())
     expect(fakeShareController.start).toHaveBeenCalledWith(
-      { source: 'tab', resolution: '720p', fps: 60, includeAudio: true },
+      { source: 'tab', resolution: '720p', fps: 60, includeAudio: true, audioApps: [] },
       'smooth',
       DIRECT,
     )
@@ -97,10 +120,12 @@ describe('useSharePanelViewModel', () => {
   it('does not ask for audio from a source that has none', () => {
     const { result } = setup()
     act(() => result.current.onStart())
-    act(() => result.current.setup.onChange({ ...defaultShareSettings, source: 'window', includeAudio: true }))
+    act(() =>
+      result.current.setup.onChange({ ...defaultShareSettings, source: 'window', includeAudio: true, audioApps: [] }),
+    )
     act(() => result.current.setup.onStart())
     expect(fakeShareController.start).toHaveBeenCalledWith(
-      expect.objectContaining({ includeAudio: false }),
+      expect.objectContaining({ includeAudio: false, audioApps: [] }),
       'smooth',
       DIRECT,
     )
@@ -278,5 +303,73 @@ describe('useSharePanelViewModel', () => {
       act(() => useShareStore.setState({ notice: 'disabled' }))
       expect(toast.error).toHaveBeenCalledWith('share.notices.disabled')
     })
+  })
+
+  describe('on a host that shares the sound of applications', () => {
+    const playing = [{ name: 'Spotify', binary: 'spotify' }]
+    const desktop = { kind: 'desktop' as const, capabilities: { appAudio: true }, audioApps: playing }
+
+    it('offers what is playing when the dialog opens, and again on request', async () => {
+      const { result } = setup(desktop)
+
+      act(() => result.current.onStart())
+
+      expect(result.current.setup.audioSupport).toBe('apps')
+      await waitFor(() => expect(result.current.setup.audioApps?.available).toEqual(playing))
+      act(() => result.current.setup.audioApps?.onRefresh())
+      await waitFor(() => expect(result.current.setup.audioApps?.available).toEqual(playing))
+    })
+
+    it('starts with the chosen applications, whatever the source', () => {
+      const { result } = setup(desktop)
+      act(() => result.current.onStart())
+      act(() =>
+        result.current.setup.onChange({
+          ...defaultShareSettings,
+          source: 'window',
+          includeAudio: true,
+          audioApps: ['Spotify'],
+        }),
+      )
+      act(() => result.current.setup.onStart())
+
+      expect(fakeShareController.start).toHaveBeenCalledWith(
+        expect.objectContaining({ source: 'window', includeAudio: true, audioApps: ['Spotify'] }),
+        'smooth',
+        DIRECT,
+      )
+    })
+
+    it('starts without audio when no application is chosen', () => {
+      const { result } = setup(desktop)
+      act(() => result.current.onStart())
+      act(() => result.current.setup.onChange({ ...defaultShareSettings, includeAudio: true, audioApps: [] }))
+      act(() => result.current.setup.onStart())
+
+      expect(fakeShareController.start).toHaveBeenCalledWith(
+        expect.objectContaining({ includeAudio: false, audioApps: [] }),
+        'smooth',
+        DIRECT,
+      )
+    })
+
+    it('opens with the applications of a setting saved before they existed', () => {
+      useSharePreferencesStore.setState({
+        saved: { source: 'tab', resolution: '720p', fps: 30, includeAudio: true } as never,
+      })
+      const { result } = setup(desktop)
+
+      act(() => result.current.onStart())
+
+      expect(result.current.setup.settings.audioApps).toEqual([])
+    })
+  })
+
+  it('offers no application list on a browser', () => {
+    const { result } = setup()
+
+    act(() => result.current.onStart())
+
+    expect(result.current.setup.audioApps).toBeUndefined()
   })
 })

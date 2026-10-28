@@ -89,7 +89,7 @@ function Scenario({
     <>
       <ShareSetupDialogView
         open={overlay === 'shareSetup'}
-        settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false }}
+        settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false, audioApps: [] }}
         priority="smooth"
         audioSupport="windowUnsupported"
         saveAsDefault

@@ -228,13 +228,21 @@
         "recentMac": "Screen audio needs macOS 14.2 or newer. Leave the audio box checked in the picker.",
         "windowUnsupported": "The browser doesn't capture audio from a single window. Share the entire screen (Windows) or a tab. Only your microphone will be shared.",
         "tabOnly": "On this system the browser doesn't capture the audio of the entire screen. Share a tab to send its sound. Only your microphone will be shared.",
-        "browserUnsupported": "This browser doesn't share screen audio. To send the game sound, use Chrome or Edge. Only your microphone will be shared."
+        "browserUnsupported": "This browser doesn't share screen audio. To send the game sound, use Chrome or Edge. Only your microphone will be shared.",
+        "apps": "Share the sound of the applications you choose below."
       },
       "saveAsDefault": "Use these settings next time",
       "start": "Choose and share",
       "updateTitle": "Change quality",
       "updateDescription": "Resolution and frame rate change right away, without stopping the share.",
-      "apply": "Apply"
+      "apply": "Apply",
+      "audioApps": {
+        "title": "Applications",
+        "refresh": "Refresh",
+        "empty": "No application is playing sound. Start the game or the player, then refresh.",
+        "idle": "(not playing now)",
+        "none": "Choose at least one application, or the stream goes without sound."
+      }
     },
     "monitor": {
       "target": "Target",

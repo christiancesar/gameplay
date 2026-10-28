@@ -1,4 +1,4 @@
-import type { ScreenCaptureResult } from '@/shared/media/screen-capture'
+import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
 
 /** A screen or a window the host can capture, with a preview, for hosts that list them (the desktop app). */
 type CaptureSource = {
@@ -9,11 +9,16 @@ type CaptureSource = {
   thumbnail: string | null
 }
 
+/** An application that is playing sound, by the name the system gives it. */
+type AudioApp = { name: string; binary: string | null }
+
 type CaptureRequest = {
   /** What the browser's picker is asked for: surface, resolution, frame rate and audio. */
   options: DisplayMediaStreamOptions
   /** A source chosen from `listSources`; null leaves the choice to the host's own picker. */
   sourceId: string | null
+  /** The applications whose sound goes with the video, for a host with `appAudio`. Empty: the audio in `options`. */
+  audioApps?: readonly string[]
 }
 
 /** What the host running the app can do beyond what every browser does. */
@@ -24,6 +29,8 @@ type PlatformCapabilities = {
   windowAudio: boolean
   /** The audio of the whole system can be shared along with a screen. */
   systemAudio: boolean
+  /** The sound of chosen applications can be shared, whichever screen or window is. */
+  appAudio: boolean
   /** Shortcuts that work with the app out of focus. */
   globalHotkeys: boolean
 }
@@ -53,8 +60,12 @@ type Platform = {
   capture: {
     listSources: () => Promise<CaptureSource[]>
     start: (request: CaptureRequest) => Promise<ScreenCaptureResult>
+    /** Lets go of a capture: its tracks, and whatever the host set up for its audio. */
+    stop: (capture: ScreenCaptureHandle) => void
+    /** The applications playing sound now; empty where the host cannot share them. */
+    listAudioApps: () => Promise<AudioApp[]>
   }
   server: PlatformServer
 }
 
-export type { CaptureRequest, CaptureSource, Platform, PlatformCapabilities, PlatformServer }
+export type { AudioApp, CaptureRequest, CaptureSource, Platform, PlatformCapabilities, PlatformServer }

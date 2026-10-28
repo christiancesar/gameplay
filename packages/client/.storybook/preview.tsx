@@ -8,6 +8,10 @@ import { PlatformProvider } from '../src/shared/platform/platform-provider'
 import { FakePlatform } from '../src/shared/platform/test/fake-platform'
 import { TooltipProvider } from '../src/shared/ui/tooltip'
 import '../src/styles/theme.css'
+import './test-motion.css'
+
+// The Vitest run drives the page with an automated browser (`webdriver`): the stories skip the animations there.
+if (navigator.webdriver) document.documentElement.dataset.automated = ''
 
 // A browser that captures nothing: Views get their data by props, the platform is only there for what reads it.
 const platform = new FakePlatform()

@@ -5,12 +5,13 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { createDesktopPlatform } from './desktop-platform'
 
-// The server the user chose lives in the main process: the app asks for it before anything else.
+// What the main process knows comes before the first screen: the server the user chose, and whether the system can
+// share the sound of applications.
 const bridge = window.gameplayDesktop
-const server = await bridge['server:get-url']()
+const [server, appAudio] = await Promise.all([bridge['server:get-url'](), bridge['audio:available']()])
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App platform={createDesktopPlatform({ bridge, server })} />
+    <App platform={createDesktopPlatform({ bridge, server, appAudio })} />
   </StrictMode>,
 )

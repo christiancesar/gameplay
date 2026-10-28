@@ -1,11 +1,13 @@
-import type { ScreenCaptureResult } from '@/shared/media/screen-capture'
+import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
 
-import type { CaptureRequest, CaptureSource, Platform, PlatformCapabilities } from '../platform'
+import type { AudioApp, CaptureRequest, CaptureSource, Platform, PlatformCapabilities } from '../platform'
 
 type FakePlatformOptions = {
   kind?: Platform['kind']
   capabilities?: Partial<PlatformCapabilities>
   sources?: CaptureSource[]
+  /** The applications playing sound, for a host with `appAudio`. */
+  audioApps?: AudioApp[]
   /** What `capture.start` answers; a refusal by default, as a browser without screen capture. */
   result?: ScreenCaptureResult
   /** Origin of the API: empty (same origin) by default, as on the web. */
@@ -19,16 +21,19 @@ class FakePlatform implements Platform {
   readonly kind: Platform['kind']
   readonly capabilities: PlatformCapabilities
   readonly started: CaptureRequest[] = []
+  readonly stopped: ScreenCaptureHandle[] = []
   chosen: string | null
   readonly server: Platform['server']
   private baseUrl: string
   private readonly sources: CaptureSource[]
+  private readonly playing: AudioApp[]
   private readonly result: ScreenCaptureResult
 
   constructor({
     kind = 'browser',
     capabilities = {},
     sources = [],
+    audioApps = [],
     result,
     baseUrl = '',
     serverChoice,
@@ -38,10 +43,12 @@ class FakePlatform implements Platform {
       listSources: false,
       windowAudio: false,
       systemAudio: false,
+      appAudio: false,
       globalHotkeys: false,
       ...capabilities,
     }
     this.sources = sources
+    this.playing = audioApps
     this.result = result ?? { ok: false, reason: 'unsupported' }
     this.baseUrl = serverChoice?.chosen ?? baseUrl
     this.chosen = serverChoice?.chosen ?? null
@@ -66,6 +73,10 @@ class FakePlatform implements Platform {
       this.started.push(request)
       return this.result
     },
+    stop: (capture: ScreenCaptureHandle) => {
+      this.stopped.push(capture)
+    },
+    listAudioApps: async () => this.playing,
   }
 }
 

@@ -53,7 +53,7 @@ type ShareSessionDeps = {
   store: ShareStateStore
   /** The media of the voice call; screen share only exists inside it. */
   subscribeMedia: (handler: (media: CallMedia | null) => void) => () => void
-  acquireScreen: (options: DisplayMediaStreamOptions) => Promise<ScreenCaptureResult>
+  acquireScreen: (options: DisplayMediaStreamOptions, audioApps: readonly string[]) => Promise<ScreenCaptureResult>
   stopScreen: (capture: ScreenCaptureHandle) => void
   publishToSfu: (tracks: OutgoingTrack[]) => Promise<SfuPublication>
   /** How often the viewers are measured. */
@@ -135,7 +135,10 @@ class ShareSession {
     }
     store.setState({ status: 'picking', settings, priority, notice: null })
 
-    const result = await this.deps.acquireScreen(displayMediaOptions(settings))
+    const result = await this.deps.acquireScreen(
+      displayMediaOptions(settings),
+      settings.includeAudio ? settings.audioApps : [],
+    )
     if (!result.ok) {
       store.setState({ ...idleShare, settings, priority, notice: result.reason === 'cancelled' ? null : result.reason })
       return

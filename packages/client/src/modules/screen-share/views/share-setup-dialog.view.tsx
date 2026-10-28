@@ -23,16 +23,18 @@ const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
 /** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
 type SharePriority = (typeof SHARE_PRIORITIES)[number]
 
-type AudioSupport = 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
+type AudioSupport = 'apps' | 'supported' | 'recentMac' | 'windowUnsupported' | 'tabOnly' | 'browserUnsupported'
 
 /** Where the browser gives screen audio. Elsewhere the switch is locked and the hint says only the microphone goes. */
-const AUDIO_AVAILABLE: readonly AudioSupport[] = ['supported', 'recentMac']
+const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'supported', 'recentMac']
 
 type ShareSettings = {
   source: ShareSource
   resolution: ShareResolution
   fps: ShareFps
   includeAudio: boolean
+  /** Com `audioSupport` `apps`: os nomes dos aplicativos cujo som vai junto. */
+  audioApps: string[]
 }
 
 const STREAM_MODES = ['sfu', 'mesh'] as const
@@ -45,12 +47,17 @@ type StreamModeOptions = {
   mesh: { available: boolean }
 }
 
+/** Um aplicativo que está tocando som. */
+type AudioAppOption = { name: string; binary: string | null }
+
 type ShareSetupDialogViewProps = {
   open: boolean
   settings: ShareSettings
   priority: SharePriority
   /** Calculado pelo ViewModel a partir da fonte, do browser e do sistema operacional. */
   audioSupport: AudioSupport
+  /** Com `audioSupport` `apps`: o que está tocando agora e como atualizar a lista. */
+  audioApps?: { available: readonly AudioAppOption[]; onRefresh: () => void }
   saveAsDefault: boolean
   /** `update`: changing resolution and frame rate of a share already running; the source and audio are fixed. */
   mode?: 'start' | 'update'
@@ -72,6 +79,7 @@ function ShareSetupDialogView({
   settings,
   priority,
   audioSupport,
+  audioApps,
   saveAsDefault,
   mode = 'start',
   onOpenChange,
@@ -89,6 +97,14 @@ function ShareSetupDialogView({
   const audioAvailable = AUDIO_AVAILABLE.includes(audioSupport)
   const showModes = !isUpdate && Boolean(streamModes)
   const noMode = showModes && !streamModes?.sfu.available && !streamModes?.mesh.available
+  // What was chosen but is not playing now stays on the list, so it can be unticked.
+  const playing = audioApps?.available.map((app) => app.name) ?? []
+  const appRows = [
+    ...(audioApps?.available ?? []),
+    ...settings.audioApps.filter((name) => !playing.includes(name)).map((name) => ({ name, binary: null })),
+  ]
+  const toggleApp = (name: string, on: boolean) =>
+    set({ audioApps: on ? [...settings.audioApps, name] : settings.audioApps.filter((chosen) => chosen !== name) })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -220,6 +236,43 @@ function ShareSetupDialogView({
                 onCheckedChange={(includeAudio) => set({ includeAudio })}
               />
             </div>
+          )}
+
+          {!isUpdate && audioSupport === 'apps' && settings.includeAudio && audioApps && (
+            <fieldset className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <legend className="text-sm font-medium">{t('share.setup.audioApps.title')}</legend>
+                <Button type="button" variant="ghost" size="xs" onClick={audioApps.onRefresh}>
+                  {t('share.setup.audioApps.refresh')}
+                </Button>
+              </div>
+              {appRows.length === 0 ? (
+                <p className="text-muted-foreground text-xs">{t('share.setup.audioApps.empty')}</p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {appRows.map((app) => (
+                    <li key={app.name} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`share-audio-app-${app.name}`}
+                        checked={settings.audioApps.includes(app.name)}
+                        onCheckedChange={(value) => toggleApp(app.name, value === true)}
+                      />
+                      <Label htmlFor={`share-audio-app-${app.name}`} className="font-normal">
+                        {app.name}
+                        {!playing.includes(app.name) && (
+                          <span className="text-muted-foreground ml-1.5 text-xs">
+                            {t('share.setup.audioApps.idle')}
+                          </span>
+                        )}
+                      </Label>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {settings.audioApps.length === 0 && (
+                <p className="text-amber-500 text-xs">{t('share.setup.audioApps.none')}</p>
+              )}
+            </fieldset>
           )}
 
           {showModes && streamModes && (

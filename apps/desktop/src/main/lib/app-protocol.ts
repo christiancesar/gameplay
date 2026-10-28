@@ -3,9 +3,10 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { net, protocol } from 'electron'
 
-import { looksLikeFile, resolveAssetPath } from './asset-path'
-import { APP_HOST, APP_SCHEME, CONTENT_SECURITY_POLICY } from './security'
-import { uploadsUrl } from './uploads-url'
+import { APP_HOST, APP_SCHEME } from '../utils/app-url'
+import { looksLikeFile, resolveAssetPath } from '../utils/asset-path'
+import { CONTENT_SECURITY_POLICY } from '../utils/content-security-policy'
+import { uploadsUrl } from '../utils/uploads-url'
 
 /** Before the app is ready: makes `app://` a scheme like https (fetch, cookies, storage per origin). */
 function registerAppScheme(): void {
