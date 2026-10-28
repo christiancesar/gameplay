@@ -1,4 +1,4 @@
-# Releases the Linux app. Run by hand (Actions > Desktop release > Run workflow) from main: the next 0.0.{x} is the
+# Releases the Linux and Windows apps. Run by hand (Actions > Desktop release > Run workflow) from main: the next 0.0.{x} is the
 # last v0.0.* tag plus one. The number is not committed anywhere: it exists for the build, and the tag the release
 # creates is what the next run reads. See apps/desktop/README.md.
 name: Desktop release
@@ -15,6 +15,8 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     # The variables and the secret of the app live in this environment, which only main can use.
     environment: electron-production
     timeout-minutes: 30
@@ -64,3 +66,53 @@ jobs:
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+  windows:
+    needs: release
+    runs-on: windows-latest
+    environment: electron-production
+    timeout-minutes: 45
+    steps:
+      # Keep build.sh in LF format for Git Bash on the Windows runner.
+      - name: Keep Unix line endings
+        run: git config --global core.autocrlf input
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: msys2/setup-msys2@v2
+        id: msys2
+        with:
+          msystem: UCRT64
+          install: mingw-w64-ucrt-x86_64-gcc
+
+      - name: Put MinGW compiler on PATH
+        run: '"${{ steps.msys2.outputs.msys2-location }}\ucrt64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append'
+
+      - run: npm ci
+      - run: npm run typecheck -w desktop
+      - run: npm test -w desktop
+      - name: Use the release version
+        run: npm pkg set version="${{ needs.release.outputs.version }}" -w desktop
+
+      - name: Make the Windows installer and ZIP
+        run: npm run make -w desktop
+        env:
+          MINGW_CXX: g++
+          VITE_APP_ENV: production
+          VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}
+          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Attach Windows builds to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = "${{ needs.release.outputs.version }}"
+          gh release upload "v$version" "apps/desktop/out/make/squirrel.windows/x64/gameplay-$version Setup.exe" "apps/desktop/out/make/zip/win32/x64/gameplay-win32-x64-$version.zip" --clobber
