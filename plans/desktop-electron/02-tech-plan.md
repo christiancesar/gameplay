@@ -41,7 +41,7 @@
         ├─ preload   (contextBridge: expõe só o contrato do desktop-bridge)
         └─ main      (desktopCapturer, áudio nativo, atalhos, janela, update)
                  ▲
-                 └── packages/desktop-bridge  (canais IPC com zod, usado pelo preload, pelo main e pelo client)
+                 └── packages/desktop-bridge  (canais IPC com zod, usado pelo preload e pelo main; o client só importa tipos)
 ```
 
 ### 3.1 A porta `Platform`
@@ -88,25 +88,26 @@ type Platform = {
 
 ### 3.2 IPC tipado (`packages/desktop-bridge`)
 
-Cada canal tem schema zod de entrada e de saída. O tipo da ponte sai dos schemas.
+*(feito no DESK-06; o que está abaixo é o que existe no código.)* Cada canal tem schema zod de entrada e de saída; o tipo da ponte sai dos schemas.
 
 ```ts
+// packages/desktop-bridge/src/names.ts: só os nomes, para o preload não carregar zod
+export const DESKTOP_CHANNELS = ['server:get-url', 'server:set-url'] as const
+
 // packages/desktop-bridge/src/channels.ts
 export const desktopChannels = {
-  'capture:list-sources': { input: z.object({}), output: z.array(captureSourceSchema) },
-  'capture:select-source': { input: z.object({ sourceId: z.string(), audio: z.boolean() }), output: z.object({ ok: z.boolean() }) },
-  'app:server-url': { input: z.object({}), output: z.object({ url: z.url().nullable() }) },
-} as const
-type Channels = typeof desktopChannels
-export type DesktopBridge = {
-  [K in keyof Channels]: (input: z.input<Channels[K]['input']>) => Promise<z.output<Channels[K]['output']>>
-}
+  'server:get-url': { input: z.undefined(), output: serverOriginSchema.nullable() },
+  'server:set-url': { input: serverOriginSchema, output: z.void() },
+} as const satisfies Record<DesktopChannel, { input: z.ZodType; output: z.ZodType }>
 ```
 
-- **Preload**: `contextBridge.exposeInMainWorld('gameplayDesktop', bridge)`, montado a partir do contrato. Expõe funções, nunca o `ipcRenderer`.
-- **Main**: um helper registra cada `ipcMain.handle` pelo contrato, **valida a entrada com zod** e confere o `senderFrame` (só a janela do app, só o protocolo do app).
-- **Client**: a `DesktopPlatform` chama `window.gameplayDesktop` e importa só tipos do `desktop-bridge`.
+- **Arquivos do pacote:** `names.ts`, `channels.ts` (schemas), `bridge.ts` (`createBridge` e o tipo `DesktopBridge`, uma função por canal, indexada pelo nome do canal: `bridge['server:get-url']()`), `register.ts` (`registerChannels`, do lado do main). Exporta o código-fonte, sem build; o preload importa só `@gameplay/desktop-bridge/bridge`.
+- **`serverOriginSchema`** vem de `@gameplay/contracts` (`isServerOrigin`): exatamente uma origem, `https`, ou `http` só para esta máquina. A tela de escolha do client usa a mesma regra.
+- **Preload** (`src/preload/preload.ts`): `contextBridge.exposeInMainWorld('gameplayDesktop', createBridge(ipcRenderer.invoke))`. Expõe uma função por canal e nada mais, nunca o `ipcRenderer`.
+- **Main:** `registerChannels` registra só os canais do contrato, recusa a chamada que não vem do app (confere o `senderFrame`) e valida a entrada e a resposta com os schemas. O tipo `ChannelHandlers` pede um handler para cada canal do contrato, então um canal sem resposta não compila. Cada módulo de `main/modules/` traz os seus handlers.
+- **Client:** a plataforma do desktop recebe a ponte (`window.gameplayDesktop`); o client só importa tipos.
 - Helper próprio em vez de electron-trpc ou tipc: poucos canais, o mesmo padrão de zod do `contracts`, nenhuma dependência nova.
+- **O que o main faz com o servidor escolhido** (`modules/server`): guarda em `userData/server.json`; o cookie só é reescrito para as respostas dele (`isOnServer`); e `app://gameplay/uploads/*` é buscado nele (as imagens que a API devolve têm URL relativa à página, que no desktop não leva a lugar nenhum).
 
 ### 3.3 Como a captura chega ao WebRTC
 
@@ -192,7 +193,7 @@ gameplay/
 │       │   │   ├── ipc.ts         registra os canais de cada módulo com validação zod
 │       │   │   └── modules/       um diretório por recurso do sistema
 │       │   │       ├── session/   cookie do servidor atravessando entre sites (cookie-policy.ts)
-│       │   │       ├── server/    DESK-06: endereço do servidor escolhido
+│       │   │       ├── server/    o servidor escolhido, num arquivo do userData (handlers, services, providers, test)
 │       │   │       ├── capture/   hoje o handler mínimo do getDisplayMedia; fase 2: desktopCapturer, portal e o seletor do app
 │       │   │       ├── audio/     fase 2: áudio por aplicativo (venmic no Linux, WASAPI no Windows)
 │       │   │       └── hardware/  futuro: CPU, GPU, RAM, aceleração por hardware
