@@ -6,6 +6,7 @@ import { registerIpc } from './lib/ipc'
 import { limitPermissions } from './lib/permissions'
 import { createMainWindow, devServerUrl, rendererRoot } from './lib/window'
 import { createAudioModule } from './modules/audio/audio.module'
+import { createCaptureModule } from './modules/capture/capture.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
 import { captureErrors } from './modules/logging/error-capture'
 import { createLoggingModule } from './modules/logging/logging.module'
@@ -63,13 +64,16 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     const fixedServer = fixedServerFrom(import.meta.env.VITE_APP_ENV, import.meta.env.VITE_SERVER_URL)
     const server = createServerModule(app.getPath('userData'), fixedServer)
     const audio = createAudioModule(process.execPath, logger, telemetry)
+    const capture = createCaptureModule()
     await server.service.load()
 
     serveApp(rendererRoot(), () => server.service.current(), contentSecurityPolicy(fixedServer))
     installCookiePolicy(session.defaultSession, (url) => server.service.isOnServer(url))
     limitPermissions(session.defaultSession, devServerUrl())
-    installDisplayMediaHandler(session.defaultSession, logger)
-    registerIpc(ipcMain, { ...server.handlers, ...audio.handlers }, (url) => isAppUrl(url, devServerUrl()))
+    installDisplayMediaHandler(session.defaultSession, capture.service, logger)
+    registerIpc(ipcMain, { ...server.handlers, ...audio.handlers, ...capture.handlers }, (url) =>
+      isAppUrl(url, devServerUrl()),
+    )
     // The virtual microphone must not outlive the app.
     app.on('before-quit', () => {
       audio.service.stop()

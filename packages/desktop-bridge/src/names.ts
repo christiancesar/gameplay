@@ -6,6 +6,9 @@ export const DESKTOP_CHANNELS = [
   'audio:list-apps',
   'audio:share',
   'audio:stop',
+  'capture:can-list',
+  'capture:list-sources',
+  'capture:select-source',
 ] as const
 
 export type DesktopChannel = (typeof DESKTOP_CHANNELS)[number]
