@@ -21,4 +21,4 @@ Feito na branch `feature/desktop-app` (PR #26), junto com o desktop, a pedido do
 - Cada variável fica no arquivo que a usa; as que mais de um serviço lê ficam no `.env`: `POSTGRES_PASSWORD`, `APP_URL`, `OTEL_DEPLOYMENT_ENVIRONMENT`. *(suposição)* o `OTEL_DEPLOYMENT_ENVIRONMENT` fica no host por alimentar o Grafana e o Sentry do web.
 - *(suposição)* variáveis que o schema não conhece ficam no `.env` do host.
 - Rodar `docker compose` na mão exige os três `--env-file`; está no README.
-- No `apps/desktop/.env` o `SENTRY_PROJECT` veio com o slug do projeto do web. Precisa ser o slug do projeto do Electron para os source maps irem ao projeto certo.
+- `SENTRY_PROJECT` e `SENTRY_PROJECT_ID` do `apps/desktop/.env` são os do projeto do Electron (`gameplay-electron`, `4512331486920704`); os do web seguem em `.env.web` (`gameplay-project-sentry`, `4512302614052864`). A organização é a mesma (`christian-cesar`).
