@@ -2,7 +2,7 @@ import path from 'node:path'
 import { BrowserWindow, nativeImage } from 'electron'
 
 import { lockNavigation } from './security'
-import iconDataUrl from '../../../../packages/client/src/shared/assets/brand/favicon.png?inline'
+import linuxIcon from '../../../../packages/client/src/shared/assets/brand/icons/linux/icon.png?inline'
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined
 declare const MAIN_WINDOW_VITE_NAME: string
@@ -20,8 +20,9 @@ function createMainWindow(): BrowserWindow {
     minHeight: 600,
     title: 'Gameplay',
     backgroundColor: '#0a0a0a',
-    // The same icon as the web: one file, in the client package, for every host.
-    icon: nativeImage.createFromDataURL(iconDataUrl),
+    // Linux has no icon of its own in a package, so the window carries it. Windows and macOS take the one the
+    // package embeds (see forge.config.ts).
+    icon: process.platform === 'linux' ? nativeImage.createFromDataURL(linuxIcon) : undefined,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
