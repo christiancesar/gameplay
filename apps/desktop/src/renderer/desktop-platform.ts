@@ -7,21 +7,29 @@ import {
   type TelemetryConfig,
 } from '@gameplay/client/platform'
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
+import { init as initElectronSentry } from '@sentry/electron/renderer'
 
 /** What the releases of the app are called in Sentry, in the window and in the main process alike. */
 const RELEASE_NAME = 'gameplay-desktop'
 
+type RendererOptions = NonNullable<Parameters<typeof initElectronSentry>[0]>
+
+/** Starts Sentry in the window through the Electron renderer SDK, around the React one. */
+const startSentry = (options: object, frameworkInit: (options: never) => void): void =>
+  initElectronSentry(options as RendererOptions, frameworkInit as (options: RendererOptions) => void)
+
 /**
  * The Sentry project of the app, from the `VITE_*` of `apps/desktop/.env` baked in at build time. It is the
- * developer's own project, whichever server the user picks, so the events go straight to Sentry (the CSP already
- * lets the window connect to https). Faro is the web's: the app has no collector.
+ * developer's own project, whichever server the user picks. Faro is the web's: the app has no collector.
  */
 function telemetryFromBuild(env: ImportMetaEnv): TelemetryConfig {
   return {
     app: 'desktop',
     environment: env.VITE_SENTRY_ENVIRONMENT || env.MODE,
     release: `${RELEASE_NAME}@${env.VITE_APP_VERSION}`,
-    sentry: env.VITE_SENTRY_DSN ? { dsn: env.VITE_SENTRY_DSN } : null,
+    // The window's events go through the main process, which holds the DSN: the Electron renderer SDK wraps the
+    // React one, as the documentation of Sentry for Electron says.
+    sentry: env.VITE_SENTRY_DSN ? { dsn: env.VITE_SENTRY_DSN, start: startSentry } : null,
     faro: null,
   }
 }

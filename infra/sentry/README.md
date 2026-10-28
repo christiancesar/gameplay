@@ -7,7 +7,7 @@ O que o Gameplay manda ao Sentry, e como montar o painel de qualidade de chamada
 | Projeto | Quem envia | Como o DSN chega |
 |---|---|---|
 | o do web (`gameplay-project-sentry`) | o navegador, pelo tunnel `/monitoring/sentry` do nginx | `VITE_SENTRY_DSN` em `infra/self-hosted/.env.web` (e `infra/production/.env`) |
-| o do Electron | o app desktop: a janela, direto ao Sentry, e o main process | `VITE_SENTRY_DSN` em `apps/desktop/.env` |
+| o do Electron (`gameplay-electron`) | o app desktop: o main process envia ao Sentry, e a janela manda o que vê **pelo main** (IPC, como na documentação do Sentry para Electron) | `VITE_SENTRY_DSN` em `apps/desktop/.env` |
 
 Todo evento, log e métrica leva a tag (ou atributo) `app`: `web` ou `desktop`. O `environment` diz onde rodou (`development`, `production`, `host`) e não carrega o app. Para ver o desktop em produção: `environment:production app:desktop`.
 
@@ -21,6 +21,14 @@ Todo evento, log e métrica leva a tag (ou atributo) `app`: `web` ou `desktop`. 
 | Métricas | `webrtc.*` e `screen_share_start.*` | idem | `audio_share.linked` (o áudio de aplicativos ligou ou não, por modo) |
 
 O SDK do Electron suportaria mais no main (spans de IPC, de rede e de arquivos). Por enquanto só entra o que responde a uma pergunta: a abertura do app e se o áudio de aplicativos ligou. Dá para acrescentar quando surgir a dúvida.
+
+### Como a janela do desktop fala com o Sentry
+
+Segue o guia do Sentry para Electron: o SDK da janela (`@sentry/electron/renderer`, em volta do `@sentry/react`) não envia nada pela rede. Eventos, escopo e breadcrumbs vão por IPC ao main, que junta o contexto de todos os processos e é quem fala com o Sentry (com fila em disco quando está offline). O bundle do main não consegue injetar o script de preload sozinho, então o `preload.ts` do app importa `@sentry/electron/preload`. A janela não leva o DSN. As duas pontas precisam estar na mesma versão do SDK (`@sentry/react` fica fixo em `11.8.0`, a que o `@sentry/electron` 8.3 exige).
+
+### Crash nativo
+
+O SDK ativa o `crashReporter` do Electron: um crash do main, da janela ou de um processo filho gera um minidump que sobe quando o app reabre (ou na hora, se foi a janela). Para os stack traces terem nomes de função e não endereços, ligue o servidor de símbolos do Electron: no Sentry, **Project Settings > Debug Files > Built-in Repositories > Electron** (no projeto `gameplay-electron`). Minidumps não são guardados pelo Sentry por padrão.
 
 As chamadas `/api` levam os cabeçalhos `sentry-trace` e `baggage`, e `traceparent` quando o Faro está desligado, então a API (OTel, no Grafana Tempo) continua o trace do navegador.
 

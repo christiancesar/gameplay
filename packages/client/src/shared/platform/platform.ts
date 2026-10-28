@@ -60,8 +60,16 @@ type TelemetryConfig = {
   /** Where it runs: `development`, `production`, `host`. Not the app, which has its own tag. */
   environment: string
   release: string
-  /** Absent: Sentry stays off. `tunnel` is a path of the server (the web) or a full URL. */
-  sentry: { dsn: string; tunnel?: string } | null
+  /**
+   * Absent: Sentry stays off. `tunnel` is a path of the server (the web) or a full URL. `start` is how a host
+   * whose SDK wraps the framework one starts it (the desktop app: the Electron renderer SDK, which sends through
+   * the main process); without it the client starts Sentry itself.
+   */
+  sentry: {
+    dsn: string
+    tunnel?: string
+    start?: (options: object, frameworkInit: (options: never) => void) => void
+  } | null
   /** Absent: Grafana Faro stays off. A path of the server (the tunnel) or a full URL. */
   faro: { url: string } | null
 }

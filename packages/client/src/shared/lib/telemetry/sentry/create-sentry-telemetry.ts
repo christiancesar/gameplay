@@ -9,7 +9,10 @@ import { SentryTelemetry } from './sentry.telemetry'
 /** Starts Sentry, tagged with the app that sends; null (and nothing started) without a DSN. */
 function createSentryTelemetry(config: TelemetryConfig, serverUrl: string, router: unknown): Telemetry | null {
   if (!config.sentry) return null
-  Sentry.init(sentryOptions(config, serverUrl, router))
+  const options = sentryOptions(config, serverUrl, router)
+  // A host with its own SDK around this one (Electron) starts it, handing over the framework's init.
+  if (config.sentry.start) config.sentry.start(options, Sentry.init as (options: never) => void)
+  else Sentry.init(options)
   return new SentryTelemetry(Sentry, config.app)
 }
 

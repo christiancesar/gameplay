@@ -21,7 +21,7 @@ describe('telemetryFromBuild', () => {
       env({ VITE_SENTRY_DSN: 'https://key@o1.ingest.sentry.io/2', VITE_SENTRY_ENVIRONMENT: 'development' }),
     )
 
-    expect(telemetry.sentry).toEqual({ dsn: 'https://key@o1.ingest.sentry.io/2' })
+    expect(telemetry.sentry).toEqual({ dsn: 'https://key@o1.ingest.sentry.io/2', start: expect.any(Function) })
     expect(telemetry.environment).toBe('development')
     expect(telemetry.faro).toBeNull()
   })
