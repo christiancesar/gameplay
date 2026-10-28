@@ -48,10 +48,10 @@ No Sentry da organização: Dashboards > Create Dashboard > Add Widget, fonte **
 
 Os painéis ficam na interface do Sentry (a API de dashboards pede um token com permissões que o token de organização do build não tem), por isso este arquivo guarda a receita e não o JSON.
 
-## Trocar o Faro de vez
+## Faro
 
-O web ainda manda ao Faro e ao Sentry ao mesmo tempo (o `CompositeTelemetry`), para comparar os números lado a lado. Quando o painel acima bater com o do Grafana por alguns dias:
+O Faro está **desligado por configuração**: `FARO_COLLECTOR_URL` está vazio em `infra/self-hosted/.env.web` e em `infra/production/.env`, então o web não inicia o Faro e o Sentry manda o `traceparent` sozinho. Nada foi removido do código: o `FaroTelemetry`, o `create-faro-telemetry`, o tunnel `/monitoring/faro` do nginx e o dashboard `media.json` continuam no repositório.
 
-1. Esvazie `FARO_COLLECTOR_URL` em `infra/self-hosted/.env.web` (e em `infra/production/.env`) e rebuilde o web (`npm run host:start`). O Faro sai do build; o Sentry passa a mandar o `traceparent` sozinho.
-2. Arquive `infra/grafana/dashboards/media.json` e a linha do Faro em `infra/grafana/README.md`.
-3. Se quiser tirar o resto: o location `/monitoring/faro` do `nginx.conf` e o `FaroTelemetry` (`packages/client/src/shared/lib/telemetry/faro/`). O provedor pode ficar no código, desligado, para voltar um dia.
+Para voltar, preencha `FARO_COLLECTOR_URL` (a URL do coletor, no Grafana Cloud > Frontend Observability) e rebuilde o web (`npm run host:start`). Os dois destinos passam a receber ao mesmo tempo, e o Sentry deixa de mandar o `traceparent` para não duplicar o cabeçalho.
+
+Peso: o código do Faro entra no bundle mesmo desligado, cerca de 210 kB a mais (67 kB comprimido). Se isso incomodar, dá para tirar o `create-faro-telemetry` do `create-telemetry.ts` e as dependências `@grafana/faro-*` sem mexer em mais nada.

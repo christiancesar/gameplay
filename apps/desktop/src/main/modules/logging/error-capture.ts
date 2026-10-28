@@ -1,6 +1,12 @@
 import type { App, WebContents } from 'electron'
 
 import type { Logger } from './logger'
+import { RateLimiter } from './rate-limiter'
+
+// A page in an error loop is logged this much, and no more (per window).
+const CONSOLE_LIMIT = 30
+const CONSOLE_WINDOW_MS = 60_000
+const MAX_MESSAGE_LENGTH = 2000
 
 /**
  * Electron has central places for what goes wrong, so nothing needs a try/catch just to be seen: the main process
@@ -38,14 +44,19 @@ const ERR_ABORTED = -3
 
 /** One window: its console (warnings and errors, the rest as debug), failed loads and a page that stopped answering. */
 export function captureContents(logger: Logger, contents: WebContents): void {
+  const flood = new RateLimiter(CONSOLE_LIMIT, CONSOLE_WINDOW_MS)
   contents.on('console-message', (event) => {
     const { level, message, lineNumber, sourceId } = event
     // The DevTools talk to themselves; none of it is the app's.
     if (sourceId.startsWith('devtools://')) return
-    const data = { source: sourceId, line: lineNumber, message }
+    if (level !== 'error' && level !== 'warning')
+      return logger.debug({ source: sourceId, line: lineNumber, message }, 'Renderer console')
+    if (!flood.allow()) return
+    const dropped = flood.takeSuppressed()
+    if (dropped > 0) logger.warn({ dropped }, 'Renderer console messages dropped, the page logs too fast')
+    const data = { source: sourceId, line: lineNumber, message: message.slice(0, MAX_MESSAGE_LENGTH) }
     if (level === 'error') logger.error(data, 'Renderer console error')
-    else if (level === 'warning') logger.warn(data, 'Renderer console warning')
-    else logger.debug(data, 'Renderer console')
+    else logger.warn(data, 'Renderer console warning')
   })
   contents.on('did-fail-load', (_event, errorCode, errorDescription, url, isMainFrame) => {
     // A navigation the app cancelled itself (the locked navigation) is not a failure.

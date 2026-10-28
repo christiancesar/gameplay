@@ -26,3 +26,11 @@ Source maps do desktop (DESK-10). Opt-out nas configurações.
 - Verificado com o app empacotado contra um servidor local: chegaram o log de início, a sessão e os eventos de processo filho do Chromium (`'GPU' process exited`, porque o teste foi num Xvfb sem GPU).
 - Ajustes no log local: `render-process-gone` com `clean-exit` (janela fechada normalmente) deixou de ser erro, e o ruído de `devtools://` saiu.
 - Fora do escopo e pendente: source maps do main e do renderer (DESK-10). O slug do projeto (`gameplay-electron`) já está no `apps/desktop/.env`. Não testado: um crash nativo de verdade (minidump).
+
+### Controle do tamanho do log local (2026-10-28)
+
+Pedido do usuário: o `main.log` não pode crescer sem controle. Antes, a rotação só acontecia na abertura do app, então uma sessão longa ou um erro em laço podia encher o disco. Agora:
+- `RotatingFileStream` troca o arquivo durante a execução: ao passar de 5 MB, `main.log` vira `.1` e os mais velhos sobem, ficando 3 anteriores. O teto em disco é de cerca de 20 MB, faça o app o que fizer. Cada linha é gravada na hora (nenhuma se perde num crash). Um spec grava uns 40 MB e confere o teto.
+- O arquivo recebe só `info` para cima (o `debug` do console do renderer não chega a ele).
+- `RateLimiter`: no máximo 30 erros ou avisos do console por minuto e por janela; o resto é descartado, e o log diz quantos ficaram de fora. Mensagens passam a ser cortadas em 2000 caracteres.
+- O mesmo limite vale para o que sobe ao Sentry como log, que sai do mesmo fluxo.

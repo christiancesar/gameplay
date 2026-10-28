@@ -4,7 +4,9 @@ import pino from 'pino'
 
 import { rotateLog } from '../../utils/rotate-log'
 import type { Logger } from './logger'
+import { RotatingFileStream } from './rotating-file-stream'
 
+// About 20 MB at most on disk: the file being written and `KEEP` older ones.
 const MAX_BYTES = 5 * 1024 * 1024
 const KEEP = 3
 
@@ -18,8 +20,9 @@ type Options = {
 }
 
 /**
- * The log of the main process: one JSON line per event in `main.log`, asynchronous and without a worker thread
- * (a pino transport would need extra files in the bundle). The renderer's warnings and errors arrive here too.
+ * The log of the main process: one JSON line per event in `main.log`, from info up, without a worker thread (a pino
+ * transport would need extra files in the bundle). The file stays inside a size (`RotatingFileStream`), so the log
+ * never grows without limit. The renderer's warnings and errors arrive here too.
  * A log that cannot be opened must never stop the app, so it falls back to a logger that writes nothing.
  */
 export function createLoggingModule({ dir, echo, extraStreams = [] }: Options): { logger: Logger; file: string } {
@@ -27,8 +30,10 @@ export function createLoggingModule({ dir, echo, extraStreams = [] }: Options): 
   try {
     fs.mkdirSync(dir, { recursive: true })
     rotateLog(file, { maxBytes: MAX_BYTES, keep: KEEP })
-    const streams: pino.StreamEntry[] = [{ stream: pino.destination({ dest: file, sync: false }) }]
-    if (echo) streams.push({ stream: process.stderr })
+    const streams: pino.StreamEntry[] = [
+      { level: 'info', stream: new RotatingFileStream(file, { maxBytes: MAX_BYTES, keep: KEEP }) },
+    ]
+    if (echo) streams.push({ level: 'debug', stream: process.stderr })
     streams.push(...extraStreams)
     const logger = pino(
       {

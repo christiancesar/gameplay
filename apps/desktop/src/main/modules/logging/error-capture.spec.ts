@@ -81,6 +81,34 @@ describe('captureContents', () => {
     expect(logger.entries[0]?.data).toEqual({ source: 'app://gameplay/a.js', line: 7, message: 'TypeError: x' })
   })
 
+  it('stops logging a page that errors in a loop, and says how many it dropped', () => {
+    const logger = new FakeLogger()
+    const window = contents()
+    captureContents(logger, window as unknown as WebContents)
+    const fail = () =>
+      window.emit('console-message', {
+        level: 'error',
+        message: 'loop',
+        lineNumber: 1,
+        sourceId: 'app://gameplay/a.js',
+      })
+
+    for (let index = 0; index < 100; index++) fail()
+
+    expect(logger.entries).toHaveLength(30)
+    expect(logger.entries.every((entry) => entry.message === 'Renderer console error')).toBe(true)
+  })
+
+  it('cuts a very long console message', () => {
+    const logger = new FakeLogger()
+    const window = contents()
+    captureContents(logger, window as unknown as WebContents)
+
+    window.emit('console-message', { level: 'error', message: 'x'.repeat(50_000), lineNumber: 1, sourceId: 'a.js' })
+
+    expect(logger.entries[0]?.data).toMatchObject({ message: 'x'.repeat(2000) })
+  })
+
   it('leaves out what the DevTools say about themselves', () => {
     const logger = new FakeLogger()
     const window = contents()
