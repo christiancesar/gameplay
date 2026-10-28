@@ -29,12 +29,11 @@ O `monitoring` atual (`createMonitoring`) é a base: ele já separa as ViewModel
 - **Métricas:** `Sentry.metrics` (distribution e gauge), mapeando `Telemetry.measure`. As medições de WebRTC (a cada 30 s) e de início de transmissão viram métricas com atributos.
 - **Tunnel:** o `/monitoring/sentry` do nginx já repassa envelopes; logs e métricas viajam no mesmo envelope.
 
-## 3. Configuração em tempo de execução (servidor)
+## 3. Configuração
 
-Endpoint público `GET /api/monitoring/config`: `{ provider: 'sentry' | 'faro', dsn?, environment, release, tunnel } | null`, montado das envs que o host já tem (`SENTRY_DSN`, `SENTRY_ENVELOPE_URL`, `FARO_COLLECTOR_URL`). O DSN do Sentry é público por desenho.
-
-- **Web:** continua com `VITE_*` no build (mesma origem), ou lê o endpoint; decidir no TEL-03.
-- **Desktop:** `Platform.server` lê o endpoint depois de escolher o servidor e inicia a telemetria com isso. Sem endpoint ou com `null`, `NoopTelemetry`.
+- **Web:** `VITE_*` no build, como hoje, para o projeto `gameplay-project-sentry`.
+- **Desktop (main e renderer):** DSN do **projeto próprio do Electron**, fixo no build (o DSN é público por desenho), via `SENTRY_DSN` do `apps/desktop`. Não depende do servidor escolhido, então a ideia de um endpoint `GET /api/monitoring/config` por servidor deixa de ser necessária para o Sentry. O renderer manda direto para o ingest do Sentry (o CSP do app ganha esse host em `connect-src`), sem o tunnel do nginx.
+- `environment` e `release` do desktop: versão do app e `packaged` ou `development`.
 
 ## 4. Main process do Electron
 
@@ -43,7 +42,7 @@ Endpoint público `GET /api/monitoring/config`: `{ provider: 'sentry' | 'faro', 
 - os logs do pino que valem (warn, error e os eventos de áudio e captura) vão como Sentry Logs, em vez de um segundo destino;
 - o `main.log` local continua, como cópia quando está offline.
 
-O DSN vem do mesmo endpoint de configuração. Do main não há bloqueador de anúncios, então ele envia direto ao Sentry. Identificação: `userId` só quando houver sessão, senão um id anônimo da instalação. Sem conteúdo de áudio nem de console além de aviso e erro.
+O DSN é o do projeto do Electron (seção 3). Do main não há bloqueador de anúncios, então ele envia direto ao Sentry. Identificação: `userId` só quando houver sessão, senão um id anônimo da instalação. Sem conteúdo de áudio nem de console além de aviso e erro.
 
 ## 5. O que muda no resto
 
