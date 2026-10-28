@@ -927,6 +927,7 @@
     "placeholder": "play.example.com",
     "hint": "The address you were given. Use https, or localhost for a server on this machine.",
     "submit": "Connect",
+    "diagnostics": "To fix problems, this app sends error reports to its developer. They carry no messages, audio or passwords.",
     "errors": {
       "required": "Enter the address of the server.",
       "invalid": "Enter a valid address, such as play.example.com.",

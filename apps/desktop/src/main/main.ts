@@ -8,6 +8,8 @@ import { createAudioModule } from './modules/audio/audio.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
 import { captureErrors } from './modules/logging/error-capture'
 import { createLoggingModule } from './modules/logging/logging.module'
+import { pinoTelemetryStream } from './modules/telemetry/pino-telemetry-stream'
+import { createTelemetryModule } from './modules/telemetry/telemetry.module'
 import { installCookiePolicy } from './modules/session/cookie-policy'
 import { createServerModule } from './modules/server/server.module'
 import { isAppUrl } from './utils/app-url'
@@ -18,7 +20,18 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
   // Only the instance that stays opens the log: a second one quits at once and must not rotate it.
-  const { logger, file: logFile } = createLoggingModule({ dir: app.getPath('logs'), echo: !app.isPackaged })
+  // Sentry starts first, so what goes wrong while the app starts is seen. Without a DSN in the build it reports nowhere.
+  const telemetry = createTelemetryModule({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.VITE_SENTRY_ENVIRONMENT || (app.isPackaged ? 'production' : 'development'),
+    release: `gameplay-desktop@${app.getVersion()}`,
+  })
+  const { logger, file: logFile } = createLoggingModule({
+    dir: app.getPath('logs'),
+    echo: !app.isPackaged,
+    // The local log also goes to Sentry as logs, from info up.
+    extraStreams: [{ level: 'info', stream: pinoTelemetryStream(telemetry) }],
+  })
   captureErrors(logger, { app, proc: process })
   logger.info(
     {
@@ -54,6 +67,7 @@ if (!app.requestSingleInstanceLock()) {
     app.on('before-quit', () => {
       audio.service.stop()
       logger.info('Gameplay closing')
+      void telemetry.flush(2000)
     })
     createMainWindow()
 

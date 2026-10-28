@@ -8,7 +8,7 @@ type ServerChoiceError = 'invalid' | 'unreachable' | 'notGameplay'
 
 /** First screen of a host where the user picks the server: checks the address, keeps it and moves on. */
 function useServerChoiceViewModel({ onChosen }: { onChosen: () => void }) {
-  const { server } = usePlatform()
+  const { server, telemetry } = usePlatform()
   const check = useMutation({
     mutationFn: async (address: string): Promise<{ origin: string } | { error: ServerChoiceError }> => {
       const origin = normalizeServerAddress(address)
@@ -26,6 +26,8 @@ function useServerChoiceViewModel({ onChosen }: { onChosen: () => void }) {
   return {
     defaultValue: server.chooser?.current() ?? '',
     isChecking: check.isPending,
+    // The app tells people that error reports leave the machine, when they do.
+    sharesDiagnostics: telemetry.sentry !== null,
     error: check.data && 'error' in check.data ? check.data.error : undefined,
     onSubmit: (address: string) => check.mutate(address),
   }

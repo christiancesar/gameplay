@@ -20,6 +20,7 @@
     "@gameplay/client": "*",
     "@gameplay/contracts": "*",
     "@gameplay/desktop-bridge": "*",
+    "@sentry/electron": "^8.3.0",
     "pino": "^10.4.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

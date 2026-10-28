@@ -29,6 +29,13 @@ export const Empty: Story = {}
 
 export const Remembered: Story = { args: { defaultValue: 'https://play.example.com' } }
 
+export const WithDiagnosticsNotice: Story = {
+  args: { sharesDiagnostics: true },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/error reports/i)).toBeVisible()
+  },
+}
+
 export const Checking: Story = {
   args: { defaultValue: 'play.example.com', isChecking: true },
   play: async ({ canvas }) => {

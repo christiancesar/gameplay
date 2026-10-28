@@ -13,6 +13,8 @@ type ServerChoiceViewProps = Omit<AuthLayoutViewProps, 'children'> & {
   /** O servidor escolhido antes, se houver. */
   defaultValue?: string
   isChecking: boolean
+  /** O app envia relatórios de erro ao desenvolvedor: a tela avisa. */
+  sharesDiagnostics?: boolean
   /** O que o servidor respondeu: não é um endereço, não atendeu, ou não é um Gameplay. */
   error?: 'invalid' | 'unreachable' | 'notGameplay'
   /** Chamado só com um endereço que passou no schema. */
@@ -20,7 +22,14 @@ type ServerChoiceViewProps = Omit<AuthLayoutViewProps, 'children'> & {
 }
 
 /** Primeira tela do app desktop: de qual servidor Gameplay a conta é. */
-function ServerChoiceView({ defaultValue = '', isChecking, error, onSubmit, ...layout }: ServerChoiceViewProps) {
+function ServerChoiceView({
+  defaultValue = '',
+  isChecking,
+  sharesDiagnostics = false,
+  error,
+  onSubmit,
+  ...layout
+}: ServerChoiceViewProps) {
   const { t } = useTranslation()
   const form = useForm<ServerAddressValues>({
     resolver: zodResolver(serverAddressSchema),
@@ -67,6 +76,9 @@ function ServerChoiceView({ defaultValue = '', isChecking, error, onSubmit, ...l
           />
         </FieldGroup>
         <SubmitButton isSubmitting={isChecking} label={t('serverChoice.submit')} />
+        {sharesDiagnostics ? (
+          <p className="text-muted-foreground text-center text-xs">{t('serverChoice.diagnostics')}</p>
+        ) : null}
       </form>
     </AuthLayoutView>
   )

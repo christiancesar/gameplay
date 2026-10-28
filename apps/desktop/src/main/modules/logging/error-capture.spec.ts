@@ -28,6 +28,16 @@ describe('captureErrors', () => {
     expect(logger.entries[2]?.data).toMatchObject({ reason: 'crashed', exitCode: 11, url: 'app://gameplay/' })
   })
 
+  it('does not call a window that closed normally a failure', () => {
+    const logger = new FakeLogger()
+    const app = new EventEmitter()
+    captureErrors(logger, { app: app as unknown as App, proc: new EventEmitter() as unknown as NodeJS.Process })
+
+    app.emit('render-process-gone', {}, contents(), { reason: 'clean-exit', exitCode: 0 })
+
+    expect(logger.entries.map((entry) => entry.level)).toEqual(['debug'])
+  })
+
   it('does not call the helpers that stop while the app quits a failure', () => {
     const logger = new FakeLogger()
     const app = new EventEmitter()
@@ -69,6 +79,21 @@ describe('captureContents', () => {
 
     expect(logger.entries.map((entry) => entry.level)).toEqual(['error', 'warn', 'debug'])
     expect(logger.entries[0]?.data).toEqual({ source: 'app://gameplay/a.js', line: 7, message: 'TypeError: x' })
+  })
+
+  it('leaves out what the DevTools say about themselves', () => {
+    const logger = new FakeLogger()
+    const window = contents()
+    captureContents(logger, window as unknown as WebContents)
+
+    window.emit('console-message', {
+      level: 'error',
+      message: 'Autofill.enable failed',
+      lineNumber: 1,
+      sourceId: 'devtools://devtools/bundled/core.js',
+    })
+
+    expect(logger.entries).toEqual([])
   })
 
   it('logs a page that failed to load, but not a navigation the app cancelled', () => {

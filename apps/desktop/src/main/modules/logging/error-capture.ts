@@ -17,12 +17,12 @@ export function captureErrors(logger: Logger, { app, proc }: { app: App; proc: N
   )
   proc.on('warning', (warning) => logger.warn({ err: warning }, 'Node warning'))
 
-  app.on('render-process-gone', (_event, contents, details) =>
-    logger.error(
-      { reason: details.reason, exitCode: details.exitCode, url: contents.getURL() },
-      'Renderer process gone',
-    ),
-  )
+  app.on('render-process-gone', (_event, contents, details) => {
+    const data = { reason: details.reason, exitCode: details.exitCode, url: contents.getURL() }
+    // A window that closes normally goes through here too.
+    if (details.reason === 'clean-exit') logger.debug(data, 'Renderer process ended')
+    else logger.error(data, 'Renderer process gone')
+  })
   // On the way out Chromium stops its own helpers, which is not a failure.
   let quitting = false
   app.on('before-quit', () => (quitting = true))
@@ -40,6 +40,8 @@ const ERR_ABORTED = -3
 export function captureContents(logger: Logger, contents: WebContents): void {
   contents.on('console-message', (event) => {
     const { level, message, lineNumber, sourceId } = event
+    // The DevTools talk to themselves; none of it is the app's.
+    if (sourceId.startsWith('devtools://')) return
     const data = { source: sourceId, line: lineNumber, message }
     if (level === 'error') logger.error(data, 'Renderer console error')
     else if (level === 'warning') logger.warn(data, 'Renderer console warning')

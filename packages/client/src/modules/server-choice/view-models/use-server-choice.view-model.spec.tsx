@@ -6,13 +6,13 @@ vi.mock('@/modules/server-choice/model/services/server-health.service', () => ({
 
 import { checkServer } from '@/modules/server-choice/model/services/server-health.service'
 import { PlatformProvider } from '@/shared/platform/platform-provider'
-import { FakePlatform } from '@/shared/platform/test/fake-platform'
+import { FakePlatform, type FakePlatformOptions } from '@/shared/platform/test/fake-platform'
 import { createQueryClientContext } from '@/shared/test/query-client-context'
 
 import { useServerChoiceViewModel } from './use-server-choice.view-model'
 
-function setup() {
-  const platform = new FakePlatform({ kind: 'desktop', serverChoice: { chosen: null } })
+function setup(telemetry: FakePlatformOptions['telemetry'] = {}) {
+  const platform = new FakePlatform({ kind: 'desktop', serverChoice: { chosen: null }, telemetry })
   const onChosen = vi.fn()
   const { wrapper: queryWrapper } = createQueryClientContext()
   const wrapper = ({ children }: { children: ReactNode }) =>
@@ -23,6 +23,11 @@ function setup() {
 
 describe('useServerChoiceViewModel', () => {
   beforeEach(() => vi.clearAllMocks())
+
+  it('tells that error reports leave the machine only when they do', () => {
+    expect(setup().result.current.sharesDiagnostics).toBe(false)
+    expect(setup({ sentry: { dsn: 'https://key@o1.ingest.sentry.io/2' } }).result.current.sharesDiagnostics).toBe(true)
+  })
 
   it('keeps the origin it checked and moves on', async () => {
     vi.mocked(checkServer).mockResolvedValue('ok')
