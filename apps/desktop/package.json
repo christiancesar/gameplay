@@ -10,7 +10,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json",
+    "typecheck": "tsc -b",
     "lint": "oxlint",
     "test": "vitest run --passWithNoTests",
     "format": "oxfmt",
@@ -43,6 +43,9 @@
     "typescript": "~6.0.3",
     "vite": "^8.3.4",
     "vitest": "^4.1.10"
+  },
+  "optionalDependencies": {
+    "@vencord/venmic": "^7.2.3"
   },
   "productName": "Gameplay"
 }

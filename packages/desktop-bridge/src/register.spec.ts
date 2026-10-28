@@ -11,6 +11,10 @@ function setup(isTrustedPage = (url: string) => url.startsWith('app://gameplay/'
   const handlers = {
     'server:get-url': vi.fn(() => 'https://play.example.com' as string | null),
     'server:set-url': vi.fn(async () => undefined),
+    'audio:available': vi.fn(() => true),
+    'audio:list-apps': vi.fn((): { name: string; binary: string | null }[] => [{ name: 'Spotify', binary: 'spotify' }]),
+    'audio:share': vi.fn(async () => true),
+    'audio:stop': vi.fn(() => undefined),
   } satisfies ChannelHandlers
   registerChannels(ipc, handlers, isTrustedPage)
   const call = (channel: string, input?: unknown, page: string | null = 'app://gameplay/') =>
@@ -56,5 +60,25 @@ describe('registerChannels', () => {
     handlers['server:get-url'].mockReturnValue('http://play.example.com')
 
     await expect(call('server:get-url')).rejects.toThrow()
+  })
+
+  it('takes a share of named applications or of the system, and nothing else', async () => {
+    const { call, handlers } = setup()
+
+    expect(await call('audio:share', { mode: 'apps', apps: ['Spotify'] })).toBe(true)
+    expect(await call('audio:share', { mode: 'system' })).toBe(true)
+    await expect(call('audio:share', { mode: 'apps', apps: [] })).rejects.toThrow()
+    await expect(call('audio:share', { mode: 'everything' })).rejects.toThrow()
+    await expect(call('audio:share', { mode: 'apps', apps: [''] })).rejects.toThrow()
+
+    expect(handlers['audio:share']).toHaveBeenCalledTimes(2)
+  })
+
+  it('answers the list of applications and checks what it holds', async () => {
+    const { call, handlers } = setup()
+
+    expect(await call('audio:list-apps')).toEqual([{ name: 'Spotify', binary: 'spotify' }])
+    handlers['audio:list-apps'].mockReturnValue([{ name: '', binary: null }])
+    await expect(call('audio:list-apps')).rejects.toThrow()
   })
 })
