@@ -1,4 +1,5 @@
 import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
+import type { DiagnosticEvent } from '@gameplay/contracts'
 
 /** A screen or a window the host can capture, with a preview, for hosts that list them (the desktop app). */
 type CaptureSource = {
@@ -84,6 +85,11 @@ type TelemetryConfig = {
   faro: { url: string } | null
 }
 
+type DiagnosticsPort = {
+  enabled: boolean
+  record: (event: DiagnosticEvent) => void
+}
+
 /**
  * The host the front-end runs in. The web and the desktop app each inject their own, so ViewModels never import
  * a browser API or Electron to capture a screen.
@@ -101,6 +107,16 @@ type Platform = {
   }
   server: PlatformServer
   telemetry: TelemetryConfig
+  diagnostics: DiagnosticsPort
 }
 
-export type { AudioApp, CaptureRequest, CaptureSource, Platform, PlatformCapabilities, PlatformServer, TelemetryConfig }
+export type {
+  AudioApp,
+  CaptureRequest,
+  CaptureSource,
+  DiagnosticsPort,
+  Platform,
+  PlatformCapabilities,
+  PlatformServer,
+  TelemetryConfig,
+}

@@ -10,6 +10,7 @@ import { createMainWindow, devServerUrl, rendererRoot } from './lib/window'
 import { createAudioModule } from './modules/audio/audio.module'
 import { createCaptureModule } from './modules/capture/capture.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
+import { createDiagnosticsModule } from './modules/diagnostics/diagnostics.module'
 import { captureErrors } from './modules/logging/error-capture'
 import { createLoggingModule } from './modules/logging/logging.module'
 import { pinoTelemetryStream } from './modules/telemetry/pino-telemetry-stream'
@@ -44,6 +45,7 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
   registerAppScheme()
   // Keep the bounded local Pino file for the context before a failure. Detailed renderer diagnostics remain opt-in.
   const diagnosticLoggingEnabled = import.meta.env.VITE_APP_ENV !== 'production'
+  const diagnostics = createDiagnosticsModule({ enabled: diagnosticLoggingEnabled })
   const { logger, file: logFile } = createLoggingModule({
     enabled: true,
     dir: app.getPath('logs'),
@@ -95,7 +97,13 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     installDisplayMediaHandler(session.defaultSession, capture.service, logger)
     registerIpc(
       ipcMain,
-      { ...server.handlers, ...audio.handlers, ...capture.handlers, ...systemAudio.handlers },
+      {
+        ...server.handlers,
+        ...audio.handlers,
+        ...capture.handlers,
+        ...systemAudio.handlers,
+        ...diagnostics.handlers,
+      },
       (url) => isAppUrl(url, devServerUrl()),
     )
     // The virtual microphone must not outlive the app.

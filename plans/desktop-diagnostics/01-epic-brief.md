@@ -6,7 +6,7 @@
 
 Durante a análise da transmissão ultrawide, foram introduzidos pontos de `console.warn` dentro do serviço de compartilhamento. Eles ajudaram a verificar captura e SFU, mas misturam a lógica da transmissão com o formato e o destino do diagnóstico. Ao mesmo tempo, o `main` já possui um logger, captura central de erros e telemetria. Hoje não existe uma única interface para consultar de forma estruturada o que ocorreu numa tentativa de compartilhamento.
 
-Além disso, a condição de desenvolvimento protege CDP, DevTools e os avisos de `screen-share-debug.ts`, mas não desliga o arquivo `main.log` nem o encaminhamento dos logs do `main` em produção. O usuário decidiu que a próxima versão de produção não deve gerar logs.
+Além disso, a condição de desenvolvimento protege CDP, DevTools e os diagnósticos detalhados de screen share. A produção mantém somente o `main.log` mínimo e local, sem console detalhado do renderer ou encaminhamento de logs ao Sentry.
 
 ## Resultado esperado
 

@@ -50,6 +50,9 @@ describe('ShareSession', () => {
         source: { height: 1080, fps: 60 },
         preview: { stream: ctx.capture.stream, surface: 'unknown' },
       })
+      expect(ctx.diagnostics.record).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'share.capture.started', attemptId: expect.any(String) }),
+      )
     })
 
     it('clears the preview when the share stops', async () => {
@@ -71,6 +74,9 @@ describe('ShareSession', () => {
       await goLive()
       expect(ctx.store.state).toMatchObject({ status: 'idle', notice: null })
       expect(ctx.realtime.startStream).not.toHaveBeenCalled()
+      expect(ctx.diagnostics.record).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'share.capture.rejected', data: { reason: 'cancelled' } }),
+      )
     })
 
     it('says why when the browser cannot capture', async () => {
@@ -80,6 +86,9 @@ describe('ShareSession', () => {
       ctx.picker.answer = 'fail'
       await goLive()
       expect(ctx.store.state.notice).toBe('failed')
+      expect(ctx.diagnostics.record).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'share.capture.rejected', data: { reason: 'failed' } }),
+      )
     })
 
     it('warns when audio was asked and the browser gave none, and reports it', async () => {

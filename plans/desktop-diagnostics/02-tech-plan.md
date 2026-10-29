@@ -1,6 +1,6 @@
 # 02 · Tech Plan: diagnóstico modular do desktop
 
-> Base: `00-requirements.md` e `01-epic-brief.md`. Tickets em `tickets/`. Nenhuma implementação iniciada.
+> Base: `00-requirements.md` e `01-epic-brief.md`. Tickets em `tickets/`. DIAG-01 e DIAG-02 já foram implementados na branch de diagnóstico.
 
 ## Arquitetura proposta
 
@@ -71,7 +71,7 @@ Os argumentos devem rejeitar portas inválidas, colisões detectáveis e combina
 
 ## Política de produção e custo
 
-Antes do próximo build de produção, executar o ticket DIAG-01. Hoje `logging.module.ts` sempre abre arquivo e `main.ts` encaminha linhas `info+` ao Sentry quando configurado. A proteção de `screen-share-debug.ts` é runtime, então ainda há importações e chamadas no código empacotado, mesmo quando elas não emitem mensagens. A implementação futura deve evitar coleta, serialização e I/O quando diagnóstico estiver desativado; avaliar o código gerado para confirmar se o bundler elimina os trechos exclusivos de desenvolvimento.
+Antes do próximo build de produção, executar o ticket DIAG-01. O `main.log` mínimo é local, limitado e não é encaminhado ao Sentry. O diagnóstico estruturado do client deve evitar coleta, serialização e I/O quando estiver desativado; avaliar o código gerado para confirmar se o bundler elimina os trechos exclusivos de desenvolvimento.
 
 Separar a decisão sobre erros e métricas de Sentry da decisão sobre logs. Até essa política ser confirmada, o aceite de DIAG-01 exige que a categoria **logs** esteja completamente desligada em produção, sem desligar automaticamente `captureError` e `measure` _(suposição)_. Registrar volume e frequência máximos em desenvolvimento, especialmente nas estatísticas WebRTC.
 
@@ -79,7 +79,7 @@ Separar a decisão sobre erros e métricas de Sentry da decisão sobre logs. At�
 
 - Testes unitários de política de ativação, correlação e limite/amostragem do coletor.
 - Testes do `main` sem Electron real para composição, ciclo de vida e ausência de adaptadores em produção.
-- Inspeção do pacote de produção: sem porta CDP, DevTools, MCP, arquivo `main.log`, mensagens de console nem encaminhamento de logs.
+- Inspeção do pacote de produção: sem porta CDP, DevTools, MCP, console detalhado do renderer nem encaminhamento de logs; o `main.log` mínimo e rotacionado pode existir localmente.
 - Teste manual do pacote de desenvolvimento: rastrear uma tentativa de transmissão e consultar a mesma sequência pela interface local.
 - Sem banco, Docker ou e2e de API nesta máquina, conforme instrução atual do usuário.
 

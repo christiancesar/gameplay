@@ -55,6 +55,7 @@ function createBrowserPlatform({
     },
     server: { baseUrl: () => '' },
     telemetry,
+    diagnostics: { enabled: false, record: () => undefined },
   }
 }
 

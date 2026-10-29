@@ -8,6 +8,7 @@ export type {
   AudioApp,
   CaptureRequest,
   CaptureSource,
+  DiagnosticsPort,
   Platform,
   PlatformCapabilities,
   PlatformServer,

@@ -79,6 +79,8 @@ type DesktopPlatformOptions = {
   listSources: boolean
   /** Whether the system can share its sound without the app's own (Windows, with the capture helper). */
   systemAudio: boolean
+  /** Whether the main process is collecting local diagnostic events for this instance. */
+  diagnosticsEnabled?: boolean
 }
 
 /**
@@ -95,6 +97,7 @@ function createDesktopPlatform({
   appAudio,
   listSources,
   systemAudio,
+  diagnosticsEnabled = false,
 }: DesktopPlatformOptions): Platform {
   let chosen = server
   let systemAudioTrack: SystemAudioTrack | null = null
@@ -174,6 +177,10 @@ function createDesktopPlatform({
           },
     },
     telemetry: telemetryFromBuild(import.meta.env),
+    diagnostics: {
+      enabled: diagnosticsEnabled,
+      record: (event) => void bridge['diagnostics:record'](event),
+    },
   }
 }
 
