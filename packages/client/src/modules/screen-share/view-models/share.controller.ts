@@ -46,6 +46,10 @@ function getShare(): ShareSession {
         currentPlatform().capture.start({ options, sourceId, audioApps }),
       stopScreen: (capture) => currentPlatform().capture.stop(capture),
       publishToSfu: (tracks) => SfuConnection.publish(sfuDeps, tracks),
+      diagnostics: {
+        enabled: currentPlatform().diagnostics.enabled,
+        record: (event) => currentPlatform().diagnostics.record(event),
+      },
       report: telemetry.measuring
         ? (start) => telemetry.measure(toShareStartMeasurement(start, getPlatform()))
         : undefined,

@@ -95,6 +95,22 @@ export {
 } from './account/registration-key.js'
 export { USERNAME_PATTERN, usernameSchema } from './account/username.js'
 export {
+  diagnosticEventSchema,
+  diagnosticsStatusSchema,
+  type DiagnosticEvent,
+  type DiagnosticsStatus,
+} from './diagnostics/events.js'
+export {
+  mcpClientSchema,
+  mcpStateSchema,
+  mcpStatusSchema,
+  mcpToolSchema,
+  type McpClient,
+  type McpState,
+  type McpStatus,
+  type McpTool,
+} from './diagnostics/mcp.js'
+export {
   ANNOUNCEMENT_MESSAGE_MAX,
   ANNOUNCEMENT_TITLE_MAX,
   ANNOUNCEMENT_USERS_MAX,
@@ -172,6 +188,10 @@ export {
   SIGNAL_KINDS,
   STREAM_ENDED_REASONS,
   STREAM_MODES,
+  LEGACY_STREAM_PRESETS,
+  STREAM_ASPECT_RATIOS,
+  STREAM_FRAME_RATES,
+  STREAM_HEIGHTS,
   STREAM_PRESETS,
   STREAM_QUALITY_LEVELS,
   MEDIA_USAGE_MAX_BYTES,
@@ -194,6 +214,7 @@ export {
   signalSendSchema,
   streamEndedSchema,
   streamModeSchema,
+  streamProfileSchema,
   streamPresetSchema,
   streamQualityLevelSchema,
   streamQualitySchema,
@@ -223,7 +244,9 @@ export {
   type SignalSend,
   type StreamEnded,
   type StreamMode,
+  type LegacyStreamPreset,
   type StreamPreset,
+  type StreamProfile,
   type StreamQuality,
   type StreamQualityLevel,
   type StreamStart,

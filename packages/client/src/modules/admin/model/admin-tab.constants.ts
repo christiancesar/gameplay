@@ -1,4 +1,14 @@
-const ADMIN_TABS = ['users', 'servers', 'hardware', 'limits', 'media', 'keys', 'announcements'] as const
+const ADMIN_TABS = [
+  'users',
+  'servers',
+  'hardware',
+  'limits',
+  'media',
+  'keys',
+  'announcements',
+  'development',
+  'mcp',
+] as const
 type AdminTab = (typeof ADMIN_TABS)[number]
 
 export { ADMIN_TABS }

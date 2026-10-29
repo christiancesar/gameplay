@@ -219,7 +219,13 @@
       },
       "gameTip": "Games in exclusive fullscreen can show up black. Use borderless window mode.",
       "resolution": "Resolution",
+      "aspectRatio": "Aspect ratio",
+      "aspectRatios": {
+        "source": "Native"
+      },
       "fps": "Frame rate",
+      "advancedFpsHint": "Rates above 60 FPS are available only when the display and encoder indicate support.",
+      "recommended": "Recommended for this source: {{resolution}}, {{ratio}}, {{fps}} FPS.",
       "priority": "Priority",
       "priorities": {
         "smooth": {
@@ -554,7 +560,9 @@
       "keys": "Sign-up keys",
       "hardware": "Hardware",
       "announcements": "Announcements",
-      "media": "Media"
+      "media": "Media",
+      "development": "Development",
+      "mcp": "MCP"
     },
     "search": "Search",
     "empty": "Nothing found.",
@@ -573,6 +581,77 @@
       "cannotSuspendSelf": "You can't suspend your own account.",
       "notFound": "That item no longer exists.",
       "unexpected": "Something went wrong. Try again."
+    },
+    "development": {
+      "title": "Development",
+      "description": "Inspect this desktop instance without exposing diagnostics to the public internet.",
+      "localOnly": {
+        "title": "Local access only",
+        "description": "These tools listen on 127.0.0.1. The panel shows the state, but it cannot open a port remotely."
+      },
+      "resourcesTitle": "Startup resources",
+      "active": "Active",
+      "inactive": "Off",
+      "resources": {
+        "diagnostics": {
+          "title": "Event collector",
+          "description": "Keeps a bounded local history of structured app events."
+        },
+        "cdp": {
+          "title": "Chromium CDP",
+          "description": "Lets a local tool inspect the renderer through Chrome DevTools Protocol."
+        },
+        "mainInspector": {
+          "title": "Main process inspector",
+          "description": "Lets a local tool inspect the Electron main process."
+        },
+        "devtools": { "title": "Renderer DevTools", "description": "Opens Chromium DevTools for the app window." }
+      },
+      "startTitle": "Start with diagnostics",
+      "startDescription": "Pass the arguments before launching the desktop app. Resources stay off when no argument is present.",
+      "command": "gameplay --diagnostics --cdp-port=9223 --main-inspect-port=9229 --devtools",
+      "docsTitle": "How it works",
+      "docs": {
+        "local": "The process arguments are read before Electron is ready, so the CDP and inspector state shown here is the effective local state.",
+        "remote": "The self-hosted server cannot activate these resources or reach their ports."
+      }
+    },
+    "mcp": {
+      "title": "MCP",
+      "description": "Connect a local external tool to read the desktop diagnostics session.",
+      "server": "Local MCP server",
+      "states": { "inactive": "Off", "starting": "Starting", "active": "Active", "unavailable": "Unavailable" },
+      "stateDescriptions": {
+        "inactive": "The server is not running. No local endpoint or token exists.",
+        "starting": "The server is being started for this session.",
+        "active": "The server is available only on this computer and will stop when the app closes.",
+        "unavailable": "This desktop host cannot start the local MCP server."
+      },
+      "start": "Start local server",
+      "starting": "Starting…",
+      "startTitle": "Start the local MCP server?",
+      "startDescription": "A temporary loopback endpoint and token will be created for this desktop session.",
+      "confirmStart": "Start server",
+      "stop": "Stop server",
+      "stopTitle": "Stop the local MCP server?",
+      "stopDescription": "External tools will lose access to this diagnostics session.",
+      "confirmStop": "Stop server",
+      "connectionTitle": "Temporary connection",
+      "token": "Temporary token: {{token}}",
+      "copyToken": "Copy token",
+      "copyConfiguration": "Copy JSON configuration",
+      "toolsTitle": "Available tools",
+      "toolsEmpty": "No tools registered.",
+      "clientsTitle": "Connected clients",
+      "clientsEmpty": "No MCP clients connected.",
+      "clientVersion": "Version {{version}}",
+      "clientConnectedAt": "Connected {{at}}",
+      "clientLastSeenAt": "Last seen {{at}}",
+      "docsTitle": "Safety and scope",
+      "docs": {
+        "local": "The MCP server will listen on loopback only and use a temporary session token.",
+        "future": "The server implementation and its read-only tools are planned for the separate MCP ticket."
+      }
     },
     "setup": {
       "title": "Set up two-factor authentication",

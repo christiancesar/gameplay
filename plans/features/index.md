@@ -50,7 +50,11 @@ Ideias soltas, agrupadas por contexto. Nada aqui é ticket ainda.
   - Fora do escopo: controle compartilhado, compartilhamento de webcam e coisas parecidas.
   - Não guardar nenhuma informação do usuário nem do serviço de streaming.
 - [ ] Configurações avançadas de áudio e de ruído.
-
+- [ ] Quando o usuário sai do servidor e vai para o Hubm não mostra que ele está conectado. Preciso mostrar alguma coisa que quando o usuário sai da tela do servidor dele, tenha algum indicador.
+- [ ] Integração com extensão de navegador para compartilhar uma aba específica do Brave, Chrome ou outro navegador compatível dentro do desktop.
+  - A extensão deve usar a API de captura de abas do navegador e se comunicar com o desktop de forma segura.
+  - Investigar o fluxo de autorização, instalação, atualização e compatibilidade entre navegadores.
+  - Fora do escopo inicial: criar um navegador com abas dentro do desktop.
 ## 6. Bots
 
 - [ ] Bots como no Discord, a explorar depois. Ideia inicial: um bot geral com acesso aos provedores de música dos próprios usuários ou a um provedor geral gratuito.

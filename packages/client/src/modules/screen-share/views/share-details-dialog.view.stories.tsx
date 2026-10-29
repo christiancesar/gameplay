@@ -10,7 +10,7 @@ const meta = {
   component: ShareDetailsDialogView,
   args: {
     open: true,
-    target: { resolution: '1080p', fps: 60 },
+    target: { resolution: '1080p', aspectRatio: '16:9', fps: 60 },
     viewers: viewerQualities,
     onOpenChange: fn(),
   },

@@ -89,7 +89,14 @@ function Scenario({
     <>
       <ShareSetupDialogView
         open={overlay === 'shareSetup'}
-        settings={{ source: 'window', resolution: '1080p', fps: 60, includeAudio: false, audioApps: [] }}
+        settings={{
+          source: 'window',
+          resolution: '1080p',
+          aspectRatio: '16:9',
+          fps: 60,
+          includeAudio: false,
+          audioApps: [],
+        }}
         priority="smooth"
         audioSupport="windowUnsupported"
         saveAsDefault
@@ -101,7 +108,7 @@ function Scenario({
       />
       <ShareDetailsDialogView
         open={overlay === 'shareDetails'}
-        target={{ resolution: '1080p', fps: 60 }}
+        target={{ resolution: '1080p', aspectRatio: '16:9', fps: 60 }}
         viewers={viewerQualities}
         onOpenChange={fn()}
       />

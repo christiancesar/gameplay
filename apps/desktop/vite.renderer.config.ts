@@ -31,5 +31,8 @@ export default defineConfig({
     ...sentrySourceMaps('.vite/renderer/**/*.map'),
   ],
   build: { sourcemap: sourceMapMode() },
+  // Keep the client in the renderer's source graph. If Vite prebundles the workspace package, App and the route
+  // modules get different copies of the Platform singleton, so auth fails before fetch with "No platform".
+  optimizeDeps: { exclude: ['@gameplay/client'] },
   resolve: { alias: { '@': clientSrc } },
 })

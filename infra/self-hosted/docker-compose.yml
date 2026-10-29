@@ -1,9 +1,9 @@
 # Self-hosting stack: Gameplay on your own PC, shared through a Cloudflare Tunnel.
-# Use npm run host:start (cli/, it creates .env and, in quick mode, discovers the public URL).
+# Use npm run self-hosted:start (cli/, it creates .env and, in quick mode, discovers the public URL).
 #
 #   browser -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
 #
-# Migrations run from the repository on this machine (npm run host:start), against the
+# Migrations run from the repository on this machine (npm run self-hosted:start), against the
 # database port bound to loopback: no image carries the Prisma CLI.
 #
 # Simulates production (infra/production) with the same variable names; storage
@@ -26,6 +26,7 @@ x-api-env: &api-env
   REGISTRATION_KEY_SECRET: ${REGISTRATION_KEY_SECRET:?set in .env}
   BETTER_AUTH_URL: ${APP_URL:-http://localhost:8080}
   WEB_ORIGIN: ${APP_URL:-http://localhost:8080}
+  DESKTOP_DEV_ORIGIN: ${DESKTOP_DEV_ORIGIN:-}
   # Public API docs at /api/docs (REST, auth and Socket.IO events).
   DOCS_ENABLED: ${DOCS_ENABLED:-true}
   STORAGE_DRIVER: local

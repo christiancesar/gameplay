@@ -35,5 +35,5 @@ export async function discoverQuickUrl(metricsPort: string): Promise<string> {
     if (hostname) return `https://${hostname}`
     await sleep(2000)
   }
-  throw new HostError('could not read the quick tunnel URL (run npm run host:logs)')
+  throw new HostError('could not read the quick tunnel URL (run npm run self-hosted:logs)')
 }

@@ -39,6 +39,7 @@ function makeShareSessionContext() {
     return publication
   })
   const report = vi.fn()
+  const diagnostics = { enabled: true, record: vi.fn() }
   const session = new ShareSession({
     realtime,
     store,
@@ -48,6 +49,7 @@ function makeShareSessionContext() {
     publishToSfu,
     pollMs: 1000,
     report,
+    diagnostics,
   })
   session.attach()
 
@@ -61,6 +63,7 @@ function makeShareSessionContext() {
     acquireScreen,
     stopScreen,
     report,
+    diagnostics,
     sfu,
     publishToSfu,
     get capture() {

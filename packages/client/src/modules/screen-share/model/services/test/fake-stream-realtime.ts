@@ -1,4 +1,4 @@
-import type { ServerToClientEvents } from '@gameplay/contracts'
+import type { ServerToClientEvents, StreamMode, StreamPreset } from '@gameplay/contracts'
 import { vi } from 'vitest'
 
 type Handler = (payload: never) => void
@@ -7,7 +7,7 @@ type Handler = (payload: never) => void
 class FakeStreamRealtime {
   startError: Error | null = null
   watchError: Error | null = null
-  readonly startStream = vi.fn(async (_preset: string) => {
+  readonly startStream = vi.fn(async (_preset: StreamPreset, _mode?: StreamMode) => {
     if (this.startError) throw this.startError
   })
   readonly stopStream = vi.fn(async () => undefined)

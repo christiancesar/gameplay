@@ -6,6 +6,9 @@ export const screenSource: CaptureSource = {
   kind: 'screen',
   thumbnail: null,
   appIcon: null,
+  width: 2560,
+  height: 1080,
+  refreshRate: 120,
 }
 
 export const gameSource: CaptureSource = {

@@ -24,6 +24,32 @@ function setup(isTrustedPage = (url: string) => url.startsWith('app://gameplay/'
     'system-audio:available': vi.fn(() => true),
     'system-audio:start': vi.fn((_scope?: { scope: string }) => true),
     'system-audio:stop': vi.fn(() => undefined),
+    'diagnostics:record': vi.fn(() => undefined),
+    'diagnostics:status': vi.fn(() => ({ diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false })),
+    'mcp:status': vi.fn(() => ({
+      state: 'inactive' as const,
+      endpoint: null,
+      token: null,
+      configuration: null,
+      tools: [],
+      clients: [],
+    })),
+    'mcp:start': vi.fn(() => ({
+      state: 'inactive' as const,
+      endpoint: null,
+      token: null,
+      configuration: null,
+      tools: [],
+      clients: [],
+    })),
+    'mcp:stop': vi.fn(() => ({
+      state: 'inactive' as const,
+      endpoint: null,
+      token: null,
+      configuration: null,
+      tools: [],
+      clients: [],
+    })),
   } satisfies ChannelHandlers
   registerChannels(ipc, handlers, isTrustedPage)
   const call = (channel: string, input?: unknown, page: string | null = 'app://gameplay/') =>
@@ -81,6 +107,20 @@ describe('registerChannels', () => {
     await expect(call('audio:share', { mode: 'apps', apps: [''] })).rejects.toThrow()
 
     expect(handlers['audio:share']).toHaveBeenCalledTimes(2)
+  })
+
+  it('validates and routes local diagnostic events', async () => {
+    const { call, handlers } = setup()
+    const event = {
+      name: 'lifecycle.state.changed',
+      attemptId: 'attempt-1',
+      at: new Date().toISOString(),
+      data: { state: 'started', detail: null },
+    }
+
+    expect(await call('diagnostics:record', event)).toBeUndefined()
+    expect(handlers['diagnostics:record']).toHaveBeenCalledWith(event)
+    await expect(call('diagnostics:record', { ...event, attemptId: '' })).rejects.toThrow()
   })
 
   it('answers the list of applications and checks what it holds', async () => {

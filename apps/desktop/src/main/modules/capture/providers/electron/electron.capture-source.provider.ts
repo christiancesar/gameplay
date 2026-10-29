@@ -1,5 +1,5 @@
 import type { CaptureSource } from '@gameplay/desktop-bridge'
-import { desktopCapturer } from 'electron'
+import { desktopCapturer, screen } from 'electron'
 
 import { canListSources } from '../../../../utils/can-list-sources'
 import { toCaptureSource } from '../../mappers/capture-source.mapper'
@@ -29,6 +29,9 @@ export class ElectronCaptureSourceProvider extends CaptureSourceProvider {
       fetchWindowIcons: true,
     })
     const own = new Set(this.ownSourceIds())
-    return sources.filter((source) => !own.has(source.id)).map(toCaptureSource)
+    const displays = new Map(screen.getAllDisplays().map((display) => [String(display.id), display]))
+    return sources
+      .filter((source) => !own.has(source.id))
+      .map((source) => toCaptureSource(source, source.display_id ? displays.get(source.display_id) : undefined))
   }
 }

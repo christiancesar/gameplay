@@ -68,6 +68,15 @@ describe('Realtime gateway (e2e)', () => {
     expect((await polling('https://evil.example')).headers['access-control-allow-origin']).toBeUndefined()
   })
 
+  it('lets the Electron dev renderer open the polling transport', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/socket.io/?EIO=4&transport=polling')
+      .set('Origin', 'http://localhost:5173')
+
+    expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173')
+    expect(response.headers['access-control-allow-credentials']).toBe('true')
+  })
+
   it('shows two members each other online and offline', async () => {
     const { owner, ana, serverId } = await serverWithMember()
     const ownerSide = await subscribed(owner.cookie, serverId)

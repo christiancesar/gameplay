@@ -1,4 +1,9 @@
-import { serverOriginSchema } from '@gameplay/contracts'
+import {
+  diagnosticEventSchema,
+  diagnosticsStatusSchema,
+  mcpStatusSchema,
+  serverOriginSchema,
+} from '@gameplay/contracts'
 import { z } from 'zod'
 
 import type { DesktopChannel } from './names'
@@ -31,6 +36,10 @@ export const captureSourceSchema = z.object({
   kind: z.enum(['screen', 'window']),
   thumbnail: imageDataUrlSchema.nullable(),
   appIcon: imageDataUrlSchema.nullable(),
+  /** Physical pixels and refresh rate when Electron can match a screen source to a display. */
+  width: z.number().int().positive().nullable().optional(),
+  height: z.number().int().positive().nullable().optional(),
+  refreshRate: z.number().positive().nullable().optional(),
 })
 export type CaptureSource = z.infer<typeof captureSourceSchema>
 
@@ -70,6 +79,16 @@ export const desktopChannels = {
   'system-audio:start': { input: systemAudioScopeSchema.optional(), output: z.boolean() },
   /** Stops the capture. */
   'system-audio:stop': { input: z.undefined(), output: z.void() },
+  /** Records a bounded local diagnostic event; the main process ignores it when collection is disabled. */
+  'diagnostics:record': { input: diagnosticEventSchema, output: z.void() },
+  /** The effective local diagnostic state for this app instance. */
+  'diagnostics:status': { input: z.undefined(), output: diagnosticsStatusSchema },
+  /** The current local MCP server session. */
+  'mcp:status': { input: z.undefined(), output: mcpStatusSchema },
+  /** Starts a local MCP server with a temporary token. */
+  'mcp:start': { input: z.undefined(), output: mcpStatusSchema },
+  /** Stops the local MCP server and revokes its token. */
+  'mcp:stop': { input: z.undefined(), output: mcpStatusSchema },
 } as const satisfies Record<DesktopChannel, { input: z.ZodType; output: z.ZodType }>
 
 export type DesktopChannels = typeof desktopChannels

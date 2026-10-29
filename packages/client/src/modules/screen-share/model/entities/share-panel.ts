@@ -1,7 +1,7 @@
 import type { StreamMode } from '@gameplay/contracts'
 
 import type { QualityLimitation } from '../rules/quality-summary'
-import type { ShareAudio, ShareFps, ShareResolution, ShareSource } from './share'
+import type { ShareAspectRatio, ShareAudio, ShareFps, ShareResolution, ShareSource } from './share'
 
 type DeliveredQuality = { width: number; height: number; fps: number; kbps: number }
 
@@ -12,7 +12,7 @@ type SharePanelModel =
   | {
       status: 'live'
       source: ShareSource
-      target: { resolution: ShareResolution; fps: ShareFps }
+      target: { resolution: ShareResolution; aspectRatio: ShareAspectRatio; fps: ShareFps }
       delivering?: DeliveredQuality
       isOnTarget: boolean
       limitation: QualityLimitation

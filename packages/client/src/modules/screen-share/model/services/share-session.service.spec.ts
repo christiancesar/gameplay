@@ -43,13 +43,16 @@ describe('ShareSession', () => {
       expect(ctx.acquireScreen).toHaveBeenCalledTimes(1)
       const options = ctx.acquireScreen.mock.calls[0] as unknown as [DisplayMediaStreamOptions]
       expect(options[0].video).toMatchObject({ displaySurface: 'window', frameRate: { ideal: 60 } })
-      expect(ctx.realtime.startStream).toHaveBeenCalledWith('1080p60', 'mesh')
+      expect(ctx.realtime.startStream).toHaveBeenCalledWith({ height: 1080, aspectRatio: '16:9', fps: 60 }, 'mesh')
       expect(ctx.store.state).toMatchObject({
         status: 'live',
         settings: gameSettings,
         source: { height: 1080, fps: 60 },
         preview: { stream: ctx.capture.stream, surface: 'unknown' },
       })
+      expect(ctx.diagnostics.record).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'share.capture.started', attemptId: expect.any(String) }),
+      )
     })
 
     it('clears the preview when the share stops', async () => {
@@ -71,6 +74,9 @@ describe('ShareSession', () => {
       await goLive()
       expect(ctx.store.state).toMatchObject({ status: 'idle', notice: null })
       expect(ctx.realtime.startStream).not.toHaveBeenCalled()
+      expect(ctx.diagnostics.record).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'share.capture.rejected', data: { reason: 'cancelled' } }),
+      )
     })
 
     it('says why when the browser cannot capture', async () => {
@@ -80,6 +86,9 @@ describe('ShareSession', () => {
       ctx.picker.answer = 'fail'
       await goLive()
       expect(ctx.store.state.notice).toBe('failed')
+      expect(ctx.diagnostics.record).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'share.capture.rejected', data: { reason: 'failed' } }),
+      )
     })
 
     it('warns when audio was asked and the browser gave none, and reports it', async () => {
@@ -164,7 +173,7 @@ describe('ShareSession', () => {
         ['u2', ctx.capture.audio, ctx.capture.stream],
       ])
       expect(media.transport.setVideoEncoding).toHaveBeenCalledWith('u2', ctx.capture.video, {
-        maxBitrate: 8_000_000,
+        maxBitrate: 9_100_000,
         maxFramerate: 60,
         degradationPreference: 'maintain-framerate',
       })
@@ -298,7 +307,7 @@ describe('ShareSession', () => {
         maxFramerate: 30,
         degradationPreference: 'maintain-framerate',
       })
-      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith('720p30', 'mesh')
+      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith({ height: 720, aspectRatio: '16:9', fps: 30 }, 'mesh')
       expect(ctx.store.state.settings).toMatchObject({ resolution: '720p', fps: 30 })
       expect(ctx.stopScreen).not.toHaveBeenCalled()
     })
@@ -321,7 +330,7 @@ describe('ShareSession', () => {
       await goLive()
       ctx.capture.video.applyConstraints.mockRejectedValueOnce(new Error('Overconstrained'))
       await ctx.session.updateQuality({ ...gameSettings, fps: 30 }, 'smooth')
-      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith('1080p30', 'mesh')
+      expect(ctx.realtime.startStream).toHaveBeenLastCalledWith({ height: 1080, aspectRatio: '16:9', fps: 30 }, 'mesh')
     })
 
     it('does nothing when not live', async () => {
@@ -402,7 +411,7 @@ describe('ShareSession', () => {
       const [tracks] = ctx.publishToSfu.mock.calls[0]
       expect(tracks.map((track) => track.kind)).toEqual(['video', 'audio'])
       expect(tracks[0].encodings?.map((layer) => layer.rid)).toEqual(['f', 'h', 'q'])
-      expect(ctx.realtime.startStream).toHaveBeenCalledWith('1080p60', 'sfu')
+      expect(ctx.realtime.startStream).toHaveBeenCalledWith({ height: 1080, aspectRatio: '16:9', fps: 60 }, 'sfu')
       expect(ctx.store.state).toMatchObject({ status: 'live', mode: 'sfu', notice: null })
       expect(ctx.sfu.publications[0].sender.setParameters).toHaveBeenCalledWith(
         expect.objectContaining({ degradationPreference: 'maintain-framerate' }),
@@ -439,7 +448,7 @@ describe('ShareSession', () => {
       await goLiveSfu()
 
       expect(ctx.acquireScreen).toHaveBeenCalledTimes(1)
-      expect(ctx.realtime.startStream).toHaveBeenCalledWith('1080p60', 'mesh')
+      expect(ctx.realtime.startStream).toHaveBeenCalledWith({ height: 1080, aspectRatio: '16:9', fps: 60 }, 'mesh')
       expect(ctx.store.state).toMatchObject({ status: 'live', mode: 'mesh', notice: 'fell-back' })
     })
 
@@ -478,9 +487,9 @@ describe('ShareSession', () => {
       await vi.advanceTimersByTimeAsync(0)
 
       const calls = media.transport.setVideoEncoding.mock.calls.filter(([viewerId]) => viewerId === 'u2')
-      expect(calls.at(-1)?.[2]).toMatchObject({ scaleResolutionDownBy: 4, maxFramerate: 15, maxBitrate: 800_000 })
+      expect(calls.at(-1)?.[2]).toMatchObject({ scaleResolutionDownBy: 4, maxFramerate: 15, maxBitrate: 910_000 })
       const other = media.transport.setVideoEncoding.mock.calls.filter(([viewerId]) => viewerId === 'u3')
-      expect(other.at(-1)?.[2]).toMatchObject({ maxBitrate: 8_000_000 })
+      expect(other.at(-1)?.[2]).toMatchObject({ maxBitrate: 9_100_000 })
     })
 
     it('through the SFU, shows what each viewer reports', async () => {

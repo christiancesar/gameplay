@@ -219,7 +219,13 @@
       },
       "gameTip": "Jogos em tela cheia exclusiva podem aparecer pretos. Use o modo janela sem bordas.",
       "resolution": "Resolução",
+      "aspectRatio": "Proporção",
+      "aspectRatios": {
+        "source": "Nativa"
+      },
       "fps": "Taxa de quadros",
+      "advancedFpsHint": "Taxas acima de 60 FPS só ficam disponíveis quando a tela e o encoder indicam suporte.",
+      "recommended": "Recomendado para esta fonte: {{resolution}}, {{ratio}}, {{fps}} FPS.",
       "priority": "Prioridade",
       "priorities": {
         "smooth": {
@@ -554,7 +560,9 @@
       "keys": "Keys de cadastro",
       "hardware": "Hardware",
       "announcements": "Avisos",
-      "media": "Mídia"
+      "media": "Mídia",
+      "development": "Desenvolvimento",
+      "mcp": "MCP"
     },
     "search": "Buscar",
     "empty": "Nada encontrado.",
@@ -573,6 +581,80 @@
       "cannotSuspendSelf": "Você não pode suspender a própria conta.",
       "notFound": "Esse item não existe mais.",
       "unexpected": "Algo deu errado. Tente de novo."
+    },
+    "development": {
+      "title": "Desenvolvimento",
+      "description": "Inspecione esta instância do desktop sem expor diagnósticos à internet aberta.",
+      "localOnly": {
+        "title": "Acesso somente local",
+        "description": "Estas ferramentas escutam em 127.0.0.1. O painel mostra o estado, mas não abre uma porta remotamente."
+      },
+      "resourcesTitle": "Recursos de inicialização",
+      "active": "Ativo",
+      "inactive": "Desligado",
+      "resources": {
+        "diagnostics": {
+          "title": "Coletor de eventos",
+          "description": "Mantém um histórico local limitado de eventos estruturados do app."
+        },
+        "cdp": {
+          "title": "CDP do Chromium",
+          "description": "Permite a uma ferramenta local inspecionar o renderer pelo Chrome DevTools Protocol."
+        },
+        "mainInspector": {
+          "title": "Inspector do processo principal",
+          "description": "Permite a uma ferramenta local inspecionar o processo principal do Electron."
+        },
+        "devtools": {
+          "title": "DevTools do renderer",
+          "description": "Abre o DevTools do Chromium para a janela do app."
+        }
+      },
+      "startTitle": "Iniciar com diagnóstico",
+      "startDescription": "Passe os argumentos antes de iniciar o desktop. Os recursos ficam desligados sem argumentos.",
+      "command": "gameplay --diagnostics --cdp-port=9223 --main-inspect-port=9229 --devtools",
+      "docsTitle": "Como funciona",
+      "docs": {
+        "local": "Os argumentos do processo são lidos antes de o Electron ficar pronto, então o estado de CDP e inspector mostrado aqui é o estado local efetivo.",
+        "remote": "O servidor self-hosted não pode ativar esses recursos nem alcançar suas portas."
+      }
+    },
+    "mcp": {
+      "title": "MCP",
+      "description": "Conecte uma ferramenta externa local para ler a sessão de diagnósticos do desktop.",
+      "server": "Servidor MCP local",
+      "states": { "inactive": "Desligado", "starting": "Iniciando", "active": "Ativo", "unavailable": "Indisponível" },
+      "stateDescriptions": {
+        "inactive": "O servidor não está rodando. Nenhum endpoint ou token local existe.",
+        "starting": "O servidor está sendo iniciado para esta sessão.",
+        "active": "O servidor está disponível somente neste computador e será encerrado quando o app fechar.",
+        "unavailable": "Este desktop não consegue iniciar o servidor MCP local."
+      },
+      "start": "Iniciar servidor local",
+      "starting": "Iniciando…",
+      "startTitle": "Iniciar o servidor MCP local?",
+      "startDescription": "Um endereço local e um token temporário serão criados para esta sessão do desktop.",
+      "confirmStart": "Iniciar servidor",
+      "stop": "Parar servidor",
+      "stopTitle": "Parar o servidor MCP local?",
+      "stopDescription": "As ferramentas externas perderão acesso a esta sessão de diagnósticos.",
+      "confirmStop": "Parar servidor",
+      "connectionTitle": "Conexão temporária",
+      "token": "Token temporário: {{token}}",
+      "copyToken": "Copiar token",
+      "copyConfiguration": "Copiar configuração JSON",
+      "toolsTitle": "Tools disponíveis",
+      "toolsEmpty": "Nenhuma tool registrada.",
+      "clientsTitle": "Clientes conectados",
+      "clientsEmpty": "Nenhum cliente MCP conectado.",
+      "clientVersion": "Versão {{version}}",
+      "clientConnectedAt": "Conectado em {{at}}",
+      "clientLastSeenAt": "Último contato em {{at}}",
+      "docsTitle": "Segurança e escopo",
+      "docs": {
+        "local": "O servidor MCP vai escutar somente no loopback e usar um token temporário de sessão.",
+        "future": "A implementação do servidor e suas ferramentas somente leitura ficam para o ticket separado do MCP."
+      }
     },
     "setup": {
       "title": "Configure a verificação em duas etapas",

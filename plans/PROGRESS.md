@@ -1,24 +1,34 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-27 (SFU-01 a SFU-05 concluídos na `feature/sfu`; próximo: review e PR para a `dev`).
+> Última atualização: 2026-10-29 (diagnóstico modular detalhado; release de produção bloqueada até remover logs do app).
+
+## Pendência obrigatória antes do próximo build de produção do desktop
+
+- **DIAG-01 concluído na branch `feature/desktop-diagnostics`**: produção mantém apenas o `main.log` local, limitado e rotacionado, para preservar o contexto anterior a uma falha. Não captura o console detalhado do renderer nem encaminha logs de aplicação ao Sentry. O pacote Linux de produção foi iniciado em Xvfb com configuração isolada e não abriu as portas 9223/9229. Exceções e métricas continuam independentes dos logs _(suposição)_. CDP/DevTools continuam dependentes de `VITE_APP_ENV=development`.
+- **DIAG-02 concluído na branch `feature/desktop-diagnostics`**: contrato tipado, bridge IPC validado e coletor local limitado a 500 eventos. O screen share não usa mais `console.warn` nem serialização JSON manual; os eventos carregam tentativa, timestamp e dados limitados. A consulta pelo painel e a ativação por argumentos ficam nos tickets seguintes.
+- **DIAG-03 concluído na branch `feature/desktop-diagnostics`**: argumentos explícitos controlam o coletor, CDP local, inspector do `main` e DevTools. Sem argumentos, os endpoints permanecem desligados; o estado efetivo é exposto por bridge tipada. MCP continua fora deste ticket.
+- **DIAG-04 em andamento na branch `feature/desktop-diagnostics`**: abas administrativas de Desenvolvimento e MCP, rotas, estados, documentação local em MDX, stories e testes dos ViewModels foram integrados. A ativação real do MCP continua reservada ao DIAG-05.
+- **DIAG-05 concluído na branch `feature/desktop-mcp`**: servidor MCP local com transporte HTTP em loopback, token temporário, bridge tipada, três ferramentas somente leitura e confirmação no painel foram integrados. O handshake, listagem de ferramentas, autorização e revogação foram validados por teste HTTP mínimo.
+- O plano `desktop-diagnostics/` foi detalhado para separar coletor, inicialização por argumentos, CDP local, inspector do `main`, painel administrativo com documentação MDX e MCP local somente leitura. Decisão adicional: o MCP começa desligado e só pode ser iniciado ou encerrado pela aba MCP do painel administrativo local, nunca pelo servidor self-hosted. Nesta branch, `feature/desktop-diagnostics`, serão desenvolvidos DIAG-01 a DIAG-04; DIAG-05 ficará para uma branch separada. DIAG-01 está concluído; os demais tickets continuam pendentes.
 
 ## Status das fases (workflow ágil)
 
-| Fase | Arquivo | Status |
-|---|---|---|
-| 00 · Levantamento | `00-requirements.md` | Concluída |
-| 01 · Epic Brief | `01-epic-brief.md` | Rascunho entregue, sem objeções |
-| 02 · Core Flows | `02-core-flows.md` | Concluída para as telas com mock; F7 a F13 terão o visual desenhado no Storybook |
-| 03 · PRD Validate | | Não iniciada |
-| 04 · Tech Plan | `04-tech-plan.md` | Rascunho do backend entregue, aguardando revisão do usuário |
-| Tickets e delegação | `tickets/` | Backend BE-01 a BE-17 e frontend FE-01 a FE-14b concluídos |
-| 05 · Plano do frontend | `05-web-plan.md` | Escrito em 2026-10-25, ferramentas e árvore de rotas em `src/app/` |
+| Fase                   | Arquivo              | Status                                                                           |
+| ---------------------- | -------------------- | -------------------------------------------------------------------------------- |
+| 00 · Levantamento      | `00-requirements.md` | Concluída                                                                        |
+| 01 · Epic Brief        | `01-epic-brief.md`   | Rascunho entregue, sem objeções                                                  |
+| 02 · Core Flows        | `02-core-flows.md`   | Concluída para as telas com mock; F7 a F13 terão o visual desenhado no Storybook |
+| 03 · PRD Validate      |                      | Não iniciada                                                                     |
+| 04 · Tech Plan         | `04-tech-plan.md`    | Rascunho do backend entregue, aguardando revisão do usuário                      |
+| Tickets e delegação    | `tickets/`           | Backend BE-01 a BE-17 e frontend FE-01 a FE-14b concluídos                       |
+| 05 · Plano do frontend | `05-web-plan.md`     | Escrito em 2026-10-25, ferramentas e árvore de rotas em `src/app/`               |
 
 ## Próxima sessão
 
 O usuário decidiu ir **direto para o Storybook**, antes de PRD Validate e Tech Plan. O Storybook passa a ser onde o visual dos fluxos sem mock é desenhado e validado.
 
 Escopo mínimo para começar:
+
 1. ~~`git init` e branch de trabalho~~. Feito: repo com branch `chore/monorepo-setup` (sem commits ainda).
 2. ~~Monorepo npm workspaces + Turborepo com `apps/web`~~. Feito: Vite 8, React 19, TS 6, Tailwind 4, shadcn (radix, preset nova) com componentes em `src/shared/ui`.
 3. ~~Storybook com interaction tests~~. Feito: Storybook 10 + `@storybook/addon-vitest` (Chromium headless via Playwright). `npm test` roda as play functions.
@@ -37,6 +47,8 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - Tickets SFU-01 a SFU-05 escritos (`tickets/README.md`, seção SFU). Ordem: SFU-01, SFU-05, SFU-04, SFU-02, SFU-03. Aprovados pelo usuário em 2026-10-27: nomes e explicações dos modos, queda para Direto, aba Mídia com SFU, Mesh e TURN globais e por servidor, desligar derruba, aviso da plataforma, correção do campo numérico no SFU-04. Todos os tickets SFU (01 a 05) concluídos na `feature/sfu` (notas nos tickets), aguardando review. Transmissão pelo SFU, troca de camada e medição testadas com a Cloudflare de verdade (dois browsers headless). Providers da API reorganizados por recurso e implementação (`04-tech-plan.md`). Próximo: review do usuário e PR da `feature/sfu` para a `dev`. Decisão do usuário em 2026-10-27: ao recarregar a página, o app só volta para a chamada de voz; a live que a pessoa assistia não é retomada (o `?watch=` é descartado), e ela clica em Assistir de novo.
 
 ## Frontend (`apps/web`), retomar daqui
+
+- 2026-10-28: plano `screen-share-profiles` implementado na branch `fix/desktop-resolution-75-limit`. O diálogo distribui dinamicamente os cartões de fonte, empilha resolução e FPS e oferece altura, proporção nativa/4:3/16:10/16:9/21:9 e taxas até 120 FPS com disponibilidade local. O perfil estruturado substitui a limitação fixa de 1920×1080, preservando 2560×1080 no perfil ultrawide, recalcula bitrate/camadas e compara alvo com captura e estatísticas reais. O Electron informa dimensões e frequência das telas e a recomendação combina esses dados com `MediaCapabilities`. Client, Storybook, desktop e bridge passaram nos testes de contexto. O pacote Windows abriu em `app://gameplay` sem CORS e capturou Dota 2 em 2560×1080 a 30 FPS; a camada SFU principal recebeu escala 1 e 7,5 Mbps. A API de produção antiga rejeitou o perfil estruturado em `stream:start`, por isso a sessão foi desmontada. Por decisão do usuário, não criar fallback no desktop. Pendente: merge, deploy da API compatível, nova versão do desktop e matriz manual de 16:9, 21:9 e FPS avançado. Não executar banco, Docker ou e2e de API nesta máquina.
 
 - 2026-10-25: PRs #2 e #3 mergeados na `main`; branches locais apagadas.
 - Plano em `05-web-plan.md` e tickets `tickets/FE-01` a `FE-14` (índice e grafo em `tickets/README.md`). Nada foi instalado ainda.
@@ -119,6 +131,7 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 - **Todos os tickets do backend estão feitos.** Próximos passos possíveis: review do usuário (BE-05 a BE-16), confirmar as suposições das notas dos tickets e voltar ao frontend (ViewModels, Screens e rotas sobre a API).
 
 ### Estado em 2026-10-24 (retomar daqui)
+
 - Branch `feature/api-setup`, no PR #2 para a `main`. O alinhamento do Storybook com a API e a renomeação de `packages/shared` para `packages/contracts` estão no PR #3 (`feature/storybook-contract-alignment`), que depende do #2. O usuário faz review a cada ticket antes do próximo. **BE-05 a BE-16 aguardando review.**
 - **Backend completo** (BE-01 a BE-16). Suposições do BE-11 ao BE-16 a confirmar estão nas notas dos tickets.
 - **Testes (pedido do usuário em 2026-10-24):** separar dados e factories. Um fake por arquivo, dados iniciais num arquivo de seed e a montagem do contexto em outro; nos e2e, factories em `test/factories/`. Aplicado em todos os módulos (2026-10-25): não há mais `test/fakes.ts`; o `FakeEventBus` fica em `src/common/test/`. Em 2026-10-25 os specs também deixaram de montar cenário próprio (sem `makeSut`): cada módulo tem `test/<módulo>-context.ts` sobre `test/<módulo>-seed.ts` (commit `c33be14`, feito em `feature/storybook-contract-alignment`, em cima do rename para `@gameplay/contracts`).
@@ -152,12 +165,14 @@ Próximo passo sugerido: o usuário revisar o visual no Storybook (`npm run stor
 ## Suposições a confirmar
 
 Configuração da transmissão pelo usuário (proposta de 2026-10-24, ver `00-requirements.md` 3.1.1):
-- Quem transmite escolhe o **preset** (720p30, 720p60, 1080p30, 1080p60, já decidido) e uma **prioridade**: "Fluidez" (padrão, mantém fps) ou "Nitidez" (mantém resolução, `contentHint 'detail'`, para texto e menus).
+
+- Quem transmite escolhe altura (720p/1080p), proporção (nativa, 4:3, 16:10, 16:9 ou 21:9), FPS disponível e uma **prioridade**: "Fluidez" (padrão, mantém fps) ou "Nitidez" (mantém resolução, `contentHint 'detail'`, para texto e menus). O plano `screen-share-profiles` substituiu os quatro presets fixos em 2026-10-28.
 - Codec, bitrate, FEC e prioridade da voz são automáticos e não aparecem na interface do MVP.
 - Trocar preset ou prioridade durante a transmissão aplica na hora, sem reiniciar (`applyConstraints` + `setParameters`). Trocar codec exigiria renegociação, por isso fica fora da interface.
 - Quem assiste não configura nada no MVP; o jitter buffer fica baixo por padrão.
 
 Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
+
 - Card do servidor (decisão do usuário): ícone, nome e engrenagem; clicar abre o modal do servidor. Member vê o ícone de sair do servidor no lugar da engrenagem.
 - Card do usuário: a engrenagem abre as configurações do usuário; na sala, mute, deafen, engrenagem e telefone vermelho à direita.
 - Painel de transmissão: um botão verde grande (Frame 9); ao clicar, abre a escolha de qualidade e áudio antes do seletor do browser.
@@ -188,6 +203,6 @@ Visuais desenhados no Storybook sem mock (F3, F5, F7 a F13):
 - Excluir o servidor exige digitar o nome dele.
 - Microfone negado: a pessoa entra na sala só ouvindo, com aviso.
 - Testes do driver S3 rodam contra MinIO em container.
-- Assistindo no celular deitado: a barra do app some, a barra da transmissão e os cards ficam por cima do vídeo, e um toque no vídeo mostra ou esconde os dois. Não há auto-ocultar por tempo *(suposição)*.
+- Assistindo no celular deitado: a barra do app some, a barra da transmissão e os cards ficam por cima do vídeo, e um toque no vídeo mostra ou esconde os dois. Não há auto-ocultar por tempo _(suposição)_.
 - Volume da tela e tela cheia ficam escondidos em telas touch (`hover: none` e `pointer: coarse`, inclui iPad) até termos uma solução para o Safari do iPhone.
-- Refresh durante a call: a aba guarda a sala no `sessionStorage` e marca a hora em que a página saiu. Ao recarregar em até 30 s (o tempo que a API segura o lugar), volta para a sala sozinha. Se o lugar ainda dizia que a aba transmitia, a transmissão é encerrada, porque ela morreu com a página. O som dos outros pode só começar no primeiro clique ou tecla (regra de autoplay do navegador). A janela de 30 s no cliente é fixa e precisa acompanhar `ROOM_RECONNECT_GRACE_MS` *(suposição)*.
+- Refresh durante a call: a aba guarda a sala no `sessionStorage` e marca a hora em que a página saiu. Ao recarregar em até 30 s (o tempo que a API segura o lugar), volta para a sala sozinha. Se o lugar ainda dizia que a aba transmitia, a transmissão é encerrada, porque ela morreu com a página. O som dos outros pode só começar no primeiro clique ou tecla (regra de autoplay do navegador). A janela de 30 s no cliente é fixa e precisa acompanhar `ROOM_RECONNECT_GRACE_MS` _(suposição)_.

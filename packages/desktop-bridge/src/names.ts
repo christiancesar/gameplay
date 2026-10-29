@@ -12,6 +12,11 @@ export const DESKTOP_CHANNELS = [
   'system-audio:available',
   'system-audio:start',
   'system-audio:stop',
+  'diagnostics:record',
+  'diagnostics:status',
+  'mcp:status',
+  'mcp:start',
+  'mcp:stop',
 ] as const
 
 export type DesktopChannel = (typeof DESKTOP_CHANNELS)[number]

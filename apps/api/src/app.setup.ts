@@ -1,9 +1,9 @@
-import { DESKTOP_APP_ORIGIN } from '@gameplay/contracts'
 import type { INestApplication } from '@nestjs/common'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 import { Logger } from 'nestjs-pino'
 import { isDocsEnabled } from './docs/docs-enabled'
 import { EnvService } from './env/env.service'
+import { corsOrigins } from './http/cors-origins'
 
 // Shared by main.ts and the e2e tests, so both run the same app configuration.
 export async function setupApp(app: INestApplication) {
@@ -18,7 +18,7 @@ export async function setupApp(app: INestApplication) {
   // The web page is on the same origin, so only the desktop app (and a dev page on another port) crosses origins.
   // Credentials stay on: the session is a cookie there too (the app makes it cross-site).
   app.enableCors({
-    origin: [env.get('WEB_ORIGIN'), DESKTOP_APP_ORIGIN],
+    origin: corsOrigins(env.get('WEB_ORIGIN'), env.get('DESKTOP_DEV_ORIGIN')),
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   })

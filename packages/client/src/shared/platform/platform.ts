@@ -1,4 +1,5 @@
 import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
+import type { DiagnosticEvent, DiagnosticsStatus, McpStatus } from '@gameplay/contracts'
 
 /** A screen or a window the host can capture, with a preview, for hosts that list them (the desktop app). */
 type CaptureSource = {
@@ -9,6 +10,10 @@ type CaptureSource = {
   thumbnail: string | null
   /** Data URL of the icon of the application, for a window, when the host has it. */
   appIcon: string | null
+  /** Physical source dimensions and refresh rate, when the host can determine them before capture. */
+  width?: number | null
+  height?: number | null
+  refreshRate?: number | null
 }
 
 /** An application that is playing sound, by the name the system gives it. */
@@ -64,6 +69,8 @@ type TelemetryConfig = {
   /** Where it runs: `development`, `production`, `host`. Not the app, which has its own tag. */
   environment: string
   release: string
+  /** Whether application logs may be sent to the telemetry provider. Errors and measurements are independent. */
+  logs?: boolean
   /**
    * Absent: Sentry stays off. `tunnel` is a path of the server (the web) or a full URL. `start` is how a host
    * whose SDK wraps the framework one starts it (the desktop app: the Electron renderer SDK, which sends through
@@ -76,6 +83,18 @@ type TelemetryConfig = {
   } | null
   /** Absent: Grafana Faro stays off. A path of the server (the tunnel) or a full URL. */
   faro: { url: string } | null
+}
+
+type DiagnosticsPort = {
+  enabled: boolean
+  status: DiagnosticsStatus
+  record: (event: DiagnosticEvent) => void
+  mcp: {
+    status: () => McpStatus
+    refresh: () => Promise<McpStatus>
+    start: () => Promise<McpStatus>
+    stop: () => Promise<McpStatus>
+  }
 }
 
 /**
@@ -95,6 +114,16 @@ type Platform = {
   }
   server: PlatformServer
   telemetry: TelemetryConfig
+  diagnostics: DiagnosticsPort
 }
 
-export type { AudioApp, CaptureRequest, CaptureSource, Platform, PlatformCapabilities, PlatformServer, TelemetryConfig }
+export type {
+  AudioApp,
+  CaptureRequest,
+  CaptureSource,
+  DiagnosticsPort,
+  Platform,
+  PlatformCapabilities,
+  PlatformServer,
+  TelemetryConfig,
+}

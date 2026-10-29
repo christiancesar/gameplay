@@ -6,6 +6,7 @@ import {
   type Platform,
   type TelemetryConfig,
 } from '@gameplay/client/platform'
+import type { DiagnosticsStatus, McpStatus } from '@gameplay/contracts'
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 import { init as initElectronSentry } from '@sentry/electron/renderer'
 
@@ -29,6 +30,7 @@ function telemetryFromBuild(env: ImportMetaEnv): TelemetryConfig {
     app: 'desktop',
     environment: env.VITE_SENTRY_ENVIRONMENT || env.VITE_APP_ENV || env.MODE,
     release: `${RELEASE_NAME}@${env.VITE_APP_VERSION}`,
+    logs: (env.VITE_APP_ENV || env.MODE) !== 'production',
     // The window's events go through the main process, which holds the DSN: the Electron renderer SDK wraps the
     // React one, as the documentation of Sentry for Electron says.
     sentry: env.VITE_SENTRY_DSN ? { dsn: env.VITE_SENTRY_DSN, start: startSentry } : null,
@@ -78,6 +80,9 @@ type DesktopPlatformOptions = {
   listSources: boolean
   /** Whether the system can share its sound without the app's own (Windows, with the capture helper). */
   systemAudio: boolean
+  /** Whether the main process is collecting local diagnostic events for this instance. */
+  diagnosticsStatus?: DiagnosticsStatus
+  mcpStatus?: McpStatus
 }
 
 /**
@@ -94,8 +99,11 @@ function createDesktopPlatform({
   appAudio,
   listSources,
   systemAudio,
+  diagnosticsStatus = { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
+  mcpStatus = { state: 'inactive', endpoint: null, token: null, configuration: null, tools: [], clients: [] },
 }: DesktopPlatformOptions): Platform {
   let chosen = server
+  let currentMcpStatus = mcpStatus
   let systemAudioTrack: SystemAudioTrack | null = null
   return {
     kind: 'desktop',
@@ -173,6 +181,26 @@ function createDesktopPlatform({
           },
     },
     telemetry: telemetryFromBuild(import.meta.env),
+    diagnostics: {
+      enabled: diagnosticsStatus.diagnostics,
+      status: diagnosticsStatus,
+      record: (event) => void bridge['diagnostics:record'](event),
+      mcp: {
+        status: () => currentMcpStatus,
+        refresh: async () => {
+          currentMcpStatus = await bridge['mcp:status']()
+          return currentMcpStatus
+        },
+        start: async () => {
+          currentMcpStatus = await bridge['mcp:start']()
+          return currentMcpStatus
+        },
+        stop: async () => {
+          currentMcpStatus = await bridge['mcp:stop']()
+          return currentMcpStatus
+        },
+      },
+    },
   }
 }
 

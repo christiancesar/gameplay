@@ -10,6 +10,10 @@ import { createMainWindow, devServerUrl, rendererRoot } from './lib/window'
 import { createAudioModule } from './modules/audio/audio.module'
 import { createCaptureModule } from './modules/capture/capture.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
+import { createDiagnosticsModule } from './modules/diagnostics/diagnostics.module'
+import { configureCdp, nodeInspector, openMainInspector } from './modules/diagnostics/debugging.module'
+import { createMcpModule } from './modules/diagnostics/mcp.module'
+import { parseDiagnosticsArgs } from './modules/diagnostics/startup-options'
 import { captureErrors } from './modules/logging/error-capture'
 import { createLoggingModule } from './modules/logging/logging.module'
 import { pinoTelemetryStream } from './modules/telemetry/pino-telemetry-stream'
@@ -22,9 +26,17 @@ import { contentSecurityPolicy } from './utils/content-security-policy'
 import { fixedServerFrom } from './utils/fixed-server'
 
 // The Windows installer starts the app with --squirrel-* flags to make or remove shortcuts: handle them and leave.
-if (squirrelStartup || !app.requestSingleInstanceLock()) {
+const startupResult = parseDiagnosticsArgs(process.argv)
+
+if (!startupResult.ok) {
+  console.error(startupResult.error)
+  app.quit()
+} else if (squirrelStartup || !app.requestSingleInstanceLock()) {
   app.quit()
 } else {
+  const startupOptions = startupResult.options
+  configureCdp(app.commandLine, startupOptions.cdpPort)
+
   // Only the instance that stays opens the log: a second one quits at once and must not rotate it.
   // Sentry starts first, so what goes wrong while the app starts is seen. Without a DSN in the build it reports nowhere.
   const telemetry = createTelemetryModule({
@@ -36,13 +48,18 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
   // it, Sentry's registration replaced ours: `app://` lost `secure`, and a page that is not a secure context has no
   // microphone (`navigator.mediaDevices` is undefined).
   registerAppScheme()
+  // Keep the bounded local Pino file for the context before a failure. Detailed renderer diagnostics remain opt-in.
+  const diagnosticLoggingEnabled = startupOptions.diagnostics
+  const diagnostics = createDiagnosticsModule({ enabled: diagnosticLoggingEnabled, status: startupOptions })
+  const mcp = createMcpModule(diagnostics.collector)
   const { logger, file: logFile } = createLoggingModule({
+    enabled: true,
     dir: app.getPath('logs'),
     echo: !app.isPackaged,
-    // The local log also goes to Sentry as logs, from info up.
-    extraStreams: [{ level: 'info', stream: pinoTelemetryStream(telemetry) }],
+    // The local log never goes to Sentry in production. The detailed development stream is opt-in by environment.
+    extraStreams: diagnosticLoggingEnabled ? [{ level: 'info', stream: pinoTelemetryStream(telemetry) }] : [],
   })
-  captureErrors(logger, { app, proc: process })
+  captureErrors(logger, { app, proc: process, captureRendererConsole: diagnosticLoggingEnabled })
   logger.info(
     {
       version: app.getVersion(),
@@ -55,6 +72,8 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     },
     'Gameplay started',
   )
+  if (startupOptions.cdpPort !== null)
+    logger.info({ address: '127.0.0.1', port: startupOptions.cdpPort }, 'Renderer CDP debugging enabled')
 
   app.on('second-instance', () => {
     const [window] = BrowserWindow.getAllWindows()
@@ -63,7 +82,15 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     window.focus()
   })
 
+  let disposeMainInspector: (() => void) | undefined
   void app.whenReady().then(async () => {
+    try {
+      disposeMainInspector = openMainInspector(nodeInspector, startupOptions.mainInspectPort)
+    } catch (error) {
+      logger.error({ err: error }, 'Main inspector could not start')
+      app.quit()
+      return
+    }
     const fixedServer = fixedServerFrom(import.meta.env.VITE_APP_ENV, import.meta.env.VITE_SERVER_URL)
     const server = createServerModule(app.getPath('userData'), fixedServer)
     const audio = createAudioModule(process.execPath, logger, telemetry)
@@ -84,20 +111,29 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     installDisplayMediaHandler(session.defaultSession, capture.service, logger)
     registerIpc(
       ipcMain,
-      { ...server.handlers, ...audio.handlers, ...capture.handlers, ...systemAudio.handlers },
+      {
+        ...server.handlers,
+        ...audio.handlers,
+        ...capture.handlers,
+        ...systemAudio.handlers,
+        ...diagnostics.handlers,
+        ...mcp.handlers,
+      },
       (url) => isAppUrl(url, devServerUrl()),
     )
     // The virtual microphone must not outlive the app.
     app.on('before-quit', () => {
       audio.service.stop()
       systemAudio.service.stop()
+      void mcp.server.stop()
+      disposeMainInspector?.()
       logger.info('Gameplay closing')
       void telemetry.flush(2000)
     })
-    createMainWindow()
+    createMainWindow({ devtools: startupOptions.devtools })
 
     app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+      if (BrowserWindow.getAllWindows().length === 0) createMainWindow({ devtools: startupOptions.devtools })
     })
   })
 

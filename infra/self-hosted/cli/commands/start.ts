@@ -106,17 +106,17 @@ function printSummary(config: SelfHostedEnv, appUrl: string, generatedAdminPassw
       'working and friends need the new link. Use named mode for a fixed address.',
     )
   }
-  lines.push('', 'Stop it when you are done: npm run host:stop')
+  lines.push('', 'Stop it when you are done: npm run self-hosted:stop')
   console.log(lines.join('\n'))
 }
 
 /**
  * Starts the stack and prints the link to share.
- *   npm run host:start              mode from the .env (TUNNEL_MODE, local by default)
- *   npm run host:start -- local     this machine only, http://localhost, no tunnel
- *   npm run host:start -- quick     temporary *.trycloudflare.com URL, no account
- *   npm run host:start -- named     fixed hostname, tunnel credentials file
- *   npm run host:start -- token     fixed hostname, tunnel token from the dashboard
+ *   npm run self-hosted:start              mode from the .env (TUNNEL_MODE, local by default)
+ *   npm run self-hosted:start -- local     this machine only, http://localhost, no tunnel
+ *   npm run self-hosted:start -- quick     temporary *.trycloudflare.com URL, no account
+ *   npm run self-hosted:start -- named     fixed hostname, tunnel credentials file
+ *   npm run self-hosted:start -- token     fixed hostname, tunnel token from the dashboard
  */
 export async function start(requestedMode: string | undefined): Promise<void> {
   checkTools()
@@ -147,7 +147,7 @@ export async function start(requestedMode: string | undefined): Promise<void> {
   console.log(`Waiting for ${appUrl}/api/health ...`)
   if (!(await waitForHealth(appUrl))) {
     compose(['ps'])
-    throw new HostError("the public URL did not answer; check 'npm run host:logs'")
+    throw new HostError("the public URL did not answer; check 'npm run self-hosted:logs'")
   }
   printSummary(config, appUrl, generatedAdminPassword)
 }

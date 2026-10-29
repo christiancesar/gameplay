@@ -55,6 +55,45 @@ function createBrowserPlatform({
     },
     server: { baseUrl: () => '' },
     telemetry,
+    diagnostics: {
+      enabled: false,
+      status: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
+      record: () => undefined,
+      mcp: {
+        status: () => ({
+          state: 'unavailable',
+          endpoint: null,
+          token: null,
+          configuration: null,
+          tools: [],
+          clients: [],
+        }),
+        refresh: async () => ({
+          state: 'unavailable',
+          endpoint: null,
+          token: null,
+          configuration: null,
+          tools: [],
+          clients: [],
+        }),
+        start: async () => ({
+          state: 'unavailable',
+          endpoint: null,
+          token: null,
+          configuration: null,
+          tools: [],
+          clients: [],
+        }),
+        stop: async () => ({
+          state: 'unavailable',
+          endpoint: null,
+          token: null,
+          configuration: null,
+          tools: [],
+          clients: [],
+        }),
+      },
+    },
   }
 }
 
