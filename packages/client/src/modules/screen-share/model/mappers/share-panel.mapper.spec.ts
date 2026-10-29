@@ -6,7 +6,14 @@ import { toSharePanelState, toViewerQualities } from './share-panel.mapper'
 const live: ShareSnapshot = {
   ...idleShare,
   status: 'live',
-  settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+  settings: {
+    source: 'window',
+    resolution: '1080p',
+    aspectRatio: '16:9',
+    fps: 60,
+    includeAudio: true,
+    audioApps: [],
+  },
   audio: 'active',
   viewerIds: ['u2', 'u3', 'u4'],
   stats: {
@@ -26,7 +33,7 @@ describe('share panel mapper', () => {
     expect(toSharePanelState(live)).toEqual({
       status: 'live',
       source: 'window',
-      target: { resolution: '1080p', fps: 60 },
+      target: { resolution: '1080p', aspectRatio: '16:9', fps: 60 },
       delivering: { width: 1280, height: 720, fps: 42, kbps: 10_000 },
       isOnTarget: false,
       limitation: 'bandwidth',

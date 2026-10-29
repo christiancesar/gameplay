@@ -25,6 +25,12 @@ import { fixedServerFrom } from './utils/fixed-server'
 if (squirrelStartup || !app.requestSingleInstanceLock()) {
   app.quit()
 } else {
+  const cdpPort = 9223
+  if (import.meta.env.VITE_APP_ENV === 'development') {
+    app.commandLine.appendSwitch('remote-debugging-address', '127.0.0.1')
+    app.commandLine.appendSwitch('remote-debugging-port', String(cdpPort))
+  }
+
   // Only the instance that stays opens the log: a second one quits at once and must not rotate it.
   // Sentry starts first, so what goes wrong while the app starts is seen. Without a DSN in the build it reports nowhere.
   const telemetry = createTelemetryModule({
@@ -55,6 +61,8 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     },
     'Gameplay started',
   )
+  if (import.meta.env.VITE_APP_ENV === 'development')
+    logger.info({ address: '127.0.0.1', port: cdpPort }, 'Renderer CDP debugging enabled')
 
   app.on('second-instance', () => {
     const [window] = BrowserWindow.getAllWindows()

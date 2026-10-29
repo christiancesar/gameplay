@@ -16,7 +16,7 @@ function toSharePanelState(snapshot: ShareSnapshot): SharePanelModel {
   return {
     status: 'live',
     source: settings.source,
-    target: { resolution: settings.resolution, fps: settings.fps },
+    target: { resolution: settings.resolution, aspectRatio: settings.aspectRatio, fps: settings.fps },
     delivering: summary.delivering,
     isOnTarget: summary.isOnTarget,
     limitation: summary.limitation,

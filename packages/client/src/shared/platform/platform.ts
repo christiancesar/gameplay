@@ -9,6 +9,10 @@ type CaptureSource = {
   thumbnail: string | null
   /** Data URL of the icon of the application, for a window, when the host has it. */
   appIcon: string | null
+  /** Physical source dimensions and refresh rate, when the host can determine them before capture. */
+  width?: number | null
+  height?: number | null
+  refreshRate?: number | null
 }
 
 /** An application that is playing sound, by the name the system gives it. */

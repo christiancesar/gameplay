@@ -14,11 +14,19 @@ const selfId = 'u1'
 const gameSettings: ShareSettings = {
   source: 'window',
   resolution: '1080p',
+  aspectRatio: '16:9',
   fps: 60,
   includeAudio: true,
   audioApps: [],
 }
-const tabSettings: ShareSettings = { source: 'tab', resolution: '720p', fps: 30, includeAudio: false, audioApps: [] }
+const tabSettings: ShareSettings = {
+  source: 'tab',
+  resolution: '720p',
+  aspectRatio: '16:9',
+  fps: 30,
+  includeAudio: false,
+  audioApps: [],
+}
 
 /** `outbound-rtp` video entry as Chrome reports it. */
 const outbound = (overrides: Record<string, unknown> = {}): StatsRecord => ({

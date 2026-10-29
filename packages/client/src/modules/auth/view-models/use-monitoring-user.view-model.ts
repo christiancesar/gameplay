@@ -7,7 +7,7 @@ import { telemetry } from '@/shared/lib/telemetry/current-telemetry'
 /** Tells the error reporter who is signed in (id only), and forgets them when the session ends. */
 function useMonitoringUserViewModel() {
   const { data } = useQuery(sessionQueryOptions)
-  const userId = data?.user.id
+  const userId = data?.user?.id
 
   useEffect(() => {
     if (userId) telemetry.setUser({ id: userId })

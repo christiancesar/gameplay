@@ -30,6 +30,7 @@ const live = {
   settings: {
     source: 'window' as const,
     resolution: '1080p' as const,
+    aspectRatio: '16:9' as const,
     fps: 60 as const,
     includeAudio: true,
     audioApps: [],
@@ -78,6 +79,7 @@ describe('useSharePanelViewModel', () => {
     const saved = {
       source: 'tab' as const,
       resolution: '720p' as const,
+      aspectRatio: '16:9' as const,
       fps: 30 as const,
       includeAudio: true,
       audioApps: [],
@@ -107,11 +109,18 @@ describe('useSharePanelViewModel', () => {
     const { result } = setup()
     act(() => result.current.onStart())
     act(() =>
-      result.current.setup.onChange({ source: 'tab', resolution: '720p', fps: 60, includeAudio: true, audioApps: [] }),
+      result.current.setup.onChange({
+        source: 'tab',
+        resolution: '720p',
+        aspectRatio: '16:9',
+        fps: 60,
+        includeAudio: true,
+        audioApps: [],
+      }),
     )
     act(() => result.current.setup.onStart())
     expect(fakeShareController.start).toHaveBeenCalledWith(
-      { source: 'tab', resolution: '720p', fps: 60, includeAudio: true, audioApps: [] },
+      { source: 'tab', resolution: '720p', aspectRatio: '16:9', fps: 60, includeAudio: true, audioApps: [] },
       'smooth',
       DIRECT,
     )
@@ -163,7 +172,7 @@ describe('useSharePanelViewModel', () => {
       isOnTarget: false,
     })
     expect(result.current.details.viewers).toEqual([expect.objectContaining({ id: 'u2', name: 'Ana' })])
-    expect(result.current.details.target).toEqual({ resolution: '1080p', fps: 60 })
+    expect(result.current.details.target).toEqual({ resolution: '1080p', aspectRatio: '16:9', fps: 60 })
   })
 
   it('opens the details and closes them when the share ends', () => {
@@ -337,6 +346,7 @@ describe('useSharePanelViewModel', () => {
       act(() => result.current.onStart())
 
       expect(result.current.setup.settings.audioApps).toEqual([])
+      expect(result.current.setup.settings.aspectRatio).toBe('source')
     })
   })
 

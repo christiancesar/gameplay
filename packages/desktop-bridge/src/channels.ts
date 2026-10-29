@@ -31,6 +31,10 @@ export const captureSourceSchema = z.object({
   kind: z.enum(['screen', 'window']),
   thumbnail: imageDataUrlSchema.nullable(),
   appIcon: imageDataUrlSchema.nullable(),
+  /** Physical pixels and refresh rate when Electron can match a screen source to a display. */
+  width: z.number().int().positive().nullable().optional(),
+  height: z.number().int().positive().nullable().optional(),
+  refreshRate: z.number().positive().nullable().optional(),
 })
 export type CaptureSource = z.infer<typeof captureSourceSchema>
 

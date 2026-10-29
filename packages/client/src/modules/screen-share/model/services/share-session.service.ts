@@ -18,6 +18,7 @@ import {
 } from '../entities/share'
 import { toOutboundSample, toUplinkSample, toViewerStat, type OutboundSample } from '../mappers/outbound-stats.mapper'
 import { toSurface } from '../rules/surface'
+import { logScreenShareDebug, videoEncodingStats } from './screen-share-debug'
 import {
   contentHintOf,
   displayMediaOptions,
@@ -88,6 +89,7 @@ type Live = {
   /** The screen on the SFU; null in Mesh. */
   sfu: SfuPublication | null
   uplink: OutboundSample | undefined
+  lastDebugStatsAt: number
   /** What each Direct viewer asked for; missing is Auto. */
   levels: Map<string, StreamQualityLevel>
 }
@@ -161,7 +163,7 @@ class ShareSession {
       return
     }
 
-    const preset = toPreset(settings.resolution, settings.fps)
+    const preset = toPreset(settings.resolution, settings.fps, settings.aspectRatio)
     capture.video.contentHint = contentHintOf(priority)
     // The browser's own "stop sharing" button ends the track.
     capture.video.onended = () => void this.stop()
@@ -178,6 +180,7 @@ class ShareSession {
       mode,
       sfu: null,
       uplink: undefined,
+      lastDebugStatsAt: 0,
       levels: new Map(),
     }
     this.live = live
@@ -194,6 +197,7 @@ class ShareSession {
       // Through the SFU, each viewer tells what reaches them.
       this.deps.realtime.on('stream:received', ({ viewerId, quality }) => {
         if (this.live !== live || !live.sfu) return
+        logScreenShareDebug('viewer-received-quality', { quality })
         const { stats, viewerIds } = this.deps.store.getState()
         if (!viewerIds.includes(viewerId)) return
         this.deps.store.setState({ stats: { ...stats, [viewerId]: { ...quality, limitation: 'none' } } })
@@ -213,11 +217,30 @@ class ShareSession {
       }),
     )
     const surface = toSurface(captured?.displaySurface)
+    logScreenShareDebug('capture-started', {
+      target: { preset, priority, source: settings.source },
+      constraints: capture.video.getConstraints?.(),
+      actual: capture.video.getSettings(),
+      readyState: capture.video.readyState,
+    })
     // Browsers without screen audio (Firefox, Safari) or a source without it give no track and no error.
     const missingAudio = settings.includeAudio && !capture.audio
+    let frameRateCapability: MediaTrackCapabilities['frameRate'] | undefined
+    try {
+      frameRateCapability = capture.video.getCapabilities?.().frameRate
+    } catch {
+      frameRateCapability = undefined
+    }
+    const maxFps =
+      typeof frameRateCapability === 'object' && frameRateCapability && 'max' in frameRateCapability
+        ? (frameRateCapability.max ?? null)
+        : null
     store.setState({
       status: 'live',
-      source: captured?.height ? { height: captured.height, fps: captured.frameRate ?? settings.fps } : null,
+      source:
+        captured?.width && captured.height
+          ? { width: captured.width, height: captured.height, fps: captured.frameRate ?? settings.fps, maxFps }
+          : null,
       preview: { stream: capture.stream, surface },
       audio: capture.audio ? 'silent' : missingAudio ? 'missing' : 'off',
       notice: missingAudio ? 'no-audio' : null,
@@ -285,7 +308,24 @@ class ShareSession {
       ...layers.find((layer) => layer.rid === encoding.rid),
     }))
     const { degradationPreference } = videoEncoding(live.preset, live.priority)
-    await sender.setParameters({ ...parameters, degradationPreference } as RTCRtpSendParameters).catch(() => undefined)
+    const encodings = parameters.encodings.map((encoding) => ({
+      rid: encoding.rid,
+      scaleResolutionDownBy: encoding.scaleResolutionDownBy,
+      maxBitrate: encoding.maxBitrate,
+      maxFramerate: encoding.maxFramerate,
+      active: encoding.active,
+    }))
+    try {
+      await sender.setParameters({ ...parameters, degradationPreference } as RTCRtpSendParameters)
+      logScreenShareDebug('sfu-encoding-applied', { preset: live.preset, degradationPreference, encodings })
+    } catch (error) {
+      logScreenShareDebug('sfu-encoding-failed', {
+        preset: live.preset,
+        degradationPreference,
+        encodings,
+        error: error instanceof Error ? { name: error.name, message: error.message } : String(error),
+      })
+    }
   }
 
   /** Stops sharing, from the panel or because the browser's own button ended the track. */
@@ -297,14 +337,42 @@ class ShareSession {
   async updateQuality(settings: ShareSettings, priority: SharePriority): Promise<void> {
     const live = this.live
     if (!live) return
-    const preset = toPreset(settings.resolution, settings.fps)
+    const preset = toPreset(settings.resolution, settings.fps, settings.aspectRatio)
     live.priority = priority
     live.capture.video.contentHint = contentHintOf(priority)
     this.deps.store.setState({ settings, priority })
-    await live.capture.video.applyConstraints(liveVideoConstraints(preset)).catch(() => undefined)
+    const constraints = liveVideoConstraints(preset)
+    let constraintError: { name: string; message: string } | undefined
+    try {
+      await live.capture.video.applyConstraints(constraints)
+    } catch (error) {
+      constraintError = {
+        name: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : String(error),
+      }
+    }
+    logScreenShareDebug('quality-change', {
+      target: { preset, priority },
+      constraints,
+      applied: !constraintError,
+      error: constraintError,
+      actual: live.capture.video.getSettings(),
+    })
     if (this.live !== live) return
-    const presetChanged = preset !== live.preset
+    const presetChanged = JSON.stringify(preset) !== JSON.stringify(live.preset)
     live.preset = preset
+    const actual = live.capture.video.getSettings()
+    const previousSource = this.deps.store.getState().source
+    if (actual.width && actual.height) {
+      this.deps.store.setState({
+        source: {
+          width: actual.width,
+          height: actual.height,
+          fps: actual.frameRate ?? settings.fps,
+          maxFps: previousSource?.maxFps ?? null,
+        },
+      })
+    }
     if (live.sfu) await this.applySfuEncoding(live)
     else
       await Promise.all(
@@ -380,6 +448,14 @@ class ShareSession {
         return [viewerId, stat] as const
       }),
     )
+    const now = Date.now()
+    if (now - live.lastDebugStatsAt >= 5000) {
+      live.lastDebugStatsAt = now
+      logScreenShareDebug('mesh-outbound-stats', {
+        actual: live.capture.video.getSettings(),
+        viewers: results.map(([, stat]) => stat),
+      })
+    }
     if (this.live !== live) return
     const { store } = this.deps
     const stats = { ...store.getState().stats }
@@ -393,6 +469,15 @@ class ShareSession {
   private async measureUplink(live: Live, sfu: SfuPublication) {
     const records: StatsRecord[] = []
     ;(await sfu.getStats()).forEach((record) => records.push(record))
+    const now = Date.now()
+    if (now - live.lastDebugStatsAt >= 5000) {
+      live.lastDebugStatsAt = now
+      logScreenShareDebug('sfu-uplink-stats', {
+        preset: live.preset,
+        actual: live.capture.video.getSettings(),
+        encodings: videoEncodingStats(records),
+      })
+    }
     const sample = toUplinkSample(records)
     if (this.live !== live || !sample) return
     const uplink = toViewerStat(sample, live.uplink)

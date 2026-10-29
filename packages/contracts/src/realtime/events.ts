@@ -36,8 +36,25 @@ export const REALTIME_EVENTS = {
 export const serverSubscribeSchema = z.object({ serverId: z.string().min(1) })
 export type ServerSubscribe = z.infer<typeof serverSubscribeSchema>
 
-export const STREAM_PRESETS = ['720p30', '720p60', '1080p30', '1080p60'] as const
-export const streamPresetSchema = z.enum(STREAM_PRESETS)
+export const STREAM_HEIGHTS = [720, 1080] as const
+export const STREAM_ASPECT_RATIOS = ['source', '4:3', '16:10', '16:9', '21:9'] as const
+export const STREAM_FRAME_RATES = [30, 60, 75, 100, 120] as const
+
+export const streamProfileSchema = z.object({
+  height: z.union(STREAM_HEIGHTS.map((height) => z.literal(height))),
+  aspectRatio: z.enum(STREAM_ASPECT_RATIOS),
+  fps: z.union(STREAM_FRAME_RATES.map((fps) => z.literal(fps))),
+})
+export type StreamProfile = z.infer<typeof streamProfileSchema>
+
+/** Accepted while web, desktop and self-hosted APIs can be deployed independently. */
+export const LEGACY_STREAM_PRESETS = ['720p30', '720p60', '1080p30', '1080p60'] as const
+export const legacyStreamPresetSchema = z.enum(LEGACY_STREAM_PRESETS)
+export type LegacyStreamPreset = z.infer<typeof legacyStreamPresetSchema>
+
+/** @deprecated New clients send `StreamProfile`; legacy strings remain accepted during migration. */
+export const STREAM_PRESETS = LEGACY_STREAM_PRESETS
+export const streamPresetSchema = z.union([streamProfileSchema, legacyStreamPresetSchema])
 export type StreamPreset = z.infer<typeof streamPresetSchema>
 
 // How a screen share reaches the viewers: through the Cloudflare SFU, or

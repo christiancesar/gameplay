@@ -52,8 +52,8 @@ export const LiveWithoutAudio: Story = {
 export const LiveOnTarget: Story = {
   args: { state: liveOnTarget },
   play: async ({ args, canvas, userEvent }) => {
-    // Alvo e entregue iguais.
-    await expect(canvas.getAllByText('1080p · 60 fps')).toHaveLength(2)
+    await expect(canvas.getByText('Target').nextElementSibling).toHaveTextContent('1080p · 16:9 · 60 fps')
+    await expect(canvas.getByText('Delivering').nextElementSibling).toHaveTextContent('1920×1080 · 60 fps')
     await userEvent.click(canvas.getByRole('button', { name: /details/i }))
     await expect(args.onOpenDetails).toHaveBeenCalledOnce()
     await userEvent.click(canvas.getByRole('button', { name: /stop sharing/i }))
@@ -65,7 +65,7 @@ export const LiveOnTarget: Story = {
 export const LiveLimitedByNetwork: Story = {
   args: { state: liveLimitedByNetwork },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText('720p · 42 fps')).toBeVisible()
+    await expect(canvas.getByText('Delivering').nextElementSibling).toHaveTextContent('1280×720 · 42 fps')
     await expect(canvas.getByRole('alert')).toHaveTextContent(/limited by your network/i)
   },
 }
@@ -91,7 +91,7 @@ export const OpenDetails: Story = {
         />
         <ShareDetailsDialogView
           open={open}
-          target={{ resolution: '1080p', fps: 60 }}
+          target={{ resolution: '1080p', aspectRatio: '16:9', fps: 60 }}
           viewers={viewerQualities}
           onOpenChange={setOpen}
         />
