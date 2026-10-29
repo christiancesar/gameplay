@@ -33,8 +33,9 @@ jobs:
       - run: npm ci
       - run: npm run repo:typecheck
       - run: npm run repo:lint
+      - run: npm run repo:format-check
       - name: Tests of the desktop and what it shares
-        run: npx turbo run test --filter=desktop --filter=@gameplay/desktop-bridge --filter=@gameplay/contracts
+        run: npx turbo run test --filter=desktop --filter=@gameplay/client --filter=@gameplay/desktop-bridge --filter=@gameplay/contracts
 
   version:
     needs: checks
