@@ -25,7 +25,7 @@ type Story = StoryObj<typeof meta>
 
 export const SignedOut: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await userEvent.click(canvas.getAllByRole('button', { name: /^sign in$/i })[1])
+    await userEvent.click(canvas.getByRole('button', { name: /^sign in$/i }))
     await expect(args.onNavigate).toHaveBeenCalledWith('sign-in' satisfies PublicDestination)
   },
 }

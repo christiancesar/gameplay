@@ -1,4 +1,4 @@
-import { Download, Map, Newspaper, Server } from 'lucide-react'
+import { Download, LogIn, Map, Newspaper, Server } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/shared/ui/button'
@@ -139,11 +139,6 @@ function PublicNavigationView({
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          {!isAuthenticated && (
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => onNavigate('sign-in')}>
-              {t('public.nav.signIn')}
-            </Button>
-          )}
           <ThemeToggle
             theme={theme}
             onToggle={onToggleTheme}
@@ -157,7 +152,11 @@ function PublicNavigationView({
             className="hidden sm:flex"
           />
           <Button size="sm" onClick={() => onNavigate(accountDestination)}>
-            <Server aria-hidden="true" data-icon="inline-start" />
+            {isAuthenticated ? (
+              <Server aria-hidden="true" data-icon="inline-start" />
+            ) : (
+              <LogIn aria-hidden="true" data-icon="inline-start" />
+            )}
             {isAuthenticated ? t('public.nav.openHub') : t('public.nav.signIn')}
           </Button>
         </div>
