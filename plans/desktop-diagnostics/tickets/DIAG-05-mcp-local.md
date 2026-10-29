@@ -1,6 +1,6 @@
 # DIAG-05 · MCP local somente leitura
 
-> Status: em andamento. Depende de: DIAG-02 e DIAG-03.
+> Status: concluído. Depende de: DIAG-02 e DIAG-03.
 
 ## Escopo
 
