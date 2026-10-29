@@ -3,6 +3,7 @@ import { cn } from 'cn'
 import { ImageIcon, Loader2Icon, Trash2Icon, UploadIcon } from 'lucide-react'
 import { useId, useRef } from 'react'
 
+import { assetUrl } from '@/shared/lib/asset-url'
 import { Button } from '@/shared/ui/button'
 import { initialsOf } from '@/shared/ui/initials'
 
@@ -50,7 +51,7 @@ function ImagePicker({
         )}
       >
         {previewUrl ? (
-          <img src={previewUrl} alt="" className="size-full object-cover" />
+          <img src={assetUrl(previewUrl)} alt="" className="size-full object-cover" />
         ) : name?.trim() && shape !== 'cover' ? (
           initialsOf(name)
         ) : (

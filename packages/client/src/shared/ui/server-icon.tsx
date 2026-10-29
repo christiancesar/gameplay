@@ -1,5 +1,6 @@
 import { cn } from 'cn'
 
+import { assetUrl } from '@/shared/lib/asset-url'
 import { initialsOf } from '@/shared/ui/initials'
 
 type ServerIconProps = {
@@ -16,7 +17,7 @@ function ServerIcon({ name, imageUrl, className }: ServerIconProps) {
         className,
       )}
     >
-      {imageUrl ? <img src={imageUrl} alt="" className="size-full object-cover" /> : initialsOf(name)}
+      {imageUrl ? <img src={assetUrl(imageUrl)} alt="" className="size-full object-cover" /> : initialsOf(name)}
     </span>
   )
 }
