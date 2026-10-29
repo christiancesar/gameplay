@@ -27,7 +27,18 @@ const meta = {
   component: ShareSetupDialogView,
   args: {
     open: true,
-    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+    settings: {
+      source: 'window',
+      resolution: '1080p',
+      aspectRatio: '21:9',
+      fps: 60,
+      includeAudio: true,
+      audioApps: [],
+    },
+    profileOptions: {
+      availableFps: [30, 60, 75, 100, 120],
+      recommended: { resolution: '1080p', aspectRatio: '21:9', fps: 120 },
+    },
     priority: 'smooth',
     audioSupport: 'windowUnsupported',
     saveAsDefault: true,
@@ -78,11 +89,29 @@ type Story = StoryObj<typeof meta>
 export const WindowOrGame: Story = {}
 
 export const EntireScreen: Story = {
-  args: { settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] } },
+  args: {
+    settings: {
+      source: 'screen',
+      resolution: '1080p',
+      aspectRatio: '16:9',
+      fps: 60,
+      includeAudio: true,
+      audioApps: [],
+    },
+  },
 }
 
 export const BrowserTab: Story = {
-  args: { settings: { source: 'tab', resolution: '720p', fps: 30, includeAudio: true, audioApps: [] } },
+  args: {
+    settings: {
+      source: 'tab',
+      resolution: '720p',
+      aspectRatio: '16:9',
+      fps: 30,
+      includeAudio: true,
+      audioApps: [],
+    },
+  },
 }
 
 export const ChooseAndStart: Story = {
@@ -93,6 +122,7 @@ export const ChooseAndStart: Story = {
     await expect(args.onChange).toHaveBeenLastCalledWith({
       source: 'tab',
       resolution: '720p',
+      aspectRatio: '21:9',
       fps: 30,
       includeAudio: true,
       audioApps: [],
@@ -126,7 +156,14 @@ export const WindowAudioUnavailable: Story = {
 export const ScreenAudioUnavailable: Story = {
   args: {
     audioSupport: 'tabOnly',
-    settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+    settings: {
+      source: 'screen',
+      resolution: '1080p',
+      aspectRatio: '16:9',
+      fps: 60,
+      includeAudio: true,
+      audioApps: [],
+    },
   },
   play: async () => {
     await expect(screen.getByRole('switch', { name: /share audio/i })).toBeDisabled()
@@ -204,21 +241,53 @@ export const WindowApplicationAudio: Story = {
 /** Desktop on Windows or X11: the app lists the screens and windows, and the dialog is where the user picks. */
 export const DesktopSourceList: Story = {
   args: {
-    settings: { source: 'screen', resolution: '1080p', fps: 60, includeAudio: false, audioApps: [] },
+    settings: {
+      source: 'screen',
+      resolution: '1080p',
+      aspectRatio: '21:9',
+      fps: 60,
+      includeAudio: false,
+      audioApps: [],
+    },
     audioSupport: 'supported',
     sources: { available: captureSources, selectedId: 'screen:0:0', onSelect: fn(), onRefresh: fn() },
   },
   play: async ({ args, userEvent }) => {
-    await expect(screen.getAllByRole('radio', { name: /entire screen/i })[0]).toBeChecked()
+    const screenCards = screen.getAllByRole('radio', { name: /entire screen/i })
+    await expect(screenCards[0]).toBeChecked()
+    await expect(screenCards[0]?.parentElement?.style.gridTemplateColumns).toBe('repeat(2, minmax(0px, 1fr))')
     await expect(screen.queryByRole('radio', { name: /browser tab/i })).toBeNull()
     await userEvent.click(screen.getByRole('radio', { name: /window or game/i }))
     await expect(args.onChange).toHaveBeenCalledWith(expect.objectContaining({ source: 'window' }))
   },
 }
 
+/** Without display and encoder evidence, high rates stay visible but unavailable. */
+export const AdvancedFpsUnavailable: Story = {
+  args: {
+    profileOptions: {
+      availableFps: [30, 60],
+      recommended: { resolution: '1080p', aspectRatio: 'source', fps: 60 },
+    },
+  },
+  play: async () => {
+    await expect(screen.getByRole('radio', { name: '60 fps' })).toBeEnabled()
+    await expect(screen.getByRole('radio', { name: '75 fps' })).toBeDisabled()
+    await expect(screen.getByRole('radio', { name: '100 fps' })).toBeDisabled()
+    await expect(screen.getByRole('radio', { name: '120 fps' })).toBeDisabled()
+  },
+}
+
 export const DesktopWindowList: Story = {
   args: {
-    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+    settings: {
+      source: 'window',
+      resolution: '1080p',
+      aspectRatio: '16:9',
+      fps: 60,
+      includeAudio: true,
+      audioApps: [],
+    },
     audioSupport: 'windowApp',
     sources: { available: captureSources, selectedId: 'window:590528:0', onSelect: fn(), onRefresh: fn() },
   },
@@ -256,7 +325,14 @@ export const DesktopSystemPicker: Story = {
 /** Desktop on Windows: the sound of the computer without the call, whichever source is shared. */
 export const DesktopSystemAudioWithoutApp: Story = {
   args: {
-    settings: { source: 'window', resolution: '1080p', fps: 60, includeAudio: true, audioApps: [] },
+    settings: {
+      source: 'window',
+      resolution: '1080p',
+      aspectRatio: '16:9',
+      fps: 60,
+      includeAudio: true,
+      audioApps: [],
+    },
     audioSupport: 'systemWithoutApp',
   },
   play: async () => {

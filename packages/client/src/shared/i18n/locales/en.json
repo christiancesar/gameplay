@@ -219,7 +219,13 @@
       },
       "gameTip": "Games in exclusive fullscreen can show up black. Use borderless window mode.",
       "resolution": "Resolution",
+      "aspectRatio": "Aspect ratio",
+      "aspectRatios": {
+        "source": "Native"
+      },
       "fps": "Frame rate",
+      "advancedFpsHint": "Rates above 60 FPS are available only when the display and encoder indicate support.",
+      "recommended": "Recommended for this source: {{resolution}}, {{ratio}}, {{fps}} FPS.",
       "priority": "Priority",
       "priorities": {
         "smooth": {

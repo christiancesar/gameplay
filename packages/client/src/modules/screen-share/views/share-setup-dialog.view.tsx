@@ -2,6 +2,14 @@ import { cn } from 'cn'
 import { AppWindowIcon, Gamepad2Icon, InfoIcon, MonitorIcon, MonitorUpIcon, PanelTopIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import type {
+  ShareAspectRatio,
+  ShareFps,
+  SharePriority,
+  ShareResolution,
+  ShareSettings,
+  ShareSource,
+} from '@/modules/screen-share/model/entities/share'
 import { Button } from '@/shared/ui/button'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
@@ -11,19 +19,11 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 import { ShareSourcePickerView, type ShareSourceOption } from './share-source-picker.view'
 
-const SHARE_SOURCES = ['screen', 'window', 'tab'] as const
-/** Tipo de fonte. Vira a dica `displaySurface` do getDisplayMedia; a escolha exata acontece no seletor do browser. */
-type ShareSource = (typeof SHARE_SOURCES)[number]
-
 const SHARE_RESOLUTIONS = ['720p', '1080p'] as const
-type ShareResolution = (typeof SHARE_RESOLUTIONS)[number]
-
-const SHARE_FPS = [30, 60] as const
-type ShareFps = (typeof SHARE_FPS)[number]
+const SHARE_ASPECT_RATIOS = ['source', '4:3', '16:10', '16:9', '21:9'] as const
+const SHARE_FPS = [30, 60, 75, 100, 120] as const
 
 const SHARE_PRIORITIES = ['smooth', 'sharp'] as const
-/** What gives way first when the connection or the machine is short: sharpness (smooth) or frame rate (sharp). */
-type SharePriority = (typeof SHARE_PRIORITIES)[number]
 
 type AudioSupport =
   | 'apps'
@@ -38,14 +38,7 @@ type AudioSupport =
 /** Where the browser gives screen audio. Elsewhere the switch is locked and the hint says only the microphone goes. */
 const AUDIO_AVAILABLE: readonly AudioSupport[] = ['apps', 'systemWithoutApp', 'windowApp', 'supported', 'recentMac']
 
-type ShareSettings = {
-  source: ShareSource
-  resolution: ShareResolution
-  fps: ShareFps
-  includeAudio: boolean
-  /** Com `audioSupport` `apps`: os nomes dos aplicativos cujo som vai junto. */
-  audioApps: string[]
-}
+const SHARE_SOURCES = ['screen', 'window', 'tab'] as const
 
 const STREAM_MODES = ['sfu', 'mesh'] as const
 /** Servidor (SFU) ou Direto (Mesh). */
@@ -80,6 +73,10 @@ type ShareSetupDialogViewProps = {
   sources?: SourceChoice
   /** O app não lista (Wayland): o sistema pergunta ao iniciar, e a seção só avisa isso. */
   systemPicker?: boolean
+  profileOptions?: {
+    availableFps: readonly ShareFps[]
+    recommended: { resolution: ShareResolution; aspectRatio: ShareAspectRatio; fps: ShareFps }
+  }
   saveAsDefault: boolean
   /** `update`: changing resolution and frame rate of a share already running; the source and audio are fixed. */
   mode?: 'start' | 'update'
@@ -103,6 +100,7 @@ function ShareSetupDialogView({
   audioSupport,
   sources,
   systemPicker = false,
+  profileOptions,
   saveAsDefault,
   mode = 'start',
   onOpenChange,
@@ -131,6 +129,9 @@ function ShareSetupDialogView({
       : systemPicker
         ? 'share.setup.descriptionSystem'
         : 'share.setup.description'
+  const sourceChoices = sources ? SHARE_SOURCES.filter((source) => source !== 'tab') : SHARE_SOURCES
+  const availableFps = profileOptions?.availableFps ?? ([30, 60] as const)
+  const recommended = profileOptions?.recommended
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -154,8 +155,13 @@ function ShareSetupDialogView({
           {!isUpdate && !systemPicker && (
             <fieldset className="flex flex-col gap-3">
               <legend className="mb-3 text-sm font-medium">{t('share.setup.source')}</legend>
-              <div role="radiogroup" aria-label={t('share.setup.source')} className="grid grid-cols-3 gap-2">
-                {(sources ? SHARE_SOURCES.filter((source) => source !== 'tab') : SHARE_SOURCES).map((source) => {
+              <div
+                role="radiogroup"
+                aria-label={t('share.setup.source')}
+                className="grid gap-2"
+                style={{ gridTemplateColumns: `repeat(${sourceChoices.length}, minmax(0, 1fr))` }}
+              >
+                {sourceChoices.map((source) => {
                   const Icon = SOURCE_ICONS[source]
                   const selected = settings.source === source
                   return (
@@ -206,7 +212,7 @@ function ShareSetupDialogView({
             />
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label id="share-resolution-label">{t('share.setup.resolution')}</Label>
               <ToggleGroup
@@ -224,6 +230,24 @@ function ShareSetupDialogView({
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
+              <Label id="share-aspect-ratio-label" className="mt-2 text-xs">
+                {t('share.setup.aspectRatio')}
+              </Label>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                spacing={0}
+                value={settings.aspectRatio}
+                onValueChange={(value) => value && set({ aspectRatio: value as ShareAspectRatio })}
+                aria-labelledby="share-aspect-ratio-label"
+                className="grid w-full grid-cols-5"
+              >
+                {SHARE_ASPECT_RATIOS.map((value) => (
+                  <ToggleGroupItem key={value} value={value} className="min-w-0 px-1">
+                    {value === 'source' ? t('share.setup.aspectRatios.source') : value}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
             </div>
             <div className="flex flex-col gap-2">
               <Label id="share-fps-label">{t('share.setup.fps')}</Label>
@@ -237,12 +261,32 @@ function ShareSetupDialogView({
                 className="w-full"
               >
                 {SHARE_FPS.map((value) => (
-                  <ToggleGroupItem key={value} value={String(value)} className="flex-1">
+                  <ToggleGroupItem
+                    key={value}
+                    value={String(value)}
+                    className="flex-1 px-1"
+                    disabled={!availableFps.includes(value)}
+                  >
                     {value} fps
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
+              {availableFps.length < SHARE_FPS.length && (
+                <p className="text-muted-foreground text-xs">{t('share.setup.advancedFpsHint')}</p>
+              )}
             </div>
+            {recommended && (
+              <p className="text-emerald-500 text-xs">
+                {t('share.setup.recommended', {
+                  resolution: recommended.resolution,
+                  ratio:
+                    recommended.aspectRatio === 'source'
+                      ? t('share.setup.aspectRatios.source')
+                      : recommended.aspectRatio,
+                  fps: recommended.fps,
+                })}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -349,12 +393,21 @@ function ShareSetupDialogView({
   )
 }
 
-export { SHARE_FPS, SHARE_PRIORITIES, SHARE_RESOLUTIONS, SHARE_SOURCES, STREAM_MODES, ShareSetupDialogView }
+export {
+  SHARE_ASPECT_RATIOS,
+  SHARE_FPS,
+  SHARE_PRIORITIES,
+  SHARE_RESOLUTIONS,
+  SHARE_SOURCES,
+  STREAM_MODES,
+  ShareSetupDialogView,
+}
 export type {
   ShareSourceOption,
   SourceChoice,
   AudioSupport,
   ShareFps,
+  ShareAspectRatio,
   SharePriority,
   ShareResolution,
   ShareSettings,

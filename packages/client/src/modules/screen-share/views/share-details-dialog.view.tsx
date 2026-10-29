@@ -8,7 +8,7 @@ import { UserAvatar } from '@/shared/ui/user-avatar'
 import { formatKbps } from '@/shared/ui/format-kbps'
 
 import type { QualityLimitation, StreamQuality } from './share-panel.view'
-import type { ShareFps, ShareResolution } from './share-setup-dialog.view'
+import type { ShareAspectRatio, ShareFps, ShareResolution } from './share-setup-dialog.view'
 
 type ViewerQuality = {
   id: string
@@ -21,7 +21,7 @@ type ViewerQuality = {
 
 type ShareDetailsDialogViewProps = {
   open: boolean
-  target: { resolution: ShareResolution; fps: ShareFps }
+  target: { resolution: ShareResolution; aspectRatio: ShareAspectRatio; fps: ShareFps }
   viewers: readonly ViewerQuality[]
   /** Servidor (SFU): o que cada um recebe é medido do lado de quem assiste. */
   mode?: 'sfu' | 'mesh'
@@ -38,8 +38,9 @@ function ShareDetailsDialogView({ open, target, viewers, mode = 'mesh', onOpenCh
         <DialogHeader>
           <DialogTitle>{t('share.monitor.detailsTitle')}</DialogTitle>
           <DialogDescription>
-            {t('share.monitor.target')}: {target.resolution} · {target.fps} fps.{' '}
-            {mode === 'sfu' ? t('share.monitor.detailsDescriptionSfu') : t('share.monitor.detailsDescription')}
+            {t('share.monitor.target')}: {target.resolution} ·{' '}
+            {target.aspectRatio === 'source' ? t('share.setup.aspectRatios.source') : target.aspectRatio} · {target.fps}{' '}
+            fps. {mode === 'sfu' ? t('share.monitor.detailsDescriptionSfu') : t('share.monitor.detailsDescription')}
           </DialogDescription>
         </DialogHeader>
         <div className="rounded-md border">
@@ -62,7 +63,9 @@ function ShareDetailsDialogView({ open, target, viewers, mode = 'mesh', onOpenCh
                       {viewer.name}
                     </span>
                   </TableCell>
-                  <TableCell className="font-mono tabular-nums">{viewer.quality.height}p</TableCell>
+                  <TableCell className="font-mono tabular-nums">
+                    {viewer.quality.width}×{viewer.quality.height}
+                  </TableCell>
                   <TableCell className="font-mono tabular-nums">{Math.round(viewer.quality.fps)}</TableCell>
                   <TableCell className="font-mono tabular-nums">{formatKbps(viewer.quality.kbps)}</TableCell>
                   <TableCell>

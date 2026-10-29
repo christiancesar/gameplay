@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/ui/button'
 import { formatKbps } from '@/shared/ui/format-kbps'
 
-import type { ShareFps, ShareResolution, ShareSource } from './share-setup-dialog.view'
+import type { ShareAspectRatio, ShareFps, ShareResolution, ShareSource } from './share-setup-dialog.view'
 import { ShareMeter } from './share-meter.view'
 
 type StreamQuality = { width: number; height: number; fps: number; kbps: number }
@@ -37,7 +37,7 @@ type SharePanelState =
   | {
       status: 'live'
       source: ShareSource
-      target: { resolution: ShareResolution; fps: ShareFps }
+      target: { resolution: ShareResolution; aspectRatio: ShareAspectRatio; fps: ShareFps }
       /** Pior qualidade entre os espectadores; ausente enquanto ninguém assiste. */
       delivering?: StreamQuality
       isOnTarget: boolean
@@ -112,7 +112,10 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
         <dd className="text-right">{t(`share.mode.${mode}.name`)}</dd>
         <dt className="text-muted-foreground">{t('share.monitor.target')}</dt>
         <dd className="text-right font-mono tabular-nums">
-          {target.resolution} · {target.fps} fps
+          {target.resolution} ·{' '}
+          {target.aspectRatio === 'source' ? t('share.setup.aspectRatios.source') : target.aspectRatio}
+          {' · '}
+          {target.fps} fps
         </dd>
         <dt className="text-muted-foreground">{mode === 'sfu' ? t('share.uplink') : t('share.monitor.delivering')}</dt>
         <dd
@@ -121,7 +124,7 @@ function SharePanelView({ state, onStart, onStop, onOpenDetails, onChangeQuality
             below ? 'text-amber-500' : delivering && 'text-emerald-500',
           )}
         >
-          {delivering ? `${delivering.height}p · ${Math.round(delivering.fps)} fps` : '–'}
+          {delivering ? `${delivering.width}×${delivering.height} · ${Math.round(delivering.fps)} fps` : '–'}
         </dd>
         <dt className="text-muted-foreground">{t('share.monitor.audio')}</dt>
         <dd className={cn('flex items-center justify-end gap-1', AUDIO_TONE[audio])}>

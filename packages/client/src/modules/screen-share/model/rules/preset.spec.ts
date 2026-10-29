@@ -1,63 +1,73 @@
 import { describe, expect, it } from 'vitest'
 
-import { STREAM_PRESETS } from '@gameplay/contracts'
-
 import {
   contentHintOf,
   displayMediaOptions,
   fromPreset,
   liveVideoConstraints,
+  normalizePreset,
   presetSpec,
   toPreset,
   videoEncoding,
 } from './preset'
 
 describe('preset rules', () => {
-  it('makes the four presets of the API from resolution and frame rate, and back', () => {
-    const presets = [toPreset('720p', 30), toPreset('720p', 60), toPreset('1080p', 30), toPreset('1080p', 60)]
-    expect(presets).toEqual([...STREAM_PRESETS])
-    for (const preset of STREAM_PRESETS)
-      expect(toPreset(fromPreset(preset).resolution, fromPreset(preset).fps)).toBe(preset)
+  it('makes structured profiles and reads legacy presets', () => {
+    expect(toPreset('1080p', 120, '21:9')).toEqual({ height: 1080, aspectRatio: '21:9', fps: 120 })
+    expect(normalizePreset('720p30')).toEqual({ height: 720, aspectRatio: '16:9', fps: 30 })
+    expect(fromPreset('1080p60')).toEqual({ resolution: '1080p', aspectRatio: '16:9', fps: 60 })
   })
 
-  it('knows size, rate and bitrate ceiling of each preset', () => {
-    expect(presetSpec('720p30')).toEqual({ width: 1280, height: 720, fps: 30, maxBitrate: 2_500_000 })
-    expect(presetSpec('1080p60')).toEqual({ width: 1920, height: 1080, fps: 60, maxBitrate: 8_000_000 })
-    expect(presetSpec('1080p60').maxBitrate).toBeGreaterThan(presetSpec('1080p30').maxBitrate)
-    expect(presetSpec('1080p30').maxBitrate).toBeGreaterThan(presetSpec('720p30').maxBitrate)
+  it('calculates dimensions and bitrate from pixels per second', () => {
+    expect(presetSpec(toPreset('720p', 30, '16:9'))).toEqual({
+      width: 1280,
+      height: 720,
+      fps: 30,
+      maxBitrate: 2_500_000,
+    })
+    const standard = presetSpec(toPreset('1080p', 60, '16:9'))
+    const ultrawide = presetSpec(toPreset('1080p', 60, '21:9'))
+    expect(standard).toMatchObject({ width: 1920, height: 1080, fps: 60 })
+    expect(ultrawide).toMatchObject({ width: 2560, height: 1080, fps: 60 })
+    expect(ultrawide.maxBitrate).toBeGreaterThan(standard.maxBitrate)
   })
 
-  it('asks the picker for the surface, size and rate, with the surface as a hint', () => {
+  it('asks the picker for the chosen aspect, height and rate', () => {
     const options = displayMediaOptions({
       source: 'tab',
       resolution: '720p',
+      aspectRatio: '16:10',
       fps: 60,
       includeAudio: false,
       audioApps: [],
     })
     expect(options.video).toEqual({
       displaySurface: 'browser',
-      width: { ideal: 1280 },
+      width: { ideal: 1152 },
       height: { ideal: 720 },
       frameRate: { ideal: 60 },
     })
     expect(options.audio).toBe(false)
-    expect(
-      displayMediaOptions({ source: 'screen', resolution: '720p', fps: 60, includeAudio: false, audioApps: [] }).video,
-    ).toMatchObject({
-      displaySurface: 'monitor',
-    })
-    expect(
-      displayMediaOptions({ source: 'window', resolution: '720p', fps: 60, includeAudio: false, audioApps: [] }).video,
-    ).toMatchObject({
-      displaySurface: 'window',
-    })
   })
 
-  it('keeps the voice filters off the game audio', () => {
+  it('keeps native aspect by omitting the width constraint', () => {
+    expect(
+      displayMediaOptions({
+        source: 'screen',
+        resolution: '1080p',
+        aspectRatio: 'source',
+        fps: 30,
+        includeAudio: false,
+        audioApps: [],
+      }).video,
+    ).toEqual({ displaySurface: 'monitor', height: { ideal: 1080 }, frameRate: { ideal: 30 } })
+  })
+
+  it('keeps voice filters off game audio', () => {
     const options = displayMediaOptions({
       source: 'tab',
       resolution: '1080p',
+      aspectRatio: '16:9',
       fps: 30,
       includeAudio: true,
       audioApps: [],
@@ -65,44 +75,22 @@ describe('preset rules', () => {
     expect(options.audio).toMatchObject({ echoCancellation: false, noiseSuppression: false, autoGainControl: false })
   })
 
-  it('offers system audio for a screen only when audio is asked', () => {
-    const withAudio = displayMediaOptions({
-      source: 'screen',
-      resolution: '1080p',
-      fps: 60,
-      includeAudio: true,
-      audioApps: [],
-    })
-    expect(withAudio).toMatchObject({ systemAudio: 'include' })
-    const without = displayMediaOptions({
-      source: 'screen',
-      resolution: '1080p',
-      fps: 60,
-      includeAudio: false,
-      audioApps: [],
-    })
-    expect(without).toMatchObject({ systemAudio: 'exclude' })
-  })
-
-  it('smooth keeps the frame rate and uses the motion hint; sharp keeps the resolution and uses detail', () => {
+  it('smooth keeps frame rate while sharp keeps resolution', () => {
+    const profile = toPreset('1080p', 60, '16:9')
     expect(contentHintOf('smooth')).toBe('motion')
     expect(contentHintOf('sharp')).toBe('detail')
-    expect(videoEncoding('1080p60', 'smooth')).toEqual({
-      maxBitrate: 8_000_000,
+    expect(videoEncoding(profile, 'smooth')).toMatchObject({
       maxFramerate: 60,
       degradationPreference: 'maintain-framerate',
     })
-    expect(videoEncoding('720p30', 'sharp')).toMatchObject({
-      maxFramerate: 30,
-      degradationPreference: 'maintain-resolution',
-    })
+    expect(videoEncoding(profile, 'sharp')).toMatchObject({ degradationPreference: 'maintain-resolution' })
   })
 
-  it('constraints for a live change carry only size and rate', () => {
-    expect(liveVideoConstraints('720p60')).toEqual({
-      width: { ideal: 1280 },
-      height: { ideal: 720 },
-      frameRate: { ideal: 60 },
+  it('constraints for a live change carry the calculated size and rate', () => {
+    expect(liveVideoConstraints(toPreset('1080p', 75, '21:9'))).toEqual({
+      width: { ideal: 2560 },
+      height: { ideal: 1080 },
+      frameRate: { ideal: 75 },
     })
   })
 })

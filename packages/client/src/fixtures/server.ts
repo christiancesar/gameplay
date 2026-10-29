@@ -66,7 +66,7 @@ export const stageLongNames: StageParticipant[] = [
 
 // Estados ao vivo do painel de transmissão.
 
-const target = { resolution: '1080p', fps: 60 } as const
+const target = { resolution: '1080p', aspectRatio: '16:9', fps: 60 } as const
 
 export const liveOnTarget: SharePanelState = {
   status: 'live',
@@ -105,7 +105,7 @@ export const liveLimitedByCpu: SharePanelState = {
 export const liveNoViewers: SharePanelState = {
   status: 'live',
   source: 'tab',
-  target: { resolution: '720p', fps: 30 },
+  target: { resolution: '720p', aspectRatio: 'source', fps: 30 },
   isOnTarget: true,
   limitation: 'none',
   viewerCount: 0,

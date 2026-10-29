@@ -219,7 +219,13 @@
       },
       "gameTip": "Jogos em tela cheia exclusiva podem aparecer pretos. Use o modo janela sem bordas.",
       "resolution": "Resolução",
+      "aspectRatio": "Proporção",
+      "aspectRatios": {
+        "source": "Nativa"
+      },
       "fps": "Taxa de quadros",
+      "advancedFpsHint": "Taxas acima de 60 FPS só ficam disponíveis quando a tela e o encoder indicam suporte.",
+      "recommended": "Recomendado para esta fonte: {{resolution}}, {{ratio}}, {{fps}} FPS.",
       "priority": "Prioridade",
       "priorities": {
         "smooth": {

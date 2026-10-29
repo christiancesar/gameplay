@@ -1,6 +1,6 @@
 import type { StreamMode } from '@gameplay/contracts'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -15,7 +15,13 @@ import {
   type ViewerProfile,
 } from '@/modules/screen-share/model/mappers/share-panel.mapper'
 import { audioSupportFor, canShareAudio } from '@/modules/screen-share/model/rules/audio-support'
+import {
+  recommendShareProfile,
+  type ShareProfileRecommendation,
+  type SourceProfile,
+} from '@/modules/screen-share/model/rules/profile-recommendation'
 import { serverMediaQueryOptions } from '@/modules/screen-share/model/services/server-media.query'
+import { videoProfileCapabilities } from '@/modules/screen-share/model/services/video-profile-capabilities.service'
 import { useVoiceStore } from '@/modules/rooms/view-models/stores/voice.store'
 import type { CaptureSource } from '@/shared/platform/platform'
 import { usePlatform } from '@/shared/platform/use-platform'
@@ -50,6 +56,10 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   const [draftPriority, setDraftPriority] = useState<SharePriority>(saved ? savedPriority : 'smooth')
   const [saveAsDefault, setSaveAsDefault] = useState(saved !== null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [advancedFps, setAdvancedFps] = useState<{
+    sourceKey: string
+    values: ShareProfileRecommendation['availableFps']
+  }>({ sourceKey: 'null', values: [] })
   const serverId = useVoiceStore((state) => state.connection?.serverId)
   const { data: serverMedia } = useQuery({ ...serverMediaQueryOptions(serverId ?? ''), enabled: Boolean(serverId) })
   // Server (SFU) first whenever the server offers it; the choice is not remembered.
@@ -62,6 +72,32 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
     : 'mesh'
   const [pickedMode, setPickedMode] = useState<StreamMode | null>(null)
   const streamMode = pickedMode && serverMedia?.[pickedMode].available !== false ? pickedMode : preferredMode
+
+  const profileSource: SourceProfile | null = useMemo(() => {
+    const listed = sources.find((source) => source.id === sourceId)
+    const liveSource = dialog === 'update' ? snapshot.source : null
+    return listed
+      ? { width: listed.width, height: listed.height, refreshRate: listed.refreshRate }
+      : liveSource
+        ? { width: liveSource.width, height: liveSource.height, refreshRate: liveSource.maxFps }
+        : null
+  }, [dialog, snapshot.source, sourceId, sources])
+  const profileSourceKey = JSON.stringify(profileSource)
+  const profileOptions = recommendShareProfile(
+    profileSource,
+    advancedFps.sourceKey === profileSourceKey ? advancedFps.values : [],
+  )
+
+  useEffect(() => {
+    if (dialog === 'closed') return
+    let current = true
+    void videoProfileCapabilities.advancedFps(profileSource).then((values) => {
+      if (current) setAdvancedFps({ sourceKey: profileSourceKey, values })
+    })
+    return () => {
+      current = false
+    }
+  }, [dialog, profileSource, profileSourceKey])
 
   const { notice } = snapshot
   useEffect(() => {
@@ -132,9 +168,11 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
   }
 
   function start() {
+    const fps = profileOptions.availableFps.includes(draft.fps) ? draft.fps : profileOptions.recommended.fps
     // A locked switch keeps its saved value; the share asks for no audio the host cannot give.
     const settings = {
       ...draft,
+      fps,
       includeAudio:
         draft.includeAudio &&
         (systemWithoutApp || canShareAudio(audioSupportFor(draft.source, shareController.platform()))),
@@ -164,8 +202,14 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
 
   function applyQuality() {
     setDialog('closed')
+    const fps = profileOptions.availableFps.includes(draft.fps) ? draft.fps : profileOptions.recommended.fps
     void shareController.updateQuality(
-      { ...snapshot.settings, resolution: draft.resolution, fps: draft.fps },
+      {
+        ...snapshot.settings,
+        resolution: draft.resolution,
+        aspectRatio: draft.aspectRatio,
+        fps,
+      },
       draftPriority,
     )
   }
@@ -192,6 +236,7 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
           }
         : undefined,
       systemPicker,
+      profileOptions,
       saveAsDefault,
       onOpenChange: (open: boolean) => {
         if (!open) setDialog('closed')
@@ -206,7 +251,11 @@ function useSharePanelViewModel(profiles: Readonly<Record<string, ViewerProfile>
     },
     details: {
       open: detailsOpen && live,
-      target: { resolution: snapshot.settings.resolution, fps: snapshot.settings.fps },
+      target: {
+        resolution: snapshot.settings.resolution,
+        aspectRatio: snapshot.settings.aspectRatio,
+        fps: snapshot.settings.fps,
+      },
       viewers: toViewerQualities(snapshot, profiles),
       mode: snapshot.mode ?? 'mesh',
       onOpenChange: setDetailsOpen,

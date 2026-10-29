@@ -4,11 +4,13 @@ const SHARE_SOURCES = ['screen', 'window', 'tab'] as const
 /** Kind of surface; becomes the `displaySurface` hint. The exact choice happens in the browser's picker. */
 type ShareSource = (typeof SHARE_SOURCES)[number]
 type ShareResolution = '720p' | '1080p'
-type ShareFps = 30 | 60
+type ShareAspectRatio = 'source' | '4:3' | '16:10' | '16:9' | '21:9'
+type ShareFps = 30 | 60 | 75 | 100 | 120
 
 type ShareSettings = {
   source: ShareSource
   resolution: ShareResolution
+  aspectRatio: ShareAspectRatio
   fps: ShareFps
   includeAudio: boolean
   /** On a host that shares the sound of applications: their names. Empty: no application sound. */
@@ -50,8 +52,8 @@ type ShareSnapshot = {
   viewerIds: string[]
   /** Last measure of each viewer; missing until the sender has two samples. */
   stats: Record<string, ViewerStat>
-  /** Height and fps the captured source really has, to not ask more of a small window than it has. */
-  source: { height: number; fps: number } | null
+  /** Size, rate and rate ceiling the captured source really reports. */
+  source: { width: number; height: number; fps: number; maxFps: number | null } | null
   /** The running capture; null unless live. */
   preview: SharePreview | null
   audio: ShareAudio
@@ -76,6 +78,7 @@ type ShareStateStore = {
 const defaultShareSettings: ShareSettings = {
   source: 'screen',
   resolution: '1080p',
+  aspectRatio: 'source',
   fps: 30,
   includeAudio: false,
   audioApps: [],
@@ -98,6 +101,7 @@ const idleShare: ShareSnapshot = {
 export { SHARE_SOURCES, defaultShareSettings, idleShare }
 export type {
   ShareAudio,
+  ShareAspectRatio,
   ShareFps,
   SharePriority,
   ShareNotice,

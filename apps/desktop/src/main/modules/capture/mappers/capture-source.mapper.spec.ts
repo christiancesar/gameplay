@@ -20,10 +20,14 @@ describe('toCaptureSource', () => {
   })
 
   it('takes a source whose id starts with screen: as a screen, with no icon', () => {
-    const source = toCaptureSource({ id: 'screen:0:0', name: 'Entire screen', thumbnail: image(), appIcon: null })
+    const source = toCaptureSource(
+      { id: 'screen:0:0', name: 'Entire screen', thumbnail: image(), appIcon: null },
+      { size: { width: 1280, height: 540 }, scaleFactor: 2, displayFrequency: 120 },
+    )
 
     expect(source.kind).toBe('screen')
     expect(source.appIcon).toBeNull()
+    expect(source).toMatchObject({ width: 2560, height: 1080, refreshRate: 120 })
   })
 
   it('leaves out an empty preview and an empty icon', () => {
