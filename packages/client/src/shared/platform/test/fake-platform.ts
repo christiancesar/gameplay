@@ -34,7 +34,11 @@ class FakePlatform implements Platform {
   chosen: string | null
   readonly server: Platform['server']
   readonly telemetry: TelemetryConfig
-  readonly diagnostics = { enabled: false, record: () => undefined }
+  readonly diagnostics = {
+    enabled: false,
+    status: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
+    record: () => undefined,
+  }
   private baseUrl: string
   private readonly sources: CaptureSource[]
   private readonly playing: AudioApp[]

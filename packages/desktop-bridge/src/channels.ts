@@ -1,4 +1,4 @@
-import { diagnosticEventSchema, serverOriginSchema } from '@gameplay/contracts'
+import { diagnosticEventSchema, diagnosticsStatusSchema, serverOriginSchema } from '@gameplay/contracts'
 import { z } from 'zod'
 
 import type { DesktopChannel } from './names'
@@ -76,8 +76,8 @@ export const desktopChannels = {
   'system-audio:stop': { input: z.undefined(), output: z.void() },
   /** Records a bounded local diagnostic event; the main process ignores it when collection is disabled. */
   'diagnostics:record': { input: diagnosticEventSchema, output: z.void() },
-  /** Whether local diagnostic collection is active for this app instance. */
-  'diagnostics:is-enabled': { input: z.undefined(), output: z.boolean() },
+  /** The effective local diagnostic state for this app instance. */
+  'diagnostics:status': { input: z.undefined(), output: diagnosticsStatusSchema },
 } as const satisfies Record<DesktopChannel, { input: z.ZodType; output: z.ZodType }>
 
 export type DesktopChannels = typeof desktopChannels

@@ -9,12 +9,12 @@ import { createDesktopPlatform } from './desktop-platform'
 // whether the system can share the sound of applications, whether the app lists the screens and windows itself, and
 // whether it can share the sound of the computer without its own.
 const bridge = window.gameplayDesktop
-const [server, appAudio, listSources, systemAudio, diagnosticsEnabled] = await Promise.all([
+const [server, appAudio, listSources, systemAudio, diagnosticsStatus] = await Promise.all([
   bridge['server:get-url'](),
   bridge['audio:available'](),
   bridge['capture:can-list'](),
   bridge['system-audio:available'](),
-  bridge['diagnostics:is-enabled'](),
+  bridge['diagnostics:status'](),
 ])
 
 createRoot(document.getElementById('root')!).render(
@@ -27,7 +27,7 @@ createRoot(document.getElementById('root')!).render(
         appAudio,
         listSources,
         systemAudio,
-        diagnosticsEnabled,
+        diagnosticsStatus,
       })}
     />
   </StrictMode>,

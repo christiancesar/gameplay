@@ -25,7 +25,7 @@ function setup(isTrustedPage = (url: string) => url.startsWith('app://gameplay/'
     'system-audio:start': vi.fn((_scope?: { scope: string }) => true),
     'system-audio:stop': vi.fn(() => undefined),
     'diagnostics:record': vi.fn(() => undefined),
-    'diagnostics:is-enabled': vi.fn(() => false),
+    'diagnostics:status': vi.fn(() => ({ diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false })),
   } satisfies ChannelHandlers
   registerChannels(ipc, handlers, isTrustedPage)
   const call = (channel: string, input?: unknown, page: string | null = 'app://gameplay/') =>

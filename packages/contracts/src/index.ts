@@ -94,7 +94,12 @@ export {
   registrationKeySchema,
 } from './account/registration-key.js'
 export { USERNAME_PATTERN, usernameSchema } from './account/username.js'
-export { diagnosticEventSchema, type DiagnosticEvent } from './diagnostics/events.js'
+export {
+  diagnosticEventSchema,
+  diagnosticsStatusSchema,
+  type DiagnosticEvent,
+  type DiagnosticsStatus,
+} from './diagnostics/events.js'
 export {
   ANNOUNCEMENT_MESSAGE_MAX,
   ANNOUNCEMENT_TITLE_MAX,

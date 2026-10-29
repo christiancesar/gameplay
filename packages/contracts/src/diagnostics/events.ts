@@ -4,6 +4,12 @@ const attemptIdSchema = z.string().min(1).max(64)
 const atSchema = z.iso.datetime()
 const modeSchema = z.enum(['mesh', 'sfu'])
 const numberOrNull = z.number().finite().nullable()
+const diagnosticsStatusSchema = z.object({
+  diagnostics: z.boolean(),
+  cdpPort: z.number().int().positive().nullable(),
+  mainInspectPort: z.number().int().positive().nullable(),
+  devtools: z.boolean(),
+})
 
 const diagnosticEventSchema = z.discriminatedUnion('name', [
   z.object({
@@ -83,4 +89,7 @@ const diagnosticEventSchema = z.discriminatedUnion('name', [
 type DiagnosticEvent = z.infer<typeof diagnosticEventSchema>
 
 export { diagnosticEventSchema }
-export type { DiagnosticEvent }
+export { diagnosticsStatusSchema }
+export type { DiagnosticEvent, DiagnosticsStatus }
+
+type DiagnosticsStatus = z.infer<typeof diagnosticsStatusSchema>

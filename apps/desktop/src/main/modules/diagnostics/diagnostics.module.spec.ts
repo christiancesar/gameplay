@@ -11,7 +11,10 @@ const event = (index: number) => ({
 
 describe('DiagnosticsCollector', () => {
   it('does no work when disabled', () => {
-    const collector = new DiagnosticsCollector({ enabled: false })
+    const collector = new DiagnosticsCollector({
+      enabled: false,
+      status: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
+    })
 
     collector.record(event(1))
 
@@ -20,7 +23,11 @@ describe('DiagnosticsCollector', () => {
   })
 
   it('keeps the newest events up to the configured limit', () => {
-    const collector = new DiagnosticsCollector({ enabled: true, limit: 2 })
+    const collector = new DiagnosticsCollector({
+      enabled: true,
+      limit: 2,
+      status: { diagnostics: true, cdpPort: 9223, mainInspectPort: null, devtools: false },
+    })
 
     collector.record(event(1))
     collector.record(event(2))
@@ -30,7 +37,10 @@ describe('DiagnosticsCollector', () => {
   })
 
   it('returns events in correlation order', () => {
-    const collector = new DiagnosticsCollector({ enabled: true })
+    const collector = new DiagnosticsCollector({
+      enabled: true,
+      status: { diagnostics: true, cdpPort: null, mainInspectPort: 9229, devtools: true },
+    })
     const first = event(1)
     const second = { ...event(2), attemptId: 'other' }
 

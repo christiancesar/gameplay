@@ -6,6 +6,7 @@ import {
   type Platform,
   type TelemetryConfig,
 } from '@gameplay/client/platform'
+import type { DiagnosticsStatus } from '@gameplay/contracts'
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 import { init as initElectronSentry } from '@sentry/electron/renderer'
 
@@ -80,7 +81,7 @@ type DesktopPlatformOptions = {
   /** Whether the system can share its sound without the app's own (Windows, with the capture helper). */
   systemAudio: boolean
   /** Whether the main process is collecting local diagnostic events for this instance. */
-  diagnosticsEnabled?: boolean
+  diagnosticsStatus?: DiagnosticsStatus
 }
 
 /**
@@ -97,7 +98,7 @@ function createDesktopPlatform({
   appAudio,
   listSources,
   systemAudio,
-  diagnosticsEnabled = false,
+  diagnosticsStatus = { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
 }: DesktopPlatformOptions): Platform {
   let chosen = server
   let systemAudioTrack: SystemAudioTrack | null = null
@@ -178,7 +179,8 @@ function createDesktopPlatform({
     },
     telemetry: telemetryFromBuild(import.meta.env),
     diagnostics: {
-      enabled: diagnosticsEnabled,
+      enabled: diagnosticsStatus.diagnostics,
+      status: diagnosticsStatus,
       record: (event) => void bridge['diagnostics:record'](event),
     },
   }

@@ -54,7 +54,7 @@ describe('createDesktopPlatform', () => {
       appAudio: false,
       listSources: false,
       systemAudio: false,
-      diagnosticsEnabled: false,
+      diagnosticsStatus: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
     })
 
     expect(platform.server.chooser?.current()).toBeNull()
@@ -68,7 +68,7 @@ describe('createDesktopPlatform', () => {
       appAudio: false,
       listSources: false,
       systemAudio: false,
-      diagnosticsEnabled: false,
+      diagnosticsStatus: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
     })
 
     expect(platform.server.chooser).toBeUndefined()
@@ -91,7 +91,7 @@ describe('createDesktopPlatform', () => {
         appAudio: false,
         listSources: true,
         systemAudio: false,
-        diagnosticsEnabled: false,
+        diagnosticsStatus: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
       })
 
       expect(platform.capabilities.listSources).toBe(true)

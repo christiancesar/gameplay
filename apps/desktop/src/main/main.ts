@@ -11,6 +11,8 @@ import { createAudioModule } from './modules/audio/audio.module'
 import { createCaptureModule } from './modules/capture/capture.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
 import { createDiagnosticsModule } from './modules/diagnostics/diagnostics.module'
+import { configureCdp, nodeInspector, openMainInspector } from './modules/diagnostics/debugging.module'
+import { parseDiagnosticsArgs } from './modules/diagnostics/startup-options'
 import { captureErrors } from './modules/logging/error-capture'
 import { createLoggingModule } from './modules/logging/logging.module'
 import { pinoTelemetryStream } from './modules/telemetry/pino-telemetry-stream'
@@ -23,14 +25,16 @@ import { contentSecurityPolicy } from './utils/content-security-policy'
 import { fixedServerFrom } from './utils/fixed-server'
 
 // The Windows installer starts the app with --squirrel-* flags to make or remove shortcuts: handle them and leave.
-if (squirrelStartup || !app.requestSingleInstanceLock()) {
+const startupResult = parseDiagnosticsArgs(process.argv)
+
+if (!startupResult.ok) {
+  console.error(startupResult.error)
+  app.quit()
+} else if (squirrelStartup || !app.requestSingleInstanceLock()) {
   app.quit()
 } else {
-  const cdpPort = 9223
-  if (import.meta.env.VITE_APP_ENV === 'development') {
-    app.commandLine.appendSwitch('remote-debugging-address', '127.0.0.1')
-    app.commandLine.appendSwitch('remote-debugging-port', String(cdpPort))
-  }
+  const startupOptions = startupResult.options
+  configureCdp(app.commandLine, startupOptions.cdpPort)
 
   // Only the instance that stays opens the log: a second one quits at once and must not rotate it.
   // Sentry starts first, so what goes wrong while the app starts is seen. Without a DSN in the build it reports nowhere.
@@ -44,8 +48,8 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
   // microphone (`navigator.mediaDevices` is undefined).
   registerAppScheme()
   // Keep the bounded local Pino file for the context before a failure. Detailed renderer diagnostics remain opt-in.
-  const diagnosticLoggingEnabled = import.meta.env.VITE_APP_ENV !== 'production'
-  const diagnostics = createDiagnosticsModule({ enabled: diagnosticLoggingEnabled })
+  const diagnosticLoggingEnabled = startupOptions.diagnostics
+  const diagnostics = createDiagnosticsModule({ enabled: diagnosticLoggingEnabled, status: startupOptions })
   const { logger, file: logFile } = createLoggingModule({
     enabled: true,
     dir: app.getPath('logs'),
@@ -66,8 +70,8 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     },
     'Gameplay started',
   )
-  if (import.meta.env.VITE_APP_ENV === 'development')
-    logger.info({ address: '127.0.0.1', port: cdpPort }, 'Renderer CDP debugging enabled')
+  if (startupOptions.cdpPort !== null)
+    logger.info({ address: '127.0.0.1', port: startupOptions.cdpPort }, 'Renderer CDP debugging enabled')
 
   app.on('second-instance', () => {
     const [window] = BrowserWindow.getAllWindows()
@@ -76,7 +80,15 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     window.focus()
   })
 
+  let disposeMainInspector: (() => void) | undefined
   void app.whenReady().then(async () => {
+    try {
+      disposeMainInspector = openMainInspector(nodeInspector, startupOptions.mainInspectPort)
+    } catch (error) {
+      logger.error({ err: error }, 'Main inspector could not start')
+      app.quit()
+      return
+    }
     const fixedServer = fixedServerFrom(import.meta.env.VITE_APP_ENV, import.meta.env.VITE_SERVER_URL)
     const server = createServerModule(app.getPath('userData'), fixedServer)
     const audio = createAudioModule(process.execPath, logger, telemetry)
@@ -110,13 +122,14 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
     app.on('before-quit', () => {
       audio.service.stop()
       systemAudio.service.stop()
+      disposeMainInspector?.()
       logger.info('Gameplay closing')
       void telemetry.flush(2000)
     })
-    createMainWindow()
+    createMainWindow({ devtools: startupOptions.devtools })
 
     app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+      if (BrowserWindow.getAllWindows().length === 0) createMainWindow({ devtools: startupOptions.devtools })
     })
   })
 

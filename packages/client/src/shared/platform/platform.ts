@@ -1,5 +1,5 @@
 import type { ScreenCaptureHandle, ScreenCaptureResult } from '@/shared/media/screen-capture'
-import type { DiagnosticEvent } from '@gameplay/contracts'
+import type { DiagnosticEvent, DiagnosticsStatus } from '@gameplay/contracts'
 
 /** A screen or a window the host can capture, with a preview, for hosts that list them (the desktop app). */
 type CaptureSource = {
@@ -87,6 +87,7 @@ type TelemetryConfig = {
 
 type DiagnosticsPort = {
   enabled: boolean
+  status: DiagnosticsStatus
   record: (event: DiagnosticEvent) => void
 }
 

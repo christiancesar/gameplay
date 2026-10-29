@@ -2,6 +2,7 @@ import path from 'node:path'
 import { BrowserWindow, nativeImage } from 'electron'
 
 import linuxIcon from '../../../../../packages/client/src/shared/assets/brand/icons/linux/icon.png?inline'
+import { openDevTools } from '../modules/diagnostics/debugging.module'
 import { lockNavigation } from './navigation'
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined
@@ -12,7 +13,7 @@ const rendererRoot = () => path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_
 
 const devServerUrl = () => MAIN_WINDOW_VITE_DEV_SERVER_URL
 
-function createMainWindow(): BrowserWindow {
+function createMainWindow({ devtools = false }: { devtools?: boolean } = {}): BrowserWindow {
   const window = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -34,7 +35,7 @@ function createMainWindow(): BrowserWindow {
   })
   lockNavigation(window.webContents, devServerUrl())
   void window.loadURL(devServerUrl() ?? `app://gameplay/`)
-  if (import.meta.env.VITE_APP_ENV === 'development') window.webContents.openDevTools({ mode: 'detach' })
+  if (devtools) openDevTools(window)
   return window
 }
 
