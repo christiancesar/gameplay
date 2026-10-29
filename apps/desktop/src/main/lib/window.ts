@@ -34,6 +34,7 @@ function createMainWindow(): BrowserWindow {
   })
   lockNavigation(window.webContents, devServerUrl())
   void window.loadURL(devServerUrl() ?? `app://gameplay/`)
+  if (import.meta.env.VITE_APP_ENV === 'development') window.webContents.openDevTools({ mode: 'detach' })
   return window
 }
 
