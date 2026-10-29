@@ -2,6 +2,19 @@
 
 > Última atualização: 2026-10-29 (diagnóstico modular detalhado; release de produção bloqueada até remover logs do app).
 
+## Plano iniciado: Windows, assinatura e atualização do desktop
+
+- Em 2026-10-29 foi iniciado `plans/desktop-windows-release/`, para detalhar a assinatura Authenticode, os artefatos e o feed Squirrel.Windows, o uso do S3 como armazenamento, o endpoint no domínio principal, o `autoUpdater`, promoção e rollback.
+- O GitHub Releases continua como histórico das versões. O S3 será a origem operacional dos downloads, e o primeiro ticket deve confirmar e publicar também os artefatos específicos do feed Squirrel.
+- Tickets planejados: WIN-01 a WIN-04. Nenhum ticket foi implementado.
+
+## Plano iniciado: portal público do Gameplay
+
+- Em 2026-10-29 foi criado `plans/public-product-portal/`, separado do plano de release Windows. Ele cobre a Home pública, `/download`, `/roadmap`, `/changelog` e a navegação pública no Storybook.
+- A página humana de download fica em `https://gameplay.oikos.company/download`. O S3 armazena os artefatos, e o feed técnico do Squirrel fica sob `https://gameplay.oikos.company/api/updates/windows/stable/RELEASES`.
+- Roadmap e Changelog começam estáticos. Votos, solicitações de feature e integração com GitHub Projects ficam para uma fase posterior.
+- Tickets planejados: PUB-01 a PUB-03 para Storybook e conteúdo estático; PUB-04 e PUB-05 para rotas e integrações futuras. Nenhum ticket foi implementado.
+
 ## Pendência obrigatória antes do próximo build de produção do desktop
 
 - **DIAG-01 concluído na branch `feature/desktop-diagnostics`**: produção mantém apenas o `main.log` local, limitado e rotacionado, para preservar o contexto anterior a uma falha. Não captura o console detalhado do renderer nem encaminha logs de aplicação ao Sentry. O pacote Linux de produção foi iniciado em Xvfb com configuração isolada e não abriu as portas 9223/9229. Exceções e métricas continuam independentes dos logs _(suposição)_. CDP/DevTools continuam dependentes de `VITE_APP_ENV=development`.
