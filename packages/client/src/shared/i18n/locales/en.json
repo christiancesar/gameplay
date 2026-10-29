@@ -32,6 +32,25 @@
     "signOutTitle": "Sign out of your account?",
     "signOutDescription": "You will be disconnected from any room."
   },
+  "public": {
+    "nav": {
+      "label": "Public navigation",
+      "home": "Go to Gameplay home",
+      "product": "Product",
+      "overview": "Gameplay",
+      "overviewHint": "Voice rooms and screen sharing for small groups.",
+      "download": "Downloads",
+      "downloadHint": "Get the desktop app for your system.",
+      "explore": "Explore",
+      "roadmap": "Roadmap",
+      "roadmapHint": "See what is coming next.",
+      "changelog": "Changelog",
+      "changelogHint": "Follow product updates.",
+      "signIn": "Sign in",
+      "getStarted": "Get started",
+      "openHub": "Open Hub"
+    }
+  },
   "auth": {
     "signIn": {
       "title": "Welcome back",

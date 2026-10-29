@@ -17,3 +17,10 @@ Rotas reais, conteúdo final da Home, dados do S3, votos e GitHub Project.
 ## Critério de aceite
 
 O shell público funciona isoladamente no Storybook, com navegação simulada e sem dependência de autenticação ou Router.
+
+## Notas da execução
+
+- Criado `PublicNavigationView` com navegação desktop pelo `NavigationMenu` e navegação compacta horizontal no mobile.
+- Adicionados estados deslogado e logado, callbacks de destino e stories com interação e idioma português.
+- Adicionado o componente oficial `NavigationMenu` do shadcn ao pacote client.
+- _(suposição)_ O CTA de usuário deslogado leva primeiro para `/sign-in`; o cadastro continua acessível pela tela de login.

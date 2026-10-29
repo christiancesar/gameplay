@@ -32,6 +32,25 @@
     "signOutTitle": "Sair da sua conta?",
     "signOutDescription": "Você será desconectado de qualquer sala."
   },
+  "public": {
+    "nav": {
+      "label": "Navegação pública",
+      "home": "Ir para a home do Gameplay",
+      "product": "Produto",
+      "overview": "Gameplay",
+      "overviewHint": "Salas de voz e compartilhamento de tela para grupos pequenos.",
+      "download": "Downloads",
+      "downloadHint": "Baixe o app desktop para o seu sistema.",
+      "explore": "Explorar",
+      "roadmap": "Roadmap",
+      "roadmapHint": "Veja o que vem pela frente.",
+      "changelog": "Changelog",
+      "changelogHint": "Acompanhe as atualizações do produto.",
+      "signIn": "Entrar",
+      "getStarted": "Começar",
+      "openHub": "Abrir Hub"
+    }
+  },
   "auth": {
     "signIn": {
       "title": "Bem-vindo de volta",
