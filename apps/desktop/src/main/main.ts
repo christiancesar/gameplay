@@ -42,15 +42,16 @@ if (squirrelStartup || !app.requestSingleInstanceLock()) {
   // it, Sentry's registration replaced ours: `app://` lost `secure`, and a page that is not a secure context has no
   // microphone (`navigator.mediaDevices` is undefined).
   registerAppScheme()
-  const loggingEnabled = import.meta.env.VITE_APP_ENV !== 'production'
+  // Keep the bounded local Pino file for the context before a failure. Detailed renderer diagnostics remain opt-in.
+  const diagnosticLoggingEnabled = import.meta.env.VITE_APP_ENV !== 'production'
   const { logger, file: logFile } = createLoggingModule({
-    enabled: loggingEnabled,
+    enabled: true,
     dir: app.getPath('logs'),
     echo: !app.isPackaged,
-    // The local log also goes to Sentry as logs, from info up.
-    extraStreams: loggingEnabled ? [{ level: 'info', stream: pinoTelemetryStream(telemetry) }] : [],
+    // The local log never goes to Sentry in production. The detailed development stream is opt-in by environment.
+    extraStreams: diagnosticLoggingEnabled ? [{ level: 'info', stream: pinoTelemetryStream(telemetry) }] : [],
   })
-  captureErrors(logger, { app, proc: process, captureRendererConsole: loggingEnabled })
+  captureErrors(logger, { app, proc: process, captureRendererConsole: diagnosticLoggingEnabled })
   logger.info(
     {
       version: app.getVersion(),

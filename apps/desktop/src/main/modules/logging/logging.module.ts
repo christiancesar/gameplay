@@ -11,7 +11,7 @@ const MAX_BYTES = 5 * 1024 * 1024
 const KEEP = 3
 
 type Options = {
-  /** Whether to create any local or process log destination. */
+  /** Whether to create the bounded local log destination. */
   enabled?: boolean
   /** Where `main.log` lives: `app.getPath('logs')`. */
   dir: string
