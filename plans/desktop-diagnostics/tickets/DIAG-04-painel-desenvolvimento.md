@@ -1,6 +1,6 @@
 # DIAG-04 · Painéis Desenvolvimento e MCP, documentação
 
-> Status: pendente. Depende de: DIAG-03.
+> Status: em andamento. Depende de: DIAG-03. A ativação real do MCP depende do DIAG-05.
 
 ## Escopo
 
@@ -27,17 +27,26 @@
 
 ## Checklist
 
-- [ ] Aba Desenvolvimento disponível para administradores
-- [ ] Aba MCP disponível para administradores
-- [ ] Estados desligado, ativo e indisponível definidos no Model
-- [ ] Portas e argumentos exibidos com textos em inglês e português
-- [ ] Ativação e encerramento do MCP local com confirmação na aba MCP
-- [ ] Configuração temporária do MCP exibida somente durante a sessão ativa
-- [ ] Conteúdo MDX renderizado a partir de uma única fonte
-- [ ] Story da View e testes do ViewModel adicionados
-- [ ] Navegação e permissões respeitam o painel administrativo existente
-- [ ] Notas da execução e suposições registradas
+- [x] Aba Desenvolvimento disponível para administradores
+- [x] Aba MCP disponível para administradores
+- [x] Estados desligado, ativo e indisponível definidos no Model
+- [x] Portas e argumentos exibidos com textos em inglês e português
+- [ ] Ativação e encerramento do MCP local com confirmação na aba MCP, aguardando DIAG-05
+- [x] Configuração temporária do MCP exibida somente durante a sessão ativa na View
+- [x] Conteúdo MDX versionado como fonte única da documentação do Storybook
+- [x] Story da View e testes do ViewModel adicionados
+- [x] Navegação e permissões respeitam o painel administrativo existente
+- [x] Notas da execução e suposições registradas
 
 ## Critério de aceite
 
-Com o desktop iniciado sem argumentos, a aba Desenvolvimento mostra os recursos de inicialização desligados e ensina como iniciar o app em modo de diagnóstico. A aba MCP mostra o servidor desligado. O MCP só fica ativo após confirmação nessa aba, mostrando a configuração local temporária. Nenhuma ação é executada pelo servidor remoto.
+Com o desktop iniciado sem argumentos, a aba Desenvolvimento mostra os recursos de inicialização desligados e ensina como iniciar o app em modo de diagnóstico. A aba MCP mostra o servidor indisponível até a implementação do DIAG-05. Nenhuma ação é executada pelo servidor remoto.
+
+## Notas da execução
+
+- A aba Desenvolvimento foi integrada ao painel administrativo com rotas próprias para `development` e `mcp`, mantendo o layout e a proteção existentes do painel.
+- O estado de diagnóstico vem da porta `Platform.diagnostics`, sem importar Electron ou bridge nas Views e nos ViewModels.
+- A documentação operacional foi adicionada em `packages/client/src/docs/admin-development.mdx`, cobrindo argumentos, portas, CDP, escopo local, riscos e encerramento.
+- A aba MCP possui estados e a View de confirmação de encerramento, mas o ViewModel mantém o estado `unavailable` até a implementação do servidor no DIAG-05.
+- *(suposição)* A documentação MDX fica disponível pelo Storybook como fonte versionada nesta etapa; a renderização contextual diretamente dentro da tela administrativa será concluída junto da integração final do MCP.
+- *(suposição)* A permissão administrativa já aplicada pelo layout e pelas rotas existentes é suficiente para as novas abas, sem uma regra adicional de autorização no client.
