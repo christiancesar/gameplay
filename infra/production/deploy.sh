@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deploys Gameplay to the Lightsail instance from this machine
-# (plans/06-producao-aws.md, section 7). Usage: npm run deploy [-- --skip-checks]
+# (plans/06-producao-aws.md, section 7). Usage: npm run deploy:production [-- --skip-checks]
 #
 #   1. checks: the app code is committed, typecheck, lint and tests pass
 #   2. builds gameplay-api and gameplay-web here, tagged with the commit
@@ -79,7 +79,7 @@ if [ "$SKIP_CHECKS" -eq 0 ]; then
   step "Typecheck, lint and tests"
   npm run repo:typecheck
   npm run repo:lint
-  npm test
+  npm run repo:test
 fi
 
 # The local Docker engine ("default" builder): a docker-container builder skipped
