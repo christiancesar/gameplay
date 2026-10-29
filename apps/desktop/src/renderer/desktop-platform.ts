@@ -6,7 +6,7 @@ import {
   type Platform,
   type TelemetryConfig,
 } from '@gameplay/client/platform'
-import type { DiagnosticsStatus } from '@gameplay/contracts'
+import type { DiagnosticsStatus, McpStatus } from '@gameplay/contracts'
 import type { DesktopBridge } from '@gameplay/desktop-bridge/bridge'
 import { init as initElectronSentry } from '@sentry/electron/renderer'
 
@@ -82,6 +82,7 @@ type DesktopPlatformOptions = {
   systemAudio: boolean
   /** Whether the main process is collecting local diagnostic events for this instance. */
   diagnosticsStatus?: DiagnosticsStatus
+  mcpStatus?: McpStatus
 }
 
 /**
@@ -99,8 +100,10 @@ function createDesktopPlatform({
   listSources,
   systemAudio,
   diagnosticsStatus = { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
+  mcpStatus = { state: 'inactive', endpoint: null, token: null, configuration: null },
 }: DesktopPlatformOptions): Platform {
   let chosen = server
+  let currentMcpStatus = mcpStatus
   let systemAudioTrack: SystemAudioTrack | null = null
   return {
     kind: 'desktop',
@@ -182,6 +185,17 @@ function createDesktopPlatform({
       enabled: diagnosticsStatus.diagnostics,
       status: diagnosticsStatus,
       record: (event) => void bridge['diagnostics:record'](event),
+      mcp: {
+        status: () => currentMcpStatus,
+        start: async () => {
+          currentMcpStatus = await bridge['mcp:start']()
+          return currentMcpStatus
+        },
+        stop: async () => {
+          currentMcpStatus = await bridge['mcp:stop']()
+          return currentMcpStatus
+        },
+      },
     },
   }
 }

@@ -100,6 +100,7 @@ export {
   type DiagnosticEvent,
   type DiagnosticsStatus,
 } from './diagnostics/events.js'
+export { mcpStateSchema, mcpStatusSchema, type McpState, type McpStatus } from './diagnostics/mcp.js'
 export {
   ANNOUNCEMENT_MESSAGE_MAX,
   ANNOUNCEMENT_TITLE_MAX,

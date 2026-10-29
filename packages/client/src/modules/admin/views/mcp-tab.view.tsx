@@ -38,9 +38,18 @@ function McpTabView({ state, endpoint, token, configuration, documentation, onSt
           </div>
           <p className="text-muted-foreground mt-1 text-sm">{t(`admin.mcp.stateDescriptions.${state}`)}</p>
           {!active && (
-            <Button className="mt-4" disabled={busy || state === 'unavailable'} onClick={onStart}>
-              {t(busy ? 'admin.mcp.starting' : 'admin.mcp.start')}
-            </Button>
+            <ConfirmDialog
+              trigger={
+                <Button className="mt-4" disabled={busy || state === 'unavailable'}>
+                  {t(busy ? 'admin.mcp.starting' : 'admin.mcp.start')}
+                </Button>
+              }
+              title={t('admin.mcp.startTitle')}
+              description={t('admin.mcp.startDescription')}
+              confirmLabel={t('admin.mcp.confirmStart')}
+              cancelLabel={t('common.cancel')}
+              onConfirm={onStart}
+            />
           )}
           {active && (
             <ConfirmDialog

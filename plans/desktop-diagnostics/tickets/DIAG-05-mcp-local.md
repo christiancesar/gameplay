@@ -1,6 +1,6 @@
 # DIAG-05 · MCP local somente leitura
 
-> Status: pendente. Depende de: DIAG-02 e DIAG-03.
+> Status: em andamento. Depende de: DIAG-02 e DIAG-03.
 
 ## Escopo
 
@@ -25,17 +25,27 @@
 
 ## Checklist
 
-- [ ] Transporte local escolhido e documentado
-- [ ] Ativação somente pelo painel administrativo local
-- [ ] Token temporário, expiração e revogação definidos
-- [ ] Recursos e ferramentas somente de leitura definidos por esquema
-- [ ] Autorização e desligamento implementados
-- [ ] Limites de histórico e campos testados
-- [ ] Cliente externo mínimo ou fixture de protocolo validado
-- [ ] Aba MCP mostra o estado do servidor
-- [ ] Build e inicialização sem MCP quando ele não for ativado pelo painel
-- [ ] Notas da execução e suposições registradas
+- [x] Transporte local escolhido e documentado
+- [x] Ativação somente pelo painel administrativo local
+- [x] Token temporário, expiração e revogação definidos
+- [x] Recursos e ferramentas somente de leitura definidos por esquema
+- [x] Autorização e desligamento implementados
+- [x] Limites de histórico e campos testados
+- [x] Cliente externo mínimo ou fixture de protocolo validado
+- [x] Aba MCP mostra o estado do servidor
+- [x] Build e inicialização sem MCP quando ele não for ativado pelo painel
+- [x] Notas da execução e suposições registradas
 
 ## Critério de aceite
 
 Uma aplicação local autorizada consulta status e histórico resumido pelo MCP somente depois que um administrador inicia o servidor no painel. Ao encerrar a sessão ou o desktop, a porta deixa de responder e o token deixa de ser válido. Nenhuma consulta altera o app ou expõe dados de sessão.
+
+## Notas da execução
+
+- O servidor usa `StreamableHTTPServerTransport` do SDK oficial MCP sobre HTTP em uma porta dinâmica de `127.0.0.1`.
+- Cada sessão exige o header `Authorization: Bearer <token>` com um token aleatório de 32 bytes, criado no início e revogado ao parar.
+- As ferramentas expostas são `diagnostics_status`, `diagnostics_recent_events` e `diagnostics_summary`. Todas são somente leitura e consultam apenas o coletor limitado.
+- O bridge ganhou canais tipados para consultar, iniciar e parar o servidor. A aba MCP usa confirmação explícita nas duas ações.
+- O teste do desktop valida loopback, rejeição sem token, handshake MCP, listagem das ferramentas e revogação após o encerramento.
+- *(suposição)* A expiração da sessão é o encerramento explícito pelo painel ou do desktop; não foi adicionada uma expiração por tempo nesta primeira versão.
+- *(suposição)* O token temporário será copiado ou configurado manualmente pela ferramenta externa, sem um fluxo de descoberta automática.
