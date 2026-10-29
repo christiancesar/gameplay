@@ -1,11 +1,11 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-28 (diagnóstico modular planejado; release de produção bloqueada até remover logs do app).
+> Última atualização: 2026-10-29 (diagnóstico modular detalhado; release de produção bloqueada até remover logs do app).
 
 ## Pendência obrigatória antes do próximo build de produção do desktop
 
-- **DIAG-01, em `desktop-diagnostics/`: desligar todos os logs do app em produção**, conforme decisão do usuário. O `screen-share-debug.ts` só emite em desenvolvimento, e CDP/DevTools também dependem de `VITE_APP_ENV=development`, mas o `main` ainda cria `main.log`, recolhe avisos/erros do renderer e encaminha logs `info+` ao Sentry quando configurado. Auditar também preload, helper de áudio e SDKs. A release só fica liberada após testar um pacote `VITE_APP_ENV=production` e comprovar ausência de arquivo, console, encaminhamento e portas de diagnóstico. A política de exceções e métricas do Sentry precisa ser decidida à parte _(suposição)_.
-- A reorganização futura está em `desktop-diagnostics/`: porta de eventos, coletor limitado, composição com DI no `main`, CDP opcional e MCP local de leitura. Não implementar nem ativar MCP nesta branch por causa deste registro.
+- **DIAG-01 concluído na branch `feature/desktop-diagnostics`**: produção não cria `main.log`, não captura console do renderer e não encaminha logs de aplicação ao Sentry. O pacote Linux de produção foi iniciado em Xvfb com configuração isolada, sem arquivo de log da aplicação e sem portas 9223/9229. Exceções e métricas continuam independentes dos logs _(suposição)_. O `screen-share-debug.ts` só emite em desenvolvimento, e CDP/DevTools continuam dependentes de `VITE_APP_ENV=development`.
+- O plano `desktop-diagnostics/` foi detalhado para separar coletor, inicialização por argumentos, CDP local, inspector do `main`, painel administrativo com documentação MDX e MCP local somente leitura. Decisão adicional: o MCP começa desligado e só pode ser iniciado ou encerrado pela aba MCP do painel administrativo local, nunca pelo servidor self-hosted. Nesta branch, `feature/desktop-diagnostics`, serão desenvolvidos DIAG-01 a DIAG-04; DIAG-05 ficará para uma branch separada. DIAG-01 está concluído; os demais tickets continuam pendentes.
 
 ## Status das fases (workflow ágil)
 

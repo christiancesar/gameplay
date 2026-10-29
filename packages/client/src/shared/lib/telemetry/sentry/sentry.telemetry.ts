@@ -16,11 +16,13 @@ export class SentryTelemetry implements Telemetry {
   readonly measuring = true
   private readonly sdk: SentrySdk
   private readonly app: string
+  private readonly logsEnabled: boolean
 
   /** `app` (web or desktop) goes on every log and metric, as the tag does on events. */
-  constructor(sdk: SentrySdk, app: string) {
+  constructor(sdk: SentrySdk, app: string, logsEnabled = true) {
     this.sdk = sdk
     this.app = app
+    this.logsEnabled = logsEnabled
   }
 
   captureError(error: unknown, context?: ErrorContext): void {
@@ -28,6 +30,7 @@ export class SentryTelemetry implements Telemetry {
   }
 
   log(level: LogLevel, message: string, attributes?: Attributes): void {
+    if (!this.logsEnabled) return
     this.sdk.logger[level](message, { ...attributes, app: this.app })
   }
 

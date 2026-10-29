@@ -13,7 +13,7 @@ function createSentryTelemetry(config: TelemetryConfig, serverUrl: string, route
   // A host with its own SDK around this one (Electron) starts it, handing over the framework's init.
   if (config.sentry.start) config.sentry.start(options, Sentry.init as (options: never) => void)
   else Sentry.init(options)
-  return new SentryTelemetry(Sentry, config.app)
+  return new SentryTelemetry(Sentry, config.app, config.logs)
 }
 
 export { createSentryTelemetry }

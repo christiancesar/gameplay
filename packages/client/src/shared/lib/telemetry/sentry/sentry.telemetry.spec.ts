@@ -50,6 +50,14 @@ describe('SentryTelemetry', () => {
     expect(fake.logger.info).not.toHaveBeenCalled()
   })
 
+  it('does not send application logs when disabled', () => {
+    const fake = sdk()
+
+    new SentryTelemetry(fake, 'desktop', false).log('error', 'hidden')
+
+    expect(fake.logger.error).not.toHaveBeenCalled()
+  })
+
   it('sends each value of a measurement as a distribution named after it, with the attributes and the app', () => {
     const fake = sdk()
     const telemetry = new SentryTelemetry(fake, 'web')

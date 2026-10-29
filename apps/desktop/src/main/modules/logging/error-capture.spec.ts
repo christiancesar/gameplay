@@ -60,6 +60,23 @@ describe('captureErrors', () => {
 
     expect(logger.entries.map((entry) => entry.message)).toEqual(['Window stopped responding'])
   })
+
+  it('can leave renderer console messages out while retaining lifecycle failures', () => {
+    const logger = new FakeLogger()
+    const app = new EventEmitter()
+    captureErrors(logger, {
+      app: app as unknown as App,
+      proc: new EventEmitter() as unknown as NodeJS.Process,
+      captureRendererConsole: false,
+    })
+    const window = contents()
+    app.emit('web-contents-created', {}, window)
+
+    window.emit('console-message', { level: 'error', message: 'hidden', lineNumber: 1, sourceId: 'app://x.js' })
+    window.emit('unresponsive')
+
+    expect(logger.entries.map((entry) => entry.message)).toEqual(['Window stopped responding'])
+  })
 })
 
 describe('captureContents', () => {

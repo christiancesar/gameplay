@@ -21,6 +21,7 @@ describe('telemetryFromBuild', () => {
       app: 'desktop',
       environment: 'production',
       release: 'gameplay-desktop@1.2.3',
+      logs: false,
       sentry: null,
       faro: null,
     })
@@ -28,11 +29,16 @@ describe('telemetryFromBuild', () => {
 
   it('sends to the Sentry project of the app, straight to Sentry, and never to Faro', () => {
     const telemetry = telemetryFromBuild(
-      env({ VITE_SENTRY_DSN: 'https://key@o1.ingest.sentry.io/2', VITE_SENTRY_ENVIRONMENT: 'development' }),
+      env({
+        VITE_APP_ENV: 'development',
+        VITE_SENTRY_DSN: 'https://key@o1.ingest.sentry.io/2',
+        VITE_SENTRY_ENVIRONMENT: 'development',
+      }),
     )
 
     expect(telemetry.sentry).toEqual({ dsn: 'https://key@o1.ingest.sentry.io/2', start: expect.any(Function) })
     expect(telemetry.environment).toBe('development')
+    expect(telemetry.logs).toBe(true)
     expect(telemetry.faro).toBeNull()
   })
 })

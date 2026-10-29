@@ -68,6 +68,8 @@ type TelemetryConfig = {
   /** Where it runs: `development`, `production`, `host`. Not the app, which has its own tag. */
   environment: string
   release: string
+  /** Whether application logs may be sent to the telemetry provider. Errors and measurements are independent. */
+  logs?: boolean
   /**
    * Absent: Sentry stays off. `tunnel` is a path of the server (the web) or a full URL. `start` is how a host
    * whose SDK wraps the framework one starts it (the desktop app: the Electron renderer SDK, which sends through

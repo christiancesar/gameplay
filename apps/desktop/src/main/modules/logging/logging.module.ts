@@ -11,6 +11,8 @@ const MAX_BYTES = 5 * 1024 * 1024
 const KEEP = 3
 
 type Options = {
+  /** Whether to create any local or process log destination. */
+  enabled?: boolean
   /** Where `main.log` lives: `app.getPath('logs')`. */
   dir: string
   /** Also write to stderr, for `npm run desktop` in a terminal. */
@@ -25,8 +27,13 @@ type Options = {
  * never grows without limit. The renderer's warnings and errors arrive here too.
  * A log that cannot be opened must never stop the app, so it falls back to a logger that writes nothing.
  */
-export function createLoggingModule({ dir, echo, extraStreams = [] }: Options): { logger: Logger; file: string } {
+export function createLoggingModule({ enabled = true, dir, echo, extraStreams = [] }: Options): {
+  logger: Logger
+  file: string | null
+} {
   const file = path.join(dir, 'main.log')
+  if (!enabled) return { logger: pino({ enabled: false }), file: null }
+
   try {
     fs.mkdirSync(dir, { recursive: true })
     rotateLog(file, { maxBytes: MAX_BYTES, keep: KEEP })

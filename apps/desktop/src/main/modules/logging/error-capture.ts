@@ -13,7 +13,10 @@ const MAX_MESSAGE_LENGTH = 2000
  * (`process`), the other processes (`app`), and every window (`web-contents-created`, which also covers the
  * renderer's uncaught errors, since Chromium prints them to its console).
  */
-export function captureErrors(logger: Logger, { app, proc }: { app: App; proc: NodeJS.Process }): void {
+export function captureErrors(
+  logger: Logger,
+  { app, proc, captureRendererConsole = true }: { app: App; proc: NodeJS.Process; captureRendererConsole?: boolean },
+): void {
   // The monitor only watches: Electron's own handling of the exception (the error dialog) stays as it is.
   proc.on('uncaughtExceptionMonitor', (err, origin) =>
     logger.error({ err, origin }, 'Uncaught exception in the main process'),
@@ -37,27 +40,32 @@ export function captureErrors(logger: Logger, { app, proc }: { app: App; proc: N
     if (quitting || details.reason === 'clean-exit') logger.debug(data, 'Child process ended')
     else logger.error(data, 'Child process gone')
   })
-  app.on('web-contents-created', (_event, contents) => captureContents(logger, contents))
+  app.on('web-contents-created', (_event, contents) => captureContents(logger, contents, { captureRendererConsole }))
 }
 
 const ERR_ABORTED = -3
 
 /** One window: its console (warnings and errors, the rest as debug), failed loads and a page that stopped answering. */
-export function captureContents(logger: Logger, contents: WebContents): void {
+export function captureContents(
+  logger: Logger,
+  contents: WebContents,
+  { captureRendererConsole = true }: { captureRendererConsole?: boolean } = {},
+): void {
   const flood = new RateLimiter(CONSOLE_LIMIT, CONSOLE_WINDOW_MS)
-  contents.on('console-message', (event) => {
-    const { level, message, lineNumber, sourceId } = event
-    // The DevTools talk to themselves; none of it is the app's.
-    if (sourceId.startsWith('devtools://')) return
-    if (level !== 'error' && level !== 'warning')
-      return logger.debug({ source: sourceId, line: lineNumber, message }, 'Renderer console')
-    if (!flood.allow()) return
-    const dropped = flood.takeSuppressed()
-    if (dropped > 0) logger.warn({ dropped }, 'Renderer console messages dropped, the page logs too fast')
-    const data = { source: sourceId, line: lineNumber, message: message.slice(0, MAX_MESSAGE_LENGTH) }
-    if (level === 'error') logger.error(data, 'Renderer console error')
-    else logger.warn(data, 'Renderer console warning')
-  })
+  if (captureRendererConsole)
+    contents.on('console-message', (event) => {
+      const { level, message, lineNumber, sourceId } = event
+      // The DevTools talk to themselves; none of it is the app's.
+      if (sourceId.startsWith('devtools://')) return
+      if (level !== 'error' && level !== 'warning')
+        return logger.debug({ source: sourceId, line: lineNumber, message }, 'Renderer console')
+      if (!flood.allow()) return
+      const dropped = flood.takeSuppressed()
+      if (dropped > 0) logger.warn({ dropped }, 'Renderer console messages dropped, the page logs too fast')
+      const data = { source: sourceId, line: lineNumber, message: message.slice(0, MAX_MESSAGE_LENGTH) }
+      if (level === 'error') logger.error(data, 'Renderer console error')
+      else logger.warn(data, 'Renderer console warning')
+    })
   contents.on('did-fail-load', (_event, errorCode, errorDescription, url, isMainFrame) => {
     // A navigation the app cancelled itself (the locked navigation) is not a failure.
     if (errorCode === ERR_ABORTED) return

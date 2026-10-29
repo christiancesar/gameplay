@@ -19,6 +19,7 @@ describe('createLoggingModule', () => {
     logger.debug({ hidden: true }, 'debug stays out')
     logger.info({ answer: 42 }, 'hello')
 
+    if (!file) throw new Error('Expected logging to be enabled')
     const lines = fs.readFileSync(file, 'utf8').trim().split('\n')
     expect(lines).toHaveLength(1)
     expect(JSON.parse(lines[0] ?? '')).toMatchObject({ level: 'info', msg: 'hello', answer: 42 })
@@ -32,11 +33,22 @@ describe('createLoggingModule', () => {
     for (let index = 0; index < 90_000; index++) logger.error({ index, big }, 'flood')
     logger.info('last line')
 
+    if (!file) throw new Error('Expected logging to be enabled')
     const files = fs.readdirSync(path.dirname(file))
     const total = files.reduce((sum, name) => sum + fs.statSync(path.join(path.dirname(file), name)).size, 0)
     expect(files.length).toBeGreaterThan(1)
     expect(files.length).toBeLessThanOrEqual(4)
     expect(total).toBeLessThanOrEqual(4 * 5 * 1024 * 1024)
     expect(fs.readFileSync(file, 'utf8')).toContain('last line')
+  })
+
+  it('does not create a local destination when disabled', () => {
+    const logDir = path.join(dir, 'disabled')
+    const { logger, file } = createLoggingModule({ dir: logDir, echo: false, enabled: false })
+
+    logger.info('this must not be persisted')
+
+    expect(file).toBeNull()
+    expect(fs.existsSync(logDir)).toBe(false)
   })
 })
