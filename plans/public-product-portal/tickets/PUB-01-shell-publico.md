@@ -32,5 +32,6 @@ O shell público funciona isoladamente no Storybook, com navegação simulada e 
 - Criado `PublicNavigationView` com navegação desktop pelo `NavigationMenu` e navegação compacta horizontal no mobile.
 - Adicionados estados deslogado e logado, callbacks de destino e stories com interação e idioma português.
 - Adicionado o componente oficial `NavigationMenu` do shadcn ao pacote client.
+- Adicionados ao header público os controles de tema e idioma, além do botão `Sign in` para usuários deslogados e `Open Hub` para usuários autenticados.
 - _(suposição)_ O CTA de usuário deslogado leva primeiro para `/sign-in`; o cadastro continua acessível pela tela de login.
 - _(suposição)_ No mobile, uma navegação horizontal compacta é mais apropriada que abrir o viewport completo do `NavigationMenu`.

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn } from 'storybook/test'
 
+import { languageOptions } from '@/fixtures/language'
+
 import { PublicNavigationView } from './public-navigation.view'
 import { PublicHomeView } from './public-home.view'
 
@@ -14,7 +16,15 @@ const meta = {
   },
   render: (args) => (
     <>
-      <PublicNavigationView isAuthenticated={args.isAuthenticated} onNavigate={args.onNavigate} />
+      <PublicNavigationView
+        isAuthenticated={args.isAuthenticated}
+        onNavigate={args.onNavigate}
+        theme="light"
+        language="en"
+        languageOptions={languageOptions}
+        onToggleTheme={() => undefined}
+        onLanguageChange={() => undefined}
+      />
       <PublicHomeView {...args} />
     </>
   ),

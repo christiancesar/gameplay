@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { languageOptions } from '@/fixtures/language'
+
 import { ROADMAP_ITEMS } from '../model/seeds/roadmap-seed'
 
 import { PublicNavigationView } from './public-navigation.view'
@@ -12,7 +14,15 @@ const meta = {
   args: { items: ROADMAP_ITEMS },
   render: (args) => (
     <>
-      <PublicNavigationView isAuthenticated={false} onNavigate={() => undefined} />
+      <PublicNavigationView
+        isAuthenticated={false}
+        onNavigate={() => undefined}
+        theme="light"
+        language="en"
+        languageOptions={languageOptions}
+        onToggleTheme={() => undefined}
+        onLanguageChange={() => undefined}
+      />
       <PublicRoadmapView {...args} />
     </>
   ),

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn } from 'storybook/test'
 
+import { languageOptions } from '@/fixtures/language'
+
 import { CHANGELOG_ENTRIES } from '../model/seeds/changelog-seed'
 
 import { PublicChangelogView } from './public-changelog.view'
@@ -18,7 +20,15 @@ const meta = {
   },
   render: (args) => (
     <>
-      <PublicNavigationView isAuthenticated={false} onNavigate={() => undefined} />
+      <PublicNavigationView
+        isAuthenticated={false}
+        onNavigate={() => undefined}
+        theme="light"
+        language="en"
+        languageOptions={languageOptions}
+        onToggleTheme={() => undefined}
+        onLanguageChange={() => undefined}
+      />
       <PublicChangelogView {...args} />
     </>
   ),

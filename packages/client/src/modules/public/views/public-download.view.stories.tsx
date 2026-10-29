@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn } from 'storybook/test'
 
+import { languageOptions } from '@/fixtures/language'
+
 import { DOWNLOAD_OPTIONS } from '../model/seeds/download-seed'
 
 import { PublicDownloadView } from './public-download.view'
@@ -19,7 +21,15 @@ const meta = {
   },
   render: (args) => (
     <>
-      <PublicNavigationView isAuthenticated={args.isAuthenticated} onNavigate={args.onNavigate} />
+      <PublicNavigationView
+        isAuthenticated={args.isAuthenticated}
+        onNavigate={args.onNavigate}
+        theme="light"
+        language="en"
+        languageOptions={languageOptions}
+        onToggleTheme={() => undefined}
+        onLanguageChange={() => undefined}
+      />
       <PublicDownloadView {...args} />
     </>
   ),

@@ -1,7 +1,8 @@
-import { ArrowUpRight, Download, Map, Newspaper, Server } from 'lucide-react'
+import { Download, Map, Newspaper, Server } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/shared/ui/button'
+import { LanguageSwitcher, type LanguageOption } from '@/shared/ui/language-switcher'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,15 +11,29 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/shared/ui/navigation-menu'
+import { ThemeToggle } from '@/shared/ui/theme-toggle'
 
 type PublicDestination = 'home' | 'download' | 'roadmap' | 'changelog' | 'sign-in' | 'sign-up' | 'hub'
 
 type PublicNavigationViewProps = {
   isAuthenticated: boolean
   onNavigate: (destination: PublicDestination) => void
+  theme: 'dark' | 'light'
+  language: string
+  languageOptions: readonly LanguageOption[]
+  onToggleTheme: () => void
+  onLanguageChange: (language: string) => void
 }
 
-function PublicNavigationView({ isAuthenticated, onNavigate }: PublicNavigationViewProps) {
+function PublicNavigationView({
+  isAuthenticated,
+  onNavigate,
+  theme,
+  language,
+  languageOptions,
+  onToggleTheme,
+  onLanguageChange,
+}: PublicNavigationViewProps) {
   const { t } = useTranslation()
   const accountDestination = isAuthenticated ? 'hub' : 'sign-in'
 
@@ -129,13 +144,21 @@ function PublicNavigationView({ isAuthenticated, onNavigate }: PublicNavigationV
               {t('public.nav.signIn')}
             </Button>
           )}
+          <ThemeToggle
+            theme={theme}
+            onToggle={onToggleTheme}
+            labels={{ toLight: t('common.theme.toLight'), toDark: t('common.theme.toDark') }}
+          />
+          <LanguageSwitcher
+            value={language}
+            options={languageOptions}
+            onChange={onLanguageChange}
+            ariaLabel={t('common.language')}
+            className="hidden sm:flex"
+          />
           <Button size="sm" onClick={() => onNavigate(accountDestination)}>
-            {isAuthenticated ? (
-              <Server aria-hidden="true" data-icon="inline-start" />
-            ) : (
-              <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
-            )}
-            {isAuthenticated ? t('public.nav.openHub') : t('public.nav.getStarted')}
+            <Server aria-hidden="true" data-icon="inline-start" />
+            {isAuthenticated ? t('public.nav.openHub') : t('public.nav.signIn')}
           </Button>
         </div>
       </div>
