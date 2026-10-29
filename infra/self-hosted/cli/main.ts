@@ -1,4 +1,4 @@
-// Entry point of the npm run host:* scripts: node infra/self-hosted/cli/main.ts <command> [mode]
+// Entry point of the npm run self-hosted:* scripts: node infra/self-hosted/cli/main.ts <command> [mode]
 import { HostError } from './shell.ts'
 
 // Loaded on demand: only start needs the built @gameplay/env package.

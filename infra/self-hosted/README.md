@@ -21,7 +21,7 @@ Esta stack simula a produção (`infra/production`) com os mesmos nomes de vari�
 Na raiz do repositório:
 
 ```bash
-npm run host:start
+npm run self-hosted:start
 ```
 
 Na primeira vez o script cria os arquivos de ambiente (veja a seção abaixo) com segredos aleatórios e gera a senha do admin (mostrada uma vez, também gravada no `.env.api`). Depois ele aplica as migrations do repositório, builda as imagens, sobe tudo, cria o admin dentro do container da API e espera `/api/health` responder. No fim imprime o endereço, `http://localhost:8080`.
@@ -31,7 +31,7 @@ Nesse modo (`local`) nada vai para a internet e só esta máquina acessa. Microf
 Para compartilhar com amigos sem conta na Cloudflare, use o modo rápido:
 
 ```bash
-npm run host:start -- quick
+npm run self-hosted:start -- quick
 ```
 
 Ele sobe um túnel com uma URL `https://*.trycloudflare.com` sorteada. Essa URL muda a cada reinício: as sessões da URL antiga deixam de valer e os amigos precisam do link novo.
@@ -39,8 +39,8 @@ Ele sobe um túnel com uma URL `https://*.trycloudflare.com` sorteada. Essa URL 
 Outros comandos:
 
 ```bash
-npm run host:logs    # logs de todos os serviços
-npm run host:stop    # para a stack e o túnel, mantém os dados
+npm run self-hosted:logs    # logs de todos os serviços
+npm run self-hosted:stop    # para a stack e o túnel, mantém os dados
 ```
 
 Para apagar tudo, inclusive banco e uploads:
@@ -51,7 +51,7 @@ docker compose --project-directory infra/self-hosted --profile quick --profile n
 
 ## Como os comandos funcionam
 
-Os comandos `host:*` chamam um pequeno CLI em TypeScript (`cli/`), que o Node 24 roda direto, sem build. Ele faz o que o `docker compose` sozinho não faz: cria os arquivos de ambiente, descobre a URL do túnel, aplica as migrations, roda o seed do admin e espera a URL pública responder.
+Os comandos `self-hosted:*` chamam um pequeno CLI em TypeScript (`cli/`), que o Node 24 roda direto, sem build. Ele faz o que o `docker compose` sozinho não faz: cria os arquivos de ambiente, descobre a URL do túnel, aplica as migrations, roda o seed do admin e espera a URL pública responder.
 
 | Arquivo              | O que faz                                                                        |
 | -------------------- | -------------------------------------------------------------------------------- |
@@ -68,7 +68,7 @@ Os comandos `host:*` chamam um pequeno CLI em TypeScript (`cli/`), que o Node 24
 
 Os três arquivos, lidos como um só, são validados com o schema do pacote `@gameplay/env` (`packages/env/src/self-hosted.ts`), o mesmo pacote que valida a API. O `host:start` gera os segredos que faltam e, se faltar algo que só você tem (por exemplo a chave do TURN com `ICE_PROVIDER=cloudflare`), para antes do build e lista todas as variáveis com problema, com onde conseguir cada uma.
 
-Este diretório é um workspace (`@gameplay/self-hosted`), então `npm run typecheck`, `lint`, `test` e `format:check` na raiz também cobrem o CLI.
+Este diretório é um workspace (`@gameplay/self-hosted`). Use `npm run self-hosted:typecheck`, `npm run self-hosted:lint`, `npm run self-hosted:test` e `npm run self-hosted:format-check` para validar o CLI.
 
 ## Arquivos de ambiente
 
@@ -80,13 +80,13 @@ Cada coisa que se publica tem o seu arquivo. Os três ficam neste diretório, fo
 | `.env.api` | o container da API: segredos de auth, admin, voz (TURN e SFU da Cloudflare), `LOG_LEVEL`, `DOCS_ENABLED` e o OTLP da API           |
 | `.env.web` | a imagem do web: `VITE_SENTRY_DSN`, `SENTRY_*` e `FARO_COLLECTOR_URL` (entram no build, então rebuilde ao mudar)                   |
 
-O `docker compose` lê os três juntos (`--env-file` repetido), então o `docker-compose.yml` continua usando `${VAR}` como antes. Por isso rode sempre pelo CLI (`npm run host:*`). Se precisar chamar o `docker compose` na mão, passe os três: `--env-file .env --env-file .env.api --env-file .env.web`.
+O `docker compose` lê os três juntos (`--env-file` repetido), então o `docker-compose.yml` continua usando `${VAR}` como antes. Por isso rode sempre pelo CLI (`npm run self-hosted:*`). Se precisar chamar o `docker compose` na mão, passe os três: `--env-file .env --env-file .env.api --env-file .env.web`.
 
-Quem tinha um `.env` único não precisa fazer nada: no próximo `npm run host:start` o CLI cria `.env.api` e `.env.web` e move para eles as variáveis de cada um, mantendo todos os valores (a senha do banco, os segredos e o token do Sentry). O app desktop tem o seu próprio arquivo em `apps/desktop/.env`.
+Quem tinha um `.env` único não precisa fazer nada: no próximo `npm run self-hosted:start` o CLI cria `.env.api` e `.env.web` e move para eles as variáveis de cada um, mantendo todos os valores (a senha do banco, os segredos e o token do Sentry). O app desktop tem o seu próprio arquivo em `apps/desktop/.env`.
 
 ## Modos de túnel
 
-Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`npm run host:start -- named`).
+Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`npm run self-hosted:start -- named`).
 
 | Modo    | Endereço                                 | Precisa de                                                            |
 | ------- | ---------------------------------------- | --------------------------------------------------------------------- |
@@ -103,7 +103,7 @@ Defina `TUNNEL_MODE` no `.env` ou passe o modo ao script (`npm run host:start --
    - `APP_URL=https://gameplay.seudominio.com`
    - `CLOUDFLARE_TUNNEL_ID=<id do túnel>`
    - `CLOUDFLARE_TUNNEL_CREDENTIALS=/home/voce/.cloudflared/<id>.json`
-3. `npm run host:start`. O script deriva `PUBLIC_HOSTNAME` da URL e ajusta `CLOUDFLARED_UID` para o seu usuário, porque o arquivo de credenciais costuma ter modo 400. As regras de ingress (hostname para `http://web:80`, resto 404) ficam no bloco `configs` do compose, sem segredos. O arquivo de credenciais é montado somente leitura e nunca vai para o repositório.
+3. `npm run self-hosted:start`. O script deriva `PUBLIC_HOSTNAME` da URL e ajusta `CLOUDFLARED_UID` para o seu usuário, porque o arquivo de credenciais costuma ter modo 400. As regras de ingress (hostname para `http://web:80`, resto 404) ficam no bloco `configs` do compose, sem segredos. O arquivo de credenciais é montado somente leitura e nunca vai para o repositório.
 
 ### Túnel nomeado com token (`token`)
 
@@ -117,7 +117,7 @@ Muitos provedores brasileiros usam CGNAT e a conexão WebRTC direta falha neles.
 
 1. No painel da Cloudflare, abra Realtime > TURN Server e crie uma TURN key. Anote o Key ID e o API token.
 2. No `.env.api`: `CLOUDFLARE_TURN_KEY_ID=...`, `CLOUDFLARE_TURN_API_TOKEN=...`.
-3. Rode `npm run host:start` de novo (a API reinicia com a nova configuração).
+3. Rode `npm run self-hosted:start` de novo (a API reinicia com a nova configuração).
 
 Sem TURN, use `ICE_PROVIDER=stun-only`. A voz pode não conectar entre algumas pessoas.
 
@@ -134,7 +134,7 @@ O cadastro exige uma chave de registro.
 
 ```bash
 git pull
-npm run host:start
+npm run self-hosted:start
 ```
 
 O script reaplica as migrations a partir do repositório (`prisma migrate deploy` pela porta local do banco), rebuilda as imagens e roda o seed do admin dentro do container da API. O seed é idempotente.
@@ -149,7 +149,7 @@ A API manda traces, métricas e logs por OTLP quando `OTEL_EXPORTER_OTLP_ENDPOIN
 
 1. No Grafana Cloud, abra o stack > OpenTelemetry > Configure e gere um token. Copie o endpoint e o header `Authorization=Basic ...`.
 2. No `.env.api`: `OTEL_EXPORTER_OTLP_ENDPOINT` e `OTEL_EXPORTER_OTLP_HEADERS`. Os mesmos valores do `apps/api/.env` servem.
-3. `npm run host:start` de novo.
+3. `npm run self-hosted:start` de novo.
 
 No Grafana, os dados deste servidor vêm com `deployment.environment.name=host` (`OTEL_DEPLOYMENT_ENVIRONMENT`), separados do dev.
 
@@ -173,4 +173,4 @@ Para restaurar o banco: `docker compose --project-directory infra/self-hosted ex
 - Mantenha o 2FA do admin ligado e guarde os arquivos `infra/self-hosted/.env*` (estão no `.gitignore`). Eles têm os segredos, a senha do admin e o token do túnel.
 - Trocar `BETTER_AUTH_SECRET` desloga todo mundo. Trocar `REGISTRATION_KEY_SECRET` invalida as chaves ainda não usadas.
 - O nginx repassa o IP real do cliente (`CF-Connecting-IP`) e a API confia em um único salto.
-- Quando não estiver testando, rode `npm run host:stop`: sem a stack o link público deixa de funcionar.
+- Quando não estiver testando, rode `npm run self-hosted:stop`: sem a stack o link público deixa de funcionar.

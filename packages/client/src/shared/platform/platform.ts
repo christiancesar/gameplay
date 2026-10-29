@@ -91,6 +91,7 @@ type DiagnosticsPort = {
   record: (event: DiagnosticEvent) => void
   mcp: {
     status: () => McpStatus
+    refresh: () => Promise<McpStatus>
     start: () => Promise<McpStatus>
     stop: () => Promise<McpStatus>
   }

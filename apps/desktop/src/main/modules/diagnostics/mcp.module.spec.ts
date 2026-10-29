@@ -18,7 +18,7 @@ describe('LocalMcpServer', () => {
     })
 
     const stopped = await server.stop()
-    expect(stopped).toEqual({ state: 'inactive', endpoint: null, token: null, configuration: null })
+    expect(stopped).toMatchObject({ state: 'inactive', endpoint: null, token: null, configuration: null, clients: [] })
     await expect(fetch(endpoint, { headers: { Authorization: `Bearer ${active.token}` } })).rejects.toThrow()
   })
 
@@ -69,6 +69,15 @@ describe('LocalMcpServer', () => {
       'diagnostics_recent_events',
       'diagnostics_summary',
     ])
+    expect(server.status().tools).toEqual([
+      { key: 'diagnostics_status', description: 'Returns the effective local desktop diagnostics configuration.' },
+      { key: 'diagnostics_recent_events', description: 'Returns the bounded, sanitized local diagnostics history.' },
+      {
+        key: 'diagnostics_summary',
+        description: 'Returns counts of recent diagnostic event names without session content.',
+      },
+    ])
+    expect(server.status().clients[0]).toMatchObject({ name: 'test', version: '1.0.0' })
     await server.stop()
   })
 })

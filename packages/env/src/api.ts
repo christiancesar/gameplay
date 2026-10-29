@@ -27,6 +27,8 @@ export const apiEnvObject = z.object({
   REGISTRATION_KEY_SECRET: z.string().min(32),
   // Web app origin, trusted by the auth routes.
   WEB_ORIGIN: z.url().default('http://localhost:5173'),
+  // Optional origin of the Electron renderer while running `desktop:dev`.
+  DESKTOP_DEV_ORIGIN: z.url().optional(),
   // API docs (/api/docs). Unset: on outside production.
   DOCS_ENABLED: z.stringbool().optional(),
   // Where uploaded images go: a local directory (served by nginx, or by the

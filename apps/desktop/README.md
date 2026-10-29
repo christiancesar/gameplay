@@ -4,7 +4,7 @@ The Electron app: the same front-end as the web (`packages/client`), with what a
 
 ## Run it
 
-`cp .env.example .env`, then from the repo root `npm run desktop`. With `VITE_APP_ENV=development` and an empty `VITE_SERVER_URL`, the first screen asks which server to use. Local installers: `npm run desktop:make` (deb and zip in `out/make`).
+`cp .env.example .env`, then from the repo root `npm run desktop:dev`. With `VITE_APP_ENV=development` and an empty `VITE_SERVER_URL`, the first screen asks which server to use. Local installers: `npm run desktop:make` (deb and zip in `out/make`).
 
 ## The two envs that decide the server
 

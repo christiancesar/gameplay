@@ -26,9 +26,30 @@ function setup(isTrustedPage = (url: string) => url.startsWith('app://gameplay/'
     'system-audio:stop': vi.fn(() => undefined),
     'diagnostics:record': vi.fn(() => undefined),
     'diagnostics:status': vi.fn(() => ({ diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false })),
-    'mcp:status': vi.fn(() => ({ state: 'inactive' as const, endpoint: null, token: null, configuration: null })),
-    'mcp:start': vi.fn(() => ({ state: 'inactive' as const, endpoint: null, token: null, configuration: null })),
-    'mcp:stop': vi.fn(() => ({ state: 'inactive' as const, endpoint: null, token: null, configuration: null })),
+    'mcp:status': vi.fn(() => ({
+      state: 'inactive' as const,
+      endpoint: null,
+      token: null,
+      configuration: null,
+      tools: [],
+      clients: [],
+    })),
+    'mcp:start': vi.fn(() => ({
+      state: 'inactive' as const,
+      endpoint: null,
+      token: null,
+      configuration: null,
+      tools: [],
+      clients: [],
+    })),
+    'mcp:stop': vi.fn(() => ({
+      state: 'inactive' as const,
+      endpoint: null,
+      token: null,
+      configuration: null,
+      tools: [],
+      clients: [],
+    })),
   } satisfies ChannelHandlers
   registerChannels(ipc, handlers, isTrustedPage)
   const call = (channel: string, input?: unknown, page: string | null = 'app://gameplay/') =>

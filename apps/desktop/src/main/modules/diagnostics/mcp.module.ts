@@ -4,12 +4,27 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
-import type { McpStatus } from '@gameplay/contracts'
+import type { McpClient, McpStatus, McpTool } from '@gameplay/contracts'
 import { z } from 'zod'
 
 import type { DiagnosticsCollector } from './diagnostics.module'
 
-type McpSession = { server: McpServer; transport: StreamableHTTPServerTransport }
+type McpSession = { server: McpServer; transport: StreamableHTTPServerTransport; client: McpClient }
+
+const MCP_TOOLS: readonly McpTool[] = [
+  {
+    key: 'diagnostics_status',
+    description: 'Returns the effective local desktop diagnostics configuration.',
+  },
+  {
+    key: 'diagnostics_recent_events',
+    description: 'Returns the bounded, sanitized local diagnostics history.',
+  },
+  {
+    key: 'diagnostics_summary',
+    description: 'Returns counts of recent diagnostic event names without session content.',
+  },
+]
 
 const MAX_BODY_BYTES = 1_000_000
 const MCP_PATH = '/mcp'
@@ -73,11 +88,15 @@ function createMcpServer(collector: DiagnosticsCollector): McpServer {
   return server
 }
 
+function emptyStatus(state: McpStatus['state']): McpStatus {
+  return { state, endpoint: null, token: null, configuration: null, tools: [...MCP_TOOLS], clients: [] }
+}
+
 class LocalMcpServer {
   private http: Server | null = null
   private readonly sessions = new Map<string, McpSession>()
   private token: string | null = null
-  private currentStatus: McpStatus = { state: 'inactive', endpoint: null, token: null, configuration: null }
+  private currentStatus: McpStatus = emptyStatus('inactive')
 
   private readonly collector: DiagnosticsCollector
 
@@ -91,7 +110,7 @@ class LocalMcpServer {
 
   async start(): Promise<McpStatus> {
     if (this.http) return this.currentStatus
-    this.currentStatus = { state: 'starting', endpoint: null, token: null, configuration: null }
+    this.currentStatus = emptyStatus('starting')
     this.token = randomBytes(32).toString('hex')
     this.http = createServer((request, response) => void this.handle(request, response))
     try {
@@ -107,13 +126,15 @@ class LocalMcpServer {
         endpoint,
         token: this.token,
         configuration: JSON.stringify({ url: endpoint, headers: { Authorization: `Bearer ${this.token}` } }),
+        tools: [...MCP_TOOLS],
+        clients: [],
       }
       return this.currentStatus
     } catch (error) {
       this.http?.close()
       this.http = null
       this.token = null
-      this.currentStatus = { state: 'unavailable', endpoint: null, token: null, configuration: null }
+      this.currentStatus = emptyStatus('unavailable')
       throw error
     }
   }
@@ -130,7 +151,7 @@ class LocalMcpServer {
     })
     this.http = null
     this.token = null
-    this.currentStatus = { state: 'inactive', endpoint: null, token: null, configuration: null }
+    this.currentStatus = emptyStatus('inactive')
     return this.currentStatus
   }
 
@@ -150,32 +171,51 @@ class LocalMcpServer {
       const sessionId = request.headers['mcp-session-id']
       let session = typeof sessionId === 'string' ? this.sessions.get(sessionId) : undefined
       if (!session && request.method === 'POST' && isInitializeRequest(body)) {
+        const client = clientFromInitialize(body)
         const transport = new StreamableHTTPServerTransport({
           sessionIdGenerator: randomUUID,
           onsessioninitialized: (id) => {
             const pending = transport
-            this.sessions.set(id, { server: mcpServer, transport: pending })
+            this.sessions.set(id, { server: mcpServer, transport: pending, client })
+            this.updateClients()
           },
           onsessionclosed: (id) => {
             this.sessions.delete(id)
+            this.updateClients()
           },
           enableJsonResponse: true,
         })
         const mcpServer = createMcpServer(this.collector)
         transport.onclose = () => {
-          if (transport.sessionId) this.sessions.delete(transport.sessionId)
+          if (transport.sessionId) {
+            this.sessions.delete(transport.sessionId)
+            this.updateClients()
+          }
         }
         await mcpServer.connect(transport)
         await transport.handleRequest(request, response, body)
         return
       }
       if (!session) return writeJson(response, 404, { error: 'MCP session not found' })
+      session.client = { ...session.client, lastSeenAt: new Date().toISOString() }
+      this.updateClients()
       await session.transport.handleRequest(request, response, body)
     } catch (error) {
       if (!response.headersSent)
         writeJson(response, 500, { error: error instanceof Error ? error.message : 'MCP request failed' })
     }
   }
+
+  private updateClients(): void {
+    this.currentStatus = { ...this.currentStatus, clients: [...this.sessions.values()].map(({ client }) => client) }
+  }
+}
+
+function clientFromInitialize(body: { params?: { clientInfo?: { name?: unknown; version?: unknown } } }): McpClient {
+  const name = typeof body.params?.clientInfo?.name === 'string' ? body.params.clientInfo.name : 'Unknown MCP client'
+  const version = typeof body.params?.clientInfo?.version === 'string' ? body.params.clientInfo.version : 'unknown'
+  const now = new Date().toISOString()
+  return { name, version, connectedAt: now, lastSeenAt: now }
 }
 
 function createMcpModule(collector: DiagnosticsCollector) {

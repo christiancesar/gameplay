@@ -1,4 +1,4 @@
-# Postgres for local development only: `npm run db:up` in apps/api.
+# Postgres for local development only: `npm run api:db-up` from the repository root.
 # The api e2e tests create their own gameplay_test database on this server.
 # Separate from infra/self-hosted, which simulates production.
 name: gameplay-dev

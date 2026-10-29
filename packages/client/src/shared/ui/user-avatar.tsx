@@ -1,5 +1,6 @@
 import { cn } from 'cn'
 
+import { assetUrl } from '@/shared/lib/asset-url'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
 import { initialsOf } from '@/shared/ui/initials'
 
@@ -32,7 +33,7 @@ const TEXT_CLASS = {
 function UserAvatar({ name, imageUrl, size = 'default', className }: UserAvatarProps) {
   return (
     <Avatar className={cn(SIZE_CLASS[size], className)}>
-      {imageUrl && <AvatarImage src={imageUrl} alt={name} />}
+      {imageUrl && <AvatarImage src={assetUrl(imageUrl)} alt={name} />}
       <AvatarFallback className={cn('bg-muted text-foreground font-medium', TEXT_CLASS[size])}>
         {initialsOf(name)}
       </AvatarFallback>

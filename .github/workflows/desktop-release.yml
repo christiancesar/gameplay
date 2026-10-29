@@ -31,10 +31,11 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
+      - run: npm run repo:typecheck
+      - run: npm run repo:lint
+      - run: npm run repo:format-check
       - name: Tests of the desktop and what it shares
-        run: npx turbo run test --filter=desktop --filter=@gameplay/desktop-bridge --filter=@gameplay/contracts
+        run: npx turbo run test --filter=desktop --filter=@gameplay/client --filter=@gameplay/desktop-bridge --filter=@gameplay/contracts
 
   version:
     needs: checks
@@ -72,12 +73,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y dpkg fakeroot
 
       - run: npm ci
-      - run: npm run build -w @gameplay/contracts
+      - run: npm run contracts:build
       - name: Use the release version
         run: npm pkg set version="${{ needs.version.outputs.version }}" -w desktop
 
       - name: Make the Linux DEB and ZIP
-        run: npm run make -w desktop
+        run: npm run desktop:make
         env:
           VITE_APP_ENV: production
           VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}
@@ -129,7 +130,7 @@ jobs:
         run: npm pkg set version="${{ needs.version.outputs.version }}" -w desktop
 
       - name: Make the Windows installer and ZIP
-        run: npm run make -w desktop
+        run: npm run desktop:make
         env:
           MINGW_CXX: g++
           VITE_APP_ENV: production

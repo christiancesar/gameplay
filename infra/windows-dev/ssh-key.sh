@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Makes the key the host uses to reach the VM, and the copy the provisioning script authorizes. Does nothing if it
-# exists. Runs before `npm run windows:up`: the public key must be in oem/ when Windows installs.
+# exists. Runs before `npm run windows-dev:up`: the public key must be in oem/ when Windows installs.
 set -euo pipefail
 dir="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p "$dir/ssh"

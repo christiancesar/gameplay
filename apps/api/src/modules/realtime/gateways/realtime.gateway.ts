@@ -8,7 +8,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-import { type AckResponse, DESKTOP_APP_ORIGIN, REALTIME_EVENTS, type RoomJoinResult } from '@gameplay/contracts'
+import { type AckResponse, REALTIME_EVENTS, type RoomJoinResult } from '@gameplay/contracts'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { WsAckExceptionFilter } from '../../../common/errors/ws-ack-exception.filter'
 import { AsyncApiReceive, AsyncApiSend } from '../../../docs/asyncapi-decorators'
@@ -39,6 +39,7 @@ import { RelayToPeerUseCase } from '../use-cases/relay-to-peer.use-case'
 import { ReportMediaUsageUseCase } from '../use-cases/report-media-usage.use-case'
 import { SubscribeToServerUseCase } from '../use-cases/subscribe-to-server.use-case'
 import { UpdateVoiceStateUseCase } from '../use-cases/update-voice-state.use-case'
+import { socketCorsOrigin } from '../../../http/cors-origins'
 
 const OK: AckResponse = { ok: true, data: undefined }
 
@@ -47,7 +48,7 @@ export const UNAUTHENTICATED = 'UNAUTHENTICATED'
 
 // Socket.IO on /socket.io, same origin and session cookie as the REST API. The desktop app comes from its own
 // origin: CORS with credentials for the polling transport, so the cookie goes with the handshake.
-@WebSocketGateway({ cors: { origin: [DESKTOP_APP_ORIGIN], credentials: true } })
+@WebSocketGateway({ cors: { origin: socketCorsOrigin, credentials: true } })
 @UsePipes(ZodValidationPipe)
 @UseFilters(WsAckExceptionFilter)
 @UseInterceptors(RealtimeMetricsInterceptor)

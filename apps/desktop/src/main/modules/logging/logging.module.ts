@@ -15,7 +15,7 @@ type Options = {
   enabled?: boolean
   /** Where `main.log` lives: `app.getPath('logs')`. */
   dir: string
-  /** Also write to stderr, for `npm run desktop` in a terminal. */
+  /** Also write to stderr, for `npm run desktop:dev` in a terminal. */
   echo: boolean
   /** More places the lines go (the telemetry), with the lowest level each takes. */
   extraStreams?: pino.StreamEntry[]
