@@ -49,6 +49,57 @@
       "signIn": "Sign in",
       "getStarted": "Get started",
       "openHub": "Open Hub"
+    },
+    "home": {
+      "eyebrow": "A place to play together",
+      "title": "Keep the good part of being in the same room.",
+      "description": "Voice rooms and screen sharing for small groups. Bring your people in, stay close to the game and keep the conversation moving.",
+      "getStarted": "Get started",
+      "openHub": "Open Hub",
+      "download": "Download the app",
+      "noCreditCard": "Free to start. No card required.",
+      "previewLabel": "Your next room",
+      "previewTitle": "Friday night squad",
+      "previewLive": "Live",
+      "previewRoom": "Main room",
+      "previewPrivate": "Invite only",
+      "previewYou": "You",
+      "previewSpeaking": "Speaking",
+      "previewFriend": "Alex",
+      "previewListening": "Listening",
+      "features": {
+        "voice": { "title": "Stay in voice", "description": "A room that stays open while the game changes." },
+        "screen": {
+          "title": "Share the moment",
+          "description": "Show the play, the setup or whatever is on your screen."
+        },
+        "groups": {
+          "title": "Small by design",
+          "description": "Keep your spaces focused on the people you actually play with."
+        }
+      }
+    },
+    "download": {
+      "eyebrow": "Get the desktop app",
+      "title": "A closer way to play.",
+      "description": "Choose the version for your system. The app connects you to your Gameplay server and keeps the same rooms and people close by.",
+      "recommended": {
+        "windows": "Windows looks like the best match for this device.",
+        "linux": "Linux looks like the best match for this device.",
+        "unknown": "Choose the version that matches your computer."
+      },
+      "recommendedHint": "You can always change this choice below.",
+      "recommendedBadge": "Recommended",
+      "signIn": "Sign in first",
+      "platforms": { "windows": "Windows", "linux": "Linux" },
+      "platformHints": {
+        "windows": "Squirrel installer with automatic updates when a new version is available.",
+        "linux": "Deb package and portable archive for Linux desktop environments."
+      },
+      "version": "Version {{version}} · 64-bit",
+      "downloadButton": "Download",
+      "comingSoon": "Coming soon",
+      "footer": "Downloads are served from the official Gameplay release channel."
     }
   },
   "auth": {

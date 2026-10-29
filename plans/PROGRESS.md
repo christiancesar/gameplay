@@ -15,6 +15,7 @@
 - Roadmap e Changelog começam estáticos. Votos, solicitações de feature e integração com GitHub Projects ficam para uma fase posterior.
 - Tickets planejados: PUB-01 a PUB-03 para Storybook e conteúdo estático; PUB-04 e PUB-05 para rotas e integrações futuras. Nenhum ticket foi implementado.
 - PUB-01 concluído na branch `feature/public-portal-storybook`: shell público, `NavigationMenu`, estados logado/deslogado e stories de interação. Próximo ticket liberado: PUB-02, mas a execução para revisão do usuário.
+- PUB-02 concluído na mesma branch: Home pública, Downloads estáticos para Windows/Linux, recomendação por sistema e stories de interação. Próximo ticket liberado: PUB-03, mas a execução para revisão do usuário.
 
 ## Pendência obrigatória antes do próximo build de produção do desktop
 

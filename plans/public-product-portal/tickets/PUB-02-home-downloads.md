@@ -1,6 +1,6 @@
 # PUB-02 · Home e Downloads estáticos
 
-> Pontos: 5 · Depende de: PUB-01 · Branch `feature/public-home-downloads`, saída da `dev`
+> Pontos: 5 · Depende de: PUB-01 · Branch `feature/public-portal-storybook`, saída da `dev`
 
 ## Escopo
 
@@ -18,3 +18,24 @@ Detecção perfeita de sistema, feed Squirrel, assinatura, conexão real com S3 
 ## Critério de aceite
 
 As stories cobrem Home e Downloads para os principais sistemas e estados de sessão, com conteúdo estático revisável pelo usuário.
+
+## Notas da execução
+
+- Criada `PublicHomeView` com hero responsivo, painel visual de uma sala e CTAs para login, Hub e Downloads.
+- Criada `PublicDownloadView` com opções de Windows e Linux, recomendação por sistema e callbacks de download.
+- Criados seeds e entidades tipadas para as opções de download, sem chamadas de API ou dependência real do S3.
+- URLs reais ficaram fora da View. A integração futura usará a página `/download` e o feed técnico `/api/updates/windows/stable/RELEASES`.
+- Adicionados estados deslogado, logado, Windows recomendado, Linux recomendado, sistema desconhecido e português no Storybook.
+- _(suposição)_ A versão estática exibida nos cards é `0.0.2`, apenas como dado visual temporário até a fonte de releases ser conectada.
+- _(suposição)_ O download continua acionando `onDownload` nesta etapa, sem abrir uma URL real, porque o S3 ainda não foi conectado.
+
+## Checklist
+
+- [x] Home pública criada
+- [x] Página de Downloads criada como View e story
+- [x] Windows e Linux exibidos
+- [x] Recomendação por sistema representada por prop
+- [x] CTAs para usuário logado e deslogado
+- [x] Seeds tipados sem chamadas de API
+- [x] Stories de interação, responsividade e português criadas
+

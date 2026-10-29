@@ -49,6 +49,57 @@
       "signIn": "Entrar",
       "getStarted": "Começar",
       "openHub": "Abrir Hub"
+    },
+    "home": {
+      "eyebrow": "Um lugar para jogar junto",
+      "title": "A parte boa de estar na mesma sala.",
+      "description": "Salas de voz e compartilhamento de tela para grupos pequenos. Reúna sua turma, fique perto do jogo e mantenha a conversa rolando.",
+      "getStarted": "Começar",
+      "openHub": "Abrir Hub",
+      "download": "Baixar o app",
+      "noCreditCard": "Comece de graça. Sem cartão.",
+      "previewLabel": "Sua próxima sala",
+      "previewTitle": "Turma de sexta",
+      "previewLive": "Ao vivo",
+      "previewRoom": "Sala principal",
+      "previewPrivate": "Só por convite",
+      "previewYou": "Você",
+      "previewSpeaking": "Falando",
+      "previewFriend": "Alex",
+      "previewListening": "Ouvindo",
+      "features": {
+        "voice": { "title": "Fique na voz", "description": "Uma sala que continua aberta enquanto o jogo muda." },
+        "screen": {
+          "title": "Compartilhe o momento",
+          "description": "Mostre a jogada, o setup ou o que estiver na sua tela."
+        },
+        "groups": {
+          "title": "Pequeno por escolha",
+          "description": "Espaços focados nas pessoas com quem você realmente joga."
+        }
+      }
+    },
+    "download": {
+      "eyebrow": "Baixe o app desktop",
+      "title": "Um jeito mais próximo de jogar.",
+      "description": "Escolha a versão do seu sistema. O app conecta você ao seu servidor Gameplay e mantém as mesmas salas e pessoas por perto.",
+      "recommended": {
+        "windows": "O Windows parece ser a melhor opção para este dispositivo.",
+        "linux": "O Linux parece ser a melhor opção para este dispositivo.",
+        "unknown": "Escolha a versão que combina com seu computador."
+      },
+      "recommendedHint": "Você pode mudar essa escolha abaixo.",
+      "recommendedBadge": "Recomendado",
+      "signIn": "Entre primeiro",
+      "platforms": { "windows": "Windows", "linux": "Linux" },
+      "platformHints": {
+        "windows": "Instalador Squirrel com atualização automática quando uma nova versão estiver disponível.",
+        "linux": "Pacote deb e arquivo portátil para ambientes desktop Linux."
+      },
+      "version": "Versão {{version}} · 64-bit",
+      "downloadButton": "Baixar",
+      "comingSoon": "Em breve",
+      "footer": "Os downloads vêm do canal oficial de releases do Gameplay."
     }
   },
   "auth": {
