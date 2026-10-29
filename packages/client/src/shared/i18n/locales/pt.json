@@ -641,6 +641,8 @@
       "confirmStop": "Parar servidor",
       "connectionTitle": "Conexão temporária",
       "token": "Token temporário: {{token}}",
+      "copyToken": "Copiar token",
+      "copyConfiguration": "Copiar configuração JSON",
       "toolsTitle": "Tools disponíveis",
       "toolsEmpty": "Nenhuma tool registrada.",
       "clientsTitle": "Clientes conectados",

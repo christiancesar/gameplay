@@ -638,6 +638,8 @@
       "confirmStop": "Stop server",
       "connectionTitle": "Temporary connection",
       "token": "Temporary token: {{token}}",
+      "copyToken": "Copy token",
+      "copyConfiguration": "Copy JSON configuration",
       "toolsTitle": "Available tools",
       "toolsEmpty": "No tools registered.",
       "clientsTitle": "Connected clients",

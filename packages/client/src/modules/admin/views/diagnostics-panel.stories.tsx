@@ -20,6 +20,7 @@ const tools = [
     description: 'Returns counts of recent diagnostic event names without session content.',
   },
 ]
+const copyActions = { onCopyToken: fn(), onCopyConfiguration: fn() }
 
 const meta = {
   title: 'Admin/Diagnostics',
@@ -39,13 +40,33 @@ export const DevelopmentActive: Story = {
 
 export const McpOff: Story = {
   render: () => (
-    <McpTabView state="inactive" tools={tools} clients={[]} documentation={docs} onStart={fn()} onStop={fn()} />
+    <McpTabView
+      state="inactive"
+      tools={tools}
+      clients={[]}
+      tokenCopied={false}
+      configurationCopied={false}
+      {...copyActions}
+      documentation={docs}
+      onStart={fn()}
+      onStop={fn()}
+    />
   ),
 }
 
 export const McpStarting: Story = {
   render: () => (
-    <McpTabView state="starting" tools={tools} clients={[]} documentation={docs} onStart={fn()} onStop={fn()} />
+    <McpTabView
+      state="starting"
+      tools={tools}
+      clients={[]}
+      tokenCopied={false}
+      configurationCopied={false}
+      {...copyActions}
+      documentation={docs}
+      onStart={fn()}
+      onStop={fn()}
+    />
   ),
 }
 
@@ -65,6 +86,9 @@ export const McpActive: Story = {
           lastSeenAt: '2026-10-29T22:05:00.000Z',
         },
       ]}
+      tokenCopied={false}
+      configurationCopied={false}
+      {...copyActions}
       documentation={docs}
       onStart={fn()}
       onStop={fn()}

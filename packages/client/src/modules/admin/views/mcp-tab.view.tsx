@@ -1,4 +1,4 @@
-import { ServerIcon, SquareIcon } from 'lucide-react'
+import { CheckIcon, CopyIcon, ServerIcon, SquareIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { McpClient, McpTool } from '@gameplay/contracts'
 
@@ -18,6 +18,10 @@ type McpTabViewProps = {
   documentation: readonly string[]
   onStart: () => void
   onStop: () => void
+  tokenCopied: boolean
+  configurationCopied: boolean
+  onCopyToken: () => void
+  onCopyConfiguration: () => void
 }
 
 function McpTabView({
@@ -30,6 +34,10 @@ function McpTabView({
   documentation,
   onStart,
   onStop,
+  tokenCopied,
+  configurationCopied,
+  onCopyToken,
+  onCopyConfiguration,
 }: McpTabViewProps) {
   const { t } = useTranslation()
   const active = state === 'active'
@@ -90,8 +98,35 @@ function McpTabView({
           </h3>
           <div className="mt-3 flex flex-col gap-3">
             <p className="font-mono text-xs">{endpoint}</p>
-            <p className="text-muted-foreground text-xs">{t('admin.mcp.token', { token })}</p>
-            <pre className="bg-muted overflow-x-auto rounded-lg p-4 font-mono text-xs">{configuration}</pre>
+            <div className="flex items-center gap-2">
+              <p className="text-muted-foreground min-w-0 flex-1 truncate font-mono text-xs">
+                {t('admin.mcp.token', { token })}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t('admin.mcp.copyToken')}
+                title={t('admin.mcp.copyToken')}
+                onClick={onCopyToken}
+              >
+                {tokenCopied ? <CheckIcon aria-hidden /> : <CopyIcon aria-hidden />}
+              </Button>
+            </div>
+            <div className="relative">
+              <pre className="bg-muted overflow-x-auto rounded-lg p-4 pr-12 font-mono text-xs">{configuration}</pre>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="absolute top-2 right-2"
+                aria-label={t('admin.mcp.copyConfiguration')}
+                title={t('admin.mcp.copyConfiguration')}
+                onClick={onCopyConfiguration}
+              >
+                {configurationCopied ? <CheckIcon aria-hidden /> : <CopyIcon aria-hidden />}
+              </Button>
+            </div>
           </div>
         </section>
       )}
