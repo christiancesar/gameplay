@@ -288,3 +288,42 @@ Atualização completa por sistema:
 - **Servidor do app**: o build empacotado fala com um servidor fixo, lido da env `VITE_SERVER_URL` na hora do build (nunca uma constante no código, para quem quiser montar o próprio app). `VITE_APP_ENV` (`development` ou `production`) diz o tipo de build: em produção a URL é obrigatória; em desenvolvimento pode ficar vazia e a tela de escolha pergunta (DESK-10).
 - **Versão**: `0.0.{x}`. Quem sobe é um disparo manual (`workflow_dispatch`) do workflow de release, que calcula a próxima a partir da última tag `v*` (DESK-11). O `apps/desktop/package.json` continua em `0.0.0` no repositório.
 - **Push-to-talk global** (atalho fora da janela): entra depois, como mais uma capacidade da `Platform`.
+
+## 9. Diagnóstico: CORS ao encerrar uma sessão SFU (2026-10-28)
+
+### Erro observado no app instalado
+
+O log do Electron (`%APPDATA%\Gameplay\logs\main.log`) registra que, às `23:22:40 UTC`, o renderer tentou fazer uma requisição para `PUT /api/media/sfu/sessions/:sessionId/close` no servidor `https://gameplay.oikos.company`. O Chromium bloqueou a resposta porque ela não continha `Access-Control-Allow-Origin` para a origem `app://gameplay`.
+
+Poucos segundos antes, às `23:22:34 UTC`, o auxiliar de captura de áudio havia encerrado. Portanto, a falha aconteceu durante a limpeza da sessão de compartilhamento. O cliente não conseguiu confirmar que a API fechou a sessão SFU. Esse registro não prova que a causa seja apenas uma origem ausente: uma resposta de erro do proxy ou de outro componente intermediário também pode chegar sem os cabeçalhos CORS.
+
+### Configuração existente neste repositório
+
+- `apps/api/src/app.setup.ts` chama `enableCors()` com `DESKTOP_APP_ORIGIN` (`app://gameplay`), `credentials: true` e inclui `PUT` em `methods`.
+- `infra/production/nginx.conf` encaminha `/api/` para a API e não define cabeçalhos CORS próprios.
+- `apps/desktop/README.md` já exige que o servidor de produção aceite `app://gameplay` antes de distribuir o instalador.
+
+Assim, a primeira hipótese a verificar é se a API implantada em `gameplay.oikos.company` está numa versão anterior à configuração para desktop. Também é necessário descartar uma resposta de erro gerada pelo proxy, Cloudflare ou API.
+
+### Recomendações de investigação e correção
+
+1. **Conferir a versão implantada da API.** Atualizar e publicar a API com a configuração de `apps/api/src/app.setup.ts` caso o servidor ainda não permita `app://gameplay`.
+2. **Verificar o preflight no servidor.** O `PUT` com JSON pode gerar uma requisição `OPTIONS`. Conferir no DevTools e nos logs do proxy/API o status e os cabeçalhos dessa resposta, correlacionando pelo horário do erro.
+3. **Verificar a resposta real do `PUT`.** Ela também precisa incluir `Access-Control-Allow-Origin: app://gameplay` e `Access-Control-Allow-Credentials: true`, inclusive quando a API responde com erro. Se a resposta for `502`, `503` ou similar, investigar o componente que a gerou antes de alterar a política CORS.
+4. **Manter uma única camada responsável pelos cabeçalhos CORS.** A API já tem a configuração CORS; evitar duplicá-la no Nginx, pois cabeçalhos repetidos podem invalidar a resposta.
+5. **Não usar origem curinga.** Como a sessão usa credenciais, permitir exatamente `app://gameplay`; não configurar `Access-Control-Allow-Origin: *`.
+
+Exemplo de preflight seguro para diagnóstico, sem enviar credenciais nem alterar uma sessão:
+
+```powershell
+curl.exe -i -X OPTIONS "https://gameplay.oikos.company/api/media/sfu/sessions/ID/close" `
+  -H "Origin: app://gameplay" `
+  -H "Access-Control-Request-Method: PUT" `
+  -H "Access-Control-Request-Headers: content-type"
+```
+
+O preflight deve responder com `Access-Control-Allow-Origin: app://gameplay`, `Access-Control-Allow-Credentials: true`, `PUT` em `Access-Control-Allow-Methods` e `content-type` em `Access-Control-Allow-Headers`. Depois, confirmar no DevTools que a resposta real do `PUT` também traz os cabeçalhos de origem e credenciais.
+
+### Critério de resolução
+
+Repetir um compartilhamento e seu encerramento no app instalado. Não deve haver erro CORS no console; o preflight, quando enviado, e a resposta do `PUT` devem permitir a origem exata `app://gameplay`. Confirmar também nos logs da API que a sessão SFU foi fechada. A configuração local, por si só, não comprova que a versão implantada ou o caminho pelo proxy estejam corretos.
