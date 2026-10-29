@@ -1,10 +1,11 @@
-import { DESKTOP_APP_ORIGIN, PASSWORD_MIN_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
+import { PASSWORD_MIN_LENGTH, USERNAME_PATTERN } from '@gameplay/contracts'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { admin, openAPI, twoFactor, username } from 'better-auth/plugins'
 import { isDocsEnabled } from '../docs/docs-enabled'
 import type { EnvService } from '../env/env.service'
 import { DISABLED_AUTH_PATHS, disabledAuthPrefixes } from './auth-disabled-paths'
+import { corsOrigins } from '../http/cors-origins'
 import type { PrismaService } from './prisma'
 
 // Better Auth instance. Built by AuthenticationModule with the app's Prisma
@@ -19,7 +20,7 @@ export function createAuth(prisma: PrismaService, env: EnvService) {
     disabledPaths: DISABLED_AUTH_PATHS,
     secret: env.get('BETTER_AUTH_SECRET'),
     // The web page, and the desktop app that calls this API from its own origin.
-    trustedOrigins: [env.get('WEB_ORIGIN'), DESKTOP_APP_ORIGIN],
+    trustedOrigins: corsOrigins(env.get('WEB_ORIGIN'), env.get('DESKTOP_DEV_ORIGIN')),
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     emailAndPassword: {
       enabled: true,

@@ -192,6 +192,20 @@ describe('Authentication (e2e)', () => {
     })
   })
 
+  describe('desktop development origin', () => {
+    it('answers the CORS preflight for the Electron dev renderer', async () => {
+      const response = await request(app.getHttpServer())
+        .options('/api/auth/get-session')
+        .set('Origin', 'http://localhost:5173')
+        .set('Access-Control-Request-Method', 'GET')
+        .set('Access-Control-Request-Headers', 'content-type')
+
+      expect(response.status).toBe(204)
+      expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173')
+      expect(response.headers['access-control-allow-credentials']).toBe('true')
+    })
+  })
+
   describe('disabled routes', () => {
     it.each(DISABLED_AUTH_PATHS)('answer 404 on %s', async (path) => {
       const { agent } = await signUp()

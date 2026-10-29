@@ -18,6 +18,7 @@ export const selfHostedEnvObject = apiEnvObject
   .pick({
     LOG_LEVEL: true,
     DOCS_ENABLED: true,
+    DESKTOP_DEV_ORIGIN: true,
     BETTER_AUTH_SECRET: true,
     REGISTRATION_KEY_SECRET: true,
     CLOUDFLARE_TURN_KEY_ID: true,

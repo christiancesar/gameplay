@@ -41,6 +41,7 @@ export const ENV_SOURCES: Record<SelfHostedEnvKey, EnvSource> = {
   ICE_PROVIDER: fallback,
   LOG_LEVEL: fallback,
   DOCS_ENABLED: fallback,
+  DESKTOP_DEV_ORIGIN: fallback,
   ADMIN_EMAIL: fallback,
   ADMIN_USERNAME: fallback,
   OTEL_DEPLOYMENT_ENVIRONMENT: fallback,
