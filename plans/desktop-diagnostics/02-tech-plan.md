@@ -34,7 +34,7 @@ Contrato inicial proposto:
 
 | Argumento | Efeito |
 | --- | --- |
-| `--diagnostics` | ativa o coletor local de eventos e histórico limitado |
+| `--diagnostics` | ativa o coletor local de eventos, histórico limitado e diagnósticos detalhados do renderer |
 | `--cdp-port=<porta>` | ativa o endpoint CDP local do Chromium |
 | `--main-inspect-port=<porta>` | ativa o inspector local do processo `main` |
 | `--devtools` | permite abrir DevTools por janela quando solicitado |
@@ -46,7 +46,7 @@ Os argumentos devem rejeitar portas inválidas, colisões detectáveis e combina
 - Encapsular `app.commandLine.appendSwitch('remote-debugging-port', ...)` em configuração de inicialização do módulo: CDP externo precisa ser definido antes de `ready`. A porta só deve ser configurada quando `--cdp-port` estiver presente e deve ficar limitada ao acesso local.
 - O inspector do processo `main` é separado do CDP do renderer e usa `--main-inspect-port`. Não prometer que uma única porta inspeciona os dois processos.
 - Encapsular abertura de DevTools por janela. Não presumir que `webContents.debugger` e DevTools possam estar anexados simultaneamente; o Electron pode desconectar o debugger ao abrir DevTools.
-- Avaliar `webContents.debugger` para coleta programática limitada de eventos do renderer. Não prometer leitura de estado de negócio apenas via CDP; os eventos de domínio continuam necessários.
+- Encapsular `webContents.debugger` para uma coleta programática limitada, anexando somente quando não houver debugger ativo. Não prometer leitura de estado de negócio apenas via CDP; os eventos de domínio continuam necessários.
 
 ## Painel administrativo e documentação
 

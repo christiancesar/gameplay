@@ -6,7 +6,7 @@
 
 Durante a análise da transmissão ultrawide, foram introduzidos pontos de `console.warn` dentro do serviço de compartilhamento. Eles ajudaram a verificar captura e SFU, mas misturam a lógica da transmissão com o formato e o destino do diagnóstico. Ao mesmo tempo, o `main` já possui um logger, captura central de erros e telemetria. Hoje não existe uma única interface para consultar de forma estruturada o que ocorreu numa tentativa de compartilhamento.
 
-Além disso, a condição de desenvolvimento protege CDP, DevTools e os diagnósticos detalhados de screen share. A produção mantém somente o `main.log` mínimo e local, sem console detalhado do renderer ou encaminhamento de logs ao Sentry.
+Além disso, os argumentos explícitos protegem CDP, DevTools e os diagnósticos detalhados de screen share. A produção mantém somente o `main.log` mínimo e local, sem console detalhado do renderer ou encaminhamento de logs ao Sentry.
 
 ## Resultado esperado
 
@@ -30,7 +30,7 @@ Além disso, a condição de desenvolvimento protege CDP, DevTools e os diagnós
 
 - Diagnóstico do caso 2560×1080 pode ser lido numa única sequência, sem vasculhar mensagens de console dispersas.
 - Desativar um adaptador não altera o fluxo de captura, áudio ou chamada.
-- Build de produção não abre `9223`, DevTools ou servidor MCP e não escreve `main.log`, console nem logs para Sentry.
+- Build de produção sem argumentos não abre CDP, inspector, DevTools ou servidor MCP. Mantém somente o `main.log` mínimo local e não encaminha logs para o Sentry.
 - App iniciado sem argumentos mostra todos os recursos de diagnóstico desligados no painel.
 - App iniciado com argumentos mostra somente os recursos correspondentes como ativos, com portas locais corretas.
 - MCP iniciado pelo painel aparece ativo somente durante a sessão autorizada e volta a ficar desligado após o encerramento do app.

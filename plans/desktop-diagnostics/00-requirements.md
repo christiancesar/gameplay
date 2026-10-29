@@ -24,8 +24,8 @@ Centralizar a coleta e a consulta de diagnósticos do Electron, principalmente n
 
 ## Estado atual que motivou o plano
 
-- `apps/desktop/src/main/main.ts` abre CDP em `127.0.0.1:9223` e registra sua ativação quando `VITE_APP_ENV=development`.
-- `apps/desktop/src/main/lib/window.ts` abre DevTools automaticamente sob a mesma condição. Um pacote empacotado com `VITE_APP_ENV=development` também abre esses recursos.
+- `apps/desktop/src/main/main.ts` deve abrir CDP somente quando `--cdp-port=<porta>` for passado, sempre em `127.0.0.1`.
+- `apps/desktop/src/main/lib/window.ts` deve abrir DevTools somente quando `--devtools` for passado junto com `--diagnostics`. Um pacote empacotado não ativa esses recursos apenas por estar em desenvolvimento.
 - O diagnóstico de screen share deve usar a porta estruturada do host, sem `console.warn` nem serialização JSON manual no `share-session.service.ts`.
 - `apps/desktop/src/main/modules/logging/error-capture.ts` recolhe o console do renderer. `logging.module.ts` cria `main.log` em qualquer ambiente e grava de `info` para cima. `main.ts` também envia esses logs ao Sentry se ele estiver configurado.
 
