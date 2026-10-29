@@ -1,6 +1,11 @@
 # Progresso do planejamento
 
-> Última atualização: 2026-10-28 (perfis de compartilhamento implementados; validação manual da transmissão pendente).
+> Última atualização: 2026-10-28 (diagnóstico modular planejado; release de produção bloqueada até remover logs do app).
+
+## Pendência obrigatória antes do próximo build de produção do desktop
+
+- **DIAG-01, em `desktop-diagnostics/`: desligar todos os logs do app em produção**, conforme decisão do usuário. O `screen-share-debug.ts` só emite em desenvolvimento, e CDP/DevTools também dependem de `VITE_APP_ENV=development`, mas o `main` ainda cria `main.log`, recolhe avisos/erros do renderer e encaminha logs `info+` ao Sentry quando configurado. Auditar também preload, helper de áudio e SDKs. A release só fica liberada após testar um pacote `VITE_APP_ENV=production` e comprovar ausência de arquivo, console, encaminhamento e portas de diagnóstico. A política de exceções e métricas do Sentry precisa ser decidida à parte _(suposição)_.
+- A reorganização futura está em `desktop-diagnostics/`: porta de eventos, coletor limitado, composição com DI no `main`, CDP opcional e MCP local de leitura. Não implementar nem ativar MCP nesta branch por causa deste registro.
 
 ## Status das fases (workflow ágil)
 
