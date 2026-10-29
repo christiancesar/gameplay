@@ -77,8 +77,8 @@ echo "Release $RELEASE on $(git rev-parse --abbrev-ref HEAD)"
 
 if [ "$SKIP_CHECKS" -eq 0 ]; then
   step "Typecheck, lint and tests"
-  npm run typecheck
-  npm run lint
+  npm run repo:typecheck
+  npm run repo:lint
   npm test
 fi
 

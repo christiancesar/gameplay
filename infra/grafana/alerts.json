@@ -35,9 +35,7 @@
               {
                 "evaluator": {
                   "type": "lt",
-                  "params": [
-                    1
-                  ]
+                  "params": [1]
                 }
               }
             ]
@@ -53,7 +51,7 @@
       },
       "annotations": {
         "summary": "gameplay-api on the host sent no telemetry for 5 minutes",
-        "description": "The API process is down, restarting in a loop, or cannot reach Grafana Cloud. Check `npm run host:logs`."
+        "description": "The API process is down, restarting in a loop, or cannot reach Grafana Cloud. Check `npm run self-hosted:logs`."
       }
     },
     {
@@ -91,9 +89,7 @@
               {
                 "evaluator": {
                   "type": "gt",
-                  "params": [
-                    0.05
-                  ]
+                  "params": [0.05]
                 }
               }
             ]
@@ -147,9 +143,7 @@
               {
                 "evaluator": {
                   "type": "gt",
-                  "params": [
-                    0.2
-                  ]
+                  "params": [0.2]
                 }
               }
             ]
@@ -203,9 +197,7 @@
               {
                 "evaluator": {
                   "type": "gt",
-                  "params": [
-                    10
-                  ]
+                  "params": [10]
                 }
               }
             ]

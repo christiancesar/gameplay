@@ -6,15 +6,15 @@ Backend do Gameplay: NestJS 11 com Express, Prisma 7 e Postgres.
 
 ```bash
 # em apps/api
-npm run db:up             # Postgres só de desenvolvimento (docker-compose.yml), porta 5432
+npm run api:db-up         # Postgres só de desenvolvimento (docker-compose.yml), porta 5432
 cp .env.example .env      # só na primeira vez
-npm run db:migrate        # aplica as migrations no banco de dev
-npm run dev               # http://localhost:3333/api/health
+npm run api:db-migrate    # aplica as migrations no banco de dev
+npm run api:dev            # http://localhost:3333/api/health
 ```
 
 ## Build em Docker
 
-A imagem de produção da API (`apps/api/Dockerfile`, contexto na raiz) roda na stack self-hosted (`npm run host:start`, veja `infra/self-hosted/README.md`), que simula a produção.
+A imagem de produção da API (`apps/api/Dockerfile`, contexto na raiz) roda na stack self-hosted (`npm run self-hosted:start`, veja `infra/self-hosted/README.md`), que simula a produção.
 
 ## Scripts
 

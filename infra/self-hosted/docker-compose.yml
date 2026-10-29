@@ -1,9 +1,9 @@
 # Self-hosting stack: Gameplay on your own PC, shared through a Cloudflare Tunnel.
-# Use npm run host:start (cli/, it creates .env and, in quick mode, discovers the public URL).
+# Use npm run self-hosted:start (cli/, it creates .env and, in quick mode, discovers the public URL).
 #
 #   browser -> Cloudflare -> cloudflared -> web (nginx) -> api -> postgres
 #
-# Migrations run from the repository on this machine (npm run host:start), against the
+# Migrations run from the repository on this machine (npm run self-hosted:start), against the
 # database port bound to loopback: no image carries the Prisma CLI.
 #
 # Simulates production (infra/production) with the same variable names; storage
