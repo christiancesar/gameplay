@@ -14,6 +14,7 @@
 - A página humana de download fica em `https://gameplay.oikos.company/download`. O S3 armazena os artefatos, e o feed técnico do Squirrel fica sob `https://gameplay.oikos.company/api/updates/windows/stable/RELEASES`.
 - Roadmap e Changelog começam estáticos. Votos, solicitações de feature e integração com GitHub Projects ficam para uma fase posterior.
 - Tickets planejados: PUB-01 a PUB-03 para Storybook e conteúdo estático; PUB-04 e PUB-05 para rotas e integrações futuras. Nenhum ticket foi implementado.
+- PUB-01 concluído na branch `feature/public-portal-storybook`: shell público, `NavigationMenu`, estados logado/deslogado e stories de interação. Próximo ticket liberado: PUB-02, mas a execução para revisão do usuário.
 
 ## Pendência obrigatória antes do próximo build de produção do desktop
 
