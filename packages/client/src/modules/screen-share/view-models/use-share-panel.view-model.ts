@@ -1,3 +1,16 @@
+/**
+ * TODO: Analisar esse custom hook, ele está muito grande temos que encontrar uma forma de quebrar ele em partes pequenas deixar ele mais e especializado, seguindo boas práticas do SOLID.
+ * Outro ponto que contém alguns ifs ternários concatenados. Exemplo:
+ * ```
+ *  const preferredMode: StreamMode | null = serverMedia
+    ? serverMedia.sfu.available
+      ? 'sfu'
+      : serverMedia.mesh.available
+        ? 'mesh'
+        : null
+    : 'mesh'
+ * ```
+ */
 import type { StreamMode } from '@gameplay/contracts'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
