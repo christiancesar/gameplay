@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Admin/Desenvolvimento e MCP" />
+
+# Desenvolvimento local do desktop
+
+Esta página documenta os recursos de diagnóstico do desktop. Eles são locais e não devem ser publicados pelo servidor self-hosted nem por um túnel.
+
+## Como ativar
+
+Os recursos são definidos antes de o Electron ficar pronto, por argumentos de inicialização:
+
+```text
+gameplay --diagnostics --cdp-port=9223 --main-inspect-port=9229 --devtools
+```
+
+Sem esses argumentos, o coletor, o CDP, o inspector do processo principal e o DevTools ficam desligados.
+
+## Portas e escopo
+
+- `--cdp-port` abre o endpoint de depuração do renderer em `127.0.0.1`.
+- `--main-inspect-port` abre o inspector do processo principal em `127.0.0.1`.
+- `--devtools` abre o DevTools do renderer na janela do desktop.
+- `--diagnostics` ativa o coletor local de eventos estruturados, com retenção limitada.
+
+O CDP permite consultar alvos do Chromium, páginas do renderer, console, rede e ferramentas de inspeção compatíveis. Ele não transforma o servidor self-hosted em um endpoint de diagnóstico.
+
+## MCP
+
+A aba MCP é reservada para um servidor local que será implementado em um ticket separado. Quando disponível, ele deverá exigir confirmação no painel, escutar apenas no loopback e mostrar um endpoint e um token temporário para a sessão.
+
+O servidor MCP não deverá aceitar conexões remotas, expor credenciais permanentes nem executar comandos arbitrários no sistema.
+
+## Encerramento e riscos
+
+O acesso temporário deve ser encerrado ao parar o servidor pelo painel ou ao fechar o desktop. Enquanto estiver ativo, qualquer processo local com acesso ao endpoint e ao token poderá consultar os dados permitidos pelo servidor. Ative esses recursos somente durante a investigação e encerre-os ao terminar.
