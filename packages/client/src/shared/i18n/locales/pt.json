@@ -641,6 +641,13 @@
       "confirmStop": "Parar servidor",
       "connectionTitle": "Conexão temporária",
       "token": "Token temporário: {{token}}",
+      "toolsTitle": "Tools disponíveis",
+      "toolsEmpty": "Nenhuma tool registrada.",
+      "clientsTitle": "Clientes conectados",
+      "clientsEmpty": "Nenhum cliente MCP conectado.",
+      "clientVersion": "Versão {{version}}",
+      "clientConnectedAt": "Conectado em {{at}}",
+      "clientLastSeenAt": "Último contato em {{at}}",
       "docsTitle": "Segurança e escopo",
       "docs": {
         "local": "O servidor MCP vai escutar somente no loopback e usar um token temporário de sessão.",

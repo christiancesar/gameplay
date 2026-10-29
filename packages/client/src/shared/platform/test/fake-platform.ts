@@ -39,9 +39,38 @@ class FakePlatform implements Platform {
     status: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
     record: () => undefined,
     mcp: {
-      status: () => ({ state: 'unavailable' as const, endpoint: null, token: null, configuration: null }),
-      start: async () => ({ state: 'unavailable' as const, endpoint: null, token: null, configuration: null }),
-      stop: async () => ({ state: 'unavailable' as const, endpoint: null, token: null, configuration: null }),
+      status: () => ({
+        state: 'unavailable' as const,
+        endpoint: null,
+        token: null,
+        configuration: null,
+        tools: [],
+        clients: [],
+      }),
+      refresh: async () => ({
+        state: 'unavailable' as const,
+        endpoint: null,
+        token: null,
+        configuration: null,
+        tools: [],
+        clients: [],
+      }),
+      start: async () => ({
+        state: 'unavailable' as const,
+        endpoint: null,
+        token: null,
+        configuration: null,
+        tools: [],
+        clients: [],
+      }),
+      stop: async () => ({
+        state: 'unavailable' as const,
+        endpoint: null,
+        token: null,
+        configuration: null,
+        tools: [],
+        clients: [],
+      }),
     },
   }
   private baseUrl: string

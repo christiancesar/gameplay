@@ -229,7 +229,16 @@ function Scenario({ initialTab, overlay, empty, noCloudflare = false, usagePerio
       />
     ),
     development: <DevelopmentTabView status={diagnosticsStatus} documentation={diagnosticsDocumentation} />,
-    mcp: <McpTabView state="unavailable" documentation={diagnosticsDocumentation} onStart={fn()} onStop={fn()} />,
+    mcp: (
+      <McpTabView
+        state="unavailable"
+        tools={[]}
+        clients={[]}
+        documentation={diagnosticsDocumentation}
+        onStart={fn()}
+        onStop={fn()}
+      />
+    ),
   }[tab]
 
   return (

@@ -12,6 +12,14 @@ const docs = [
   'Only the local desktop process can activate these resources.',
   'The panel does not open ports through the server.',
 ]
+const tools = [
+  { key: 'diagnostics_status', description: 'Returns the effective local desktop diagnostics configuration.' },
+  { key: 'diagnostics_recent_events', description: 'Returns the bounded, sanitized local diagnostics history.' },
+  {
+    key: 'diagnostics_summary',
+    description: 'Returns counts of recent diagnostic event names without session content.',
+  },
+]
 
 const meta = {
   title: 'Admin/Diagnostics',
@@ -30,11 +38,15 @@ export const DevelopmentActive: Story = {
 }
 
 export const McpOff: Story = {
-  render: () => <McpTabView state="inactive" documentation={docs} onStart={fn()} onStop={fn()} />,
+  render: () => (
+    <McpTabView state="inactive" tools={tools} clients={[]} documentation={docs} onStart={fn()} onStop={fn()} />
+  ),
 }
 
 export const McpStarting: Story = {
-  render: () => <McpTabView state="starting" documentation={docs} onStart={fn()} onStop={fn()} />,
+  render: () => (
+    <McpTabView state="starting" tools={tools} clients={[]} documentation={docs} onStart={fn()} onStop={fn()} />
+  ),
 }
 
 export const McpActive: Story = {
@@ -44,6 +56,15 @@ export const McpActive: Story = {
       endpoint="http://127.0.0.1:43121/mcp"
       token="mcp-demo-token"
       configuration={'{"url":"http://127.0.0.1:43121/mcp"}'}
+      tools={tools}
+      clients={[
+        {
+          name: 'Claude Desktop',
+          version: '1.0.0',
+          connectedAt: '2026-10-29T22:00:00.000Z',
+          lastSeenAt: '2026-10-29T22:05:00.000Z',
+        },
+      ]}
       documentation={docs}
       onStart={fn()}
       onStop={fn()}

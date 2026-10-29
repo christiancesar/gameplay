@@ -100,7 +100,7 @@ function createDesktopPlatform({
   listSources,
   systemAudio,
   diagnosticsStatus = { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
-  mcpStatus = { state: 'inactive', endpoint: null, token: null, configuration: null },
+  mcpStatus = { state: 'inactive', endpoint: null, token: null, configuration: null, tools: [], clients: [] },
 }: DesktopPlatformOptions): Platform {
   let chosen = server
   let currentMcpStatus = mcpStatus
@@ -187,6 +187,10 @@ function createDesktopPlatform({
       record: (event) => void bridge['diagnostics:record'](event),
       mcp: {
         status: () => currentMcpStatus,
+        refresh: async () => {
+          currentMcpStatus = await bridge['mcp:status']()
+          return currentMcpStatus
+        },
         start: async () => {
           currentMcpStatus = await bridge['mcp:start']()
           return currentMcpStatus

@@ -638,6 +638,13 @@
       "confirmStop": "Stop server",
       "connectionTitle": "Temporary connection",
       "token": "Temporary token: {{token}}",
+      "toolsTitle": "Available tools",
+      "toolsEmpty": "No tools registered.",
+      "clientsTitle": "Connected clients",
+      "clientsEmpty": "No MCP clients connected.",
+      "clientVersion": "Version {{version}}",
+      "clientConnectedAt": "Connected {{at}}",
+      "clientLastSeenAt": "Last seen {{at}}",
       "docsTitle": "Safety and scope",
       "docs": {
         "local": "The MCP server will listen on loopback only and use a temporary session token.",
