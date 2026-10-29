@@ -1,5 +1,7 @@
 import {
   ArrowLeftIcon,
+  BugIcon,
+  CableIcon,
   CpuIcon,
   KeyRoundIcon,
   MegaphoneIcon,
@@ -24,6 +26,8 @@ const ICONS = {
   media: RadioTowerIcon,
   keys: KeyRoundIcon,
   announcements: MegaphoneIcon,
+  development: BugIcon,
+  mcp: CableIcon,
 } as const
 
 type AdminLayoutViewProps = {

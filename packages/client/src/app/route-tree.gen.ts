@@ -21,9 +21,11 @@ import { Route as AuthedAdminSetupRouteImport } from './routes/_authed/admin/set
 import { Route as AuthedServersServerIdRouteImport } from './routes/_authed/servers.$serverId'
 import { Route as AuthedAdminPanelIndexRouteImport } from './routes/_authed/admin/_panel/index'
 import { Route as AuthedAdminPanelAnnouncementsRouteImport } from './routes/_authed/admin/_panel/announcements'
+import { Route as AuthedAdminPanelDevelopmentRouteImport } from './routes/_authed/admin/_panel/development'
 import { Route as AuthedAdminPanelHardwareRouteImport } from './routes/_authed/admin/_panel/hardware'
 import { Route as AuthedAdminPanelKeysRouteImport } from './routes/_authed/admin/_panel/keys'
 import { Route as AuthedAdminPanelLimitsRouteImport } from './routes/_authed/admin/_panel/limits'
+import { Route as AuthedAdminPanelMcpRouteImport } from './routes/_authed/admin/_panel/mcp'
 import { Route as AuthedAdminPanelMediaRouteImport } from './routes/_authed/admin/_panel/media'
 import { Route as AuthedAdminPanelServersRouteImport } from './routes/_authed/admin/_panel/servers'
 import { Route as AuthedAdminPanelUsersRouteImport } from './routes/_authed/admin/_panel/users'
@@ -86,6 +88,12 @@ const AuthedAdminPanelAnnouncementsRoute =
     path: '/announcements',
     getParentRoute: () => AuthedAdminPanelRoute,
   } as any)
+const AuthedAdminPanelDevelopmentRoute =
+  AuthedAdminPanelDevelopmentRouteImport.update({
+    id: '/development',
+    path: '/development',
+    getParentRoute: () => AuthedAdminPanelRoute,
+  } as any)
 const AuthedAdminPanelHardwareRoute =
   AuthedAdminPanelHardwareRouteImport.update({
     id: '/hardware',
@@ -100,6 +108,11 @@ const AuthedAdminPanelKeysRoute = AuthedAdminPanelKeysRouteImport.update({
 const AuthedAdminPanelLimitsRoute = AuthedAdminPanelLimitsRouteImport.update({
   id: '/limits',
   path: '/limits',
+  getParentRoute: () => AuthedAdminPanelRoute,
+} as any)
+const AuthedAdminPanelMcpRoute = AuthedAdminPanelMcpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => AuthedAdminPanelRoute,
 } as any)
 const AuthedAdminPanelMediaRoute = AuthedAdminPanelMediaRouteImport.update({
@@ -127,9 +140,11 @@ export interface FileRoutesByFullPath {
   '/admin/setup': typeof AuthedAdminSetupRoute
   '/servers/$serverId': typeof AuthedServersServerIdRoute
   '/admin/announcements': typeof AuthedAdminPanelAnnouncementsRoute
+  '/admin/development': typeof AuthedAdminPanelDevelopmentRoute
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
+  '/admin/mcp': typeof AuthedAdminPanelMcpRoute
   '/admin/media': typeof AuthedAdminPanelMediaRoute
   '/admin/servers': typeof AuthedAdminPanelServersRoute
   '/admin/users': typeof AuthedAdminPanelUsersRoute
@@ -144,9 +159,11 @@ export interface FileRoutesByTo {
   '/admin/setup': typeof AuthedAdminSetupRoute
   '/servers/$serverId': typeof AuthedServersServerIdRoute
   '/admin/announcements': typeof AuthedAdminPanelAnnouncementsRoute
+  '/admin/development': typeof AuthedAdminPanelDevelopmentRoute
   '/admin/hardware': typeof AuthedAdminPanelHardwareRoute
   '/admin/keys': typeof AuthedAdminPanelKeysRoute
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
+  '/admin/mcp': typeof AuthedAdminPanelMcpRoute
   '/admin/media': typeof AuthedAdminPanelMediaRoute
   '/admin/servers': typeof AuthedAdminPanelServersRoute
   '/admin/users': typeof AuthedAdminPanelUsersRoute
@@ -164,9 +181,11 @@ export interface FileRoutesById {
   '/_authed/admin/setup': typeof AuthedAdminSetupRoute
   '/_authed/servers/$serverId': typeof AuthedServersServerIdRoute
   '/_authed/admin/_panel/announcements': typeof AuthedAdminPanelAnnouncementsRoute
+  '/_authed/admin/_panel/development': typeof AuthedAdminPanelDevelopmentRoute
   '/_authed/admin/_panel/hardware': typeof AuthedAdminPanelHardwareRoute
   '/_authed/admin/_panel/keys': typeof AuthedAdminPanelKeysRoute
   '/_authed/admin/_panel/limits': typeof AuthedAdminPanelLimitsRoute
+  '/_authed/admin/_panel/mcp': typeof AuthedAdminPanelMcpRoute
   '/_authed/admin/_panel/media': typeof AuthedAdminPanelMediaRoute
   '/_authed/admin/_panel/servers': typeof AuthedAdminPanelServersRoute
   '/_authed/admin/_panel/users': typeof AuthedAdminPanelUsersRoute
@@ -183,9 +202,11 @@ export interface FileRouteTypes {
     | '/admin/setup'
     | '/servers/$serverId'
     | '/admin/announcements'
+    | '/admin/development'
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
+    | '/admin/mcp'
     | '/admin/media'
     | '/admin/servers'
     | '/admin/users'
@@ -200,9 +221,11 @@ export interface FileRouteTypes {
     | '/admin/setup'
     | '/servers/$serverId'
     | '/admin/announcements'
+    | '/admin/development'
     | '/admin/hardware'
     | '/admin/keys'
     | '/admin/limits'
+    | '/admin/mcp'
     | '/admin/media'
     | '/admin/servers'
     | '/admin/users'
@@ -219,9 +242,11 @@ export interface FileRouteTypes {
     | '/_authed/admin/setup'
     | '/_authed/servers/$serverId'
     | '/_authed/admin/_panel/announcements'
+    | '/_authed/admin/_panel/development'
     | '/_authed/admin/_panel/hardware'
     | '/_authed/admin/_panel/keys'
     | '/_authed/admin/_panel/limits'
+    | '/_authed/admin/_panel/mcp'
     | '/_authed/admin/_panel/media'
     | '/_authed/admin/_panel/servers'
     | '/_authed/admin/_panel/users'
@@ -320,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminPanelAnnouncementsRouteImport
       parentRoute: typeof AuthedAdminPanelRoute
     }
+    '/_authed/admin/_panel/development': {
+      id: '/_authed/admin/_panel/development'
+      path: '/development'
+      fullPath: '/admin/development'
+      preLoaderRoute: typeof AuthedAdminPanelDevelopmentRouteImport
+      parentRoute: typeof AuthedAdminPanelRoute
+    }
     '/_authed/admin/_panel/hardware': {
       id: '/_authed/admin/_panel/hardware'
       path: '/hardware'
@@ -339,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/limits'
       fullPath: '/admin/limits'
       preLoaderRoute: typeof AuthedAdminPanelLimitsRouteImport
+      parentRoute: typeof AuthedAdminPanelRoute
+    }
+    '/_authed/admin/_panel/mcp': {
+      id: '/_authed/admin/_panel/mcp'
+      path: '/mcp'
+      fullPath: '/admin/mcp'
+      preLoaderRoute: typeof AuthedAdminPanelMcpRouteImport
       parentRoute: typeof AuthedAdminPanelRoute
     }
     '/_authed/admin/_panel/media': {
@@ -367,9 +406,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthedAdminPanelRouteChildren {
   AuthedAdminPanelAnnouncementsRoute: typeof AuthedAdminPanelAnnouncementsRoute
+  AuthedAdminPanelDevelopmentRoute: typeof AuthedAdminPanelDevelopmentRoute
   AuthedAdminPanelHardwareRoute: typeof AuthedAdminPanelHardwareRoute
   AuthedAdminPanelKeysRoute: typeof AuthedAdminPanelKeysRoute
   AuthedAdminPanelLimitsRoute: typeof AuthedAdminPanelLimitsRoute
+  AuthedAdminPanelMcpRoute: typeof AuthedAdminPanelMcpRoute
   AuthedAdminPanelMediaRoute: typeof AuthedAdminPanelMediaRoute
   AuthedAdminPanelServersRoute: typeof AuthedAdminPanelServersRoute
   AuthedAdminPanelUsersRoute: typeof AuthedAdminPanelUsersRoute
@@ -378,9 +419,11 @@ interface AuthedAdminPanelRouteChildren {
 
 const AuthedAdminPanelRouteChildren: AuthedAdminPanelRouteChildren = {
   AuthedAdminPanelAnnouncementsRoute: AuthedAdminPanelAnnouncementsRoute,
+  AuthedAdminPanelDevelopmentRoute: AuthedAdminPanelDevelopmentRoute,
   AuthedAdminPanelHardwareRoute: AuthedAdminPanelHardwareRoute,
   AuthedAdminPanelKeysRoute: AuthedAdminPanelKeysRoute,
   AuthedAdminPanelLimitsRoute: AuthedAdminPanelLimitsRoute,
+  AuthedAdminPanelMcpRoute: AuthedAdminPanelMcpRoute,
   AuthedAdminPanelMediaRoute: AuthedAdminPanelMediaRoute,
   AuthedAdminPanelServersRoute: AuthedAdminPanelServersRoute,
   AuthedAdminPanelUsersRoute: AuthedAdminPanelUsersRoute,

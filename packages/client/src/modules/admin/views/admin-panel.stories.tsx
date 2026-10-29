@@ -16,12 +16,14 @@ import {
 import { AdminLayoutView, type AdminTab } from './admin-layout.view'
 import { AnnouncementsTabView } from './announcements-tab.view'
 import { DeviceHardwareDialogView } from './device-hardware-dialog.view'
+import { DevelopmentTabView } from './development-tab.view'
 import { HardwareTabView } from './hardware-tab.view'
 import { KeysTabView } from './keys-tab.view'
 import { LimitDialogView } from './limit-dialog.view'
 import { LimitsTabView } from './limits-tab.view'
 import { MediaOffConfirmDialogView } from './media-off-confirm-dialog.view'
 import { MediaTabView } from './media-tab.view'
+import { McpTabView } from './mcp-tab.view'
 import { ResetPasswordDialogView } from './reset-password-dialog.view'
 import { ServerMembersDialogView } from './server-members-dialog.view'
 import { ServersTabView } from './servers-tab.view'
@@ -110,6 +112,18 @@ const noCloudflareUsage: RealtimeUsagePeriod = {
   points: [],
   cloudflare: { state: 'not-configured', checkedAt: null },
 }
+
+const diagnosticsStatus = {
+  diagnostics: false,
+  cdpPort: null,
+  mainInspectPort: null,
+  devtools: false,
+} as const
+
+const diagnosticsDocumentation = [
+  'Diagnostics are local-only and must be enabled when the desktop app starts.',
+  'The MCP server will be available after its dedicated implementation ticket is complete.',
+]
 
 function Scenario({ initialTab, overlay, empty, noCloudflare = false, usagePeriod = '24h' }: ScenarioProps) {
   const [tab, setTab] = useState(initialTab)
@@ -214,6 +228,8 @@ function Scenario({ initialTab, overlay, empty, noCloudflare = false, usagePerio
         onSend={actions.onSendAnnouncement}
       />
     ),
+    development: <DevelopmentTabView status={diagnosticsStatus} documentation={diagnosticsDocumentation} />,
+    mcp: <McpTabView state="unavailable" documentation={diagnosticsDocumentation} onStart={fn()} onStop={fn()} />,
   }[tab]
 
   return (
@@ -302,7 +318,7 @@ const meta = {
   argTypes: {
     initialTab: {
       control: 'inline-radio',
-      options: ['users', 'servers', 'hardware', 'limits', 'media', 'keys', 'announcements'],
+      options: ['users', 'servers', 'hardware', 'limits', 'media', 'keys', 'announcements', 'development', 'mcp'],
     },
     overlay: {
       control: 'select',
