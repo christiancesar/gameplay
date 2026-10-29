@@ -1,4 +1,9 @@
-import { diagnosticEventSchema, diagnosticsStatusSchema, serverOriginSchema } from '@gameplay/contracts'
+import {
+  diagnosticEventSchema,
+  diagnosticsStatusSchema,
+  mcpStatusSchema,
+  serverOriginSchema,
+} from '@gameplay/contracts'
 import { z } from 'zod'
 
 import type { DesktopChannel } from './names'
@@ -78,6 +83,12 @@ export const desktopChannels = {
   'diagnostics:record': { input: diagnosticEventSchema, output: z.void() },
   /** The effective local diagnostic state for this app instance. */
   'diagnostics:status': { input: z.undefined(), output: diagnosticsStatusSchema },
+  /** The current local MCP server session. */
+  'mcp:status': { input: z.undefined(), output: mcpStatusSchema },
+  /** Starts a local MCP server with a temporary token. */
+  'mcp:start': { input: z.undefined(), output: mcpStatusSchema },
+  /** Stops the local MCP server and revokes its token. */
+  'mcp:stop': { input: z.undefined(), output: mcpStatusSchema },
 } as const satisfies Record<DesktopChannel, { input: z.ZodType; output: z.ZodType }>
 
 export type DesktopChannels = typeof desktopChannels

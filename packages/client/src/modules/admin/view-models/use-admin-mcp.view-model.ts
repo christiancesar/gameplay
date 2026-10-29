@@ -1,14 +1,35 @@
 import { useTranslation } from 'react-i18next'
 
-/** The server itself is delivered by DIAG-05; this ViewModel keeps the panel explicit about that state for now. */
+import { useCallback, useState } from 'react'
+
+import { usePlatform } from '@/shared/platform/use-platform'
+
 function useAdminMcpViewModel() {
   const { t } = useTranslation()
+  const { diagnostics } = usePlatform()
+  const [status, setStatus] = useState(diagnostics.mcp.status())
+
+  const onStart = useCallback(async () => {
+    setStatus((current) => ({ ...current, state: 'starting' }))
+    const next = await diagnostics.mcp.start()
+    setStatus(next)
+    return next
+  }, [diagnostics])
+
+  const onStop = useCallback(async () => {
+    const next = await diagnostics.mcp.stop()
+    setStatus(next)
+    return next
+  }, [diagnostics])
 
   return {
-    state: 'unavailable' as const,
+    state: status.state,
+    endpoint: status.endpoint ?? undefined,
+    token: status.token ?? undefined,
+    configuration: status.configuration ?? undefined,
     documentation: [t('admin.mcp.docs.local'), t('admin.mcp.docs.future')],
-    onStart: () => undefined,
-    onStop: () => undefined,
+    onStart,
+    onStop,
   }
 }
 

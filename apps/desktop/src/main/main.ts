@@ -12,6 +12,7 @@ import { createCaptureModule } from './modules/capture/capture.module'
 import { installDisplayMediaHandler } from './modules/capture/display-media-handler'
 import { createDiagnosticsModule } from './modules/diagnostics/diagnostics.module'
 import { configureCdp, nodeInspector, openMainInspector } from './modules/diagnostics/debugging.module'
+import { createMcpModule } from './modules/diagnostics/mcp.module'
 import { parseDiagnosticsArgs } from './modules/diagnostics/startup-options'
 import { captureErrors } from './modules/logging/error-capture'
 import { createLoggingModule } from './modules/logging/logging.module'
@@ -50,6 +51,7 @@ if (!startupResult.ok) {
   // Keep the bounded local Pino file for the context before a failure. Detailed renderer diagnostics remain opt-in.
   const diagnosticLoggingEnabled = startupOptions.diagnostics
   const diagnostics = createDiagnosticsModule({ enabled: diagnosticLoggingEnabled, status: startupOptions })
+  const mcp = createMcpModule(diagnostics.collector)
   const { logger, file: logFile } = createLoggingModule({
     enabled: true,
     dir: app.getPath('logs'),
@@ -115,6 +117,7 @@ if (!startupResult.ok) {
         ...capture.handlers,
         ...systemAudio.handlers,
         ...diagnostics.handlers,
+        ...mcp.handlers,
       },
       (url) => isAppUrl(url, devServerUrl()),
     )
@@ -122,6 +125,7 @@ if (!startupResult.ok) {
     app.on('before-quit', () => {
       audio.service.stop()
       systemAudio.service.stop()
+      void mcp.server.stop()
       disposeMainInspector?.()
       logger.info('Gameplay closing')
       void telemetry.flush(2000)

@@ -38,6 +38,11 @@ class FakePlatform implements Platform {
     enabled: false,
     status: { diagnostics: false, cdpPort: null, mainInspectPort: null, devtools: false },
     record: () => undefined,
+    mcp: {
+      status: () => ({ state: 'unavailable' as const, endpoint: null, token: null, configuration: null }),
+      start: async () => ({ state: 'unavailable' as const, endpoint: null, token: null, configuration: null }),
+      stop: async () => ({ state: 'unavailable' as const, endpoint: null, token: null, configuration: null }),
+    },
   }
   private baseUrl: string
   private readonly sources: CaptureSource[]
