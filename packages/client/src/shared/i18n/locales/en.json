@@ -99,6 +99,56 @@
       "downloadButton": "Download",
       "comingSoon": "Coming soon",
       "footer": "Downloads are served from the official Gameplay release channel."
+    },
+    "roadmap": {
+      "eyebrow": "What is next",
+      "title": "A map for the things we are building.",
+      "description": "Some ideas are in motion, some are being shaped and some are already part of the room. This is where we keep the direction visible.",
+      "status": { "now": "In progress", "next": "Up next", "exploring": "Exploring", "done": "Shipped" },
+      "items": {
+        "desktopApp": "Desktop app",
+        "desktopAppDescription": "Bring screen and audio sharing closer to the games you play.",
+        "screenSharing": "Screen sharing profiles",
+        "screenSharingDescription": "Choose the right resolution, aspect ratio and frame rate for each share.",
+        "windowsAudio": "Windows app audio",
+        "windowsAudioDescription": "Share the sound of a game or app without pulling the voice room into it.",
+        "roadmapVoting": "Community voting",
+        "roadmapVotingDescription": "Let the community help decide what deserves attention next.",
+        "featureRequests": "Feature requests",
+        "featureRequestsDescription": "A clear place to suggest improvements and explain the problem behind them.",
+        "mobileCompanion": "Mobile companion",
+        "mobileCompanionDescription": "Keep an eye on rooms and conversations while away from the desktop.",
+        "voiceRooms": "Voice rooms",
+        "voiceRoomsDescription": "Small, focused rooms for the people you play with.",
+        "sfuStreaming": "Reliable live streaming",
+        "sfuStreamingDescription": "A stronger path for sharing a screen with the whole room."
+      }
+    },
+    "changelog": {
+      "eyebrow": "Product updates",
+      "title": "What changed.",
+      "description": "Notes from the work that makes Gameplay feel better to use, one release at a time.",
+      "search": "Search updates",
+      "back": "Back to changelog",
+      "date": "{{date}}",
+      "tags": {
+        "desktop": "Desktop",
+        "sharing": "Sharing",
+        "quality": "Quality",
+        "streaming": "Streaming",
+        "rooms": "Rooms"
+      },
+      "entries": {
+        "desktopAppPreview": "The desktop app gets closer to release",
+        "desktopAppPreviewSummary": "The Electron app now shares the same client and can reach the parts of the computer a browser cannot.",
+        "desktopAppPreviewBody": "This release brings the desktop shell, native capture boundaries and the first steps toward a dependable app for sharing your screen and audio with the room.",
+        "screenShareProfiles": "More precise screen sharing",
+        "screenShareProfilesSummary": "Screen sharing now understands ultrawide displays, aspect ratios and higher frame rates.",
+        "screenShareProfilesBody": "The share setup now describes the real shape of the display instead of treating every source as a fixed 1080p rectangle.",
+        "sfuStreaming": "A stronger path for live video",
+        "sfuStreamingSummary": "The room can use the SFU for more reliable screen delivery and layer changes.",
+        "sfuStreamingBody": "Live video now has a better path for groups that need more than a direct peer connection can comfortably provide."
+      }
     }
   },
   "auth": {
