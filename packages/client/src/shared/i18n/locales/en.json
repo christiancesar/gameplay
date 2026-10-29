@@ -36,9 +36,8 @@
     "nav": {
       "label": "Public navigation",
       "home": "Go to Gameplay home",
+      "homeLink": "Home",
       "product": "Product",
-      "overview": "Gameplay",
-      "overviewHint": "Voice rooms and screen sharing for small groups.",
       "download": "Downloads",
       "downloadHint": "Get the desktop app for your system.",
       "explore": "Explore",

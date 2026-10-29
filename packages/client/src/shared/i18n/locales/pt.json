@@ -36,9 +36,8 @@
     "nav": {
       "label": "Navegação pública",
       "home": "Ir para a home do Gameplay",
+      "homeLink": "Home",
       "product": "Produto",
-      "overview": "Gameplay",
-      "overviewHint": "Salas de voz e compartilhamento de tela para grupos pequenos.",
       "download": "Downloads",
       "downloadHint": "Baixe o app desktop para o seu sistema.",
       "explore": "Explorar",

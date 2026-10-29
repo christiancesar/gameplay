@@ -24,7 +24,7 @@ function PublicNavigationView({ isAuthenticated, onNavigate }: PublicNavigationV
 
   return (
     <header className="border-border/70 bg-background/95 sticky top-0 z-40 border-b backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         <button
           type="button"
           className="focus-visible:ring-ring shrink-0 rounded-md outline-none focus-visible:ring-3"
@@ -34,18 +34,19 @@ function PublicNavigationView({ isAuthenticated, onNavigate }: PublicNavigationV
           <span className="font-heading text-lg font-semibold tracking-tight">{t('common.appName')}</span>
         </button>
 
-        <NavigationMenu className="hidden md:flex" viewport={false}>
+        <NavigationMenu className="absolute left-1/2 hidden -translate-x-1/2 lg:flex" viewport={false}>
           <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <button type="button" onClick={() => onNavigate('home')}>
+                  {t('public.nav.homeLink')}
+                </button>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>{t('public.nav.product')}</NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="grid w-[min(90vw,28rem)] gap-1 p-2 md:grid-cols-2">
-                  <NavigationMenuLink asChild>
-                    <button type="button" className="text-left" onClick={() => onNavigate('home')}>
-                      <span className="font-medium">{t('public.nav.overview')}</span>
-                      <span className="text-muted-foreground mt-1 block text-xs">{t('public.nav.overviewHint')}</span>
-                    </button>
-                  </NavigationMenuLink>
+                <div className="w-[min(90vw,18rem)] p-2">
                   <NavigationMenuLink asChild>
                     <button type="button" className="text-left" onClick={() => onNavigate('download')}>
                       <Download aria-hidden="true" />
@@ -85,20 +86,6 @@ function PublicNavigationView({ isAuthenticated, onNavigate }: PublicNavigationV
                 </div>
               </NavigationMenuContent>
             </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <button type="button" onClick={() => onNavigate('roadmap')}>
-                  {t('public.nav.roadmap')}
-                </button>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <button type="button" onClick={() => onNavigate('changelog')}>
-                  {t('public.nav.changelog')}
-                </button>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -106,6 +93,13 @@ function PublicNavigationView({ isAuthenticated, onNavigate }: PublicNavigationV
           className="text-muted-foreground flex min-w-0 flex-1 items-center gap-1 overflow-x-auto md:hidden"
           aria-label={t('public.nav.label')}
         >
+          <button
+            type="button"
+            className="shrink-0 rounded-md px-2 py-1.5 text-sm hover:text-foreground"
+            onClick={() => onNavigate('home')}
+          >
+            {t('public.nav.homeLink')}
+          </button>
           <button
             type="button"
             className="shrink-0 rounded-md px-2 py-1.5 text-sm hover:text-foreground"
