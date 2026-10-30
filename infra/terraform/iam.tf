@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "github_updates_assume_role" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:christiancesar/gameplay:environment:electron-production"]
+      values   = ["repo:christiancesar@37115113/gameplay@1432528784:environment:electron-production"]
     }
   }
 }
@@ -90,9 +90,15 @@ data "aws_iam_policy_document" "github_updates_publish" {
   }
 
   statement {
-    sid       = "PublishUpdateObjects"
-    effect    = "Allow"
-    actions   = ["s3:AbortMultipartUpload", "s3:GetObject", "s3:PutObject"]
+    sid    = "PublishUpdateObjects"
+    effect = "Allow"
+    actions = [
+      "s3:AbortMultipartUpload",
+      "s3:GetObject",
+      "s3:GetObjectTagging",
+      "s3:PutObject",
+      "s3:PutObjectTagging",
+    ]
     resources = ["${aws_s3_bucket.uploads.arn}/updates/windows/*"]
   }
 }
