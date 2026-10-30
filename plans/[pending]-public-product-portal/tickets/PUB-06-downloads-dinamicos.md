@@ -1,6 +1,6 @@
 # PUB-06 · Downloads dinâmicos por manifesto
 
-> Pontos: 5 · Depende de: PUB-04, WIN-01 · Branch a definir, saída da `dev`
+> Pontos: 5 · Depende de: PUB-04, WIN-01 · Branch `feature/linux-appimage-release`, saída da `dev`
 
 ## Objetivo
 
@@ -60,15 +60,15 @@ Os URLs públicos podem ser endpoints estáveis que redirecionam ou fazem proxy 
 
 ## Checklist
 
-- [ ] Workflow gera o `.deb` e o `AppImage` Linux
-- [ ] Artefatos Windows e Linux são enviados ao S3
-- [ ] Manifesto estável é publicado após os artefatos
-- [ ] API serve o manifesto sem autenticação
-- [ ] Página `/download` exibe a versão do manifesto
-- [ ] Botão Windows abre o instalador atual
-- [ ] Botões Linux baixam o `.deb` e o AppImage atuais
-- [ ] Erro do manifesto não quebra a página pública
-- [ ] Storybook continua funcionando com seed fake
+- [x] Workflow gera o `.deb`, o `AppImage` e o ZIP Linux
+- [x] Workflow prepara os artefatos Windows e Linux para envio ao S3
+- [x] Manifesto versionado e estável são publicados após os artefatos
+- [x] API serve o manifesto e os artefatos sem autenticação
+- [x] Página `/download` consulta e exibe a versão do manifesto
+- [x] Botão Windows abre o instalador atual
+- [x] Botões Linux baixam o `.deb` e o AppImage atuais
+- [x] Erro do manifesto não quebra a página pública, os seeds continuam como fallback
+- [x] Storybook continua funcionando com seed fake
 
 ## Critério de aceite
 
@@ -79,3 +79,13 @@ Depois de uma nova execução do workflow, a página `/download` passa a mostrar
 - _(decisão do usuário)_ O MVP não terá assinatura Authenticode nem outra validação paga de autenticidade.
 - _(decisão do usuário)_ O formato principal do Linux será `AppImage`.
 - _(decisão do usuário)_ O S3 será a origem operacional dos artefatos. O GitHub Releases continuará como histórico da release.
+
+## Notas da execução
+
+- O manifesto tem `version`, `publishedAt`, arquitetura, formato, URL, tamanho e SHA-256 para Windows, DEB e AppImage.
+- O workflow usa `downloads/releases/<version>/` como prefixo imutável e publica `downloads/stable/latest.json` por último.
+- A API expõe `/api/downloads/latest` e `/api/downloads/stable/:artifact`, mantendo o endereço S3 somente no servidor.
+- O ViewModel usa TanStack Query, valida a resposta com schema Zod e mantém o seed como fallback de Storybook e de erro.
+- A View mostra botões separados para instalador Windows, DEB e AppImage Linux, com recomendação baseada no user agent.
+- _(suposição)_ A variável `DOWNLOADS_BASE_URL` apontará para o prefixo S3 `downloads` em produção.
+- _(pendência externa)_ Ainda falta executar uma release real, publicar o manifesto na infraestrutura e validar os downloads e a instalação do AppImage.

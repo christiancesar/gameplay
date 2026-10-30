@@ -40,9 +40,8 @@ type Story = StoryObj<typeof meta>
 
 export const WindowsRecommended: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    const downloadButtons = canvas.getAllByRole('button').filter((button) => button.textContent?.trim() === 'Download')
-    await userEvent.click(downloadButtons[0]!)
-    await expect(args.onDownload).toHaveBeenCalledWith('windows')
+    await userEvent.click(canvas.getByRole('button', { name: 'Download Windows installer' }))
+    await expect(args.onDownload).toHaveBeenCalledWith('windows', 'squirrel-installer', undefined)
   },
 }
 

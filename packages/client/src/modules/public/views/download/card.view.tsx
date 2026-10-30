@@ -1,7 +1,7 @@
 import { Check, Download, Monitor } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import type { DownloadOption, DownloadPlatform } from '../../model/entities/download-option'
+import type { DownloadArtifact, DownloadOption, DownloadPlatform } from '../../model/entities/download-option'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -9,7 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/u
 type DownloadCardProps = {
   option: DownloadOption
   recommended: boolean
-  onDownload: (platform: DownloadPlatform) => void
+  onDownload: (platform: DownloadPlatform, format: DownloadArtifact['format'], url?: string) => void
 }
 
 function DownloadCard({ option, recommended, onDownload }: DownloadCardProps) {
@@ -39,11 +39,19 @@ function DownloadCard({ option, recommended, onDownload }: DownloadCardProps) {
           {t(`public.download.platformHints.${option.platform}`)}
         </p>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full" disabled={!option.available} onClick={() => onDownload(option.platform)}>
-          <Download data-icon="inline-start" aria-hidden="true" />
-          {option.available ? t('public.download.downloadButton') : t('public.download.comingSoon')}
-        </Button>
+      <CardFooter className="flex-col items-stretch gap-2">
+        {option.artifacts.map((artifact) => (
+          <Button
+            key={artifact.format}
+            className="w-full"
+            disabled={!option.available}
+            variant={artifact.format === 'appimage' ? 'outline' : 'default'}
+            onClick={() => onDownload(option.platform, artifact.format, artifact.url)}
+          >
+            <Download data-icon="inline-start" aria-hidden="true" />
+            {t(`public.download.formats.${artifact.format}`)}
+          </Button>
+        ))}
       </CardFooter>
     </Card>
   )

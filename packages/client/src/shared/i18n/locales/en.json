@@ -136,6 +136,13 @@
       },
       "version": "Version {{version}} · 64-bit",
       "downloadButton": "Download",
+      "formats": {
+        "squirrel-installer": "Download Windows installer",
+        "deb": "Download DEB package",
+        "appimage": "Download AppImage"
+      },
+      "loading": "Checking the latest release…",
+      "error": "The latest release could not be loaded. Showing the available download options instead.",
       "comingSoon": "Coming soon",
       "footer": "Downloads are served from the official Gameplay release channel."
     },
@@ -808,7 +815,7 @@
       "docsTitle": "Safety and scope",
       "docs": {
         "local": "The MCP server will listen on loopback only and use a temporary session token.",
-      "future": "The local read-only server is available only after explicit confirmation and uses a temporary session token."
+        "future": "The local read-only server is available only after explicit confirmation and uses a temporary session token."
       }
     },
     "setup": {

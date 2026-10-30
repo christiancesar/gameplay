@@ -136,6 +136,13 @@
       },
       "version": "Versão {{version}} · 64-bit",
       "downloadButton": "Baixar",
+      "formats": {
+        "squirrel-installer": "Baixar instalador do Windows",
+        "deb": "Baixar pacote DEB",
+        "appimage": "Baixar AppImage"
+      },
+      "loading": "Verificando a release mais recente…",
+      "error": "Não foi possível carregar a release mais recente. As opções disponíveis continuam visíveis.",
       "comingSoon": "Em breve",
       "footer": "Os downloads vêm do canal oficial de releases do Gameplay."
     },

@@ -1,7 +1,7 @@
 import { Package, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import type { DownloadOption, DownloadPlatform } from '../../model/entities/download-option'
+import type { DownloadArtifact, DownloadOption, DownloadPlatform } from '../../model/entities/download-option'
 import { Button } from '@/shared/ui/button'
 
 import { DownloadCard } from './card.view'
@@ -11,11 +11,21 @@ type DownloadViewProps = {
   isAuthenticated: boolean
   options: DownloadOption[]
   recommendedPlatform?: DownloadPlatform | null
+  isLoading?: boolean
+  isError?: boolean
   onNavigate: (destination: PublicDestination) => void
-  onDownload: (platform: DownloadPlatform) => void
+  onDownload: (platform: DownloadPlatform, format: DownloadArtifact['format'], url?: string) => void
 }
 
-function DownloadView({ isAuthenticated, options, recommendedPlatform, onNavigate, onDownload }: DownloadViewProps) {
+function DownloadView({
+  isAuthenticated,
+  options,
+  recommendedPlatform,
+  isLoading = false,
+  isError = false,
+  onNavigate,
+  onDownload,
+}: DownloadViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -61,6 +71,9 @@ function DownloadView({ isAuthenticated, options, recommendedPlatform, onNavigat
           />
         ))}
       </div>
+
+      {isLoading && <p className="text-muted-foreground mt-6 text-sm">{t('public.download.loading')}</p>}
+      {isError && <p className="text-muted-foreground mt-6 text-sm">{t('public.download.error')}</p>}
 
       <p className="text-muted-foreground mt-8 flex items-center gap-2 text-sm">
         <Package className="size-4" aria-hidden="true" />
