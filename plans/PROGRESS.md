@@ -6,7 +6,9 @@
 
 - Em 2026-10-29 foi iniciado `plans/desktop-windows-release/`, para detalhar a assinatura Authenticode, os artefatos e o feed Squirrel.Windows, o uso do S3 como armazenamento, o endpoint no domínio principal, o `autoUpdater`, promoção e rollback.
 - O GitHub Releases continua como histórico das versões. O S3 será a origem operacional dos downloads, e o primeiro ticket deve confirmar e publicar também os artefatos específicos do feed Squirrel.
-- Tickets planejados: WIN-01 a WIN-04. Nenhum ticket foi implementado.
+- Tickets planejados: WIN-01 a WIN-04.
+- WIN-01 concluído na branch `feature/windows-update-feed`: o workflow preserva os artefatos Squirrel, a API faz proxy do feed e dos artefatos pelo domínio principal, o bucket existente usa o prefixo `updates/windows`, e o GitHub Actions publica via OIDC. O ambiente está pronto para o primeiro teste de release real.
+- WIN-02 foi adiado por decisão do usuário: o Windows será distribuído inicialmente sem assinatura paga, portanto o workflow não bloqueia a publicação por falta de certificado. O WIN-03 segue em andamento na mesma branch: o processo principal do Electron configura o feed oficial e faz uma verificação após o startup somente em builds Windows empacotados.
 
 ## Plano iniciado: portal público do Gameplay
 

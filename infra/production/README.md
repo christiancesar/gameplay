@@ -8,6 +8,8 @@ navegador -> Cloudflare (proxy, Full strict) -> web (nginx) :443 -> api
 
 Web e API ficam na mesma origem, `gameplay.oikos.company`, como no self-hosted. O banco fica no Prisma Postgres e os uploads no S3. O servidor roda só dois containers: a API e o web (nginx com o build do Vite).
 
+O processo de release Windows, assinatura Authenticode, atualização automática e configuração do feed está em [`docs/windows-release.md`](docs/windows-release.md).
+
 ## Arquivos
 
 | Arquivo               | Onde fica no servidor                                     | Papel                                                                                                  |

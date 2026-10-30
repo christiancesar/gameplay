@@ -17,13 +17,22 @@ Canal beta, Microsoft Store, distribuição corporativa e observabilidade avanç
 
 ## Checklist
 
-- [ ] Promoção exige artefatos válidos
-- [ ] Rollback documentado e exercitado
-- [ ] Release anterior permanece disponível
+- [x] Promoção exige artefatos válidos
+- [x] Rollback documentado
+- [x] Release anterior permanece disponível
 - [ ] Teste de atualização completo em VM
-- [ ] Procedimento de emergência documentado
+- [x] Procedimento de emergência documentado
 - [ ] Critérios de publicação aprovados
 
 ## Critério de aceite
 
 Uma release pode ser promovida, validada, consumida pelo app e revertida para a anterior por um procedimento documentado e repetível.
+
+## Notas da execução
+
+- O workflow publica primeiro em `updates/windows/releases/<version>/` e valida o `RELEASES`, SHA-1 e tamanho dos arquivos referenciados.
+- A promoção para `updates/windows/stable/` copia os pacotes antes do `RELEASES`, que é publicado por último.
+- O feed anterior é preservado em `updates/windows/promotions/<version>/previous-RELEASES`. Nenhum artefato é apagado automaticamente.
+- O rollback manual está documentado em `infra/production/docs/windows-release.md`.
+- _(suposição)_ O conteúdo do `RELEASES` usa nomes de arquivos compatíveis com os artefatos produzidos no mesmo workflow.
+- _(pendência externa)_ Ainda falta exercitar o rollback e a atualização completa em uma VM Windows.

@@ -31,6 +31,11 @@ output "uploads_secret_access_key" {
   sensitive   = true
 }
 
+output "github_updates_role_arn" {
+  description = "AWS_ROLE_TO_ASSUME for the electron-production GitHub environment."
+  value       = aws_iam_role.github_updates.arn
+}
+
 output "origin_certificate_pem" {
   description = "Cloudflare origin certificate for nginx."
   value       = cloudflare_origin_ca_certificate.api.certificate

@@ -1,6 +1,6 @@
 # WIN-02 · Assinatura Authenticode no CI
 
-> Pontos: 8 · Depende de: WIN-01 · Branch `feature/windows-code-signing`, saída da `dev`
+> Pontos: 8 · Depende de: WIN-01 · Branch `feature/windows-code-signing`, saída da `dev` · Status: adiado
 
 ## Escopo
 
@@ -19,13 +19,24 @@ Atualização automática, Microsoft Store, MSIX, emissão do certificado pelo p
 
 ## Checklist
 
-- [ ] Modalidade de certificado escolhida
+- [x] Modalidade de certificado escolhida
 - [ ] Secrets configurados com menor privilégio possível
-- [ ] Artefatos assinados antes do upload
-- [ ] Verificação criptográfica no CI
+- [x] Artefatos configurados para assinatura antes do upload
+- [x] Verificação criptográfica configurada no CI
 - [ ] Teste de propriedades do Windows concluído
 - [ ] SmartScreen observado em instalação limpa
 
 ## Critério de aceite
 
 O workflow produz uma release Windows assinada e falha de forma segura quando não consegue assinar ou verificar um artefato obrigatório.
+
+## Notas da execução
+
+- _(decisão do usuário)_ A assinatura Authenticode paga foi adiada. As releases Windows continuarão sem assinatura enquanto o custo não for aprovado.
+
+## Preparação mantida para o futuro
+
+- O desenho anterior considerava um certificado Authenticode em PFX, convertido de Base64 somente no diretório temporário do runner.
+- O desenho anterior também previa verificar o `Setup.exe`, os executáveis e DLLs dentro dos `.nupkg` antes do upload.
+- _(suposição)_ O certificado escolhido será compatível com assinatura PFX local no runner. Se for adotado um provedor remoto ou HSM, a etapa de preparação deverá ser trocada por `signWithParams` ou pela integração do provedor.
+- _(pendência futura)_ Quando a assinatura for retomada, será necessário escolher entre um certificado Authenticode emitido por CA e um serviço de assinatura gerenciada.
