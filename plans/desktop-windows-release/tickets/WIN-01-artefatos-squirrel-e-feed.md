@@ -33,8 +33,8 @@ Existe uma release de teste cujo feed e pacote podem ser baixados por HTTPS por 
 ## Notas da execução
 
 - O workflow Windows agora valida e preserva `RELEASES`, `*.nupkg`, `*Setup.exe` e o ZIP manual. A publicação GitHub inclui os arquivos Squirrel como histórico da versão.
-- A API ganhou `GET /api/updates/windows/:channel/RELEASES`. Para `stable`, ele redireciona para `${WINDOWS_UPDATE_FEED_BASE_URL}/stable/RELEASES`; canais não configurados respondem 404.
-- O S3 continua sendo a origem dos arquivos. O feed `RELEASES` redirecionado mantém as referências relativas aos `.nupkg` no mesmo prefixo público do bucket.
-- O endpoint não aceita upload e não expõe credenciais. `WINDOWS_UPDATE_FEED_BASE_URL` é opcional em desenvolvimento e obrigatório na implantação que disponibilizar o canal.
+- A API ganhou `GET /api/updates/windows/:channel/:artifact`. Para `stable`, ela faz proxy de `RELEASES` e dos artefatos a partir de `${WINDOWS_UPDATE_FEED_BASE_URL}/stable`; canais e nomes inseguros respondem 404.
+- O S3 continua sendo a origem dos arquivos. O proxy mantém as referências relativas aos `.nupkg` no mesmo prefixo do bucket sem expor o endereço do S3 ao cliente.
+- O endpoint não aceita upload, não expõe credenciais e controla `Cache-Control`: `RELEASES` não é armazenado em cache e os pacotes versionados são imutáveis. `WINDOWS_UPDATE_FEED_BASE_URL` é opcional em desenvolvimento e obrigatório na implantação que disponibilizar o canal.
 - _(suposição)_ O bucket/CDN fornecerá `RELEASES` e os `.nupkg` sem autenticação de leitura, com `Cache-Control: no-cache` para `RELEASES` e cache imutável para os pacotes versionados.
 - _(pendência externa)_ O upload real no S3 ainda depende do bucket, prefixo, região/endpoint e credenciais do ambiente `electron-production`. Não foi marcado como validado localmente.
