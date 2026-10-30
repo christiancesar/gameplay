@@ -8,6 +8,7 @@
 - O GitHub Releases continua como histórico das versões. O S3 será a origem operacional dos downloads, e o primeiro ticket deve confirmar e publicar também os artefatos específicos do feed Squirrel.
 - Tickets planejados: WIN-01 a WIN-04.
 - WIN-01 concluído na branch `feature/windows-update-feed`: o workflow preserva os artefatos Squirrel, a API faz proxy do feed e dos artefatos pelo domínio principal, o bucket existente usa o prefixo `updates/windows`, e o GitHub Actions publica via OIDC. O ambiente está pronto para o primeiro teste de release real.
+- WIN-02 e WIN-03 iniciados na mesma branch: o MakerSquirrel agora aceita assinatura Authenticode por certificado temporário do runner, com timestamp e verificação obrigatória no CI. O processo principal do Electron configura o feed oficial e faz uma verificação após o startup somente em builds Windows empacotados.
 
 ## Plano iniciado: portal público do Gameplay
 

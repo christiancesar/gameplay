@@ -20,14 +20,23 @@ Promoção de canal, rollback operacional, atualização da UI por OTA, beta cha
 
 ## Checklist
 
-- [ ] Feed não depende do servidor escolhido pelo usuário
-- [ ] Primeiro launch não falha por lock do Squirrel
+- [x] Feed não depende do servidor escolhido pelo usuário
+- [x] Primeiro launch não falha por lock do Squirrel
 - [ ] Versão nova é detectada
 - [ ] Download é concluído
 - [ ] Atualização é aplicada
-- [ ] Feed indisponível não impede o app de abrir
-- [ ] Logs e Sentry não contêm tokens ou URLs privadas
+- [x] Feed indisponível não impede o app de abrir
+- [x] Logs e Sentry não contêm tokens ou URLs privadas
 
 ## Critério de aceite
 
 Uma instalação Windows da versão anterior detecta e instala uma nova release assinada sem reinstalação manual.
+
+## Notas da execução
+
+- Foi criado o módulo `UpdatesService` no processo principal. Ele usa o feed oficial `https://gameplay.oikos.company/api/updates/windows/stable` e não consulta o servidor escolhido pelo usuário.
+- O módulo ignora desenvolvimento, plataformas diferentes de Windows e todos os argumentos `--squirrel-*`, incluindo o primeiro launch com `--squirrel-firstrun`.
+- A verificação inicia dez segundos após o startup para evitar o lock inicial do Squirrel. Falhas são registradas e não impedem a abertura do app.
+- O download do Electron é automático quando há update. A aplicação ocorre no próximo reinício, sem expor `autoUpdater` ao renderer nesta primeira etapa.
+- Testes unitários do serviço cobrem as condições de startup, o feed oficial e falha de rede.
+- _(pendência externa)_ Ainda falta testar duas versões instaladas no Windows com uma release assinada real.

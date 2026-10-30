@@ -19,13 +19,22 @@ Atualização automática, Microsoft Store, MSIX, emissão do certificado pelo p
 
 ## Checklist
 
-- [ ] Modalidade de certificado escolhida
+- [x] Modalidade de certificado escolhida
 - [ ] Secrets configurados com menor privilégio possível
-- [ ] Artefatos assinados antes do upload
-- [ ] Verificação criptográfica no CI
+- [x] Artefatos configurados para assinatura antes do upload
+- [x] Verificação criptográfica configurada no CI
 - [ ] Teste de propriedades do Windows concluído
 - [ ] SmartScreen observado em instalação limpa
 
 ## Critério de aceite
 
 O workflow produz uma release Windows assinada e falha de forma segura quando não consegue assinar ou verificar um artefato obrigatório.
+
+## Notas da execução
+
+- A modalidade escolhida para o CI é um certificado Authenticode em PFX, convertido de Base64 somente no diretório temporário do runner.
+- O `MakerSquirrel` recebe `WINDOWS_CERTIFICATE_FILE`, `WINDOWS_CERTIFICATE_PASSWORD` e `WINDOWS_TIMESTAMP_SERVER`. A senha permanece como secret do GitHub.
+- O workflow exige `WINDOWS_CERTIFICATE_BASE64` antes do empacotamento e verifica o `Setup.exe`, os executáveis e DLLs dentro dos `.nupkg` antes do upload.
+- A verificação exige também a variável não secreta `WINDOWS_CERTIFICATE_SUBJECT`, usada para conferir o publisher esperado.
+- _(suposição)_ O certificado escolhido será compatível com assinatura PFX local no runner. Se for adotado um provedor remoto ou HSM, a etapa de preparação deverá ser trocada por `signWithParams` ou pela integração do provedor.
+- _(pendência externa)_ Ainda faltam o certificado, a senha e o subject do publisher no ambiente `electron-production`. A assinatura real não foi executada.
