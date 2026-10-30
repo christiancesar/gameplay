@@ -1,6 +1,6 @@
 # gameplay-audio-capture
 
-Helper of the Windows app: the sound of the computer without the Gameplay itself (or only one process), as PCM on stdout. See `plans/desktop-electron/tickets/DESK-09-audio-do-sistema-windows.md`.
+Helper of the Windows app: the sound of the computer without the Gameplay itself (or only one process), as PCM on stdout. See `plans/[pending]-desktop-electron/tickets/DESK-09-audio-do-sistema-windows.md`.
 
 ```
 gameplay-audio-capture exclude <pid>   everything except that process and its children

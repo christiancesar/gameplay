@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deploys Gameplay to the Lightsail instance from this machine
-# (plans/06-producao-aws.md, section 7). Usage: npm run deploy:production [-- --skip-checks]
+# (plans/[pending]-production-infrastructure/06-producao-aws.md, section 7). Usage: npm run deploy:production [-- --skip-checks]
 #
 #   1. checks: the app code is committed, typecheck, lint and tests pass
 #   2. builds gameplay-api and gameplay-web here, tagged with the commit

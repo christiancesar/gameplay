@@ -1,6 +1,6 @@
 import type { ServerRole } from '@gameplay/contracts'
 
-// Mirror of the permission table in plans/00-requirements.md 2.3. Every
+// Mirror of the permission table in plans/[complete]-core-product/00-requirements.md 2.3. Every
 // module that acts inside a server (servers, memberships, realtime) asks here.
 export type ServerAction =
   | 'decideJoinRequests'

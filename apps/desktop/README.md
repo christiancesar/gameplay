@@ -1,6 +1,6 @@
 # Gameplay desktop
 
-The Electron app: the same front-end as the web (`packages/client`), with what a browser cannot reach. How it is built is in `plans/desktop-electron/`.
+The Electron app: the same front-end as the web (`packages/client`), with what a browser cannot reach. How it is built is in `plans/[pending]-desktop-electron/`.
 
 ## Run it
 
