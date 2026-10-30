@@ -1,7 +1,7 @@
 import type { ServerRole } from '@gameplay/contracts'
 import { type MemberAction, type ServerAction, ServerPermissions } from './server-permissions'
 
-// plans/00-requirements.md 2.3, row by row: [owner, admin, member].
+// plans/[complete]-core-product/00-requirements.md 2.3, row by row: [owner, admin, member].
 const TABLE: [ServerAction, [boolean, boolean, boolean]][] = [
   ['decideJoinRequests', [true, true, false]],
   ['manageInvites', [true, true, false]],
