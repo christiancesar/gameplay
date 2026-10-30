@@ -14,7 +14,7 @@ Este arquivo é o índice geral dos planos. O detalhamento, os checklists e as n
 | Desktop Electron | `[pending]` | [[pending]-desktop-electron](./[pending]-desktop-electron/) |
 | Release Windows | `[pending]` | [[pending]-desktop-windows-release](./[pending]-desktop-windows-release/) |
 | Diagnósticos desktop | `[complete]` | [[complete]-desktop-diagnostics](./[complete]-desktop-diagnostics/) |
-| Perfis de compartilhamento | `[pending]` | [[pending]-screen-share-profiles](./[pending]-screen-share-profiles/) |
+| Perfis de compartilhamento | `[complete]` | [[complete]-screen-share-profiles](./[complete]-screen-share-profiles/) |
 | API realtime | `[pending]` | [[pending]-api-realtime-boundaries](./[pending]-api-realtime-boundaries/) |
 | Telemetria e observabilidade | `[pending]` | [[pending]-telemetry-observability](./[pending]-telemetry-observability/) |
 | Infraestrutura de produção | `[complete]` | [[complete]-production-infrastructure](./[complete]-production-infrastructure/) |

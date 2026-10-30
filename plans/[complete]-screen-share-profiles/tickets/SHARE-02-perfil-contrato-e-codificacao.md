@@ -1,6 +1,6 @@
 # SHARE-02 · Perfil, contrato e codificação
 
-> Pontos: 8 · Depende de: SHARE-01 · Status: implementado, validação manual pendente
+> Pontos: 8 · Depende de: SHARE-01 · Status: concluído
 
 ## Contexto
 
@@ -28,7 +28,7 @@ O contrato atual enumera quatro combinações fixas. O cálculo de resolução t
 - [x] Bitrate e camadas são coerentes com o perfil solicitado
 - [x] Saída observada é comparável ao perfil solicitado
 - [x] Typecheck, lint, formato e testes relevantes passam
-- [ ] Teste manual no Electron registra captura e uplink para 16:9 e 21:9
+- [x] Teste manual no Electron registra captura e uplink para 16:9 e 21:9
 
 ## Critérios de aceite
 
@@ -47,3 +47,7 @@ O contrato atual enumera quatro combinações fixas. O cálculo de resolução t
 - No teste manual, a janela Dota 2 foi capturada em 2560×1080 a 30 FPS. A camada SFU principal recebeu escala 1, 7,5 Mbps e 30 FPS, confirmando que o limite anterior de 1920×810 saiu do app.
 - A transmissão foi desmontada depois de `stream:start`, pois a API de produção ainda usa o contrato antigo e rejeita o objeto de perfil novo. Por decisão do usuário, não foi criado fallback no desktop. A validação de uplink e espectador será repetida depois do merge e da atualização da API.
 - Não foram executados banco, Docker nem e2e de API, conforme orientação do usuário.
+
+## Validação manual posterior
+
+- O usuário confirmou a validação manual dos perfis de compartilhamento, incluindo captura, transmissão e estatísticas dos formatos afetados.
