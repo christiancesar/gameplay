@@ -1,13 +1,13 @@
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import type { ChangelogEntry } from '../model/entities/changelog-entry'
+import type { ChangelogEntry } from '../../model/entities/changelog-entry'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 
-import { ChangelogEntryView } from './changelog-entry.view'
+import { ChangelogEntryView } from './entry.view'
 
-type PublicChangelogViewProps = {
+type ChangelogViewProps = {
   entries: ChangelogEntry[]
   selectedSlug?: string
   onSearchChange?: (value: string) => void
@@ -15,13 +15,7 @@ type PublicChangelogViewProps = {
   onBack: () => void
 }
 
-function PublicChangelogView({
-  entries,
-  selectedSlug,
-  onSearchChange,
-  onSelectEntry,
-  onBack,
-}: PublicChangelogViewProps) {
+function ChangelogView({ entries, selectedSlug, onSearchChange, onSelectEntry, onBack }: ChangelogViewProps) {
   const { t } = useTranslation()
   const selectedEntry = entries.find((entry) => entry.slug === selectedSlug)
 
@@ -79,5 +73,5 @@ function PublicChangelogView({
   )
 }
 
-export { PublicChangelogView }
-export type { PublicChangelogViewProps }
+export { ChangelogView }
+export type { ChangelogViewProps }

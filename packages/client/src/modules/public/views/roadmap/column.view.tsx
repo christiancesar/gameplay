@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { cn } from 'cn'
 import { useTranslation } from 'react-i18next'
 
-import type { RoadmapItem, RoadmapStatus } from '../model/entities/roadmap-item'
+import type { RoadmapItem, RoadmapStatus } from '../../model/entities/roadmap-item'
 
 type RoadmapColumnProps = {
   status: RoadmapStatus

@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/shared/ui/button'
 
-import { HomeProductDemo } from './home-product-demo.view'
-import type { PublicDestination } from './public-navigation.view'
+import { ProductDemoView } from './product-demo.view'
+import type { PublicDestination } from '../navigation/navigation.view'
 
-type PublicHomeViewProps = {
+type HomeViewProps = {
   isAuthenticated: boolean
   onNavigate: (destination: PublicDestination) => void
 }
 
-function PublicHomeView({ isAuthenticated, onNavigate }: PublicHomeViewProps) {
+function HomeView({ isAuthenticated, onNavigate }: HomeViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -41,12 +41,12 @@ function PublicHomeView({ isAuthenticated, onNavigate }: PublicHomeViewProps) {
 
         <div className="relative w-full max-w-6xl">
           <div className="bg-muted/50 absolute -inset-8 -z-10 rounded-[2rem] blur-3xl" aria-hidden="true" />
-          <HomeProductDemo />
+          <ProductDemoView />
         </div>
       </section>
     </main>
   )
 }
 
-export { PublicHomeView }
-export type { PublicHomeViewProps }
+export { HomeView }
+export type { HomeViewProps }

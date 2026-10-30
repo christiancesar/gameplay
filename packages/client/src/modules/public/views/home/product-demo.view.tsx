@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 
-import { HomeHubDemo } from './home-hub-demo.view'
-import { HomeServerDemo } from './home-server-demo.view'
+import { HubDemoView } from './hub-demo.view'
+import { ServerDemoView } from './server-demo.view'
 
 type DemoSlide = 'hub' | 'server' | 'streaming'
 type DemoPlatform = 'windows' | 'linux' | 'macos'
@@ -13,15 +13,15 @@ type DemoPlatform = 'windows' | 'linux' | 'macos'
 const SLIDES: DemoSlide[] = ['hub', 'server', 'streaming']
 const PLATFORMS: DemoPlatform[] = ['windows', 'linux', 'macos']
 
-function HomeProductDemo() {
+function ProductDemoView() {
   const { t } = useTranslation()
   const [slide, setSlide] = useState<DemoSlide>('hub')
   const [platform, setPlatform] = useState<DemoPlatform>('windows')
 
   const content = {
-    hub: <HomeHubDemo />,
-    server: <HomeServerDemo />,
-    streaming: <HomeServerDemo watching />,
+    hub: <HubDemoView />,
+    server: <ServerDemoView />,
+    streaming: <ServerDemoView watching />,
   }[slide]
 
   return (
@@ -80,4 +80,4 @@ function HomeProductDemo() {
   )
 }
 
-export { HomeProductDemo }
+export { ProductDemoView }

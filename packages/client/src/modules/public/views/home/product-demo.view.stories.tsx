@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { HomeProductDemo } from './home-product-demo.view'
+import { ProductDemoView } from './product-demo.view'
 
 const meta = {
-  title: 'Public/HomeProductDemo',
-  component: HomeProductDemo,
+  title: 'Public/Home/ProductDemo',
+  component: ProductDemoView,
   parameters: { layout: 'fullscreen' },
-} satisfies Meta<typeof HomeProductDemo>
+} satisfies Meta<typeof ProductDemoView>
 
 export default meta
 type Story = StoryObj<typeof meta>

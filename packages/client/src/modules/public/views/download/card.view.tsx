@@ -1,7 +1,7 @@
 import { Check, Download, Monitor } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import type { DownloadOption, DownloadPlatform } from '../model/entities/download-option'
+import type { DownloadOption, DownloadPlatform } from '../../model/entities/download-option'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'

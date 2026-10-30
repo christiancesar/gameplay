@@ -1,5 +1,5 @@
-import { PublicHomeView } from '../views/public-home.view'
-import { PublicNavigationView } from '../views/public-navigation.view'
+import { HomeView } from '../views/home/home.view'
+import { NavigationView } from '../views/navigation/navigation.view'
 import { usePublicNavigationViewModel } from '../view-models/use-public-navigation.view-model'
 
 function PublicHomeContentScreen() {
@@ -7,8 +7,8 @@ function PublicHomeContentScreen() {
 
   return (
     <>
-      <PublicNavigationView {...navigation} />
-      <PublicHomeView isAuthenticated={navigation.isAuthenticated} onNavigate={navigation.onNavigate} />
+      <NavigationView {...navigation} />
+      <HomeView isAuthenticated={navigation.isAuthenticated} onNavigate={navigation.onNavigate} />
     </>
   )
 }

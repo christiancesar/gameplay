@@ -2,19 +2,19 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { languageOptions } from '@/fixtures/language'
 
-import { ROADMAP_ITEMS } from '../model/seeds/roadmap-seed'
+import { ROADMAP_ITEMS } from '../../model/seeds/roadmap-seed'
 
-import { PublicNavigationView } from './public-navigation.view'
-import { PublicRoadmapView } from './public-roadmap.view'
+import { NavigationView } from '../navigation/navigation.view'
+import { RoadmapView } from './roadmap.view'
 
 const meta = {
-  title: 'Public/PublicRoadmap',
-  component: PublicRoadmapView,
+  title: 'Public/Roadmap',
+  component: RoadmapView,
   parameters: { layout: 'fullscreen' },
   args: { items: ROADMAP_ITEMS },
   render: (args) => (
     <>
-      <PublicNavigationView
+      <NavigationView
         isAuthenticated={false}
         onNavigate={() => undefined}
         theme="light"
@@ -23,10 +23,10 @@ const meta = {
         onToggleTheme={() => undefined}
         onLanguageChange={() => undefined}
       />
-      <PublicRoadmapView {...args} />
+      <RoadmapView {...args} />
     </>
   ),
-} satisfies Meta<typeof PublicRoadmapView>
+} satisfies Meta<typeof RoadmapView>
 
 export default meta
 type Story = StoryObj<typeof meta>

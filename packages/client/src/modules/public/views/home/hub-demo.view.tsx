@@ -2,11 +2,11 @@ import { useTranslation } from 'react-i18next'
 
 import { HubView } from '@/modules/hub/views/hub.view'
 
-import { HOME_DEMO_LANGUAGE_OPTIONS, HOME_DEMO_SERVERS, HOME_DEMO_USER } from './home-demo-data'
+import { HOME_DEMO_LANGUAGE_OPTIONS, HOME_DEMO_SERVERS, HOME_DEMO_USER } from './demo-data'
 
 const noop = () => undefined
 
-function HomeHubDemo() {
+function HubDemoView() {
   const { i18n } = useTranslation()
 
   return (
@@ -33,4 +33,4 @@ function HomeHubDemo() {
   )
 }
 
-export { HomeHubDemo }
+export { HubDemoView }

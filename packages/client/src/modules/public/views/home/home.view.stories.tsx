@@ -3,12 +3,12 @@ import { expect, fn } from 'storybook/test'
 
 import { languageOptions } from '@/fixtures/language'
 
-import { PublicNavigationView } from './public-navigation.view'
-import { PublicHomeView } from './public-home.view'
+import { NavigationView } from '../navigation/navigation.view'
+import { HomeView } from './home.view'
 
 const meta = {
-  title: 'Public/PublicHome',
-  component: PublicHomeView,
+  title: 'Public/Home',
+  component: HomeView,
   parameters: { layout: 'fullscreen' },
   args: {
     isAuthenticated: false,
@@ -16,7 +16,7 @@ const meta = {
   },
   render: (args) => (
     <>
-      <PublicNavigationView
+      <NavigationView
         isAuthenticated={args.isAuthenticated}
         onNavigate={args.onNavigate}
         theme="light"
@@ -25,10 +25,10 @@ const meta = {
         onToggleTheme={() => undefined}
         onLanguageChange={() => undefined}
       />
-      <PublicHomeView {...args} />
+      <HomeView {...args} />
     </>
   ),
-} satisfies Meta<typeof PublicHomeView>
+} satisfies Meta<typeof HomeView>
 
 export default meta
 type Story = StoryObj<typeof meta>

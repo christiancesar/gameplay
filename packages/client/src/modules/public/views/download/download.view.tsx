@@ -1,13 +1,13 @@
 import { Package, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import type { DownloadOption, DownloadPlatform } from '../model/entities/download-option'
+import type { DownloadOption, DownloadPlatform } from '../../model/entities/download-option'
 import { Button } from '@/shared/ui/button'
 
-import { DownloadCard } from './download-card.view'
-import type { PublicDestination } from './public-navigation.view'
+import { DownloadCard } from './card.view'
+import type { PublicDestination } from '../navigation/navigation.view'
 
-type PublicDownloadViewProps = {
+type DownloadViewProps = {
   isAuthenticated: boolean
   options: DownloadOption[]
   recommendedPlatform?: DownloadPlatform | null
@@ -15,13 +15,7 @@ type PublicDownloadViewProps = {
   onDownload: (platform: DownloadPlatform) => void
 }
 
-function PublicDownloadView({
-  isAuthenticated,
-  options,
-  recommendedPlatform,
-  onNavigate,
-  onDownload,
-}: PublicDownloadViewProps) {
+function DownloadView({ isAuthenticated, options, recommendedPlatform, onNavigate, onDownload }: DownloadViewProps) {
   const { t } = useTranslation()
 
   return (
@@ -76,5 +70,5 @@ function PublicDownloadView({
   )
 }
 
-export { PublicDownloadView }
-export type { PublicDownloadViewProps }
+export { DownloadView }
+export type { DownloadViewProps }

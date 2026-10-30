@@ -3,11 +3,11 @@ import { expect, fn } from 'storybook/test'
 
 import { languageOptions } from '@/fixtures/language'
 
-import { PublicNavigationView, type PublicDestination } from './public-navigation.view'
+import { NavigationView, type PublicDestination } from './navigation.view'
 
 const meta = {
-  title: 'Public/PublicNavigation',
-  component: PublicNavigationView,
+  title: 'Public/Navigation',
+  component: NavigationView,
   parameters: { layout: 'fullscreen' },
   args: {
     isAuthenticated: false,
@@ -18,7 +18,7 @@ const meta = {
     onToggleTheme: fn(),
     onLanguageChange: fn(),
   },
-} satisfies Meta<typeof PublicNavigationView>
+} satisfies Meta<typeof NavigationView>
 
 export default meta
 type Story = StoryObj<typeof meta>

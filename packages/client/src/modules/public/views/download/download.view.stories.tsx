@@ -3,14 +3,14 @@ import { expect, fn } from 'storybook/test'
 
 import { languageOptions } from '@/fixtures/language'
 
-import { DOWNLOAD_OPTIONS } from '../model/seeds/download-seed'
+import { DOWNLOAD_OPTIONS } from '../../model/seeds/download-seed'
 
-import { PublicDownloadView } from './public-download.view'
-import { PublicNavigationView } from './public-navigation.view'
+import { DownloadView } from './download.view'
+import { NavigationView } from '../navigation/navigation.view'
 
 const meta = {
-  title: 'Public/PublicDownload',
-  component: PublicDownloadView,
+  title: 'Public/Download',
+  component: DownloadView,
   parameters: { layout: 'fullscreen' },
   args: {
     isAuthenticated: false,
@@ -21,7 +21,7 @@ const meta = {
   },
   render: (args) => (
     <>
-      <PublicNavigationView
+      <NavigationView
         isAuthenticated={args.isAuthenticated}
         onNavigate={args.onNavigate}
         theme="light"
@@ -30,10 +30,10 @@ const meta = {
         onToggleTheme={() => undefined}
         onLanguageChange={() => undefined}
       />
-      <PublicDownloadView {...args} />
+      <DownloadView {...args} />
     </>
   ),
-} satisfies Meta<typeof PublicDownloadView>
+} satisfies Meta<typeof DownloadView>
 
 export default meta
 type Story = StoryObj<typeof meta>

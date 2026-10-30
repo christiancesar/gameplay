@@ -1,7 +1,7 @@
 import { ArrowLeft, CalendarDays } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import type { ChangelogEntry } from '../model/entities/changelog-entry'
+import type { ChangelogEntry } from '../../model/entities/changelog-entry'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Separator } from '@/shared/ui/separator'

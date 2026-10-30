@@ -7,17 +7,11 @@ import { MembersPresenceView } from '@/modules/servers/views/members-presence.vi
 import { ServerSidebarView } from '@/modules/servers/views/server-sidebar.view'
 import { UserCardView } from '@/modules/servers/views/user-card.view'
 
-import {
-  HOME_DEMO_MEMBERS,
-  HOME_DEMO_ROOMS,
-  HOME_DEMO_SERVERS,
-  HOME_DEMO_STAGE,
-  HOME_DEMO_USER,
-} from './home-demo-data'
+import { HOME_DEMO_MEMBERS, HOME_DEMO_ROOMS, HOME_DEMO_SERVERS, HOME_DEMO_STAGE, HOME_DEMO_USER } from './demo-data'
 
 const noop = () => undefined
 
-function HomeServerDemo({ watching = false }: { watching?: boolean }) {
+function ServerDemoView({ watching = false }: { watching?: boolean }) {
   const { t } = useTranslation()
   const main = watching ? (
     <div className="flex h-full items-center justify-center bg-black p-4">
@@ -83,4 +77,4 @@ function HomeServerDemo({ watching = false }: { watching?: boolean }) {
   )
 }
 
-export { HomeServerDemo }
+export { ServerDemoView }

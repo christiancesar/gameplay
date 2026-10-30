@@ -13,9 +13,9 @@ import {
 } from '@/shared/ui/navigation-menu'
 import { ThemeToggle } from '@/shared/ui/theme-toggle'
 
-import type { PublicDestination } from '../model/public-destination'
+import type { PublicDestination } from '../../model/public-destination'
 
-type PublicNavigationViewProps = {
+type NavigationViewProps = {
   isAuthenticated: boolean
   onNavigate: (destination: PublicDestination) => void
   theme: 'dark' | 'light'
@@ -25,7 +25,7 @@ type PublicNavigationViewProps = {
   onLanguageChange: (language: string) => void
 }
 
-function PublicNavigationView({
+function NavigationView({
   isAuthenticated,
   onNavigate,
   theme,
@@ -33,7 +33,7 @@ function PublicNavigationView({
   languageOptions,
   onToggleTheme,
   onLanguageChange,
-}: PublicNavigationViewProps) {
+}: NavigationViewProps) {
   const { t } = useTranslation()
   const accountDestination = isAuthenticated ? 'hub' : 'sign-in'
 
@@ -165,5 +165,5 @@ function PublicNavigationView({
   )
 }
 
-export { PublicNavigationView }
-export type { PublicDestination, PublicNavigationViewProps }
+export { NavigationView }
+export type { PublicDestination, NavigationViewProps }

@@ -1,16 +1,16 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { RoadmapItem, RoadmapStatus } from '../model/entities/roadmap-item'
-import { RoadmapColumn } from './roadmap-column.view'
+import type { RoadmapItem, RoadmapStatus } from '../../model/entities/roadmap-item'
+import { RoadmapColumn } from './column.view'
 
-type PublicRoadmapViewProps = {
+type RoadmapViewProps = {
   items: RoadmapItem[]
 }
 
 const ROADMAP_STATUSES: RoadmapStatus[] = ['now', 'next', 'exploring', 'done']
 
-function PublicRoadmapView({ items }: PublicRoadmapViewProps) {
+function RoadmapView({ items }: RoadmapViewProps) {
   const { t } = useTranslation()
   const itemsByStatus = useMemo(
     () =>
@@ -38,5 +38,5 @@ function PublicRoadmapView({ items }: PublicRoadmapViewProps) {
   )
 }
 
-export { PublicRoadmapView }
-export type { PublicRoadmapViewProps }
+export { RoadmapView }
+export type { RoadmapViewProps }

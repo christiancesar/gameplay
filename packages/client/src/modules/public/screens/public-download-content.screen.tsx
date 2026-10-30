@@ -1,5 +1,5 @@
-import { PublicDownloadView } from '../views/public-download.view'
-import { PublicNavigationView } from '../views/public-navigation.view'
+import { DownloadView } from '../views/download/download.view'
+import { NavigationView } from '../views/navigation/navigation.view'
 import { usePublicDownloadViewModel } from '../view-models/use-public-download.view-model'
 import { usePublicNavigationViewModel } from '../view-models/use-public-navigation.view-model'
 
@@ -9,8 +9,8 @@ function PublicDownloadContentScreen() {
 
   return (
     <>
-      <PublicNavigationView {...navigation} />
-      <PublicDownloadView
+      <NavigationView {...navigation} />
+      <DownloadView
         {...download}
         isAuthenticated={navigation.isAuthenticated}
         onNavigate={navigation.onNavigate}

@@ -3,14 +3,14 @@ import { expect, fn } from 'storybook/test'
 
 import { languageOptions } from '@/fixtures/language'
 
-import { CHANGELOG_ENTRIES } from '../model/seeds/changelog-seed'
+import { CHANGELOG_ENTRIES } from '../../model/seeds/changelog-seed'
 
-import { PublicChangelogView } from './public-changelog.view'
-import { PublicNavigationView } from './public-navigation.view'
+import { ChangelogView } from './changelog.view'
+import { NavigationView } from '../navigation/navigation.view'
 
 const meta = {
-  title: 'Public/PublicChangelog',
-  component: PublicChangelogView,
+  title: 'Public/Changelog',
+  component: ChangelogView,
   parameters: { layout: 'fullscreen' },
   args: {
     entries: CHANGELOG_ENTRIES,
@@ -20,7 +20,7 @@ const meta = {
   },
   render: (args) => (
     <>
-      <PublicNavigationView
+      <NavigationView
         isAuthenticated={false}
         onNavigate={() => undefined}
         theme="light"
@@ -29,10 +29,10 @@ const meta = {
         onToggleTheme={() => undefined}
         onLanguageChange={() => undefined}
       />
-      <PublicChangelogView {...args} />
+      <ChangelogView {...args} />
     </>
   ),
-} satisfies Meta<typeof PublicChangelogView>
+} satisfies Meta<typeof ChangelogView>
 
 export default meta
 type Story = StoryObj<typeof meta>
