@@ -27,9 +27,9 @@ O CDP permite consultar alvos do Chromium, páginas do renderer, console, rede e
 
 ## MCP
 
-A aba MCP é reservada para um servidor local que será implementado em um ticket separado. Quando disponível, ele deverá exigir confirmação no painel, escutar apenas no loopback e mostrar um endpoint e um token temporário para a sessão.
+A aba MCP inicia e encerra o servidor local somente leitura com confirmação explícita. Enquanto ativo, ele escuta apenas no loopback e mostra um endpoint e um token temporário para a sessão.
 
-O servidor MCP não deverá aceitar conexões remotas, expor credenciais permanentes nem executar comandos arbitrários no sistema.
+O servidor MCP não aceita conexões remotas, não expõe credenciais permanentes e não executa comandos arbitrários no sistema.
 
 ## Encerramento e riscos
 

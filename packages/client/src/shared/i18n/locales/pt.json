@@ -811,7 +811,7 @@
       "docsTitle": "Segurança e escopo",
       "docs": {
         "local": "O servidor MCP vai escutar somente no loopback e usar um token temporário de sessão.",
-        "future": "A implementação do servidor e suas ferramentas somente leitura ficam para o ticket separado do MCP."
+        "future": "O servidor local somente leitura fica disponível após confirmação explícita e usa um token temporário de sessão."
       }
     },
     "setup": {
