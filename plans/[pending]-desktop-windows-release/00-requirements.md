@@ -4,7 +4,7 @@
 
 ## 1. Objetivo
 
-Criar uma distribuição do Gameplay Desktop para Windows e Linux, com instalador Squirrel.Windows, AppImage e publicação automática da última versão na página pública de download.
+Criar uma distribuição do Gameplay Desktop para Windows e Linux, com instalador Squirrel.Windows, pacotes `.deb` e AppImage, além da publicação automática da última versão na página pública de download.
 
 As páginas públicas de descoberta e download ficam no domínio principal, em `gameplay.oikos.company`, enquanto o S3 armazena os arquivos e o feed técnico permanece atrás de uma URL estável do Gameplay.
 
@@ -42,7 +42,7 @@ O escopo cobre o instalador e o próprio app Electron. A atualização OTA da UI
 
 ### 3.2 Publicação e downloads
 
-- Uma release deve publicar o instalador Windows, o AppImage Linux e, opcionalmente, os pacotes auxiliares na mesma versão.
+- Uma release deve publicar o instalador Windows, o pacote `.deb` Linux e o AppImage Linux na mesma versão.
 - Os artefatos devem ser armazenados no S3 em um prefixo imutável por versão.
 - O pipeline deve publicar um manifesto estável, por exemplo `downloads/stable/latest.json`, depois que todos os artefatos forem validados.
 - A página `/download` deve consultar esse manifesto e sempre mostrar a última versão disponível, sem alteração manual de código ou seed.
