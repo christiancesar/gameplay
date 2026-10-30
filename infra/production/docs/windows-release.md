@@ -100,6 +100,37 @@ O aplicativo Windows consulta o feed oficial depois de dez segundos do startup, 
 
 O servidor escolhido pelo usuário não altera a URL de atualização. O feed sempre pertence ao Gameplay oficial.
 
+### Promoção e rollback
+
+Cada release é publicada primeiro em um prefixo próprio:
+
+```text
+updates/windows/releases/<version>/
+```
+
+O workflow valida o arquivo `RELEASES`, o SHA-1 e o tamanho de cada pacote referenciado. Depois copia os pacotes para `updates/windows/stable/` e publica o novo `RELEASES` por último. Assim, o feed só aponta para uma release que já teve os arquivos enviados.
+
+Os artefatos não são apagados durante a promoção. O feed anterior é preservado em:
+
+```text
+updates/windows/promotions/<version>/previous-RELEASES
+```
+
+Para rollback, escolha a versão anterior e copie o `RELEASES` dela para `stable`. Os pacotes antigos permanecem no prefixo `stable` porque as promoções anteriores já os copiaram:
+
+```bash
+BUCKET="gameplay-uploads-<account-id>"
+VERSION="0.0.1"
+
+aws s3 cp \
+  "s3://${BUCKET}/updates/windows/releases/${VERSION}/RELEASES" \
+  "s3://${BUCKET}/updates/windows/stable/RELEASES" \
+  --cache-control 'no-store, max-age=0' \
+  --content-type 'text/plain'
+```
+
+Depois do rollback, confirme o feed pelo domínio principal e registre a decisão no release correspondente. Não apague a release nova até concluir a investigação.
+
 ## Checklist de teste
 
 - [ ] Certificado de produção configurado no environment `electron-production`.

@@ -195,14 +195,34 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Publish Squirrel feed to S3
+      - name: Validate Squirrel feed integrity
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          test -n "$RELEASE_VERSION"
+          feed="$(find release-assets -type f -name RELEASES -print -quit)"
+          test -n "$feed"
+          test -s "$feed"
+          while read -r hash name size; do
+            test -n "$hash" && test -n "$name" && test -n "$size"
+            file="$(find release-assets -type f -name "$name" -print -quit)"
+            test -n "$file"
+            actual_hash="$(sha1sum "$file" | awk '{print tolower($1)}')"
+            actual_size="$(stat -c '%s' "$file")"
+            test "$actual_hash" = "$(printf '%s' "$hash" | tr '[:upper:]' '[:lower:]')"
+            test "$actual_size" = "$size"
+          done < "$feed"
+          echo "Validated Squirrel feed for ${RELEASE_VERSION}"
+
+      - name: Publish immutable Windows release to S3
         shell: bash
         env:
           UPDATE_BUCKET: ${{ vars.WINDOWS_UPDATE_BUCKET }}
-          UPDATE_PREFIX: updates/windows/stable
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
         run: |
           test -n "$UPDATE_BUCKET"
-          test -n "${{ vars.AWS_ROLE_TO_ASSUME }}"
+          prefix="updates/windows/releases/${RELEASE_VERSION}"
           while IFS= read -r -d '' file; do
             name="$(basename "$file")"
             if [ "$name" = "RELEASES" ]; then
@@ -212,10 +232,33 @@ jobs:
               cache_control="public, max-age=31536000, immutable"
               content_type="application/octet-stream"
             fi
-            aws s3 cp "$file" "s3://${UPDATE_BUCKET}/${UPDATE_PREFIX}/${name}" \
+            aws s3 cp "$file" "s3://${UPDATE_BUCKET}/${prefix}/${name}" \
               --cache-control "$cache_control" \
               --content-type "$content_type"
           done < <(find release-assets -type f \( -name 'RELEASES' -o -name '*.nupkg' -o -name '*.exe' \) -print0)
+
+      - name: Promote validated Windows release to stable
+        shell: bash
+        env:
+          UPDATE_BUCKET: ${{ vars.WINDOWS_UPDATE_BUCKET }}
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          test -n "$UPDATE_BUCKET"
+          source_prefix="s3://${UPDATE_BUCKET}/updates/windows/releases/${RELEASE_VERSION}"
+          stable_prefix="s3://${UPDATE_BUCKET}/updates/windows/stable"
+          history_prefix="s3://${UPDATE_BUCKET}/updates/windows/promotions/${RELEASE_VERSION}"
+          aws s3 cp "${stable_prefix}/RELEASES" "${history_prefix}/previous-RELEASES" \
+            --cache-control "public, max-age=31536000, immutable" || true
+          while IFS= read -r -d '' file; do
+            name="$(basename "$file")"
+            [ "$name" = "RELEASES" ] && continue
+            aws s3 cp "${source_prefix}/${name}" "${stable_prefix}/${name}" \
+              --cache-control "public, max-age=31536000, immutable" \
+              --content-type "application/octet-stream"
+          done < <(find release-assets -type f \( -name '*.nupkg' -o -name '*.exe' \) -print0)
+          aws s3 cp "${source_prefix}/RELEASES" "${stable_prefix}/RELEASES" \
+            --cache-control "no-store, max-age=0" \
+            --content-type "text/plain"
 
       - name: Publish the complete release
         env:
