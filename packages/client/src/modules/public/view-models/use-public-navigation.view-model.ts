@@ -41,7 +41,7 @@ function usePublicNavigationViewModel() {
   const onToggleTheme = () => {
     const nextTheme: AccountTheme = theme === 'dark' ? 'light' : 'dark'
     if (session) themeMutation.mutate(nextTheme)
-    else setTheme(nextTheme)
+    else setTheme(nextTheme, true)
   }
   const onNavigate = (destination: PublicDestination) => {
     const routes = {

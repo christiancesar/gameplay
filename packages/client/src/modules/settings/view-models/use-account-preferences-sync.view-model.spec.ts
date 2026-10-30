@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react'
+import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const changeLanguage = vi.fn()
@@ -6,8 +6,16 @@ const changeLanguage = vi.fn()
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ i18n: { resolvedLanguage: 'en', language: 'en', changeLanguage } }),
 }))
+vi.mock('@/shared/lib/auth-client', async () => ({
+  authClient: (await import('./test/fake-account-auth-client')).fakeAccountAuthClient,
+}))
+vi.mock('@/shared/lib/http', async () => ({
+  http: (await import('./test/fake-settings-http')).fakeSettingsHttp,
+}))
 
 import { useThemeStore } from './stores/theme.store'
+import { fakeAccountAuthClient } from './test/fake-account-auth-client'
+import { fakeSettingsHttp } from './test/fake-settings-http'
 import { sessionData, sessionUser } from './test/settings-seed'
 import { createSettingsViewModelContext } from './test/settings-view-model-context'
 import { useAccountPreferencesSyncViewModel } from './use-account-preferences-sync.view-model'
@@ -20,7 +28,9 @@ const setup = (user: Partial<typeof sessionUser> | null) => {
 describe('useAccountPreferencesSyncViewModel', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useThemeStore.setState({ theme: 'system' })
+    useThemeStore.setState({ theme: 'system', pendingAccountSync: false })
+    fakeAccountAuthClient.getSession.mockResolvedValue({ data: sessionData, error: null })
+    fakeSettingsHttp.patch.mockResolvedValue({ data: {} })
   })
 
   it('applies the account theme and locale', () => {
@@ -51,5 +61,14 @@ describe('useAccountPreferencesSyncViewModel', () => {
     useThemeStore.setState({ theme: 'dark' })
     rerender()
     expect(useThemeStore.getState().theme).toBe('dark')
+  })
+
+  it('sends a guest theme choice to the account after login', async () => {
+    useThemeStore.setState({ theme: 'light', pendingAccountSync: true })
+    setup({ theme: 'dark' })
+
+    await waitFor(() => expect(fakeSettingsHttp.patch).toHaveBeenCalledWith('/me/preferences', { theme: 'light' }))
+    await waitFor(() => expect(useThemeStore.getState().pendingAccountSync).toBe(false))
+    expect(useThemeStore.getState().theme).toBe('light')
   })
 })
