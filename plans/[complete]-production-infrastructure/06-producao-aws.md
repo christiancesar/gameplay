@@ -1,6 +1,6 @@
 # Produção: AWS + Cloudflare + Prisma Postgres, com SFU
 
-> Escrito em 2026-10-26. Só planejamento e precificação: nada daqui foi implementado.
+> Plano concluído em 2026-10-30. A infraestrutura principal foi provisionada com Terraform, publicada e validada em produção. Os itens de otimização futura estão identificados separadamente neste documento.
 
 ## 1. Contexto
 
@@ -76,22 +76,22 @@ Para comparação, o mesmo desenho com EC2 t4g.small (~US$ 12) + IPv4 (US$ 3,65)
 
 **Os preços vêm de buscas feitas em outubro de 2026, a maioria em sites de terceiros (Lightsail, Prisma, S3).** Conferir cada um na página oficial antes de assinar.
 
-## 6. O que muda no código para produção (não implementado)
+## 6. Implementação de produção
 
-- **Mesma origem:** com o web no Lightsail (2026-10-27), `BETTER_AUTH_URL` e `WEB_ORIGIN` são o mesmo `APP_URL`, e o código do web não muda. Sem CORS, `VITE_API_URL` nem cookie entre subdomínios.
-- **Uploads:** `STORAGE_DRIVER=s3` com `S3_BUCKET`, `S3_REGION=us-east-1` e a chave IAM; `PUBLIC_UPLOADS_URL` absoluto, no domínio da Cloudflare que faz cache do bucket.
-- **IP real:** com o proxy da Cloudflare, ler `CF-Connecting-IP` e ajustar `TRUST_PROXY_HOPS`; `X-Forwarded-Proto` no nginx.
-- **Banco:** `DATABASE_URL` do Prisma Postgres; conferir a conexão TCP direta com o adapter `pg` do Prisma 7; `prisma migrate deploy` no deploy.
-- **Deploy:** scripts rodados desta máquina, sem pipeline no GitHub (ver seção 7).
-- **Telemetria:** `OTEL_*`, `VITE_SENTRY_DSN` e o coletor do Faro de produção; os túneis `/monitoring/sentry` e `/monitoring/faro` continuam no nginx, como no self-hosted (o Brave bloqueia o sentry.io).
+- **Mesma origem:** o web no Lightsail usa o mesmo `APP_URL` da API, sem CORS adicional, `VITE_API_URL` ou cookie entre subdomínios.
+- **Uploads:** `STORAGE_DRIVER=s3`, bucket S3 em `us-east-1`, usuário IAM restrito e URL pública cacheada pela Cloudflare.
+- **IP real:** o nginx usa `CF-Connecting-IP`, sobrescreve `X-Forwarded-For` e a API confia em um salto de proxy.
+- **Banco:** Prisma Postgres configurado, com `prisma migrate deploy` executado durante o deploy.
+- **Deploy:** script local de produção implementado e validado para API e web, sem pipeline obrigatório no GitHub.
+- **Telemetria:** Sentry, Grafana e os túneis de observabilidade configurados conforme os planos de telemetria.
 
-## 7. Deploy pela máquina local
+## 7. Deploy pela máquina local, implementado
 
-Decisão do usuário em 2026-10-26: enquanto o projeto é pequeno, tudo sai desta máquina, sem registry de imagens nem pipeline no GitHub. O build acontece aqui, e a imagem pronta vai para o servidor pela internet. O Lightsail não constrói nada: a CPU dele fica para a API.
+Decisão do usuário em 2026-10-26: enquanto o projeto é pequeno, tudo sai desta máquina, sem registry de imagens nem pipeline no GitHub. O build acontece aqui, e a imagem pronta vai para o servidor pela internet. O Lightsail não constrói nada: a CPU dele fica para a API. O fluxo está implementado em `infra/production/deploy.sh`.
 
 **Infra:** `terraform apply` daqui, com as credenciais da AWS e da Cloudflare nesta máquina.
 
-**API** (`npm run deploy:api`, a escrever):
+**API e web** (`npm run deploy:production`):
 1. Recusa se não estiver na `main` ou se houver mudança sem commit; roda typecheck, lint e testes.
 2. Constrói as imagens da API e da migração com a tag do SHA do commit. A plataforma é a do Lightsail (x86; conferir no plano escolhido).
 3. Manda as imagens por SSH: `docker save | gzip | ssh … docker load`.
@@ -110,9 +110,9 @@ Decisão do usuário em 2026-10-26: enquanto o projeto é pequeno, tudo sai dest
 
 **Quando mudar:** se outra pessoa passar a fazer deploy, ou se quisermos testes automáticos em cada PR, os mesmos scripts viram passos do GitHub Actions.
 
-## 8. Credenciais
+## 8. Credenciais e recursos provisionados
 
-Levantamento de 2026-10-26. Nenhuma credencial foi criada ainda. Estado desta máquina: Terraform 1.16.2, `wrangler` 4.123 logado por OAuth na conta da Cloudflare (`20e7e533453b2614035e3d6cb0f11941`), Prisma CLI 7.10.1 no repositório (`npx prisma`), `gh` logado. Falta o AWS CLI.
+Os recursos de produção foram criados e usados no deploy. Os segredos continuam fora do Git, em arquivos ignorados, variáveis locais e no servidor. Estado desta máquina: Terraform, AWS CLI, Wrangler, Prisma CLI e GitHub CLI configurados.
 
 **A. Para o Terraform rodar daqui**
 
@@ -174,21 +174,21 @@ O desenho detalhado já está em `plans/[complete]-media-transport/media-transpo
 - **Região do Prisma Postgres:** confirmar que existe em us-east-1. Se não existir, escolher a região da AWS mais próxima da que ele oferece.
 - **Lightsail:** CPU com crédito (burstable). O `sharp` processando muitas imagens de uma vez pode gastar os créditos; para o tamanho atual é suficiente.
 
-## 12. Tickets propostos (só a lista, nada executado)
+## 12. Entregas e evolução futura
 
 | Ticket | Escopo |
 |---|---|
-| INF-01 | Conta AWS, Lightsail em us-east-1, firewall só com IPs da Cloudflare, DNS, proxy e certificado de origem |
-| INF-02 | Prisma Postgres, `DATABASE_URL`, migração dos dados do host |
-| INF-03 | Bucket S3, usuário IAM restrito, domínio com cache na Cloudflare e `STORAGE_DRIVER=s3` |
+| INF-01 | Conta AWS, Lightsail em us-east-1, firewall só com IPs da Cloudflare, DNS, proxy e certificado de origem, concluído |
+| INF-02 | Prisma Postgres, `DATABASE_URL` e migrações, concluído |
+| INF-03 | Bucket S3, usuário IAM restrito, domínio com cache na Cloudflare e `STORAGE_DRIVER=s3`, concluído |
 | INF-04 | ~~Web no Workers, CORS e cookies entre web e API~~. Cancelado em 2026-10-27: web no Lightsail, mesma origem da API |
-| INF-05 | Script de deploy desta máquina (API e web juntos), e imagens da API e da migração otimizadas |
+| INF-05 | Script de deploy desta máquina, API e web juntos, concluído; otimização de imagens fica como evolução futura |
 | SFU-01 | Módulo `media` na API: sessões e tracks do Cloudflare Realtime SFU |
 | SFU-02 | Transmissão pelo SFU no web com simulcast, mesh como opção no diálogo |
 | SFU-03 | Orçamento mensal no `limits` e qualidade escolhida por quem assiste |
 | SFU-04 | Aba Mídia no admin: SFU, Mesh e TURN globais e por servidor |
 | SFU-05 | Aviso da plataforma para os usuários |
-| DESK-01 | Estudo do app desktop em Electron (captura de áudio por processo). Plano em `desktop-electron/`, com os tickets em `desktop-electron/tickets/` |
+| DESK-01 | Estudo do app desktop em Electron, detalhado no plano `[pending]-desktop-electron` |
 
 ## 13. Antes de assinar, conferir na página oficial
 

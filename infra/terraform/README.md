@@ -1,6 +1,6 @@
 # Terraform da produção
 
-Cria a infraestrutura de produção descrita em `plans/[pending]-production-infrastructure/06-producao-aws.md`: Lightsail (web e API), bucket S3 dos uploads com o usuário IAM da API, registro DNS `gameplay.oikos.company` na Cloudflare e o certificado de origem do nginx. Roda desta máquina; nada roda pelo GitHub.
+Cria a infraestrutura de produção descrita em `plans/[complete]-production-infrastructure/06-producao-aws.md`: Lightsail (web e API), bucket S3 dos uploads com o usuário IAM da API, registro DNS `gameplay.oikos.company` na Cloudflare e o certificado de origem do nginx. Roda desta máquina; nada roda pelo GitHub.
 
 O que fica fora: o banco (Prisma Postgres, criado no Console) e as configurações da zona `oikos.company` (compartilhada com outros projetos; o modo SSL já é Full (strict)). O web roda no mesmo Lightsail que a API (`infra/production`).
 

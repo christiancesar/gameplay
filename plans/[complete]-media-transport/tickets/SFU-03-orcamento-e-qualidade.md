@@ -18,7 +18,7 @@ Orçamento por servidor. Alerta de billing na conta da Cloudflare (configuraçã
 
 ## Referências
 - `plans/[complete]-media-transport/media-transport-options.md` seções 2.3, 5 e 7
-- `plans/[pending]-production-infrastructure/06-producao-aws.md` seções 4 e 11
+- `plans/[complete]-production-infrastructure/06-producao-aws.md` seções 4 e 11
 - Cloudflare: [Pricing](https://developers.cloudflare.com/realtime/sfu/platform/pricing/)
 
 ## Checklist

@@ -28,7 +28,7 @@ Transporte no web e seletor de modo (SFU-02). Orçamento, medição de consumo e
 
 ## Referências
 - `plans/[complete]-media-transport/media-transport-options.md` (seção 7, desenho atualizado)
-- `plans/[pending]-production-infrastructure/06-producao-aws.md` seção 10
+- `plans/[complete]-production-infrastructure/06-producao-aws.md` seção 10
 - Cloudflare: [Connection API](https://developers.cloudflare.com/realtime/sfu/api/), [Simulcast](https://developers.cloudflare.com/realtime/sfu/features/simulcast/), [Limits](https://developers.cloudflare.com/realtime/sfu/platform/limits/), [OpenAPI](https://developers.cloudflare.com/realtime/static/realtime-api-2024-05-21.yaml)
 
 ## Checklist
