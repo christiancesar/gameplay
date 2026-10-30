@@ -3,13 +3,13 @@
 > Pontos: 5 · Depende de: DESK-10 · Branch `feature/desktop-release`, saída da `dev`
 
 ## Contexto
-`../02-tech-plan.md`, seções 6 e 8. A primeira versão distribuída do app é só Linux (deb e zip), sem assinatura e sem atualização dentro do app: o usuário baixa o deb novo no GitHub Releases. O build sai do GitHub Actions, não da máquina de quem desenvolve.
+`../02-tech-plan.md`, seções 6 e 8. A primeira versão distribuída do app é só Linux (DEB, AppImage e ZIP), sem assinatura e sem atualização dentro do app: o usuário baixa o artefato novo no portal ou no GitHub Releases. O build sai do GitHub Actions, não da máquina de quem desenvolve.
 
 **Versão `0.0.{x}`, subida por um disparo manual.** O usuário avisa quando quer uma release; o workflow sobe o número sozinho. Como a regra do repositório proíbe commit direto em `dev` e `main`, o workflow **não commita o número**: a próxima versão é calculada a partir da última tag `v*` (a primeira é `0.0.1`), escrita no `apps/desktop/package.json` só dentro do runner, e a tag nasce junto com o release. O `package.json` do repositório continua em `0.0.0`, e a fonte da verdade são as tags.
 
 ## Escopo
 - `.github/workflows/desktop-release.yml`, gatilho `workflow_dispatch` (sem entradas), `runs-on: ubuntu-latest`, `permissions: contents: write`.
-- Passos: checkout com histórico e tags; Node da versão do projeto; `npm ci`; `npm run typecheck`, `npm run lint`, `npm test`; calcular a versão e gravá-la no `apps/desktop/package.json`; `npm run publish -w desktop` (`electron-forge publish`, que faz o `make` e envia o deb e o zip como assets do release).
+- Passos: checkout com histórico e tags; Node da versão do projeto; `npm ci`; `npm run typecheck`, `npm run lint`, `npm test`; calcular a versão e gravá-la no `apps/desktop/package.json`; gerar DEB, AppImage e ZIP com `electron-forge make`; publicar os artefatos e o manifesto no S3; criar o GitHub Release com os mesmos artefatos.
 - O workflow recusa rodar fora da `main`: a release sai do que já foi para a `main` (decidido pelo usuário em 2026-10-28).
 - Publisher: `@electron-forge/publisher-github` em `forge.config.ts` (`publishers`), autenticado pelo `GITHUB_TOKEN` do próprio workflow; sem custo extra. Config: `repository` `christiancesar/gameplay`, `generateReleaseNotes: true`, `draft: false`. A tag segue o padrão do Forge, `v{versão}` (decidido pelo usuário). Conferir que ela aponta para o commit do disparo.
 - Env do build vinda do GitHub: `VITE_APP_ENV=production` fixo no workflow. O job usa o environment `electron-production` do GitHub (só a `main` pode usá-lo), com as variáveis `VITE_SERVER_URL`, `VITE_SENTRY_DSN`, `SENTRY_ORG` e `SENTRY_PROJECT` e o secret `SENTRY_AUTH_TOKEN`, com os mesmos nomes do `.env`. Sem os de Sentry, o Sentry fica desligado; sem `VITE_SERVER_URL`, o build falha (DESK-10).
@@ -27,13 +27,16 @@ Windows, macOS, assinatura, `autoUpdater`, aviso de versão nova no app, versão
 - [x] Workflow com o disparo manual, a trava de `main` e o cálculo da versão pela última tag
 - [x] Typecheck, lint e testes antes do build, no workflow
 - [x] Env do build (servidor, Sentry) lida de variáveis e secrets do repositório
-- [x] `publisher-github` configurado e deb e zip anexados ao release, com notas geradas
+- [x] `publisher-github` configurado e DEB, AppImage e ZIP anexados ao release, com notas geradas
 - [x] Source maps enviados ao Sentry sem entrar no pacote
 - [x] Documentação de como disparar e do que o repositório precisa
 - [x] Commit a cada passo verde
+- [x] AppImage configurado com `app-builder-lib`, ícone Linux e nome desktop estável
+- [x] Manifesto público com tamanho e SHA-256 publicado pelo workflow após os artefatos versionados
 
 ## Checklist de validação
-- [x] Disparo pela primeira vez: cria a tag `v0.0.1` e o release com deb e zip
+- [x] Disparo pela primeira vez: cria a tag `v0.0.1` e o release com DEB e ZIP
+- [ ] Disparo com AppImage: o artefato abre em uma instalação Linux limpa
 - [ ] Segundo disparo: sobe para `v0.0.2`, sem commit novo em nenhuma branch
 - [ ] Disparo a partir de outra branch que não a `main`: o workflow recusa
 - [ ] Instalar o deb baixado do release numa máquina Linux: o app abre direto no login do servidor de produção (DESK-10), com a versão do release em Sobre ou nos logs, e o sandbox do Chromium ativo
@@ -42,9 +45,18 @@ Windows, macOS, assinatura, `autoUpdater`, aviso de versão nova no app, versão
 - [x] `npm run typecheck`, `npm run lint`, `npm run format:check`, testes do desktop verdes
 
 ## Critério de aceite
-Um disparo manual do workflow, a partir da `main`, publica no GitHub Releases um deb e um zip do Linux na versão `0.0.{x}` seguinte, apontando para o servidor definido pelas variáveis do repositório.
 
-## Notas da execução
+Um disparo manual do workflow, a partir da `main`, publica no GitHub Releases um DEB, um AppImage e um ZIP do Linux na versão `0.0.{x}` seguinte, aponta o catálogo público para a mesma versão e amarra os artefatos ao servidor definido pelas variáveis do repositório.
+
+## Notas da execução (2026-10-30)
+
+- O Linux agora gera DEB, AppImage e ZIP na mesma execução e com a mesma versão calculada pela tag.
+- O AppImage usa `app-builder-lib` 26.15.3 através de um adapter `MakerBase` do Electron Forge 8. A versão do Electron foi fixada em `45.1.0`, porque o electron-builder não aceita uma faixa semver para esse alvo.
+- O AppImage usa o ícone Linux, a categoria `Utility`, `desktopName` `Gameplay` e sai com permissão executável. A validação local gerou `Gameplay-0.0.0.AppImage` com 123 MB e modo `755`.
+- O workflow preserva os artefatos no GitHub Releases e publica um manifesto em `downloads/releases/<version>/latest.json`, promovendo os arquivos para `downloads/stable/` somente depois das validações.
+- A API e o portal público usam o manifesto estável. O endpoint da API não expõe a origem S3.
+- _(suposição)_ O bucket usado pelo feed Windows continuará sendo a origem dos downloads públicos, por isso a variável existente `WINDOWS_UPDATE_BUCKET` é reutilizada no workflow.
+- _(pendência externa)_ Ainda falta instalar e abrir o AppImage, validar o sandbox do Chromium, o áudio por aplicativo e executar uma release real do workflow.
 
 
 ## Notas da execução (2026-10-28)

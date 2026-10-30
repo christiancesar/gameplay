@@ -3,11 +3,12 @@ import { cp, mkdir } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { FusesPlugin } from '@electron-forge/plugin-fuses'
+import { MakerBase } from '@electron-forge/maker-base'
 import { MakerDeb } from '@electron-forge/maker-deb'
 import { MakerSquirrel } from '@electron-forge/maker-squirrel'
 import { MakerZIP } from '@electron-forge/maker-zip'
 import { VitePlugin } from '@electron-forge/plugin-vite'
-import type { ForgeConfig } from '@electron-forge/shared-types'
+import type { ForgeConfig, ForgePlatform } from '@electron-forge/shared-types'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
 import { loadEnv } from 'vite'
 
@@ -17,6 +18,37 @@ import { fixedServerFrom } from './src/main/utils/fixed-server'
 const icons = path.resolve(import.meta.dirname, '../../packages/client/src/shared/assets/brand/icons')
 
 const require = createRequire(import.meta.url)
+const buildForge = require('app-builder-lib').buildForge as (
+  forgeOptions: { dir: string },
+  options: { linux: string[]; config: Record<string, unknown> },
+) => Promise<string[]>
+
+/** Adapter for electron-builder's AppImage target, whose package exports a maker function. */
+class MakerAppImage extends MakerBase<Record<string, never>> {
+  name = 'appimage'
+  defaultPlatforms: ForgePlatform[] = ['linux']
+
+  isSupportedOnCurrentPlatform() {
+    return true
+  }
+
+  make({ dir, targetArch }: { dir: string; targetArch: string }) {
+    return buildForge(
+      { dir },
+      {
+        linux: [`appimage:${targetArch}`],
+        config: {
+          directories: { output: path.join(path.dirname(dir), 'make') },
+          linux: {
+            icon: path.join(icons, 'linux'),
+            category: 'Utility',
+            syncDesktopName: true,
+          },
+        },
+      },
+    )
+  }
+}
 
 /** The system being packaged for, which is not the one running Forge when cross-building (--platform win32 on Linux). */
 function targetPlatform(): NodeJS.Platform {
@@ -74,10 +106,13 @@ const config: ForgeConfig = {
       }
     },
   },
-  // Linux and Windows; macOS and the signing come with the packaging ticket. The Squirrel installer is built on
-  // Windows (the CI), or on Linux with wine and mono; the zip of the packaged app builds anywhere.
+  // Linux and Windows; macOS and signing come with the packaging ticket. AppImage is built through app-builder-lib
+  // in the adapter above because the current Forge 8 maker resolver expects a MakerBase class.
   makers: [
     new MakerZIP({}, ['linux', 'win32']),
+    // AppImage is supplied by electron-builder's Forge integration. Keep it as
+    // a maker so the Linux release shares the same Forge package and version.
+    new MakerAppImage(),
     new MakerSquirrel({
       // CamelCase, no spaces: it names the NuGet package. The installer file takes productName.
       name: 'Gameplay',

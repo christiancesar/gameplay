@@ -85,7 +85,7 @@ data "aws_iam_policy_document" "github_updates_publish" {
     condition {
       test     = "StringLike"
       variable = "s3:prefix"
-      values   = ["updates/windows", "updates/windows/*"]
+      values   = ["updates/windows", "updates/windows/*", "downloads", "downloads/*"]
     }
   }
 
@@ -99,12 +99,15 @@ data "aws_iam_policy_document" "github_updates_publish" {
       "s3:PutObject",
       "s3:PutObjectTagging",
     ]
-    resources = ["${aws_s3_bucket.uploads.arn}/updates/windows/*"]
+    resources = [
+      "${aws_s3_bucket.uploads.arn}/updates/windows/*",
+      "${aws_s3_bucket.uploads.arn}/downloads/*",
+    ]
   }
 }
 
 resource "aws_iam_role_policy" "github_updates_publish" {
-  name   = "publish-windows-updates"
+  name   = "publish-desktop-releases"
   role   = aws_iam_role.github_updates.id
   policy = data.aws_iam_policy_document.github_updates_publish.json
 }

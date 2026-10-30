@@ -79,7 +79,7 @@ jobs:
       - name: Use the release version
         run: npm pkg set version="${{ needs.version.outputs.version }}" -w desktop
 
-      - name: Make the Linux DEB and ZIP
+      - name: Make the Linux DEB, AppImage and ZIP
         run: npm run desktop:make
         env:
           VITE_APP_ENV: production
@@ -94,6 +94,7 @@ jobs:
           name: desktop-linux
           path: |
             apps/desktop/out/make/deb/x64/*.deb
+            apps/desktop/out/make/*.AppImage
             apps/desktop/out/make/zip/linux/x64/*.zip
           if-no-files-found: error
           compression-level: 0
@@ -202,6 +203,49 @@ jobs:
           done < "$feed"
           echo "Validated Squirrel feed for ${RELEASE_VERSION}"
 
+      - name: Prepare public download artifacts and manifest
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+          PUBLIC_ORIGIN: ${{ vars.VITE_SERVER_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$RELEASE_VERSION"
+          test -n "$PUBLIC_ORIGIN"
+          catalog="$RUNNER_TEMP/gameplay-downloads"
+          mkdir -p "$catalog"
+          setup="$(find release-assets -type f -name '*Setup.exe' -print -quit)"
+          deb="$(find release-assets -type f -name '*.deb' -print -quit)"
+          appimage="$(find release-assets -type f -name '*.AppImage' -print -quit)"
+          test -n "$setup" && test -s "$setup"
+          test -n "$deb" && test -s "$deb"
+          test -n "$appimage" && test -s "$appimage"
+          cp "$setup" "$catalog/Gameplay-Setup.exe"
+          cp "$deb" "$catalog/gameplay.deb"
+          cp "$appimage" "$catalog/Gameplay.AppImage"
+          chmod +x "$catalog/Gameplay.AppImage"
+          sha256() { sha256sum "$1" | awk '{print $1}'; }
+          size() { stat -c '%s' "$1"; }
+          origin="${PUBLIC_ORIGIN%/}"
+          jq -n \
+            --arg version "$RELEASE_VERSION" \
+            --arg publishedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg windowsUrl "$origin/api/downloads/stable/Gameplay-Setup.exe" \
+            --arg debUrl "$origin/api/downloads/stable/gameplay.deb" \
+            --arg appImageUrl "$origin/api/downloads/stable/Gameplay.AppImage" \
+            --arg windowsSha256 "$(sha256 "$catalog/Gameplay-Setup.exe")" \
+            --arg debSha256 "$(sha256 "$catalog/gameplay.deb")" \
+            --arg appImageSha256 "$(sha256 "$catalog/Gameplay.AppImage")" \
+            --argjson windowsSize "$(size "$catalog/Gameplay-Setup.exe")" \
+            --argjson debSize "$(size "$catalog/gameplay.deb")" \
+            --argjson appImageSize "$(size "$catalog/Gameplay.AppImage")" \
+            '{version: $version, publishedAt: $publishedAt, downloads: {
+              windows: {architecture: "x64", format: "squirrel-installer", url: $windowsUrl, size: $windowsSize, sha256: $windowsSha256},
+              linuxDeb: {architecture: "x64", format: "deb", url: $debUrl, size: $debSize, sha256: $debSha256},
+              linuxAppImage: {architecture: "x64", format: "appimage", url: $appImageUrl, size: $appImageSize, sha256: $appImageSha256}
+            }}' > "$catalog/latest.json"
+          jq -e --arg version "$RELEASE_VERSION" '.version == $version and (.downloads | length) == 3' "$catalog/latest.json"
+
       - name: Publish immutable Windows release to S3
         shell: bash
         env:
@@ -223,6 +267,63 @@ jobs:
               --cache-control "$cache_control" \
               --content-type "$content_type"
           done < <(find release-assets -type f \( -name 'RELEASES' -o -name '*.nupkg' -o -name '*.exe' \) -print0)
+
+      - name: Publish immutable public desktop downloads to S3
+        shell: bash
+        env:
+          UPDATE_BUCKET: ${{ vars.WINDOWS_UPDATE_BUCKET }}
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          test -n "$UPDATE_BUCKET"
+          catalog="$RUNNER_TEMP/gameplay-downloads"
+          prefix="downloads/releases/${RELEASE_VERSION}"
+          for file in "$catalog/Gameplay-Setup.exe" "$catalog/gameplay.deb" "$catalog/Gameplay.AppImage" "$catalog/latest.json"; do
+            name="$(basename "$file")"
+            if [ "$name" = "latest.json" ]; then
+              cache_control="no-store, max-age=0"
+              content_type="application/json"
+            elif [ "$name" = "gameplay.deb" ]; then
+              cache_control="public, max-age=31536000, immutable"
+              content_type="application/vnd.debian.binary-package"
+            elif [ "$name" = "Gameplay.AppImage" ]; then
+              cache_control="public, max-age=31536000, immutable"
+              content_type="application/vnd.appimage"
+            else
+              cache_control="public, max-age=31536000, immutable"
+              content_type="application/vnd.microsoft.portable-executable"
+            fi
+            aws s3 cp "$file" "s3://${UPDATE_BUCKET}/${prefix}/${name}" \
+              --cache-control "$cache_control" \
+              --content-type "$content_type"
+          done
+
+      - name: Promote public desktop downloads to stable
+        shell: bash
+        env:
+          UPDATE_BUCKET: ${{ vars.WINDOWS_UPDATE_BUCKET }}
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          test -n "$UPDATE_BUCKET"
+          catalog="$RUNNER_TEMP/gameplay-downloads"
+          source_prefix="s3://${UPDATE_BUCKET}/downloads/releases/${RELEASE_VERSION}"
+          stable_prefix="s3://${UPDATE_BUCKET}/downloads/stable"
+          for name in Gameplay-Setup.exe gameplay.deb Gameplay.AppImage; do
+            if [ "$name" = "gameplay.deb" ]; then
+              content_type="application/vnd.debian.binary-package"
+            elif [ "$name" = "Gameplay.AppImage" ]; then
+              content_type="application/vnd.appimage"
+            else
+              content_type="application/vnd.microsoft.portable-executable"
+            fi
+            aws s3 cp "${source_prefix}/${name}" "${stable_prefix}/${name}" \
+              --cache-control "public, max-age=31536000, immutable" \
+              --content-type "$content_type"
+          done
+          aws s3 cp "${source_prefix}/latest.json" "${stable_prefix}/latest.json" \
+            --cache-control "no-store, max-age=0" \
+            --content-type "application/json"
 
       - name: Promote validated Windows release to stable
         shell: bash
@@ -253,7 +354,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.version.outputs.version }}
         run: |
-          mapfile -d '' assets < <(find release-assets -type f \( -name '*.deb' -o -name '*.zip' -o -name '*.exe' -o -name '*.nupkg' -o -name 'RELEASES' \) -print0)
+          mapfile -d '' assets < <(find release-assets -type f \( -name '*.AppImage' -o -name '*.deb' -o -name '*.zip' -o -name '*.exe' -o -name '*.nupkg' -o -name 'RELEASES' \) -print0)
           if ! find release-assets -type f -name 'RELEASES' -print -quit | grep -q .; then
             echo "::error::The Squirrel RELEASES file was not published."
             exit 1

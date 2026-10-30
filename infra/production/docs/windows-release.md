@@ -100,6 +100,26 @@ O aplicativo Windows consulta o feed oficial depois de dez segundos do startup, 
 
 O servidor escolhido pelo usuário não altera a URL de atualização. O feed sempre pertence ao Gameplay oficial.
 
+## Catálogo público de downloads
+
+O workflow também publica o instalador Windows, o DEB e o AppImage em:
+
+```text
+s3://gameplay-uploads-<account-id>/downloads/releases/<version>/
+s3://gameplay-uploads-<account-id>/downloads/stable/
+```
+
+O arquivo `latest.json` só é promovido para `stable` depois que os três artefatos são enviados e validados. A página pública não acessa o S3 diretamente. A API serve:
+
+```text
+GET /api/downloads/latest
+GET /api/downloads/stable/Gameplay-Setup.exe
+GET /api/downloads/stable/gameplay.deb
+GET /api/downloads/stable/Gameplay.AppImage
+```
+
+O container da API usa `DOWNLOADS_BASE_URL` apontando para o prefixo S3 `downloads`, sem o sufixo `/stable`. Os arquivos versionados são imutáveis, enquanto `latest.json` não fica em cache.
+
 ### Promoção e rollback
 
 Cada release é publicada primeiro em um prefixo próprio:

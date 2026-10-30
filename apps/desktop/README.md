@@ -4,7 +4,7 @@ The Electron app: the same front-end as the web (`packages/client`), with what a
 
 ## Run it
 
-`cp .env.example .env`, then from the repo root `npm run desktop:dev`. With `VITE_APP_ENV=development` and an empty `VITE_SERVER_URL`, the first screen asks which server to use. Local installers: `npm run desktop:make` (deb and zip in `out/make`).
+`cp .env.example .env`, then from the repo root `npm run desktop:dev`. With `VITE_APP_ENV=development` and an empty `VITE_SERVER_URL`, the first screen asks which server to use. Local installers: `npm run desktop:make` (DEB, AppImage and ZIP in `out/make`).
 
 ## The two envs that decide the server
 
@@ -17,7 +17,7 @@ Any other `VITE_APP_ENV`, or none, stops the app and the packaging. The values a
 
 ## Release (Linux e Windows)
 
-Em Actions > **Desktop release** > Run workflow, escolha `main`. Primeiro passam typecheck, lint e testes. Depois o workflow calcula a próxima versão `0.0.{x}` a partir da última tag `v0.0.*`. Os jobs Linux e Windows rodam em paralelo: geram DEB e ZIP no Linux, instalador Squirrel e ZIP no Windows. O Windows compila o auxiliar WASAPI com MinGW e usa o Turborepo para construir `@gameplay/contracts` antes do typecheck. Só depois que os quatro arquivos estão prontos o job final cria a tag e publica o release com todos eles. Nenhuma versão é commitada: a tag registra a última versão, e `apps/desktop/package.json` permanece em `0.0.0`.
+Em Actions > **Desktop release** > Run workflow, escolha `main`. Primeiro passam typecheck, lint e testes. Depois o workflow calcula a próxima versão `0.0.{x}` a partir da última tag `v0.0.*`. Os jobs Linux e Windows rodam em paralelo: geram DEB, AppImage e ZIP no Linux, instalador Squirrel e ZIP no Windows. O Windows compila o auxiliar WASAPI com MinGW e usa o Turborepo para construir `@gameplay/contracts` antes do typecheck. Só depois que todos os artefatos passam na validação o job final publica o release, o catálogo público e a tag. Nenhuma versão é commitada: a tag registra a última versão, e `apps/desktop/package.json` permanece em `0.0.0`.
 
 Se um build falhar, não haverá tag nem release incompleto. Corrija a falha e execute novamente o workflow. Se apenas o job de publicação falhar, confira se a tag ou o release chegou a ser criado antes de repetir o job.
 
