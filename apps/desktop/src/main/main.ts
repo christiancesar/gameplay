@@ -35,6 +35,8 @@ if (!startupResult.ok) {
 } else if (squirrelStartup || !app.requestSingleInstanceLock()) {
   app.quit()
 } else {
+  // Squirrel uses this AUMID for the installed shortcut and Windows taskbar integration.
+  if (process.platform === 'win32') app.setAppUserModelId('com.squirrel.Gameplay.gameplay')
   const startupOptions = startupResult.options
   configureCdp(app.commandLine, startupOptions.cdpPort)
 

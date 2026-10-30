@@ -1,6 +1,6 @@
 # WIN-03 · Atualização automática no Electron
 
-> Pontos: 8 · Depende de: WIN-01 e WIN-02 · Branch `feature/windows-auto-updater`, saída da `dev`
+> Pontos: 8 · Depende de: WIN-01 · Branch `feature/windows-auto-updater`, saída da `dev`
 
 ## Escopo
 
@@ -30,7 +30,7 @@ Promoção de canal, rollback operacional, atualização da UI por OTA, beta cha
 
 ## Critério de aceite
 
-Uma instalação Windows da versão anterior detecta e instala uma nova release assinada sem reinstalação manual.
+Uma instalação Windows da versão anterior detecta e instala uma nova release sem reinstalação manual. A assinatura Authenticode, quando existir, é uma camada adicional e não bloqueia este ticket.
 
 ## Notas da execução
 
@@ -39,4 +39,4 @@ Uma instalação Windows da versão anterior detecta e instala uma nova release 
 - A verificação inicia dez segundos após o startup para evitar o lock inicial do Squirrel. Falhas são registradas e não impedem a abertura do app.
 - O download do Electron é automático quando há update. A aplicação ocorre no próximo reinício, sem expor `autoUpdater` ao renderer nesta primeira etapa.
 - Testes unitários do serviço cobrem as condições de startup, o feed oficial e falha de rede.
-- _(pendência externa)_ Ainda falta testar duas versões instaladas no Windows com uma release assinada real.
+- _(pendência externa)_ Ainda falta testar duas versões instaladas no Windows com uma release real. A release pode permanecer sem assinatura enquanto WIN-02 estiver adiado.
