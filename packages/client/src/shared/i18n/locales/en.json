@@ -57,6 +57,25 @@
       "openHub": "Open Hub",
       "download": "Download the app",
       "noCreditCard": "Free to start. No card required.",
+      "demo": {
+        "preview": "A look inside the product",
+        "slidesLabel": "Product screens",
+        "slides": {
+          "hub": "Hub",
+          "server": "Server",
+          "streaming": "Streaming"
+        },
+        "platforms": { "windows": "Windows", "linux": "Linux", "macos": "macOS" },
+        "soon": "soon",
+        "streamLabel": "Gameplay stream",
+        "streamTitle": "Alex is sharing a game window",
+        "streamStats": "1920×1080 · 60 fps · 8.4 Mbps",
+        "platformStatus": {
+          "windows": "Windows desktop app",
+          "linux": "Linux desktop app",
+          "macos": "macOS planned"
+        }
+      },
       "preview": {
         "app": "Desktop app",
         "connected": "Connected to your workspace",
