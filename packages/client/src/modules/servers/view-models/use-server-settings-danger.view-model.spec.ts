@@ -42,7 +42,7 @@ describe('useServerSettingsDangerViewModel', () => {
     await ready(result)
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
     act(() => result.current.onLeave())
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub', replace: true }))
     expect(settingsHttp.post).toHaveBeenCalledWith('/servers/s1/leave')
     await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: ['servers', 'my-limits'] }))
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['servers', 'list'] })
@@ -53,7 +53,7 @@ describe('useServerSettingsDangerViewModel', () => {
     await ready(result)
     act(() => result.current.onDelete())
     await waitFor(() => expect(settingsHttp.delete).toHaveBeenCalledWith('/servers/s1'))
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub', replace: true }))
   })
 
   it('stays put and toasts when the call fails', async () => {

@@ -9,12 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as GuestRouteImport } from './routes/_guest'
-import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as DownloadRouteImport } from './routes/download'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
+import { Route as AuthedHubRouteImport } from './routes/_authed/hub'
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
+import { Route as ChangelogSlugRouteImport } from './routes/changelog.$slug'
 import { Route as ICodeRouteImport } from './routes/i.$code'
 import { Route as AuthedAdminPanelRouteImport } from './routes/_authed/admin/_panel'
 import { Route as AuthedAdminSetupRouteImport } from './routes/_authed/admin/setup'
@@ -30,6 +35,11 @@ import { Route as AuthedAdminPanelMediaRouteImport } from './routes/_authed/admi
 import { Route as AuthedAdminPanelServersRouteImport } from './routes/_authed/admin/_panel/servers'
 import { Route as AuthedAdminPanelUsersRouteImport } from './routes/_authed/admin/_panel/users'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
@@ -38,14 +48,29 @@ const GuestRoute = GuestRouteImport.update({
   id: '/_guest',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedIndexRoute = AuthedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthedRoute,
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedAdminRoute = AuthedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedHubRoute = AuthedHubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
   getParentRoute: () => AuthedRoute,
 } as any)
 const GuestSignInRoute = GuestSignInRouteImport.update({
@@ -57,6 +82,11 @@ const GuestSignUpRoute = GuestSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
   getParentRoute: () => GuestRoute,
+} as any)
+const ChangelogSlugRoute = ChangelogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ChangelogRoute,
 } as any)
 const ICodeRoute = ICodeRouteImport.update({
   id: '/i/$code',
@@ -132,10 +162,15 @@ const AuthedAdminPanelUsersRoute = AuthedAdminPanelUsersRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthedIndexRoute
+  '/': typeof IndexRoute
+  '/changelog': typeof ChangelogRouteWithChildren
+  '/download': typeof DownloadRoute
+  '/roadmap': typeof RoadmapRoute
   '/admin': typeof AuthedAdminRouteWithChildren
+  '/hub': typeof AuthedHubRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/changelog/$slug': typeof ChangelogSlugRoute
   '/i/$code': typeof ICodeRoute
   '/admin/setup': typeof AuthedAdminSetupRoute
   '/servers/$serverId': typeof AuthedServersServerIdRoute
@@ -151,10 +186,15 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthedAdminPanelIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AuthedIndexRoute
+  '/': typeof IndexRoute
+  '/changelog': typeof ChangelogRouteWithChildren
+  '/download': typeof DownloadRoute
+  '/roadmap': typeof RoadmapRoute
   '/admin': typeof AuthedAdminPanelIndexRoute
+  '/hub': typeof AuthedHubRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/changelog/$slug': typeof ChangelogSlugRoute
   '/i/$code': typeof ICodeRoute
   '/admin/setup': typeof AuthedAdminSetupRoute
   '/servers/$serverId': typeof AuthedServersServerIdRoute
@@ -170,13 +210,18 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
+  '/changelog': typeof ChangelogRouteWithChildren
+  '/download': typeof DownloadRoute
+  '/roadmap': typeof RoadmapRoute
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
+  '/_authed/hub': typeof AuthedHubRoute
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
+  '/changelog/$slug': typeof ChangelogSlugRoute
   '/i/$code': typeof ICodeRoute
-  '/_authed/': typeof AuthedIndexRoute
   '/_authed/admin/_panel': typeof AuthedAdminPanelRouteWithChildren
   '/_authed/admin/setup': typeof AuthedAdminSetupRoute
   '/_authed/servers/$serverId': typeof AuthedServersServerIdRoute
@@ -195,9 +240,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/changelog'
+    | '/download'
+    | '/roadmap'
     | '/admin'
+    | '/hub'
     | '/sign-in'
     | '/sign-up'
+    | '/changelog/$slug'
     | '/i/$code'
     | '/admin/setup'
     | '/servers/$serverId'
@@ -214,9 +264,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/changelog'
+    | '/download'
+    | '/roadmap'
     | '/admin'
+    | '/hub'
     | '/sign-in'
     | '/sign-up'
+    | '/changelog/$slug'
     | '/i/$code'
     | '/admin/setup'
     | '/servers/$serverId'
@@ -231,13 +286,18 @@ export interface FileRouteTypes {
     | '/admin/users'
   id:
     | '__root__'
+    | '/'
     | '/_authed'
     | '/_guest'
+    | '/changelog'
+    | '/download'
+    | '/roadmap'
     | '/_authed/admin'
+    | '/_authed/hub'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
+    | '/changelog/$slug'
     | '/i/$code'
-    | '/_authed/'
     | '/_authed/admin/_panel'
     | '/_authed/admin/setup'
     | '/_authed/servers/$serverId'
@@ -254,13 +314,24 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
   GuestRoute: typeof GuestRouteWithChildren
+  ChangelogRoute: typeof ChangelogRouteWithChildren
+  DownloadRoute: typeof DownloadRoute
+  RoadmapRoute: typeof RoadmapRoute
   ICodeRoute: typeof ICodeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed': {
       id: '/_authed'
       path: ''
@@ -275,18 +346,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/': {
-      id: '/_authed/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedIndexRouteImport
-      parentRoute: typeof AuthedRoute
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authed/admin': {
       id: '/_authed/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthedAdminRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/hub': {
+      id: '/_authed/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof AuthedHubRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_guest/sign-in': {
@@ -302,6 +394,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/sign-up'
       preLoaderRoute: typeof GuestSignUpRouteImport
       parentRoute: typeof GuestRoute
+    }
+    '/changelog/$slug': {
+      id: '/changelog/$slug'
+      path: '/$slug'
+      fullPath: '/changelog/$slug'
+      preLoaderRoute: typeof ChangelogSlugRouteImport
+      parentRoute: typeof ChangelogRoute
     }
     '/i/$code': {
       id: '/i/$code'
@@ -449,13 +548,13 @@ const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
 
 interface AuthedRouteChildren {
   AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
-  AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedHubRoute: typeof AuthedHubRoute
   AuthedServersServerIdRoute: typeof AuthedServersServerIdRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAdminRoute: AuthedAdminRouteWithChildren,
-  AuthedIndexRoute: AuthedIndexRoute,
+  AuthedHubRoute: AuthedHubRoute,
   AuthedServersServerIdRoute: AuthedServersServerIdRoute,
 }
 
@@ -474,9 +573,25 @@ const GuestRouteChildren: GuestRouteChildren = {
 
 const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 
+interface ChangelogRouteChildren {
+  ChangelogSlugRoute: typeof ChangelogSlugRoute
+}
+
+const ChangelogRouteChildren: ChangelogRouteChildren = {
+  ChangelogSlugRoute: ChangelogSlugRoute,
+}
+
+const ChangelogRouteWithChildren = ChangelogRoute._addFileChildren(
+  ChangelogRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
   GuestRoute: GuestRouteWithChildren,
+  ChangelogRoute: ChangelogRouteWithChildren,
+  DownloadRoute: DownloadRoute,
+  RoadmapRoute: RoadmapRoute,
   ICodeRoute: ICodeRoute,
 }
 export const routeTree = rootRouteImport

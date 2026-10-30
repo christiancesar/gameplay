@@ -1,4 +1,4 @@
-const FALLBACK_REDIRECT = '/'
+const FALLBACK_REDIRECT = '/hub'
 
 function hasControlCharacter(value: string): boolean {
   return [...value].some((char) => char.charCodeAt(0) < 0x20)

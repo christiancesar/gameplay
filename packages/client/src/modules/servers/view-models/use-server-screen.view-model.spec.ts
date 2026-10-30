@@ -129,7 +129,7 @@ describe('useServerScreenViewModel', () => {
     const { result } = setup()
     await ready(result)
     act(() => result.current.sidebar.onBackToHub())
-    expect(navigate).toHaveBeenCalledWith({ to: '/' })
+    expect(navigate).toHaveBeenCalledWith({ to: '/hub' })
     expect(useVoiceStore.getState().connection).toEqual({ serverId: 's1', roomId: 'r1' })
   })
 
@@ -185,7 +185,7 @@ describe('useServerScreenViewModel', () => {
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
     const remove = vi.spyOn(queryClient, 'removeQueries')
     act(() => result.current.sidebar.onLeaveServer())
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub', replace: true }))
     expect(fakeHttp.post).toHaveBeenCalledWith('/servers/s1/leave')
     await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: serversKeys.list() }))
     expect(invalidate).toHaveBeenCalledWith({ queryKey: serversKeys.myLimits() })
@@ -211,7 +211,7 @@ describe('useServerScreenViewModel', () => {
 
   it.each([403, 404])('toasts and goes back to the Hub on %s', async (status) => {
     setup({ detail: new ApiError({ code: 'FORBIDDEN', message: 'no' }, status) })
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub', replace: true }))
     expect(toast.error).toHaveBeenCalledWith('server.unavailable', { id: 'server-unavailable' })
   })
 

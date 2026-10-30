@@ -13,7 +13,7 @@ import {
 } from '@/shared/ui/navigation-menu'
 import { ThemeToggle } from '@/shared/ui/theme-toggle'
 
-type PublicDestination = 'home' | 'download' | 'roadmap' | 'changelog' | 'sign-in' | 'sign-up' | 'hub'
+import type { PublicDestination } from '../model/public-destination'
 
 type PublicNavigationViewProps = {
   isAuthenticated: boolean

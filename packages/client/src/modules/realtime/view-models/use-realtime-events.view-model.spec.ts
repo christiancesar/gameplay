@@ -66,7 +66,7 @@ describe('useRealtimeEventsViewModel', () => {
     location.pathname = '/servers/s1'
     fakeSocket.receive('server:removed', { serverId: 's1', reason: 'kicked' })
     expect(toast).toHaveBeenCalledWith('notices.kicked:Turbex')
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub', replace: true }))
     await waitFor(() => expect(queryClient.getQueryData(serversKeys.detail('s1'))).toBeUndefined())
     expect(invalidate).toHaveBeenCalledWith({ queryKey: serversKeys.list() })
   })

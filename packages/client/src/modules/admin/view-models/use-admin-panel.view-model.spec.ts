@@ -38,6 +38,6 @@ describe('useAdminPanelViewModel', () => {
   it('navigates to the hub', () => {
     const { result } = renderHook(() => useAdminPanelViewModel())
     act(() => result.current.onBackToHub())
-    expect(navigate).toHaveBeenCalledWith({ to: '/' })
+    expect(navigate).toHaveBeenCalledWith({ to: '/hub' })
   })
 })

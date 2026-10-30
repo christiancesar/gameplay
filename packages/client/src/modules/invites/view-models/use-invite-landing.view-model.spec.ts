@@ -111,7 +111,7 @@ describe('useInviteLandingViewModel', () => {
       const { result } = setup(seed.session)
       await waitFor(() => expect(result.current.state?.status).toBe('confirm'))
       act(() => result.current.onJoin())
-      await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/' }))
+      await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub' }))
       expect(toast.success).toHaveBeenCalledWith('invite.requestSent')
     })
 
@@ -145,7 +145,7 @@ describe('useInviteLandingViewModel', () => {
       const { result } = setup(seed.session, invite)
       await waitFor(() => expect(result.current.state).toEqual({ status: 'error', error }))
       act(() => result.current.onBackToHub())
-      expect(navigate).toHaveBeenCalledWith({ to: '/' })
+      expect(navigate).toHaveBeenCalledWith({ to: '/hub' })
     })
 
     it('shows notFound when the invite request fails', async () => {
