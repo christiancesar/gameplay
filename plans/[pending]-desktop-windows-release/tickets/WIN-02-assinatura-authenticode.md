@@ -1,6 +1,6 @@
 # WIN-02 · Assinatura Authenticode no CI
 
-> Pontos: 8 · Depende de: WIN-01 · Branch `feature/windows-code-signing`, saída da `dev` · Status: adiado
+> Pontos: 8 · Depende de: WIN-01 · Branch `feature/windows-code-signing`, saída da `dev` · Status: desconsiderado
 
 ## Escopo
 
@@ -28,11 +28,12 @@ Atualização automática, Microsoft Store, MSIX, emissão do certificado pelo p
 
 ## Critério de aceite
 
-O workflow produz uma release Windows assinada e falha de forma segura quando não consegue assinar ou verificar um artefato obrigatório.
+Não há critério de aceite ativo para este ticket no MVP atual.
 
 ## Notas da execução
 
 - _(decisão do usuário)_ A assinatura Authenticode paga foi adiada. As releases Windows continuarão sem assinatura enquanto o custo não for aprovado.
+- _(decisão do usuário)_ A validação de autenticidade paga foi retirada do planejamento atual. O ticket não deve bloquear a publicação de Windows ou Linux.
 
 ## Preparação mantida para o futuro
 
