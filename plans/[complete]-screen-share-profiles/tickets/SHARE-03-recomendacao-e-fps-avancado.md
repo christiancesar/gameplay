@@ -1,6 +1,6 @@
 # SHARE-03 · Recomendações e FPS avançado
 
-> Pontos: 5 · Depende de: SHARE-02 · Status: implementado, validação manual pendente
+> Pontos: 5 · Depende de: SHARE-02 · Status: concluído
 
 ## Contexto
 
@@ -28,7 +28,7 @@ O coletor de hardware já observa codecs e eficiência estimada em 1080p60, mas 
 - [x] Testes cobrem captura/encoder sem suporte a taxas altas
 - [x] Stories e mensagens em inglês e português atualizadas
 - [x] Typecheck, lint, formato e testes relevantes passam
-- [ ] Matriz manual de validação no Electron registra perfis recomendados e limites encontrados
+- [x] Matriz manual de validação no Electron registra perfis recomendados e limites encontrados
 
 ## Critérios de aceite
 
@@ -44,3 +44,7 @@ O coletor de hardware já observa codecs e eficiência estimada em 1080p60, mas 
 - A recomendação escolhe a altura disponível, a proporção mais próxima e o maior FPS localmente habilitado. Ela é apresentada como recomendação, enquanto o painel continua mostrando o resultado medido _(suposição)_.
 - Testes cobrem fonte 2560×1080 a 120 Hz, encoder fluido somente até 100 FPS e ausência total de sinais de hardware.
 - A matriz manual completa ficou pendente porque a API de produção rejeita o perfil estruturado antes de a transmissão permanecer ativa. O caso 2560×1080 a 30 FPS foi confirmado na captura e na configuração inicial do SFU. Os FPS avançados e o uplink serão conferidos depois da atualização da API.
+
+## Validação manual posterior
+
+- O usuário confirmou a validação manual dos perfis recomendados, limites de FPS e estatísticas no desktop.

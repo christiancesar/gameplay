@@ -808,7 +808,7 @@
       "docsTitle": "Safety and scope",
       "docs": {
         "local": "The MCP server will listen on loopback only and use a temporary session token.",
-        "future": "The server implementation and its read-only tools are planned for the separate MCP ticket."
+      "future": "The local read-only server is available only after explicit confirmation and uses a temporary session token."
       }
     },
     "setup": {

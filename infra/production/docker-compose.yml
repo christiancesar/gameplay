@@ -1,4 +1,4 @@
-# Production stack on the Lightsail instance (plans/[pending]-production-infrastructure/06-producao-aws.md).
+# Production stack on the Lightsail instance (plans/[complete]-production-infrastructure/06-producao-aws.md).
 #
 #   browser -> Cloudflare (proxy, Full strict) -> web (nginx) :443 -> api
 #

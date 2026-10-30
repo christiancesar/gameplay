@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "github_updates_assume_role" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:christiancesar/gameplay:environment:electron-production"]
+      values   = ["repo:christiancesar@37115113/gameplay@1432528784:environment:electron-production"]
     }
   }
 }
