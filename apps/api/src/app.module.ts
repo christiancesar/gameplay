@@ -17,6 +17,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { PlatformAdminModule } from './modules/platform-admin/platform-admin.module'
 import { RealtimeModule } from './modules/realtime/realtime.module'
 import { RegistrationInvitesModule } from './modules/registration-invites/registration-invites.module'
+import { UpdatesModule } from './modules/updates/updates.module'
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RegistrationInvitesModule } from './modules/registration-invites/regist
     RealtimeModule,
     MediaModule,
     PlatformAdminModule,
+    UpdatesModule,
   ],
 })
 export class AppModule {}

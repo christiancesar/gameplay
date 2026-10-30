@@ -4,7 +4,7 @@ Base: `../02-tech-plan.md`. Uma branch por ticket, saindo da `dev` e voltando po
 
 | Ticket | Pontos | Dependências | Status |
 |---|---:|---|---|
-| [WIN-01 Artefatos Squirrel e feed](WIN-01-artefatos-squirrel-e-feed.md) | 5 | DESK-11 | pendente |
+| [WIN-01 Artefatos Squirrel e feed](WIN-01-artefatos-squirrel-e-feed.md) | 5 | DESK-11 | em andamento |
 | [WIN-02 Assinatura Authenticode no CI](WIN-02-assinatura-authenticode.md) | 8 | WIN-01 | pendente |
 | [WIN-03 Atualização automática no Electron](WIN-03-auto-updater.md) | 8 | WIN-01, WIN-02 | pendente |
 | [WIN-04 Promoção, rollback e validação](WIN-04-promocao-rollback.md) | 5 | WIN-03 | pendente |

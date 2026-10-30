@@ -142,11 +142,22 @@ jobs:
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
+      - name: Validate Squirrel artifacts
+        shell: bash
+        run: |
+          feed="apps/desktop/out/make/squirrel.windows/x64"
+          test -f "$feed/RELEASES"
+          compgen -G "$feed/*Setup.exe" >/dev/null
+          compgen -G "$feed/*.nupkg" >/dev/null
+          test -s "$feed/RELEASES"
+
       - uses: actions/upload-artifact@v6
         with:
           name: desktop-windows
           path: |
             apps/desktop/out/make/squirrel.windows/x64/*.exe
+            apps/desktop/out/make/squirrel.windows/x64/*.nupkg
+            apps/desktop/out/make/squirrel.windows/x64/RELEASES
             apps/desktop/out/make/zip/win32/x64/*.zip
           if-no-files-found: error
           compression-level: 0
@@ -169,9 +180,13 @@ jobs:
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.version.outputs.version }}
         run: |
-          mapfile -d '' assets < <(find release-assets -type f \( -name '*.deb' -o -name '*.zip' -o -name '*.exe' \) -print0)
-          if [ "${#assets[@]}" -ne 4 ]; then
-            echo "::error::Expected a Linux DEB and ZIP plus a Windows installer and ZIP; found ${#assets[@]}."
+          mapfile -d '' assets < <(find release-assets -type f \( -name '*.deb' -o -name '*.zip' -o -name '*.exe' -o -name '*.nupkg' -o -name 'RELEASES' \) -print0)
+          if ! find release-assets -type f -name 'RELEASES' -print -quit | grep -q .; then
+            echo "::error::The Squirrel RELEASES file was not published."
+            exit 1
+          fi
+          if ! find release-assets -type f -name '*.nupkg' -print -quit | grep -q .; then
+            echo "::error::No Squirrel nupkg was published."
             exit 1
           fi
           gh release create "v${VERSION}" "${assets[@]}" --target "$GITHUB_SHA" --title "v${VERSION}" --generate-notes
