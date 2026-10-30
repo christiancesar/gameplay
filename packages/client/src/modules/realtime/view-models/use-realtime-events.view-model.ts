@@ -39,7 +39,7 @@ function useRealtimeEventsViewModel() {
         toast(t(removalNoticeKey(reason), { server }))
 
         if (isOnServerPath(router.state.location.pathname, serverId)) {
-          await navigate({ to: '/', replace: true })
+          await navigate({ to: '/hub', replace: true })
         }
         // The server is gone for this user: refetching its detail would only answer 403 or 404.
         queryClient.removeQueries({ queryKey: serversKeys.detail(serverId) })

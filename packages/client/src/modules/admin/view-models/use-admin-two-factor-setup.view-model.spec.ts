@@ -127,7 +127,7 @@ describe('useAdminTwoFactorSetupViewModel', () => {
   it('goes back to the Hub without enabling 2FA', () => {
     const hook = setup()
     act(() => hook.result.current.onBackToHub())
-    expect(navigate).toHaveBeenCalledWith({ to: '/' })
+    expect(navigate).toHaveBeenCalledWith({ to: '/hub' })
     expect(fakeTwoFactorClient.twoFactor.enable).not.toHaveBeenCalled()
   })
 })

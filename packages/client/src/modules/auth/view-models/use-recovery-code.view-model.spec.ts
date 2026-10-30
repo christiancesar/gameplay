@@ -53,7 +53,7 @@ describe('useRecoveryCodeViewModel', () => {
     fakeAuthClient.twoFactor.verifyBackupCode.mockResolvedValue(okResult)
     const { result } = setup()
     act(() => result.current.onSubmit(values))
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/' }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub' }))
   })
 
   it('exposes invalidTwoFactorCode for a wrong code', async () => {

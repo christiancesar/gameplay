@@ -29,7 +29,7 @@ function useInviteLandingViewModel() {
       ])
       if (result === 'pending') {
         toast.success(t('invite.requestSent'))
-        await navigate({ to: '/' })
+        await navigate({ to: '/hub' })
         return
       }
       await navigate({ to: '/servers/$serverId', params: { serverId } })
@@ -66,7 +66,7 @@ function useInviteLandingViewModel() {
       if (resolved?.server) void navigate({ to: '/servers/$serverId', params: { serverId: resolved.server.id } })
     },
     // Without a session there is no Hub to go back to.
-    onBackToHub: () => void navigate({ to: signedIn ? '/' : '/sign-in' }),
+    onBackToHub: () => void navigate({ to: signedIn ? '/hub' : '/sign-in' }),
   }
 }
 

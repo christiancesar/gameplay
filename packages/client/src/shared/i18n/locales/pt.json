@@ -32,6 +32,164 @@
     "signOutTitle": "Sair da sua conta?",
     "signOutDescription": "Você será desconectado de qualquer sala."
   },
+  "public": {
+    "nav": {
+      "label": "Navegação pública",
+      "home": "Ir para a home do Gameplay",
+      "homeLink": "Home",
+      "product": "Produto",
+      "download": "Downloads",
+      "downloadHint": "Baixe o app desktop para o seu sistema.",
+      "explore": "Explorar",
+      "roadmap": "Roadmap",
+      "roadmapHint": "Veja o que vem pela frente.",
+      "changelog": "Changelog",
+      "changelogHint": "Acompanhe as atualizações do produto.",
+      "signIn": "Entrar",
+      "getStarted": "Começar",
+      "openHub": "Abrir Hub"
+    },
+    "home": {
+      "eyebrow": "Um lugar para jogar junto",
+      "title": "A parte boa de estar na mesma sala.",
+      "description": "Salas de voz e compartilhamento de tela para grupos pequenos. Reúna sua turma, fique perto do jogo e mantenha a conversa rolando.",
+      "getStarted": "Começar",
+      "openHub": "Abrir Hub",
+      "download": "Baixar o app",
+      "noCreditCard": "Comece de graça. Sem cartão.",
+      "demo": {
+        "preview": "Uma olhada dentro do produto",
+        "slidesLabel": "Telas do produto",
+        "slides": {
+          "hub": "Hub",
+          "server": "Servidor",
+          "streaming": "Streaming"
+        },
+        "platforms": { "windows": "Windows", "linux": "Linux", "macos": "macOS" },
+        "soon": "em breve",
+        "streamLabel": "Streaming do Gameplay",
+        "streamTitle": "Alex está compartilhando uma janela do jogo",
+        "streamStats": "1920×1080 · 60 fps · 8,4 Mbps",
+        "platformStatus": {
+          "windows": "App desktop para Windows",
+          "linux": "App desktop para Linux",
+          "macos": "macOS planejado"
+        }
+      },
+      "preview": {
+        "app": "App desktop",
+        "connected": "Conectado ao seu espaço",
+        "server": "Turbex",
+        "serverStatus": "3 pessoas online",
+        "rooms": "Salas",
+        "room": "Sala principal",
+        "screenRoom": "Compartilhamento de tela",
+        "people": "Pessoas aqui",
+        "you": "Você",
+        "online": "Online",
+        "roomSubtitle": "Voz e compartilhamento de tela",
+        "live": "Ao vivo",
+        "voiceRoom": "Sala de voz",
+        "inviteOnly": "Só por convite",
+        "speaking": "Falando",
+        "listening": "Ouvindo",
+        "sharing": "Alex está compartilhando a tela",
+        "sharingDescription": "Todo mundo na sala pode acompanhar o momento junto."
+      },
+      "previewLabel": "Sua próxima sala",
+      "previewTitle": "Turma de sexta",
+      "previewLive": "Ao vivo",
+      "previewRoom": "Sala principal",
+      "previewPrivate": "Só por convite",
+      "previewYou": "Você",
+      "previewSpeaking": "Falando",
+      "previewFriend": "Alex",
+      "previewListening": "Ouvindo",
+      "features": {
+        "voice": { "title": "Fique na voz", "description": "Uma sala que continua aberta enquanto o jogo muda." },
+        "screen": {
+          "title": "Compartilhe o momento",
+          "description": "Mostre a jogada, o setup ou o que estiver na sua tela."
+        },
+        "groups": {
+          "title": "Pequeno por escolha",
+          "description": "Espaços focados nas pessoas com quem você realmente joga."
+        }
+      }
+    },
+    "download": {
+      "eyebrow": "Baixe o app desktop",
+      "title": "Um jeito mais próximo de jogar.",
+      "description": "Escolha a versão do seu sistema. O app conecta você ao seu servidor Gameplay e mantém as mesmas salas e pessoas por perto.",
+      "recommended": {
+        "windows": "O Windows parece ser a melhor opção para este dispositivo.",
+        "linux": "O Linux parece ser a melhor opção para este dispositivo.",
+        "unknown": "Escolha a versão que combina com seu computador."
+      },
+      "recommendedHint": "Você pode mudar essa escolha abaixo.",
+      "recommendedBadge": "Recomendado",
+      "signIn": "Entre primeiro",
+      "platforms": { "windows": "Windows", "linux": "Linux" },
+      "platformHints": {
+        "windows": "Instalador Squirrel com atualização automática quando uma nova versão estiver disponível.",
+        "linux": "Pacote deb e arquivo portátil para ambientes desktop Linux."
+      },
+      "version": "Versão {{version}} · 64-bit",
+      "downloadButton": "Baixar",
+      "comingSoon": "Em breve",
+      "footer": "Os downloads vêm do canal oficial de releases do Gameplay."
+    },
+    "roadmap": {
+      "eyebrow": "O que vem pela frente",
+      "title": "Um mapa do que estamos construindo.",
+      "description": "Algumas ideias já estão em andamento, outras estão tomando forma e algumas já fazem parte da sala. Aqui deixamos a direção visível.",
+      "status": { "now": "Em andamento", "next": "A seguir", "exploring": "Explorando", "done": "Lançado" },
+      "items": {
+        "desktopApp": "App desktop",
+        "desktopAppDescription": "Leve o compartilhamento de tela e áudio para mais perto dos jogos que você joga.",
+        "screenSharing": "Perfis de compartilhamento",
+        "screenSharingDescription": "Escolha a resolução, proporção e taxa de quadros certa para cada transmissão.",
+        "windowsAudio": "Áudio de apps no Windows",
+        "windowsAudioDescription": "Compartilhe o som de um jogo ou app sem incluir a sala de voz.",
+        "roadmapVoting": "Votação da comunidade",
+        "roadmapVotingDescription": "Ajude a comunidade a decidir o que merece atenção primeiro.",
+        "featureRequests": "Pedidos de funcionalidade",
+        "featureRequestsDescription": "Um lugar claro para sugerir melhorias e explicar o problema por trás delas.",
+        "mobileCompanion": "Companion mobile",
+        "mobileCompanionDescription": "Acompanhe salas e conversas quando estiver longe do desktop.",
+        "voiceRooms": "Salas de voz",
+        "voiceRoomsDescription": "Salas pequenas e focadas para as pessoas com quem você joga.",
+        "sfuStreaming": "Transmissão ao vivo confiável",
+        "sfuStreamingDescription": "Um caminho mais forte para compartilhar tela com toda a sala."
+      }
+    },
+    "changelog": {
+      "eyebrow": "Atualizações do produto",
+      "title": "O que mudou.",
+      "description": "Notas do trabalho que deixa o Gameplay melhor de usar, uma release por vez.",
+      "search": "Buscar atualizações",
+      "back": "Voltar ao changelog",
+      "date": "{{date}}",
+      "tags": {
+        "desktop": "Desktop",
+        "sharing": "Compartilhamento",
+        "quality": "Qualidade",
+        "streaming": "Transmissão",
+        "rooms": "Salas"
+      },
+      "entries": {
+        "desktopAppPreview": "O app desktop está mais perto da release",
+        "desktopAppPreviewSummary": "O app Electron agora compartilha o mesmo client e alcança partes do computador que o browser não consegue.",
+        "desktopAppPreviewBody": "Esta release traz a casca desktop, as fronteiras da captura nativa e os primeiros passos para um app confiável de compartilhamento de tela e áudio.",
+        "screenShareProfiles": "Compartilhamento de tela mais preciso",
+        "screenShareProfilesSummary": "O compartilhamento agora entende telas ultrawide, proporções e taxas de quadros maiores.",
+        "screenShareProfilesBody": "A configuração descreve o formato real da tela em vez de tratar toda fonte como um retângulo fixo em 1080p.",
+        "sfuStreaming": "Um caminho mais forte para vídeo ao vivo",
+        "sfuStreamingSummary": "A sala pode usar o SFU para uma entrega de tela mais confiável e troca de camadas.",
+        "sfuStreamingBody": "O vídeo ao vivo agora tem um caminho melhor para grupos que precisam de mais do que uma conexão direta consegue oferecer."
+      }
+    }
+  },
   "auth": {
     "signIn": {
       "title": "Bem-vindo de volta",
