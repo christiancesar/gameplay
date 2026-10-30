@@ -135,6 +135,7 @@
         "linux": "Deb package and portable archive for Linux desktop environments."
       },
       "version": "Version {{version}} · 64-bit",
+      "latestRelease": "Latest release",
       "downloadButton": "Download",
       "formats": {
         "squirrel-installer": "Download Windows installer",
@@ -143,6 +144,38 @@
       },
       "loading": "Checking the latest release…",
       "error": "The latest release could not be loaded. Showing the available download options instead.",
+      "formatLabels": {
+        "squirrel-installer": "Windows installer",
+        "deb": "DEB package",
+        "appimage": "AppImage"
+      },
+      "instructions": {
+        "hint": "Open the book icon for installation steps.",
+        "open": "Open {{format}} installation instructions",
+        "title": "Install {{format}}",
+        "description": {
+          "squirrel-installer": "The Windows installer adds Gameplay to your computer and keeps it updated.",
+          "deb": "Install the DEB package with apt so Gameplay is available from your desktop menu.",
+          "appimage": "The AppImage is portable and does not need a system-wide installation."
+        },
+        "steps": {
+          "squirrel-installer": {
+            "download": "Download the installer and open the `.exe` file.",
+            "install": "Follow the setup steps. Gameplay will finish installing automatically.",
+            "open": "Launch Gameplay from the Start menu."
+          },
+          "deb": {
+            "download": "Download `gameplay.deb` and open a terminal in its folder.",
+            "install": "Run `sudo apt install ./gameplay.deb` to install or update Gameplay.",
+            "open": "Open Gameplay from your applications menu."
+          },
+          "appimage": {
+            "download": "Download `Gameplay.AppImage` to a folder where you keep applications.",
+            "install": "Make it executable with `chmod +x Gameplay.AppImage`.",
+            "open": "Run it with `./Gameplay.AppImage`, or double-click it from your file manager."
+          }
+        }
+      },
       "comingSoon": "Coming soon",
       "footer": "Downloads are served from the official Gameplay release channel."
     },

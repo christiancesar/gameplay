@@ -49,6 +49,14 @@ export const LinuxRecommended: Story = {
   args: { recommendedPlatform: 'linux' },
 }
 
+export const LinuxInstallInstructions: Story = {
+  args: { recommendedPlatform: 'linux' },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Open DEB package installation instructions' }))
+    await expect(document.body).toHaveTextContent('sudo apt install ./gameplay.deb')
+  },
+}
+
 export const UnknownSystem: Story = {
   args: { recommendedPlatform: null },
 }
