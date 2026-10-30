@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PublicDownloadScreen } from '@/modules/public/screens/public-download.screen'
+import { DownloadScreen } from '@/modules/public/screens/download/download.screen'
 
 export const Route = createFileRoute('/download')({
-  component: PublicDownloadScreen,
+  component: DownloadScreen,
 })

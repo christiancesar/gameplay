@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PublicChangelogScreen } from '@/modules/public/screens/public-changelog.screen'
+import { ChangelogScreen } from '@/modules/public/screens/changelog/changelog.screen'
 
 export const Route = createFileRoute('/changelog')({
-  component: PublicChangelogScreen,
+  component: ChangelogScreen,
 })
