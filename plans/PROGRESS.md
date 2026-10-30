@@ -24,9 +24,10 @@ Este arquivo é o índice geral dos planos. O detalhamento, os checklists e as n
 ## Retomar daqui
 
 1. Validar em uma VM Windows a atualização de `0.0.5` para `0.0.6` e exercitar o rollback do feed estável.
-2. Continuar o próximo ticket de frontend pendente conforme `AGENTS.md` e o README do plano frontend.
-3. Fechar o painel Sentry e os alertas operacionais no plano de telemetria.
-4. Retomar `WIN-03` e `WIN-04` depois da validação manual da release Windows `0.0.6`.
+2. Executar o workflow Linux/AppImage e validar instalação, sandbox e áudio por aplicativo em uma máquina Linux.
+3. Continuar o próximo ticket de frontend pendente conforme `AGENTS.md` e o README do plano frontend.
+4. Fechar o painel Sentry e os alertas operacionais no plano de telemetria.
+5. Retomar `WIN-03` e `WIN-04` depois da validação manual da release Windows `0.0.6`.
 
 ## Critério dos marcadores
 
