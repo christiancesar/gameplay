@@ -1,11 +1,11 @@
-# 02 · Plano técnico: release Windows, assinatura e update Squirrel
+# 02 · Plano técnico: release desktop, downloads e update Squirrel
 
 ## 1. Componentes
 
 ```text
 GitHub Actions
   ├─ build Electron
-  ├─ assina PE e instalador
+  ├─ gera instalador Windows, DEB e AppImage Linux
   ├─ gera artefatos Squirrel
   └─ publica release imutável
 
@@ -21,19 +21,21 @@ Electron main
 
 ## 2. Artefatos Squirrel
 
-O ticket de empacotamento deve confirmar quais arquivos o `MakerSquirrel` 8 gera para a configuração atual. O conjunto esperado inclui o instalador `Setup.exe`, o pacote `.nupkg` e o arquivo `RELEASES`, além de eventuais arquivos auxiliares.
+O ticket de empacotamento deve confirmar quais arquivos o `MakerSquirrel` 8 gera para a configuração atual. O conjunto Windows esperado inclui o instalador `Setup.exe`, o pacote `.nupkg` e o arquivo `RELEASES`. O conjunto Linux deve incluir um pacote `.deb` instalável e um `AppImage` executável, ambos com nomes estáveis o bastante para serem referenciados pelo manifesto.
 
-O workflow atual filtra os artefatos para `.exe`, `.zip` e `.deb`. Esse filtro precisa ser alterado para preservar os artefatos Squirrel necessários ao update. O `.zip` continua sendo um download manual e não deve ser tratado como fonte de atualização Squirrel.
+O workflow deve preservar o instalador Windows, o `.deb` Linux, o AppImage Linux, os artefatos Squirrel necessários ao update e, se desejado, os ZIPs como downloads alternativos. O `.deb` é o pacote principal para Debian/Ubuntu e o AppImage é a opção portátil.
 
 ## 3. Feed e hospedagem
 
 ### S3 e endpoint estável
 
-Publicar os artefatos Squirrel em prefixos imutáveis do S3 e expor o feed por `https://gameplay.oikos.company/api/updates/windows/stable/RELEASES`. O plano deve validar:
+Publicar os artefatos Windows e Linux em prefixos imutáveis do S3 e expor um manifesto estável para a página de download. O plano deve validar:
 
 - se o endpoint serve ou redireciona corretamente o `RELEASES`;
 - se o redirecionamento para os assets do S3 preserva o comportamento esperado pelo Squirrel;
 - se o download do `.nupkg` funciona sem autenticação;
+- se o download do `.deb` e do AppImage funciona sem autenticação;
+- se o manifesto sempre aponta para a última versão completa;
 - se cache e `Content-Type` não quebram a atualização;
 - se o limite de tráfego é suficiente para o tamanho e o grupo esperado.
 
@@ -65,15 +67,7 @@ As páginas humanas ficam no domínio principal e são detalhadas em `plans/[com
 
 ## 5. Assinatura no CI
 
-O pipeline deverá receber a credencial de assinatura via GitHub Environment `electron-production`. O desenho deve escolher entre PFX protegido por secret ou assinatura remota gerenciada. Em ambos os casos:
-
-- a credencial não será escrita em arquivo persistente fora do runner;
-- a senha e tokens serão mascarados;
-- o timestamp server será configurado;
-- o pipeline verificará `signtool verify` ou equivalente;
-- o workflow falhará antes da publicação se algum artefato obrigatório continuar sem assinatura.
-
-O auxiliar `gameplay-audio-capture.exe` deve ser assinado antes de ser incluído no pacote, ou a estratégia escolhida deve demonstrar que a assinatura final do pacote cobre adequadamente esse binário.
+Assinatura Authenticode não faz parte do MVP atual. O workflow deve validar existência, tamanho e checksum dos artefatos, sem bloquear a publicação por ausência de certificado.
 
 ## 6. Rollback e promoção
 
@@ -86,7 +80,7 @@ O auxiliar `gameplay-audio-capture.exe` deve ser assinado antes de ser incluído
 ## 7. Validação
 
 - Instalação limpa numa VM Windows sem a versão anterior.
-- Propriedades de assinatura do `Setup.exe`, do executável e do auxiliar nativo.
+- Existência e integridade do `Setup.exe`, do AppImage e dos artefatos referenciados pelo manifesto.
 - Primeiro launch sem erro de lock do Squirrel.
 - Atualização de `0.0.1` para `0.0.2`.
 - App fechado e aberto durante download.

@@ -22,21 +22,22 @@ packages/client/src/
 
 ## 2. Dados iniciais
 
-- `download-seed.ts`: plataformas, arquitetura, versão exibida e URL pública.
+- `download-seed.ts`: fallback de Storybook para plataformas e arquitetura. Em produção, a versão e os URLs vêm do manifesto público de releases.
 - `roadmap-seed.ts`: itens, status, descrição e prioridade visual.
 - `changelog-seed.ts`: slug, data, título, resumo, conteúdo, tags e versão.
 - Nenhum seed deve conter segredo ou URL privada.
 
 ## 3. Downloads
 
-As páginas humanas usam `https://gameplay.oikos.company/download`. Os links apontam para assets públicos ou para um endpoint estável. O feed do updater continua separado:
+As páginas humanas usam `https://gameplay.oikos.company/download`. A página consulta um manifesto público de última versão, servido por uma URL estável da API. O feed do updater continua separado:
 
 ```text
 Página: https://gameplay.oikos.company/download
+Manifesto: https://gameplay.oikos.company/api/downloads/latest
 Feed:   https://gameplay.oikos.company/api/updates/windows/stable/RELEASES
 ```
 
-O manifest público pode recomendar o download, mas o `autoUpdater` não deve depender do renderer nem da página de download.
+O manifesto contém os links do instalador Windows e do AppImage Linux, além da versão, arquitetura, tamanho e checksum. O `autoUpdater` não deve depender do renderer nem da página de download.
 
 ## 4. Rotas e navegação
 

@@ -34,5 +34,6 @@ Uma release pode ser promovida, validada, consumida pelo app e revertida para a 
 - A promoção para `updates/windows/stable/` copia os pacotes antes do `RELEASES`, que é publicado por último.
 - O feed anterior é preservado em `updates/windows/promotions/<version>/previous-RELEASES`. Nenhum artefato é apagado automaticamente.
 - O rollback manual está documentado em `infra/production/docs/windows-release.md`.
+- A release `0.0.6` foi publicada no prefixo imutável, validada e promovida para `stable` pelo workflow `Desktop release`. O feed público confirmou a versão e o pacote sem autenticação.
 - _(suposição)_ O conteúdo do `RELEASES` usa nomes de arquivos compatíveis com os artefatos produzidos no mesmo workflow.
-- _(pendência externa)_ Ainda falta exercitar o rollback e a atualização completa em uma VM Windows.
+- _(pendência externa)_ Ainda falta exercitar o rollback e a atualização completa em uma VM Windows, além de aprovar os critérios de publicação.

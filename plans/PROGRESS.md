@@ -23,10 +23,10 @@ Este arquivo é o índice geral dos planos. O detalhamento, os checklists e as n
 
 ## Retomar daqui
 
-1. Revisar os checklists manuais pendentes nos planos desktop, Windows, compartilhamento e observabilidade.
+1. Validar em uma VM Windows a atualização de `0.0.5` para `0.0.6` e exercitar o rollback do feed estável.
 2. Continuar o próximo ticket de frontend pendente conforme `AGENTS.md` e o README do plano frontend.
 3. Fechar o painel Sentry e os alertas operacionais no plano de telemetria.
-4. Validar a próxima release Linux e seguir com os tickets Windows de atualização automática.
+4. Retomar `WIN-03` e `WIN-04` depois da validação manual da release Windows `0.0.6`.
 
 ## Critério dos marcadores
 
