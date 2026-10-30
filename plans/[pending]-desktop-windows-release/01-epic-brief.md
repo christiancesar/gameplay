@@ -8,7 +8,7 @@ O GitHub Releases já é usado como catálogo das versões, mas o armazenamento 
 
 ## 2. Resultado esperado
 
-O usuário acessa `/download`, vê a última versão disponível para seu sistema e baixa o instalador Windows ou o AppImage Linux. No Windows, o usuário também recebe futuras versões pelo próprio app. O app consulta o canal oficial, baixa uma atualização válida, mostra que ela está pronta e aplica a versão ao reiniciar.
+O usuário acessa `/download`, vê a última versão disponível para seu sistema e baixa o instalador Windows, o pacote `.deb` Linux ou o AppImage Linux. No Windows, o usuário também recebe futuras versões pelo próprio app. O app consulta o canal oficial, baixa uma atualização válida, mostra que ela está pronta e aplica a versão ao reiniciar.
 
 ## 3. Direção proposta
 
@@ -48,7 +48,7 @@ O portal público será detalhado separadamente em `plans/[complete]-public-prod
 ## 5. Critérios de sucesso do épico
 
 - A página pública mostra a última versão e links funcionais para Windows e Linux.
-- O workflow publica o instalador Windows e o AppImage Linux no S3.
+- O workflow publica o instalador Windows, o `.deb` Linux e o AppImage Linux no S3.
 - Uma instalação limpa abre sem depender de uma release anterior.
 - Uma segunda release é detectada pelo app, baixada e aplicada após reinício.
 - O GitHub ou o bucket pode ser temporariamente indisponível sem impedir o uso da versão instalada.
