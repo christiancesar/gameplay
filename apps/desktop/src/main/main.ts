@@ -24,6 +24,7 @@ import { createSystemAudioModule } from './modules/system-audio/system-audio.mod
 import { isAppUrl } from './utils/app-url'
 import { contentSecurityPolicy } from './utils/content-security-policy'
 import { fixedServerFrom } from './utils/fixed-server'
+import { createUpdatesModule } from './modules/updates/updates.module'
 
 // The Windows installer starts the app with --squirrel-* flags to make or remove shortcuts: handle them and leave.
 const startupResult = parseDiagnosticsArgs(process.argv)
@@ -34,6 +35,8 @@ if (!startupResult.ok) {
 } else if (squirrelStartup || !app.requestSingleInstanceLock()) {
   app.quit()
 } else {
+  // Squirrel uses this AUMID for the installed shortcut and Windows taskbar integration.
+  if (process.platform === 'win32') app.setAppUserModelId('com.squirrel.Gameplay.gameplay')
   const startupOptions = startupResult.options
   configureCdp(app.commandLine, startupOptions.cdpPort)
 
@@ -103,6 +106,7 @@ if (!startupResult.ok) {
       logger,
       telemetry,
     )
+    const updates = createUpdatesModule(logger, app.isPackaged, process.argv)
     await server.service.load()
 
     serveApp(rendererRoot(), () => server.service.current(), contentSecurityPolicy(fixedServer))
@@ -131,6 +135,7 @@ if (!startupResult.ok) {
       void telemetry.flush(2000)
     })
     createMainWindow({ devtools: startupOptions.devtools })
+    updates.service.start()
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createMainWindow({ devtools: startupOptions.devtools })

@@ -40,6 +40,7 @@ services:
       S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?set in .env}
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?set in .env}
       PUBLIC_UPLOADS_URL: ${PUBLIC_UPLOADS_URL:?set in .env}
+      WINDOWS_UPDATE_FEED_BASE_URL: ${WINDOWS_UPDATE_FEED_BASE_URL:-}
       # nginx overwrites X-Forwarded-For with CF-Connecting-IP: one trusted hop.
       TRUST_PROXY_HOPS: 1
       ICE_PROVIDER: ${ICE_PROVIDER:-cloudflare}

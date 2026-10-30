@@ -53,14 +53,14 @@ function useServerScreenViewModel() {
   useEffect(() => {
     if (!isServerUnavailable(detailQuery.error)) return
     toast.error(t('server.unavailable'), { id: UNAVAILABLE_TOAST_ID })
-    void navigate({ to: '/', replace: true })
+    void navigate({ to: '/hub', replace: true })
   }, [detailQuery.error, navigate, t])
 
   const leave = useMutation({
     mutationFn: () => leaveServer(serverId),
     onSuccess: async () => {
       if (connection?.serverId === serverId) voice.leaveRoom()
-      await navigate({ to: '/', replace: true })
+      await navigate({ to: '/hub', replace: true })
       queryClient.removeQueries({ queryKey: serversKeys.detail(serverId) })
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: serversKeys.list() }),
@@ -175,7 +175,7 @@ function useServerScreenViewModel() {
       currentRoomId: connection?.serverId === serverId ? connection.roomId : undefined,
       pendingSwitch: pendingSwitch && { serverName: pendingSwitch.serverName, roomName: pendingSwitch.roomName },
       onSelectRoom,
-      onBackToHub: () => void navigate({ to: '/' }),
+      onBackToHub: () => void navigate({ to: '/hub' }),
       onSelectServer,
       onConfirmSwitch: () => {
         if (!pendingSwitch) return

@@ -27,7 +27,7 @@ describe('useSignInViewModel', () => {
     fakeAuthClient.signIn.email.mockResolvedValue(signedInResult)
     const { result } = setup()
     act(() => result.current.onSubmit(credentialsByEmail))
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/' }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub' }))
     expect(fakeAuthClient.signIn.email).toHaveBeenCalledWith({
       email: credentialsByEmail.identifier,
       password: credentialsByEmail.password,
@@ -59,7 +59,7 @@ describe('useSignInViewModel', () => {
     fakeAuthClient.signIn.email.mockResolvedValue(signedInResult)
     const { result } = setup()
     act(() => result.current.onSubmit(credentialsByEmail))
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/' }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub' }))
   })
 
   it('moves to the two-factor step when Better Auth asks for it', async () => {

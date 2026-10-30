@@ -69,7 +69,7 @@ function useAdminTwoFactorSetupViewModel() {
       await refreshSession(queryClient)
       await navigate({ to: '/admin/users' })
     },
-    onBackToHub: () => void navigate({ to: '/' }),
+    onBackToHub: () => void navigate({ to: '/hub' }),
   }
 }
 

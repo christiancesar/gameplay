@@ -4,7 +4,7 @@ export const Route = createFileRoute('/_authed/admin')({
   beforeLoad: ({ context, location }) => {
     const { user } = context.session
     if (user.role !== 'admin') {
-      throw redirect({ to: '/', replace: true })
+      throw redirect({ to: '/hub', replace: true })
     }
     const onSetup = location.pathname === '/admin/setup'
     if (!user.twoFactorEnabled && !onSetup) {

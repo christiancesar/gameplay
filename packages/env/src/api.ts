@@ -37,6 +37,8 @@ export const apiEnvObject = z.object({
   STORAGE_LOCAL_DIR: z.string().default('./uploads'),
   // Base of the public image URLs: "/uploads" for local, the bucket or CDN URL for s3.
   PUBLIC_UPLOADS_URL: z.string().default('/uploads'),
+  // S3 origin for the Windows Squirrel feed, without the channel suffix. The API proxies it.
+  WINDOWS_UPDATE_FEED_BASE_URL: z.url().optional(),
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().default('auto'),
   // Only for non-AWS providers (R2, an S3 mock).

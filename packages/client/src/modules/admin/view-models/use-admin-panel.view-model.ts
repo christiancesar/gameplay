@@ -16,7 +16,7 @@ export function useAdminPanelViewModel() {
 
   const tab = tabFromPathname(pathname)
   const onTabChange = useCallback((next: AdminTab) => void navigate({ to: `/admin/${next}` }), [navigate])
-  const onBackToHub = useCallback(() => void navigate({ to: '/' }), [navigate])
+  const onBackToHub = useCallback(() => void navigate({ to: '/hub' }), [navigate])
 
   return { tab, onTabChange, onBackToHub }
 }

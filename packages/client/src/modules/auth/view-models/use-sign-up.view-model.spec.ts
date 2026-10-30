@@ -29,7 +29,7 @@ describe('useSignUpViewModel', () => {
     fakeAuthClient.signUp.email.mockResolvedValue(okResult)
     const { result } = setup()
     act(() => result.current.onSubmit(signUpValues))
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/' }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub' }))
     expect(fakeAuthClient.signUp.email).toHaveBeenCalledWith({
       username: signUpValues.username,
       email: signUpValues.email,
@@ -45,7 +45,7 @@ describe('useSignUpViewModel', () => {
     fakeAuthClient.signUp.email.mockResolvedValue(okResult)
     const { result } = setup()
     act(() => result.current.onSubmit(signUpValues))
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/' }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/hub' }))
     expect(fakeAuthClient.signUp.email).toHaveBeenCalledWith(expect.objectContaining({ serverInviteCode: 'SRV123' }))
   })
 

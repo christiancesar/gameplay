@@ -6,14 +6,16 @@ export type Theme = AccountTheme | 'system'
 
 type ThemeState = {
   theme: Theme
-  setTheme: (theme: Theme) => void
+  pendingAccountSync: boolean
+  setTheme: (theme: Theme, pendingAccountSync?: boolean) => void
 }
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
       theme: 'dark',
-      setTheme: (theme) => set({ theme }),
+      pendingAccountSync: false,
+      setTheme: (theme, pendingAccountSync = false) => set({ theme, pendingAccountSync }),
     }),
     {
       name: 'gameplay-theme',

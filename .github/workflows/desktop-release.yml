@@ -79,6 +79,19 @@ jobs:
       - name: Use the release version
         run: npm pkg set version="${{ needs.version.outputs.version }}" -w desktop
 
+      - name: Prepare code-signing certificate
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_BASE64)) {
+            throw 'WINDOWS_CERTIFICATE_BASE64 is required for a Windows release.'
+          }
+          $certificatePath = Join-Path $env:RUNNER_TEMP 'gameplay-code-signing.pfx'
+          [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64))
+          "WINDOWS_CERTIFICATE_FILE=$certificatePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          'WINDOWS_TIMESTAMP_SERVER=https://timestamp.digicert.com' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Make the Linux DEB and ZIP
         run: npm run desktop:make
         env:
@@ -142,11 +155,22 @@ jobs:
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
+      - name: Validate Squirrel artifacts
+        shell: bash
+        run: |
+          feed="apps/desktop/out/make/squirrel.windows/x64"
+          test -f "$feed/RELEASES"
+          compgen -G "$feed/*Setup.exe" >/dev/null
+          compgen -G "$feed/*.nupkg" >/dev/null
+          test -s "$feed/RELEASES"
+
       - uses: actions/upload-artifact@v6
         with:
           name: desktop-windows
           path: |
             apps/desktop/out/make/squirrel.windows/x64/*.exe
+            apps/desktop/out/make/squirrel.windows/x64/*.nupkg
+            apps/desktop/out/make/squirrel.windows/x64/RELEASES
             apps/desktop/out/make/zip/win32/x64/*.zip
           if-no-files-found: error
           compression-level: 0
@@ -154,8 +178,10 @@ jobs:
   publish:
     needs: [version, linux, windows]
     runs-on: ubuntu-24.04
+    environment: electron-production
     permissions:
       contents: write
+      id-token: write
     steps:
       - uses: actions/download-artifact@v7
         with:
@@ -163,15 +189,90 @@ jobs:
           path: release-assets
           merge-multiple: true
 
+      - name: Configure AWS credentials for update publishing
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Validate Squirrel feed integrity
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          test -n "$RELEASE_VERSION"
+          feed="$(find release-assets -type f -name RELEASES -print -quit)"
+          test -n "$feed"
+          test -s "$feed"
+          while read -r hash name size; do
+            test -n "$hash" && test -n "$name" && test -n "$size"
+            file="$(find release-assets -type f -name "$name" -print -quit)"
+            test -n "$file"
+            actual_hash="$(sha1sum "$file" | awk '{print tolower($1)}')"
+            actual_size="$(stat -c '%s' "$file")"
+            test "$actual_hash" = "$(printf '%s' "$hash" | tr '[:upper:]' '[:lower:]')"
+            test "$actual_size" = "$size"
+          done < "$feed"
+          echo "Validated Squirrel feed for ${RELEASE_VERSION}"
+
+      - name: Publish immutable Windows release to S3
+        shell: bash
+        env:
+          UPDATE_BUCKET: ${{ vars.WINDOWS_UPDATE_BUCKET }}
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          test -n "$UPDATE_BUCKET"
+          prefix="updates/windows/releases/${RELEASE_VERSION}"
+          while IFS= read -r -d '' file; do
+            name="$(basename "$file")"
+            if [ "$name" = "RELEASES" ]; then
+              cache_control="no-store, max-age=0"
+              content_type="text/plain"
+            else
+              cache_control="public, max-age=31536000, immutable"
+              content_type="application/octet-stream"
+            fi
+            aws s3 cp "$file" "s3://${UPDATE_BUCKET}/${prefix}/${name}" \
+              --cache-control "$cache_control" \
+              --content-type "$content_type"
+          done < <(find release-assets -type f \( -name 'RELEASES' -o -name '*.nupkg' -o -name '*.exe' \) -print0)
+
+      - name: Promote validated Windows release to stable
+        shell: bash
+        env:
+          UPDATE_BUCKET: ${{ vars.WINDOWS_UPDATE_BUCKET }}
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          test -n "$UPDATE_BUCKET"
+          source_prefix="s3://${UPDATE_BUCKET}/updates/windows/releases/${RELEASE_VERSION}"
+          stable_prefix="s3://${UPDATE_BUCKET}/updates/windows/stable"
+          history_prefix="s3://${UPDATE_BUCKET}/updates/windows/promotions/${RELEASE_VERSION}"
+          aws s3 cp "${stable_prefix}/RELEASES" "${history_prefix}/previous-RELEASES" \
+            --cache-control "public, max-age=31536000, immutable" || true
+          while IFS= read -r -d '' file; do
+            name="$(basename "$file")"
+            [ "$name" = "RELEASES" ] && continue
+            aws s3 cp "${source_prefix}/${name}" "${stable_prefix}/${name}" \
+              --cache-control "public, max-age=31536000, immutable" \
+              --content-type "application/octet-stream"
+          done < <(find release-assets -type f \( -name '*.nupkg' -o -name '*.exe' \) -print0)
+          aws s3 cp "${source_prefix}/RELEASES" "${stable_prefix}/RELEASES" \
+            --cache-control "no-store, max-age=0" \
+            --content-type "text/plain"
+
       - name: Publish the complete release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.version.outputs.version }}
         run: |
-          mapfile -d '' assets < <(find release-assets -type f \( -name '*.deb' -o -name '*.zip' -o -name '*.exe' \) -print0)
-          if [ "${#assets[@]}" -ne 4 ]; then
-            echo "::error::Expected a Linux DEB and ZIP plus a Windows installer and ZIP; found ${#assets[@]}."
+          mapfile -d '' assets < <(find release-assets -type f \( -name '*.deb' -o -name '*.zip' -o -name '*.exe' -o -name '*.nupkg' -o -name 'RELEASES' \) -print0)
+          if ! find release-assets -type f -name 'RELEASES' -print -quit | grep -q .; then
+            echo "::error::The Squirrel RELEASES file was not published."
+            exit 1
+          fi
+          if ! find release-assets -type f -name '*.nupkg' -print -quit | grep -q .; then
+            echo "::error::No Squirrel nupkg was published."
             exit 1
           fi
           gh release create "v${VERSION}" "${assets[@]}" --target "$GITHUB_SHA" --title "v${VERSION}" --generate-notes

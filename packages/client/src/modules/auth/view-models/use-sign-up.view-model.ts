@@ -34,7 +34,7 @@ function useSignUpViewModel() {
     },
     onSuccess: async () => {
       await refreshSession(queryClient)
-      await navigate({ to: '/' })
+      await navigate({ to: '/hub' })
     },
   })
 

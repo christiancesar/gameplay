@@ -18,7 +18,7 @@ function useServerSettingsDangerViewModel(serverId: string) {
   const exit = useMutation({
     mutationFn: (action: 'leave' | 'delete') => (action === 'leave' ? leaveServer(serverId) : deleteServer(serverId)),
     onSuccess: async () => {
-      await navigate({ to: '/', replace: true })
+      await navigate({ to: '/hub', replace: true })
       queryClient.removeQueries({ queryKey: serversKeys.detail(serverId) })
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: serversKeys.list() }),
