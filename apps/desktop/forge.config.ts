@@ -36,16 +36,6 @@ const NATIVE_PACKAGES = [
 const audioCaptureDir = path.resolve(import.meta.dirname, 'native/audio-capture')
 const audioCaptureExe = path.join(audioCaptureDir, 'build/gameplay-audio-capture.exe')
 
-/** Squirrel signs the packaged PE files when the CI runner provides the certificate. */
-function windowsSignConfig() {
-  if (targetPlatform() !== 'win32' || !process.env.WINDOWS_CERTIFICATE_FILE) return undefined
-  return {
-    certificateFile: process.env.WINDOWS_CERTIFICATE_FILE,
-    certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
-    timestampServer: process.env.WINDOWS_TIMESTAMP_SERVER || 'https://timestamp.digicert.com',
-  }
-}
-
 const config: ForgeConfig = {
   packagerConfig: {
     name: 'gameplay',
@@ -92,7 +82,6 @@ const config: ForgeConfig = {
       // CamelCase, no spaces: it names the NuGet package. The installer file takes productName.
       name: 'Gameplay',
       setupIcon: path.join(icons, 'windows/icon.ico'),
-      windowsSign: windowsSignConfig(),
     }),
     new MakerDeb({
       options: {

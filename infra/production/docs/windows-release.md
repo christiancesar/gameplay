@@ -30,9 +30,9 @@ A assinatura Authenticode identifica o publisher e permite ao Windows verificar 
 
 Um certificado autoassinado serve apenas para desenvolvimento ou uma rede interna administrada. Ele não é confiável por padrão nos computadores dos usuários e não resolve o SmartScreen.
 
-### Modalidade atual do pipeline
+### Modalidade futura do pipeline
 
-O workflow está preparado para um certificado PFX temporário no runner:
+O pipeline de assinatura está adiado. Quando for retomado, uma opção será usar um certificado PFX temporário no runner:
 
 1. A autoridade certificadora emite o certificado de assinatura de código.
 2. O certificado e a chave privada são disponibilizados em um arquivo PFX protegido por senha, quando o provedor permitir essa modalidade.
@@ -91,6 +91,8 @@ Quando o certificado for substituído:
 Se uma chave privada aparecer em logs, terminal compartilhado ou histórico de comandos, trate-a como comprometida e faça a rotação imediatamente.
 
 ## Publicação e atualização
+
+As releases Windows são publicadas atualmente sem assinatura Authenticode. Isso mantém o custo inicial zero, mas pode gerar aviso de publisher desconhecido ou alerta do SmartScreen. A assinatura deverá ser retomada antes de uma distribuição pública de maior escala.
 
 O job `publish` assume a role AWS `gameplay-github-updates` via OIDC. Essa role pode publicar somente no prefixo `updates/windows/*` do bucket existente. Nenhuma access key AWS é armazenada no GitHub.
 

@@ -101,7 +101,6 @@ jobs:
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
 
       - uses: actions/upload-artifact@v6
         with:
@@ -164,36 +163,6 @@ jobs:
           compgen -G "$feed/*Setup.exe" >/dev/null
           compgen -G "$feed/*.nupkg" >/dev/null
           test -s "$feed/RELEASES"
-
-      - name: Verify Authenticode signatures
-        shell: pwsh
-        env:
-          EXPECTED_PUBLISHER: ${{ vars.WINDOWS_CERTIFICATE_SUBJECT }}
-        run: |
-          if ([string]::IsNullOrWhiteSpace($env:EXPECTED_PUBLISHER)) {
-            throw 'WINDOWS_CERTIFICATE_SUBJECT is required for signature verification.'
-          }
-          $feed = Resolve-Path 'apps/desktop/out/make/squirrel.windows/x64'
-          $files = @(Get-ChildItem $feed -File -Recurse | Where-Object { $_.Extension -in '.exe', '.dll' })
-          $packages = Get-ChildItem $feed -Filter '*.nupkg' -File
-          foreach ($package in $packages) {
-            $expanded = Join-Path $env:RUNNER_TEMP ([IO.Path]::GetFileNameWithoutExtension($package.Name))
-            $archive = Join-Path $env:RUNNER_TEMP "$($package.BaseName).zip"
-            Copy-Item -LiteralPath $package.FullName -Destination $archive -Force
-            Expand-Archive -LiteralPath $archive -DestinationPath $expanded -Force
-            $files += Get-ChildItem $expanded -File -Recurse | Where-Object { $_.Extension -in '.exe', '.dll' }
-          }
-          $files += Get-ChildItem $feed -Filter '*Setup.exe' -File
-          if ($files.Count -eq 0) { throw 'No PE files found to verify.' }
-          foreach ($file in $files | Sort-Object FullName -Unique) {
-            $signature = Get-AuthenticodeSignature -LiteralPath $file.FullName
-            if ($signature.Status -ne 'Valid') {
-              throw "Invalid Authenticode signature ($($signature.Status)): $($file.FullName)"
-            }
-            if (-not $signature.SignerCertificate.Subject.Contains($env:EXPECTED_PUBLISHER, [StringComparison]::OrdinalIgnoreCase)) {
-              throw "Unexpected signer for $($file.FullName): $($signature.SignerCertificate.Subject)"
-            }
-          }
 
       - uses: actions/upload-artifact@v6
         with:
