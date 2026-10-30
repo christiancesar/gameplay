@@ -8,8 +8,8 @@ Fazer a página `https://gameplay.oikos.company/download` sempre mostrar a últi
 
 ## Escopo
 
-- Definir um manifesto público de downloads com versão, plataforma, arquitetura, URL, tamanho e checksum.
-- Fazer o workflow publicar o instalador Windows e o `AppImage` Linux no S3, em um prefixo imutável por versão.
+- Definir um manifesto público de downloads com versão, plataforma, formato, arquitetura, URL, tamanho e checksum.
+- Fazer o workflow publicar o instalador Windows, o `.deb` Linux e o `AppImage` Linux no S3, em um prefixo imutável por versão.
 - Publicar o manifesto estável somente depois que todos os artefatos forem enviados e validados.
 - Expor o manifesto por uma URL estável do domínio do Gameplay, preferencialmente por um endpoint read-only da API.
 - Conectar o ViewModel de Downloads ao manifesto usando TanStack Query e validar a resposta com schema do Model.
@@ -38,10 +38,17 @@ Fazer a página `https://gameplay.oikos.company/download` sempre mostrar a últi
       "size": 157138944,
       "sha256": "..."
     },
-    "linux": {
+    "linuxDeb": {
+      "architecture": "x64",
+      "format": "deb",
+      "url": "https://gameplay.oikos.company/api/downloads/stable/linux-deb",
+      "size": 0,
+      "sha256": "..."
+    },
+    "linuxAppImage": {
       "architecture": "x64",
       "format": "appimage",
-      "url": "https://gameplay.oikos.company/api/downloads/stable/linux",
+      "url": "https://gameplay.oikos.company/api/downloads/stable/linux-appimage",
       "size": 0,
       "sha256": "..."
     }
@@ -53,13 +60,13 @@ Os URLs públicos podem ser endpoints estáveis que redirecionam ou fazem proxy 
 
 ## Checklist
 
-- [ ] Workflow gera o `AppImage` Linux
+- [ ] Workflow gera o `.deb` e o `AppImage` Linux
 - [ ] Artefatos Windows e Linux são enviados ao S3
 - [ ] Manifesto estável é publicado após os artefatos
 - [ ] API serve o manifesto sem autenticação
 - [ ] Página `/download` exibe a versão do manifesto
 - [ ] Botão Windows abre o instalador atual
-- [ ] Botão Linux baixa o AppImage atual
+- [ ] Botões Linux baixam o `.deb` e o AppImage atuais
 - [ ] Erro do manifesto não quebra a página pública
 - [ ] Storybook continua funcionando com seed fake
 
