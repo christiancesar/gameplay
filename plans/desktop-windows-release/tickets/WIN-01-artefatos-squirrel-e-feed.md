@@ -36,5 +36,8 @@ Existe uma release de teste cujo feed e pacote podem ser baixados por HTTPS por 
 - A API ganhou `GET /api/updates/windows/:channel/:artifact`. Para `stable`, ela faz proxy de `RELEASES` e dos artefatos a partir de `${WINDOWS_UPDATE_FEED_BASE_URL}/stable`; canais e nomes inseguros respondem 404.
 - O S3 continua sendo a origem dos arquivos. O proxy mantém as referências relativas aos `.nupkg` no mesmo prefixo do bucket sem expor o endereço do S3 ao cliente.
 - O endpoint não aceita upload, não expõe credenciais e controla `Cache-Control`: `RELEASES` não é armazenado em cache e os pacotes versionados são imutáveis. `WINDOWS_UPDATE_FEED_BASE_URL` é opcional em desenvolvimento e obrigatório na implantação que disponibilizar o canal.
-- _(suposição)_ O bucket/CDN fornecerá `RELEASES` e os `.nupkg` sem autenticação de leitura, com `Cache-Control: no-cache` para `RELEASES` e cache imutável para os pacotes versionados.
-- _(pendência externa)_ O upload real no S3 ainda depende do bucket, prefixo, região/endpoint e credenciais do ambiente `electron-production`. Não foi marcado como validado localmente.
+- O armazenamento reutiliza o bucket já criado pelo Terraform para uploads. Os arquivos do canal estável ficam no prefixo `updates/windows/stable`, sem criar um bucket novo.
+- O GitHub Actions publica usando OIDC na role `gameplay-github-updates`, limitada a `s3:PutObject` no prefixo de updates. Não é necessário cadastrar access key AWS no GitHub.
+- Para ativar o ambiente `electron-production`, serão necessários `AWS_ROLE_TO_ASSUME`, `AWS_REGION` e `WINDOWS_UPDATE_BUCKET`. Os dois últimos podem ser obtidos com os outputs Terraform `aws_region` e `uploads_bucket`; o primeiro com `github_updates_role_arn`.
+- _(suposição)_ O bucket continuará fornecendo leitura pública dos objetos de download, como já ocorre com os uploads atuais. O endpoint canônico para o cliente continuará sendo `https://gameplay.oikos.company/api/updates/windows/stable/RELEASES`.
+- _(pendência externa)_ Ainda falta aplicar a role OIDC, cadastrar as variáveis do ambiente GitHub e executar uma release de teste para validar o upload e o download HTTPS real.
