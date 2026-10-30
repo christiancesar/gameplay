@@ -6,14 +6,14 @@ Planning docs are in Portuguese, in `plans/`. Write code, comments and commits i
 
 ## How to pick up work
 
-1. Read `plans/PROGRESS.md`, section "Frontend (`apps/web`), retomar daqui".
-2. Read `plans/05-web-plan.md` (tools, route tree, layer rules).
-3. Open `plans/tickets/README.md`, take the next pending FE ticket whose dependencies are done, and read the ticket file.
+1. Read `plans/PROGRESS.md` and the frontend section of `plans/[complete]-web-frontend/`.
+2. Read `plans/[complete]-web-frontend/05-web-plan.md` (tools, route tree, layer rules).
+3. If there is a pending FE ticket, open `plans/[complete]-web-frontend/tickets/README.md`, take the next one whose dependencies are done, and read the ticket file. Otherwise choose the next pending plan from `plans/PROGRESS.md`.
 4. Follow the ticket's scope and checklist. Stay inside "Escopo"; anything in "Fora do escopo" belongs to another ticket.
 5. When done: tick the checklist, add a "Notas da execução" section to the ticket (what you did, and every assumption you made marked as _(suposição)_), set the status in `tickets/README.md` to `concluído`, and update `plans/PROGRESS.md`.
 6. **Stop after each ticket** so the user can review. Do not start the next one on your own.
 
-Each new plan gets its own directory, `plans/<plan>/`, with `00-requirements.md`, `01-epic-brief.md`, `02-tech-plan.md` and `tickets/` (a `README.md` with the status table plus one file per ticket). The files at the root of `plans/` and `plans/tickets/` are the original MVP plan. Current plans: `plans/desktop-electron/`, `plans/api-realtime-boundaries/`.
+Each plan gets its own directory under `plans/`, with a visible `[complete]` or `[pending]` prefix, its requirements, brief, technical plan and `tickets/` when applicable. `plans/PROGRESS.md` is the index. Current frontend work is in `plans/[complete]-web-frontend/`; the other plan directories are listed there.
 
 ## Git
 

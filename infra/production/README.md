@@ -1,6 +1,6 @@
 # Produção
 
-Stack do app (web e API) na instância Lightsail criada por `infra/terraform`. O plano completo está em `plans/06-producao-aws.md`.
+Stack do app (web e API) na instância Lightsail criada por `infra/terraform`. O plano completo está em `plans/[pending]-production-infrastructure/06-producao-aws.md`.
 
 ```
 navegador -> Cloudflare (proxy, Full strict) -> web (nginx) :443 -> api
