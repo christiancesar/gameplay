@@ -1,20 +1,20 @@
-# 01 · Epic Brief: release Windows confiável
+# 01 · Epic Brief: release desktop e downloads automáticos
 
 ## 1. Problema
 
-O Windows identifica o instalador atual como não reconhecido porque os artefatos não são assinados. Além disso, embora o app já seja empacotado com Squirrel.Windows, ele ainda não consulta nem instala novas versões automaticamente.
+O app já é empacotado para Windows e Linux, mas a página pública ainda não conhece a última versão automaticamente. Além disso, embora o app Windows já seja empacotado com Squirrel.Windows, ele ainda precisa concluir o fluxo de atualização automática.
 
 O GitHub Releases já é usado como catálogo das versões, mas o armazenamento operacional dos downloads será o S3. Squirrel precisa de um feed compatível e estável, não apenas de uma página de release.
 
 ## 2. Resultado esperado
 
-O usuário baixa uma release Windows assinada, instala o Gameplay e recebe futuras versões pelo próprio app. O app consulta o canal oficial, baixa uma atualização válida, mostra que ela está pronta e aplica a versão ao reiniciar.
+O usuário acessa `/download`, vê a última versão disponível para seu sistema e baixa o instalador Windows ou o AppImage Linux. No Windows, o usuário também recebe futuras versões pelo próprio app. O app consulta o canal oficial, baixa uma atualização válida, mostra que ela está pronta e aplica a versão ao reiniciar.
 
 ## 3. Direção proposta
 
 ### S3 como armazenamento e domínio principal como portal
 
-Usar o S3 como bucket operacional dos artefatos. A página pública fica em `gameplay.oikos.company/download`, e o app consulta `gameplay.oikos.company/api/updates/windows/stable/RELEASES`.
+Usar o S3 como bucket operacional dos artefatos Windows e Linux. A página pública fica em `gameplay.oikos.company/download`, consulta um manifesto estável da última release e usa os URLs dos artefatos retornados.
 
 O endereço do S3 não será acoplado ao renderer nem ao app. O endpoint do domínio principal fará a resolução do canal e servirá ou redirecionará para os assets imutáveis do S3.
 
@@ -39,7 +39,7 @@ O portal público será detalhado separadamente em `plans/[complete]-public-prod
 
 - A URL do update é fixa no build de produção.
 - O servidor escolhido na tela inicial não pode alterar a origem do update.
-- A assinatura do Windows continua sendo a garantia principal de autenticidade do pacote.
+- Não haverá assinatura Authenticode no MVP, por depender de custo externo.
 - O endpoint não executa lógica de instalação nem aceita upload público.
 - Releases antigas permanecem imutáveis.
 - A promoção de uma versão para `stable` deve ser uma operação explícita do pipeline.
@@ -47,8 +47,9 @@ O portal público será detalhado separadamente em `plans/[complete]-public-prod
 
 ## 5. Critérios de sucesso do épico
 
-- O instalador de produção aparece como assinado e com publisher identificável nas propriedades do Windows.
+- A página pública mostra a última versão e links funcionais para Windows e Linux.
+- O workflow publica o instalador Windows e o AppImage Linux no S3.
 - Uma instalação limpa abre sem depender de uma release anterior.
 - Uma segunda release é detectada pelo app, baixada e aplicada após reinício.
 - O GitHub ou o bucket pode ser temporariamente indisponível sem impedir o uso da versão instalada.
-- Uma release inválida, incompleta ou não assinada não é promovida para o canal estável.
+- Uma release inválida ou incompleta não atualiza o manifesto estável.
