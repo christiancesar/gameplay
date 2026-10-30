@@ -40,6 +40,10 @@ Existe uma release de teste cujo feed e pacote podem ser baixados por HTTPS por 
 - O GitHub Actions publica usando OIDC na role `gameplay-github-updates`, limitada a `s3:PutObject` no prefixo de updates. Não é necessário cadastrar access key AWS no GitHub.
 - Para ativar o ambiente `electron-production`, serão necessários `AWS_ROLE_TO_ASSUME`, `AWS_REGION` e `WINDOWS_UPDATE_BUCKET`. Os dois últimos podem ser obtidos com os outputs Terraform `aws_region` e `uploads_bucket`; o primeiro com `github_updates_role_arn`.
 - A role OIDC, o provedor GitHub e a policy do S3 foram aplicados no ambiente AWS. As variáveis `AWS_ROLE_TO_ASSUME`, `AWS_REGION` e `WINDOWS_UPDATE_BUCKET` foram cadastradas no ambiente GitHub `electron-production`, e o job `publish` passou a declarar esse ambiente.
+- A trust policy usa o subject OIDC imutável do repositório: `repo:christiancesar@37115113/gameplay@1432528784:environment:electron-production`.
+- A role de publicação também permite `s3:GetObjectTagging` e `s3:PutObjectTagging`, necessários para a cópia dos objetos durante a promoção para `stable`.
 - `WINDOWS_UPDATE_FEED_BASE_URL` foi configurada no `.env` de produção com a origem S3 sem o sufixo do canal. O deploy da API ainda precisa ser executado para carregar essa variável no container.
+- A release `0.0.6` foi publicada e promovida com sucesso. O feed `https://gameplay.oikos.company/api/updates/windows/stable/RELEASES` respondeu `HTTP 200` e apontou para `Gameplay-0.0.6-full.nupkg`.
+- O pacote `.nupkg` do feed respondeu `HTTP 200`, com `Content-Length: 155959694`, sem autenticação.
 - _(suposição)_ O bucket continuará fornecendo leitura pública dos objetos de download, como já ocorre com os uploads atuais. O endpoint canônico para o cliente continuará sendo `https://gameplay.oikos.company/api/updates/windows/stable/RELEASES`.
-- _(pendência externa)_ Ainda falta executar uma release de teste para validar o upload no S3, o download HTTPS real e o conteúdo do feed. A credencial S3 que apareceu acidentalmente durante uma inspeção deve ser rotacionada antes do deploy de produção.
+- _(pendência externa)_ Ainda falta validar a atualização completa em uma VM Windows. A credencial S3 que apareceu acidentalmente durante uma inspeção deve ser rotacionada antes do deploy de produção.
