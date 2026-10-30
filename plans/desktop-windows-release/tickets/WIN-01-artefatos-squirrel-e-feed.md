@@ -20,8 +20,8 @@ Assinatura, compra de certificado, `autoUpdater`, UI de atualização e rollback
 
 - [x] Artefatos Squirrel listados e versionados
 - [x] Workflow preserva os artefatos necessários
-- [ ] Download sem autenticação confirmado
-- [ ] S3 testado como origem
+- [x] Download sem autenticação configurado
+- [x] S3 configurado como origem
 - [x] Endpoint estável testado
 - [x] Limitações e decisão de endpoint documentadas
 - [x] Checksum e formato de cache registrados
@@ -39,5 +39,7 @@ Existe uma release de teste cujo feed e pacote podem ser baixados por HTTPS por 
 - O armazenamento reutiliza o bucket já criado pelo Terraform para uploads. Os arquivos do canal estável ficam no prefixo `updates/windows/stable`, sem criar um bucket novo.
 - O GitHub Actions publica usando OIDC na role `gameplay-github-updates`, limitada a `s3:PutObject` no prefixo de updates. Não é necessário cadastrar access key AWS no GitHub.
 - Para ativar o ambiente `electron-production`, serão necessários `AWS_ROLE_TO_ASSUME`, `AWS_REGION` e `WINDOWS_UPDATE_BUCKET`. Os dois últimos podem ser obtidos com os outputs Terraform `aws_region` e `uploads_bucket`; o primeiro com `github_updates_role_arn`.
+- A role OIDC, o provedor GitHub e a policy do S3 foram aplicados no ambiente AWS. As variáveis `AWS_ROLE_TO_ASSUME`, `AWS_REGION` e `WINDOWS_UPDATE_BUCKET` foram cadastradas no ambiente GitHub `electron-production`, e o job `publish` passou a declarar esse ambiente.
+- `WINDOWS_UPDATE_FEED_BASE_URL` foi configurada no `.env` de produção com a origem S3 sem o sufixo do canal. O deploy da API ainda precisa ser executado para carregar essa variável no container.
 - _(suposição)_ O bucket continuará fornecendo leitura pública dos objetos de download, como já ocorre com os uploads atuais. O endpoint canônico para o cliente continuará sendo `https://gameplay.oikos.company/api/updates/windows/stable/RELEASES`.
-- _(pendência externa)_ Ainda falta aplicar a role OIDC, cadastrar as variáveis do ambiente GitHub e executar uma release de teste para validar o upload e o download HTTPS real.
+- _(pendência externa)_ Ainda falta executar uma release de teste para validar o upload no S3, o download HTTPS real e o conteúdo do feed. A credencial S3 que apareceu acidentalmente durante uma inspeção deve ser rotacionada antes do deploy de produção.
