@@ -5,7 +5,7 @@
 ```text
 GitHub Actions
   ├─ build Electron
-  ├─ gera instalador Windows e AppImage Linux
+  ├─ gera instalador Windows, DEB e AppImage Linux
   ├─ gera artefatos Squirrel
   └─ publica release imutável
 
@@ -21,9 +21,9 @@ Electron main
 
 ## 2. Artefatos Squirrel
 
-O ticket de empacotamento deve confirmar quais arquivos o `MakerSquirrel` 8 gera para a configuração atual. O conjunto Windows esperado inclui o instalador `Setup.exe`, o pacote `.nupkg` e o arquivo `RELEASES`. O conjunto Linux deve incluir um `AppImage` executável, com nome estável o bastante para ser referenciado pelo manifesto.
+O ticket de empacotamento deve confirmar quais arquivos o `MakerSquirrel` 8 gera para a configuração atual. O conjunto Windows esperado inclui o instalador `Setup.exe`, o pacote `.nupkg` e o arquivo `RELEASES`. O conjunto Linux deve incluir um pacote `.deb` instalável e um `AppImage` executável, ambos com nomes estáveis o bastante para serem referenciados pelo manifesto.
 
-O workflow deve preservar o instalador Windows, o AppImage Linux, os artefatos Squirrel necessários ao update e, se desejado, os ZIPs como downloads alternativos. O AppImage é o download principal do Linux.
+O workflow deve preservar o instalador Windows, o `.deb` Linux, o AppImage Linux, os artefatos Squirrel necessários ao update e, se desejado, os ZIPs como downloads alternativos. O `.deb` é o pacote principal para Debian/Ubuntu e o AppImage é a opção portátil.
 
 ## 3. Feed e hospedagem
 
@@ -34,7 +34,7 @@ Publicar os artefatos Windows e Linux em prefixos imutáveis do S3 e expor um ma
 - se o endpoint serve ou redireciona corretamente o `RELEASES`;
 - se o redirecionamento para os assets do S3 preserva o comportamento esperado pelo Squirrel;
 - se o download do `.nupkg` funciona sem autenticação;
-- se o download do AppImage funciona sem autenticação;
+- se o download do `.deb` e do AppImage funciona sem autenticação;
 - se o manifesto sempre aponta para a última versão completa;
 - se cache e `Content-Type` não quebram a atualização;
 - se o limite de tráfego é suficiente para o tamanho e o grupo esperado.
