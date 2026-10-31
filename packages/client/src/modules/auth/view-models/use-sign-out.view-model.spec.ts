@@ -33,11 +33,11 @@ describe('useSignOutViewModel', () => {
     return { queryClient, ...renderHook(() => useSignOutViewModel(), { wrapper }) }
   }
 
-  it('signs out, clears the cache and goes to /sign-in with replace', async () => {
+  it('signs out, clears the cache and goes to the public home with replace', async () => {
     fakeAuthClient.signOut.mockResolvedValue({ data: { success: true }, error: null })
     const { result, queryClient } = setup()
     act(() => result.current.signOut())
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/sign-in', replace: true }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
     expect(queryClient.getQueryData(['session'])).toBeUndefined()
   })
 
@@ -61,7 +61,7 @@ describe('useSignOutViewModel', () => {
     fakeAuthClient.signOut.mockRejectedValue(new Error('offline'))
     const { result, queryClient } = setup()
     act(() => result.current.signOut())
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/sign-in', replace: true }))
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: '/', replace: true }))
     expect(queryClient.getQueryData(['session'])).toBeUndefined()
   })
 
