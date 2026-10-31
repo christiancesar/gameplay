@@ -21,8 +21,21 @@ Visitantes podem consultar o roadmap, usuários logados podem votar e abrir soli
 
 ## Checklist
 
-- [ ] ViewModel conectado à API
-- [ ] Voto autenticado implementado
-- [ ] Formulário de solicitação implementado
-- [ ] Estados de sessão e erro cobertos
-- [ ] Stories e testes atualizados
+- [x] ViewModel conectado à API
+- [x] Voto autenticado implementado
+- [x] Formulário de solicitação implementado
+- [x] Estados de sessão e erro cobertos
+- [x] Stories e testes atualizados
+
+## Notas da execução
+
+- O roadmap público deixou de usar seeds estáticos e passou a consumir `GET /public/roadmap` pela camada de serviço do módulo.
+- Usuários autenticados podem votar e remover o voto em cada item. O cache local é atualizado com a resposta da API.
+- Visitantes podem consultar o roadmap, mas são encaminhados para login ao tentar votar ou enviar uma solicitação.
+- Usuários autenticados podem enviar solicitações de feature para `POST /public/feature-requests`, com validação pelo contrato compartilhado.
+- A View cobre carregamento, erro de leitura, estado vazio, estado autenticado e confirmação de solicitação enviada.
+- Foram adicionados stories para listagem, vazio, loading, erro, português e sessão autenticada, além de testes do ViewModel para consulta e voto.
+- _(suposição)_ A solicitação enviada permanece confirmada na tela durante a sessão atual, sem uma tela própria para listar solicitações do usuário.
+- _(suposição)_ O login é iniciado pelo callback da navegação pública e retorna ao fluxo padrão de autenticação, sem adicionar redirect específico neste ticket.
+
+Validações executadas: `npm run repo:typecheck`, `npm run repo:lint`, `npm run repo:format-check`, `npm run client:test` e `npm run web:build`.

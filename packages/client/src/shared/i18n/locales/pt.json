@@ -189,6 +189,23 @@
       "title": "Um mapa do que estamos construindo.",
       "description": "Algumas ideias já estão em andamento, outras estão tomando forma e algumas já fazem parte da sala. Aqui deixamos a direção visível.",
       "status": { "now": "Em andamento", "next": "A seguir", "exploring": "Explorando", "done": "Lançado" },
+      "loading": "Carregando o roadmap...",
+      "votes": "{{count}} votos",
+      "vote": "Votar",
+      "removeVote": "Remover voto",
+      "signInToRequest": "Entre para sugerir uma funcionalidade",
+      "requestTitle": "Sugerir uma funcionalidade",
+      "requestDescription": "Conte o que deixaria o Gameplay mais útil para o seu grupo.",
+      "requestTitleField": "Título",
+      "requestDescriptionField": "Descrição",
+      "submitRequest": "Enviar sugestão",
+      "requestSent": "Sua sugestão foi enviada para análise.",
+      "requestInvalid": "Informe um título e uma descrição.",
+      "errors": {
+        "load": "Não foi possível carregar o roadmap.",
+        "vote": "Não foi possível atualizar seu voto.",
+        "request": "Não foi possível enviar sua sugestão."
+      },
       "items": {
         "desktopApp": "App desktop",
         "desktopAppDescription": "Leve o compartilhamento de tela e áudio para mais perto dos jogos que você joga.",

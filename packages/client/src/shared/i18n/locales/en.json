@@ -189,6 +189,23 @@
       "title": "A map for the things we are building.",
       "description": "Some ideas are in motion, some are being shaped and some are already part of the room. This is where we keep the direction visible.",
       "status": { "now": "In progress", "next": "Up next", "exploring": "Exploring", "done": "Shipped" },
+      "loading": "Loading the roadmap...",
+      "votes": "{{count}} votes",
+      "vote": "Vote",
+      "removeVote": "Remove vote",
+      "signInToRequest": "Sign in to suggest a feature",
+      "requestTitle": "Suggest a feature",
+      "requestDescription": "Tell us what would make Gameplay more useful for your group.",
+      "requestTitleField": "Title",
+      "requestDescriptionField": "Description",
+      "submitRequest": "Send suggestion",
+      "requestSent": "Your suggestion was sent for review.",
+      "requestInvalid": "Enter a title and a description.",
+      "errors": {
+        "load": "We could not load the roadmap.",
+        "vote": "We could not update your vote.",
+        "request": "We could not send your suggestion."
+      },
       "items": {
         "desktopApp": "Desktop app",
         "desktopAppDescription": "Bring screen and audio sharing closer to the games you play.",
