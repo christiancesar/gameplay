@@ -1,4 +1,4 @@
-import { CableIcon, FileTextIcon, GitPullRequestIcon, MapIcon } from 'lucide-react'
+import { FileTextIcon, GitPullRequestIcon, MapIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -10,7 +10,6 @@ const ICONS = {
   roadmap: MapIcon,
   changelog: FileTextIcon,
   'feature-requests': GitPullRequestIcon,
-  mcp: CableIcon,
 } as const
 
 type PublicAdminLayoutViewProps = {

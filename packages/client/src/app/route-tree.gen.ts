@@ -38,7 +38,6 @@ import { Route as AuthedAdminPanelUsersRouteImport } from './routes/_authed/admi
 import { Route as AuthedAdminPanelPublicIndexRouteImport } from './routes/_authed/admin/_panel/public/index'
 import { Route as AuthedAdminPanelPublicChangelogRouteImport } from './routes/_authed/admin/_panel/public/changelog'
 import { Route as AuthedAdminPanelPublicFeatureRequestsRouteImport } from './routes/_authed/admin/_panel/public/feature-requests'
-import { Route as AuthedAdminPanelPublicMcpRouteImport } from './routes/_authed/admin/_panel/public/mcp'
 import { Route as AuthedAdminPanelPublicRoadmapRouteImport } from './routes/_authed/admin/_panel/public/roadmap'
 
 const IndexRoute = IndexRouteImport.update({
@@ -189,12 +188,6 @@ const AuthedAdminPanelPublicFeatureRequestsRoute =
     path: '/feature-requests',
     getParentRoute: () => AuthedAdminPanelPublicRoute,
   } as any)
-const AuthedAdminPanelPublicMcpRoute =
-  AuthedAdminPanelPublicMcpRouteImport.update({
-    id: '/mcp',
-    path: '/mcp',
-    getParentRoute: () => AuthedAdminPanelPublicRoute,
-  } as any)
 const AuthedAdminPanelPublicRoadmapRoute =
   AuthedAdminPanelPublicRoadmapRouteImport.update({
     id: '/roadmap',
@@ -228,7 +221,6 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthedAdminPanelIndexRoute
   '/admin/public/changelog': typeof AuthedAdminPanelPublicChangelogRoute
   '/admin/public/feature-requests': typeof AuthedAdminPanelPublicFeatureRequestsRoute
-  '/admin/public/mcp': typeof AuthedAdminPanelPublicMcpRoute
   '/admin/public/roadmap': typeof AuthedAdminPanelPublicRoadmapRoute
   '/admin/public/': typeof AuthedAdminPanelPublicIndexRoute
 }
@@ -256,7 +248,6 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthedAdminPanelUsersRoute
   '/admin/public/changelog': typeof AuthedAdminPanelPublicChangelogRoute
   '/admin/public/feature-requests': typeof AuthedAdminPanelPublicFeatureRequestsRoute
-  '/admin/public/mcp': typeof AuthedAdminPanelPublicMcpRoute
   '/admin/public/roadmap': typeof AuthedAdminPanelPublicRoadmapRoute
   '/admin/public': typeof AuthedAdminPanelPublicIndexRoute
 }
@@ -290,7 +281,6 @@ export interface FileRoutesById {
   '/_authed/admin/_panel/': typeof AuthedAdminPanelIndexRoute
   '/_authed/admin/_panel/public/changelog': typeof AuthedAdminPanelPublicChangelogRoute
   '/_authed/admin/_panel/public/feature-requests': typeof AuthedAdminPanelPublicFeatureRequestsRoute
-  '/_authed/admin/_panel/public/mcp': typeof AuthedAdminPanelPublicMcpRoute
   '/_authed/admin/_panel/public/roadmap': typeof AuthedAdminPanelPublicRoadmapRoute
   '/_authed/admin/_panel/public/': typeof AuthedAdminPanelPublicIndexRoute
 }
@@ -322,7 +312,6 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/public/changelog'
     | '/admin/public/feature-requests'
-    | '/admin/public/mcp'
     | '/admin/public/roadmap'
     | '/admin/public/'
   fileRoutesByTo: FileRoutesByTo
@@ -350,7 +339,6 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/public/changelog'
     | '/admin/public/feature-requests'
-    | '/admin/public/mcp'
     | '/admin/public/roadmap'
     | '/admin/public'
   id:
@@ -383,7 +371,6 @@ export interface FileRouteTypes {
     | '/_authed/admin/_panel/'
     | '/_authed/admin/_panel/public/changelog'
     | '/_authed/admin/_panel/public/feature-requests'
-    | '/_authed/admin/_panel/public/mcp'
     | '/_authed/admin/_panel/public/roadmap'
     | '/_authed/admin/_panel/public/'
   fileRoutesById: FileRoutesById
@@ -603,13 +590,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminPanelPublicFeatureRequestsRouteImport
       parentRoute: typeof AuthedAdminPanelPublicRoute
     }
-    '/_authed/admin/_panel/public/mcp': {
-      id: '/_authed/admin/_panel/public/mcp'
-      path: '/mcp'
-      fullPath: '/admin/public/mcp'
-      preLoaderRoute: typeof AuthedAdminPanelPublicMcpRouteImport
-      parentRoute: typeof AuthedAdminPanelPublicRoute
-    }
     '/_authed/admin/_panel/public/roadmap': {
       id: '/_authed/admin/_panel/public/roadmap'
       path: '/roadmap'
@@ -623,7 +603,6 @@ declare module '@tanstack/react-router' {
 interface AuthedAdminPanelPublicRouteChildren {
   AuthedAdminPanelPublicChangelogRoute: typeof AuthedAdminPanelPublicChangelogRoute
   AuthedAdminPanelPublicFeatureRequestsRoute: typeof AuthedAdminPanelPublicFeatureRequestsRoute
-  AuthedAdminPanelPublicMcpRoute: typeof AuthedAdminPanelPublicMcpRoute
   AuthedAdminPanelPublicRoadmapRoute: typeof AuthedAdminPanelPublicRoadmapRoute
   AuthedAdminPanelPublicIndexRoute: typeof AuthedAdminPanelPublicIndexRoute
 }
@@ -633,7 +612,6 @@ const AuthedAdminPanelPublicRouteChildren: AuthedAdminPanelPublicRouteChildren =
     AuthedAdminPanelPublicChangelogRoute: AuthedAdminPanelPublicChangelogRoute,
     AuthedAdminPanelPublicFeatureRequestsRoute:
       AuthedAdminPanelPublicFeatureRequestsRoute,
-    AuthedAdminPanelPublicMcpRoute: AuthedAdminPanelPublicMcpRoute,
     AuthedAdminPanelPublicRoadmapRoute: AuthedAdminPanelPublicRoadmapRoute,
     AuthedAdminPanelPublicIndexRoute: AuthedAdminPanelPublicIndexRoute,
   }
