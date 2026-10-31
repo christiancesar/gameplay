@@ -20,7 +20,7 @@ type FeatureSeedFile = {
   categories: { features: FeatureSeed[] }[]
 }
 
-const CONTENT_FILE = resolve(process.cwd(), 'plans/features/features.json')
+const CONTENT_FILE = resolve(process.cwd(), 'plans/[pending]-features/features.json')
 
 async function main() {
   const admin = adminEnvObject.parse(process.env)
