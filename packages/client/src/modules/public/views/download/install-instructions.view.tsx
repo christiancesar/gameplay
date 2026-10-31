@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import type { DownloadFormat } from '../../model/entities/download-option'
@@ -8,6 +9,8 @@ type InstallInstructionsViewProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
+
+const APPIMAGE_LAUNCHER_RELEASES_URL = 'https://github.com/TheAssassin/AppImageLauncher/releases'
 
 const instructionSteps = ['download', 'install', 'open'] as const
 
@@ -29,6 +32,23 @@ function InstallInstructionsView({ format, open, onOpenChange }: InstallInstruct
             <li key={step}>{t(`public.download.instructions.steps.${format}.${step}`)}</li>
           ))}
         </ol>
+        {format === 'appimage' && (
+          <div className="bg-muted/50 rounded-lg border p-3 text-sm">
+            <p className="font-medium">{t('public.download.instructions.appImageLauncher.title')}</p>
+            <p className="text-muted-foreground mt-1 leading-relaxed">
+              {t('public.download.instructions.appImageLauncher.description')}
+            </p>
+            <a
+              className="text-primary mt-2 inline-flex items-center gap-1 font-medium underline-offset-4 hover:underline"
+              href={APPIMAGE_LAUNCHER_RELEASES_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t('public.download.instructions.appImageLauncher.link')}
+              <ExternalLink className="size-3.5" aria-hidden="true" />
+            </a>
+          </div>
+        )}
         <DialogFooter showCloseButton />
       </DialogContent>
     </Dialog>

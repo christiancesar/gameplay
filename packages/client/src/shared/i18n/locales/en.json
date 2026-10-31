@@ -158,6 +158,11 @@
           "deb": "Install the DEB package with apt so Gameplay is available from your desktop menu.",
           "appimage": "The AppImage is portable and does not need a system-wide installation."
         },
+        "appImageLauncher": {
+          "title": "Optional: integrate AppImages with your desktop",
+          "description": "AppImageLauncher is not required to run Gameplay. It can make AppImages open with a double-click and add them to your application menu.",
+          "link": "Choose a version on AppImageLauncher releases"
+        },
         "steps": {
           "squirrel-installer": {
             "download": "Download the installer and open the `.exe` file.",

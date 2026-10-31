@@ -88,5 +88,6 @@ Depois de uma nova execução do workflow, a página `/download` passa a mostrar
 - O ViewModel usa TanStack Query, valida a resposta com schema Zod e mantém o seed como fallback de Storybook e de erro.
 - A View mostra cada formato como uma linha da última release dentro do card da plataforma, com botão de download e acesso às instruções específicas pelo ícone de livro.
 - O modal de instruções cobre o instalador Windows, `sudo apt install ./gameplay.deb` e a permissão/execução do AppImage, em inglês e português.
+- O modal do AppImage também aponta opcionalmente para a página oficial de releases do AppImageLauncher, onde o usuário escolhe a versão e o pacote compatível.
 - _(suposição)_ A variável `DOWNLOADS_BASE_URL` apontará para o prefixo S3 `downloads` em produção.
 - _(pendência externa)_ Ainda falta executar uma release real, publicar o manifesto na infraestrutura e validar os downloads e a instalação do AppImage.

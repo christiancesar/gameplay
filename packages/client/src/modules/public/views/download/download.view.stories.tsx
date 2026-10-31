@@ -57,6 +57,17 @@ export const LinuxInstallInstructions: Story = {
   },
 }
 
+export const AppImageLauncherLink: Story = {
+  args: { recommendedPlatform: 'linux' },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Open AppImage installation instructions' }))
+    await expect(document.body).toHaveTextContent('Choose a version on AppImageLauncher releases')
+    await expect(
+      document.body.querySelector('a[href="https://github.com/TheAssassin/AppImageLauncher/releases"]'),
+    ).not.toBeNull()
+  },
+}
+
 export const UnknownSystem: Story = {
   args: { recommendedPlatform: null },
 }
