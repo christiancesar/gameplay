@@ -16,6 +16,7 @@ function HubDemoView() {
       servers={HOME_DEMO_SERVERS}
       isLoadingServers={false}
       canCreateServer
+      showPublicHome
       isJoining={false}
       theme="dark"
       language={i18n.resolvedLanguage ?? i18n.language}
