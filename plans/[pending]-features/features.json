@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "source": "plans/features/index.md",
-  "defaultVisibility": "draft",
+  "source": "plans/[pending]-features/index.md",
+  "defaultVisibility": "published",
   "defaultStatus": "exploring",
   "categories": [
     {
@@ -14,7 +14,7 @@
           "description": "Permitir que cada servidor configure e use as próprias credenciais de SFU, TURN e outros provedores, sem depender das credenciais globais do projeto.",
           "status": "exploring",
           "position": 10,
-          "visibility": "draft",
+          "visibility": "published",
           "details": [
             "O painel administrativo mantém as configurações globais usadas pela plataforma.",
             "Cada servidor pode configurar suas próprias credenciais para reduzir o uso de recursos pessoais do operador.",
@@ -34,7 +34,7 @@
           "description": "Permitir adicionar uma imagem de capa durante a criação de um servidor.",
           "status": "exploring",
           "position": 20,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -43,7 +43,7 @@
           "description": "Manter os convites dos servidores como convites privados protegidos por código.",
           "status": "exploring",
           "position": 30,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -52,7 +52,7 @@
           "description": "Permitir que os convites criados dentro de um servidor tenham uma validade configurável, além do padrão atual de uma hora.",
           "status": "exploring",
           "position": 40,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -61,7 +61,7 @@
           "description": "Permitir que o proprietário exclua ou deixe o servidor transferindo a propriedade para outro membro.",
           "status": "exploring",
           "position": 50,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         }
       ]
@@ -76,7 +76,7 @@
           "description": "Permitir que administradores de um servidor gerenciem outros membros sem obter acesso ao painel administrativo da plataforma.",
           "status": "exploring",
           "position": 60,
-          "visibility": "draft",
+          "visibility": "published",
           "details": [
             "Dar e remover o papel de administrador.",
             "Manter o painel do servidor separado do painel administrativo da plataforma."
@@ -88,7 +88,7 @@
           "description": "Permitir banir ou aplicar shadow ban em membros, registrar o motivo e identificar o administrador responsável.",
           "status": "exploring",
           "position": 70,
-          "visibility": "draft",
+          "visibility": "published",
           "details": [
             "O banimento pode ter duração definida ou ser permanente.",
             "Somente um administrador pode revogar um banimento.",
@@ -102,7 +102,7 @@
           "description": "Permitir remover privilégios administrativos de membros do servidor.",
           "status": "exploring",
           "position": 80,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -111,7 +111,7 @@
           "description": "Permitir que um administrador expulse um usuário do servidor ou da sala.",
           "status": "exploring",
           "position": 90,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -120,7 +120,7 @@
           "description": "Permitir mutar um membro em uma sala específica ou em todo o servidor.",
           "status": "exploring",
           "position": 100,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -129,7 +129,7 @@
           "description": "Registrar todas as ações de moderação realizadas dentro do servidor, incluindo quem executou cada ação.",
           "status": "exploring",
           "position": 110,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         }
       ]
@@ -144,7 +144,7 @@
           "description": "Adicionar chat de texto aos servidores e salas, com retenção temporária das mensagens.",
           "status": "exploring",
           "position": 120,
-          "visibility": "draft",
+          "visibility": "published",
           "details": [
             "O conteúdo inicial será somente texto.",
             "As mensagens ficam retidas enquanto as pessoas estão na sala, com prazo inicial de quinze minutos.",
@@ -158,7 +158,7 @@
           "description": "Adicionar notificações e avisos gerais para comunicar eventos relevantes aos usuários.",
           "status": "exploring",
           "position": 130,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -167,7 +167,7 @@
           "description": "Adicionar suporte a e-mail para comunicações e fluxos da plataforma.",
           "status": "exploring",
           "position": 140,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -176,7 +176,7 @@
           "description": "Receber dentro do servidor informações de plataformas externas, como o Sentry, com configuração adequada para outros usos empresariais.",
           "status": "exploring",
           "position": 150,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         }
       ]
@@ -191,7 +191,7 @@
           "description": "Permitir que grupos assistam a conteúdo de streaming juntos dentro do servidor, usando uma estrutura semelhante ao Rave.",
           "status": "exploring",
           "position": 160,
-          "visibility": "draft",
+          "visibility": "published",
           "details": [
             "O usuário entra na própria conta do serviço de streaming e transmite o conteúdo.",
             "O grupo pode acompanhar o conteúdo com chat junto.",
@@ -205,7 +205,7 @@
           "description": "Adicionar configurações avançadas de áudio e redução de ruído.",
           "status": "exploring",
           "position": 170,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -214,7 +214,7 @@
           "description": "Mostrar quando um usuário continua conectado ao servidor mesmo depois de sair da tela do servidor e voltar ao Hub.",
           "status": "exploring",
           "position": 180,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         },
         {
@@ -223,7 +223,7 @@
           "description": "Criar uma extensão para compartilhar uma aba específica do Brave, Chrome ou outro navegador compatível com o desktop.",
           "status": "exploring",
           "position": 190,
-          "visibility": "draft",
+          "visibility": "published",
           "details": [
             "Usar a API de captura de abas do navegador.",
             "Estabelecer comunicação segura com o desktop.",
@@ -243,7 +243,7 @@
           "description": "Explorar bots para os servidores, começando por um bot geral com acesso aos provedores de música dos próprios usuários ou a um provedor gratuito.",
           "status": "exploring",
           "position": 200,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         }
       ]
@@ -258,7 +258,7 @@
           "description": "Definir um modelo para oferecer o serviço a baixo custo em larga escala, incluindo usuários que não querem configurar servidor e credenciais próprias.",
           "status": "exploring",
           "position": 210,
-          "visibility": "draft",
+          "visibility": "published",
           "details": []
         }
       ]

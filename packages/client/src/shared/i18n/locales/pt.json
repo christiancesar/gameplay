@@ -199,6 +199,8 @@
       "requestTitleField": "Título",
       "requestDescriptionField": "Descrição",
       "submitRequest": "Enviar sugestão",
+      "requestCta": "Sugerir funcionalidade",
+      "detailDescription": "Detalhes desta iniciativa no roadmap.",
       "requestSent": "Sua sugestão foi enviada para análise.",
       "requestInvalid": "Informe um título e uma descrição.",
       "errors": {

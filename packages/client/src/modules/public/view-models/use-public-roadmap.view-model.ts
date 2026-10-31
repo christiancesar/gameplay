@@ -53,6 +53,7 @@ function usePublicRoadmapViewModel() {
     onSubmitRequest: (input: CreateFeatureRequest) => {
       if (session) requestMutation.mutate(input)
     },
+    onRequestDialogOpen: () => requestMutation.reset(),
   }
 }
 
