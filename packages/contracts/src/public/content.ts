@@ -7,6 +7,7 @@ export const FEATURE_REQUEST_STATUSES = ['pending', 'approved', 'rejected', 'arc
 export const publicRoadmapStatusSchema = z.enum(PUBLIC_ROADMAP_STATUSES)
 export const publicContentVisibilitySchema = z.enum(PUBLIC_CONTENT_VISIBILITIES)
 export const featureRequestStatusSchema = z.enum(FEATURE_REQUEST_STATUSES)
+export type RoadmapStatus = z.infer<typeof publicRoadmapStatusSchema>
 export type PublicContentVisibility = z.infer<typeof publicContentVisibilitySchema>
 
 const slugSchema = z

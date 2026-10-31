@@ -169,6 +169,7 @@ export {
   type ListRoadmapResponse,
   type ModerateFeatureRequest,
   type PublicContentVisibility,
+  type RoadmapStatus,
   type RoadmapItem,
   type UpdateChangelogEntry,
   type UpdateRoadmapItem,

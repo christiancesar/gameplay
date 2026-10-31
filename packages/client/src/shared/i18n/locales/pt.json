@@ -765,11 +765,68 @@
       "announcements": "Avisos",
       "media": "Mídia",
       "development": "Desenvolvimento",
-      "mcp": "MCP"
+      "mcp": "MCP",
+      "public": "Public"
     },
     "search": "Buscar",
     "empty": "Nada encontrado.",
     "default": "padrão",
+    "public": {
+      "title": "Public",
+      "navigation": "Administração pública",
+      "tabs": {
+        "roadmap": "Roadmap",
+        "changelog": "Changelog",
+        "feature-requests": "Solicitações",
+        "mcp": "MCP"
+      },
+      "fields": {
+        "slug": "Slug",
+        "title": "Título",
+        "description": "Descrição",
+        "summary": "Resumo",
+        "body": "Conteúdo",
+        "version": "Versão",
+        "tags": "Tags",
+        "status": "Status",
+        "visibility": "Visibilidade",
+        "position": "Ordem",
+        "votes": "Votos",
+        "author": "Autor"
+      },
+      "visibility": { "draft": "Rascunho", "published": "Publicado", "archived": "Arquivado" },
+      "status": { "pending": "Pendente", "approved": "Aprovada", "rejected": "Rejeitada", "archived": "Arquivada" },
+      "actions": { "create": "Criar", "edit": "Editar", "archive": "Arquivar", "moderate": "Salvar moderação" },
+      "notices": {
+        "created": "Conteúdo criado.",
+        "updated": "Conteúdo atualizado.",
+        "moderated": "Solicitação atualizada."
+      },
+      "errors": { "invalidField": "Confira este campo." },
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "Gerencie os itens exibidos no roadmap público.",
+        "create": "Novo item do roadmap",
+        "edit": "Editar item do roadmap"
+      },
+      "changelog": {
+        "title": "Changelog",
+        "description": "Publique atualizações do produto no portal público.",
+        "create": "Nova entrada do changelog",
+        "edit": "Editar entrada do changelog",
+        "tagsHint": "Separe as tags por vírgula"
+      },
+      "requests": {
+        "title": "Solicitações de features",
+        "description": "Revise solicitações enviadas por usuários logados.",
+        "empty": "Ainda não há solicitações.",
+        "noRoadmap": "Sem item do roadmap"
+      },
+      "mcp": {
+        "title": "MCP do Public",
+        "description": "A automação local via MCP será conectada no ticket específico do MCP."
+      }
+    },
     "notices": {
       "suspended": "Conta suspensa.",
       "reactivated": "Conta reativada.",

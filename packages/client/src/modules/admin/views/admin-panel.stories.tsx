@@ -243,6 +243,7 @@ function Scenario({ initialTab, overlay, empty, noCloudflare = false, usagePerio
         onStop={fn()}
       />
     ),
+    public: <div>Public</div>,
   }[tab]
 
   return (

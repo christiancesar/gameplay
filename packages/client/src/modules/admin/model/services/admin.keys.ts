@@ -19,6 +19,9 @@ const adminKeys = {
   mediaUsage: (query: RealtimeUsageQuery) => [...adminKeys.all, 'media-usage', query] as const,
   mediaImpact: (serverId: string | null) => [...adminKeys.all, 'media-impact', serverId] as const,
   serverMedia: (serverId: string) => [...adminKeys.all, 'server-media', serverId] as const,
+  publicRoadmap: () => [...adminKeys.all, 'public-roadmap'] as const,
+  publicChangelog: () => [...adminKeys.all, 'public-changelog'] as const,
+  publicFeatureRequests: () => [...adminKeys.all, 'public-feature-requests'] as const,
 }
 
 export { adminKeys }

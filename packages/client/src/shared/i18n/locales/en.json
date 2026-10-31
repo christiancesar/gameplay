@@ -765,11 +765,64 @@
       "announcements": "Announcements",
       "media": "Media",
       "development": "Development",
-      "mcp": "MCP"
+      "mcp": "MCP",
+      "public": "Public"
     },
     "search": "Search",
     "empty": "Nothing found.",
     "default": "default",
+    "public": {
+      "title": "Public",
+      "navigation": "Public administration",
+      "tabs": {
+        "roadmap": "Roadmap",
+        "changelog": "Changelog",
+        "feature-requests": "Feature requests",
+        "mcp": "MCP"
+      },
+      "fields": {
+        "slug": "Slug",
+        "title": "Title",
+        "description": "Description",
+        "summary": "Summary",
+        "body": "Content",
+        "version": "Version",
+        "tags": "Tags",
+        "status": "Status",
+        "visibility": "Visibility",
+        "position": "Position",
+        "votes": "Votes",
+        "author": "Author"
+      },
+      "visibility": { "draft": "Draft", "published": "Published", "archived": "Archived" },
+      "status": { "pending": "Pending", "approved": "Approved", "rejected": "Rejected", "archived": "Archived" },
+      "actions": { "create": "Create", "edit": "Edit", "archive": "Archive", "moderate": "Save moderation" },
+      "notices": { "created": "Content created.", "updated": "Content updated.", "moderated": "Request updated." },
+      "errors": { "invalidField": "Check this field." },
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "Manage the items shown on the public roadmap.",
+        "create": "New roadmap item",
+        "edit": "Edit roadmap item"
+      },
+      "changelog": {
+        "title": "Changelog",
+        "description": "Publish product updates for the public portal.",
+        "create": "New changelog entry",
+        "edit": "Edit changelog entry",
+        "tagsHint": "Separate tags with commas"
+      },
+      "requests": {
+        "title": "Feature requests",
+        "description": "Review requests submitted by signed-in users.",
+        "empty": "No feature requests yet.",
+        "noRoadmap": "No roadmap item"
+      },
+      "mcp": {
+        "title": "Public MCP",
+        "description": "The local MCP automation will be connected in the dedicated MCP ticket."
+      }
+    },
     "notices": {
       "suspended": "Account suspended.",
       "reactivated": "Account reactivated.",

@@ -32,8 +32,14 @@ import { Route as AuthedAdminPanelKeysRouteImport } from './routes/_authed/admin
 import { Route as AuthedAdminPanelLimitsRouteImport } from './routes/_authed/admin/_panel/limits'
 import { Route as AuthedAdminPanelMcpRouteImport } from './routes/_authed/admin/_panel/mcp'
 import { Route as AuthedAdminPanelMediaRouteImport } from './routes/_authed/admin/_panel/media'
+import { Route as AuthedAdminPanelPublicRouteImport } from './routes/_authed/admin/_panel/public'
 import { Route as AuthedAdminPanelServersRouteImport } from './routes/_authed/admin/_panel/servers'
 import { Route as AuthedAdminPanelUsersRouteImport } from './routes/_authed/admin/_panel/users'
+import { Route as AuthedAdminPanelPublicIndexRouteImport } from './routes/_authed/admin/_panel/public/index'
+import { Route as AuthedAdminPanelPublicChangelogRouteImport } from './routes/_authed/admin/_panel/public/changelog'
+import { Route as AuthedAdminPanelPublicFeatureRequestsRouteImport } from './routes/_authed/admin/_panel/public/feature-requests'
+import { Route as AuthedAdminPanelPublicMcpRouteImport } from './routes/_authed/admin/_panel/public/mcp'
+import { Route as AuthedAdminPanelPublicRoadmapRouteImport } from './routes/_authed/admin/_panel/public/roadmap'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -150,6 +156,11 @@ const AuthedAdminPanelMediaRoute = AuthedAdminPanelMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => AuthedAdminPanelRoute,
 } as any)
+const AuthedAdminPanelPublicRoute = AuthedAdminPanelPublicRouteImport.update({
+  id: '/public',
+  path: '/public',
+  getParentRoute: () => AuthedAdminPanelRoute,
+} as any)
 const AuthedAdminPanelServersRoute = AuthedAdminPanelServersRouteImport.update({
   id: '/servers',
   path: '/servers',
@@ -160,6 +171,36 @@ const AuthedAdminPanelUsersRoute = AuthedAdminPanelUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthedAdminPanelRoute,
 } as any)
+const AuthedAdminPanelPublicIndexRoute =
+  AuthedAdminPanelPublicIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthedAdminPanelPublicRoute,
+  } as any)
+const AuthedAdminPanelPublicChangelogRoute =
+  AuthedAdminPanelPublicChangelogRouteImport.update({
+    id: '/changelog',
+    path: '/changelog',
+    getParentRoute: () => AuthedAdminPanelPublicRoute,
+  } as any)
+const AuthedAdminPanelPublicFeatureRequestsRoute =
+  AuthedAdminPanelPublicFeatureRequestsRouteImport.update({
+    id: '/feature-requests',
+    path: '/feature-requests',
+    getParentRoute: () => AuthedAdminPanelPublicRoute,
+  } as any)
+const AuthedAdminPanelPublicMcpRoute =
+  AuthedAdminPanelPublicMcpRouteImport.update({
+    id: '/mcp',
+    path: '/mcp',
+    getParentRoute: () => AuthedAdminPanelPublicRoute,
+  } as any)
+const AuthedAdminPanelPublicRoadmapRoute =
+  AuthedAdminPanelPublicRoadmapRouteImport.update({
+    id: '/roadmap',
+    path: '/roadmap',
+    getParentRoute: () => AuthedAdminPanelPublicRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -181,9 +222,15 @@ export interface FileRoutesByFullPath {
   '/admin/limits': typeof AuthedAdminPanelLimitsRoute
   '/admin/mcp': typeof AuthedAdminPanelMcpRoute
   '/admin/media': typeof AuthedAdminPanelMediaRoute
+  '/admin/public': typeof AuthedAdminPanelPublicRouteWithChildren
   '/admin/servers': typeof AuthedAdminPanelServersRoute
   '/admin/users': typeof AuthedAdminPanelUsersRoute
   '/admin/': typeof AuthedAdminPanelIndexRoute
+  '/admin/public/changelog': typeof AuthedAdminPanelPublicChangelogRoute
+  '/admin/public/feature-requests': typeof AuthedAdminPanelPublicFeatureRequestsRoute
+  '/admin/public/mcp': typeof AuthedAdminPanelPublicMcpRoute
+  '/admin/public/roadmap': typeof AuthedAdminPanelPublicRoadmapRoute
+  '/admin/public/': typeof AuthedAdminPanelPublicIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -207,6 +254,11 @@ export interface FileRoutesByTo {
   '/admin/media': typeof AuthedAdminPanelMediaRoute
   '/admin/servers': typeof AuthedAdminPanelServersRoute
   '/admin/users': typeof AuthedAdminPanelUsersRoute
+  '/admin/public/changelog': typeof AuthedAdminPanelPublicChangelogRoute
+  '/admin/public/feature-requests': typeof AuthedAdminPanelPublicFeatureRequestsRoute
+  '/admin/public/mcp': typeof AuthedAdminPanelPublicMcpRoute
+  '/admin/public/roadmap': typeof AuthedAdminPanelPublicRoadmapRoute
+  '/admin/public': typeof AuthedAdminPanelPublicIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -232,9 +284,15 @@ export interface FileRoutesById {
   '/_authed/admin/_panel/limits': typeof AuthedAdminPanelLimitsRoute
   '/_authed/admin/_panel/mcp': typeof AuthedAdminPanelMcpRoute
   '/_authed/admin/_panel/media': typeof AuthedAdminPanelMediaRoute
+  '/_authed/admin/_panel/public': typeof AuthedAdminPanelPublicRouteWithChildren
   '/_authed/admin/_panel/servers': typeof AuthedAdminPanelServersRoute
   '/_authed/admin/_panel/users': typeof AuthedAdminPanelUsersRoute
   '/_authed/admin/_panel/': typeof AuthedAdminPanelIndexRoute
+  '/_authed/admin/_panel/public/changelog': typeof AuthedAdminPanelPublicChangelogRoute
+  '/_authed/admin/_panel/public/feature-requests': typeof AuthedAdminPanelPublicFeatureRequestsRoute
+  '/_authed/admin/_panel/public/mcp': typeof AuthedAdminPanelPublicMcpRoute
+  '/_authed/admin/_panel/public/roadmap': typeof AuthedAdminPanelPublicRoadmapRoute
+  '/_authed/admin/_panel/public/': typeof AuthedAdminPanelPublicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -258,9 +316,15 @@ export interface FileRouteTypes {
     | '/admin/limits'
     | '/admin/mcp'
     | '/admin/media'
+    | '/admin/public'
     | '/admin/servers'
     | '/admin/users'
     | '/admin/'
+    | '/admin/public/changelog'
+    | '/admin/public/feature-requests'
+    | '/admin/public/mcp'
+    | '/admin/public/roadmap'
+    | '/admin/public/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -284,6 +348,11 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/servers'
     | '/admin/users'
+    | '/admin/public/changelog'
+    | '/admin/public/feature-requests'
+    | '/admin/public/mcp'
+    | '/admin/public/roadmap'
+    | '/admin/public'
   id:
     | '__root__'
     | '/'
@@ -308,9 +377,15 @@ export interface FileRouteTypes {
     | '/_authed/admin/_panel/limits'
     | '/_authed/admin/_panel/mcp'
     | '/_authed/admin/_panel/media'
+    | '/_authed/admin/_panel/public'
     | '/_authed/admin/_panel/servers'
     | '/_authed/admin/_panel/users'
     | '/_authed/admin/_panel/'
+    | '/_authed/admin/_panel/public/changelog'
+    | '/_authed/admin/_panel/public/feature-requests'
+    | '/_authed/admin/_panel/public/mcp'
+    | '/_authed/admin/_panel/public/roadmap'
+    | '/_authed/admin/_panel/public/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -486,6 +561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminPanelMediaRouteImport
       parentRoute: typeof AuthedAdminPanelRoute
     }
+    '/_authed/admin/_panel/public': {
+      id: '/_authed/admin/_panel/public'
+      path: '/public'
+      fullPath: '/admin/public'
+      preLoaderRoute: typeof AuthedAdminPanelPublicRouteImport
+      parentRoute: typeof AuthedAdminPanelRoute
+    }
     '/_authed/admin/_panel/servers': {
       id: '/_authed/admin/_panel/servers'
       path: '/servers'
@@ -500,8 +582,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminPanelUsersRouteImport
       parentRoute: typeof AuthedAdminPanelRoute
     }
+    '/_authed/admin/_panel/public/': {
+      id: '/_authed/admin/_panel/public/'
+      path: '/'
+      fullPath: '/admin/public/'
+      preLoaderRoute: typeof AuthedAdminPanelPublicIndexRouteImport
+      parentRoute: typeof AuthedAdminPanelPublicRoute
+    }
+    '/_authed/admin/_panel/public/changelog': {
+      id: '/_authed/admin/_panel/public/changelog'
+      path: '/changelog'
+      fullPath: '/admin/public/changelog'
+      preLoaderRoute: typeof AuthedAdminPanelPublicChangelogRouteImport
+      parentRoute: typeof AuthedAdminPanelPublicRoute
+    }
+    '/_authed/admin/_panel/public/feature-requests': {
+      id: '/_authed/admin/_panel/public/feature-requests'
+      path: '/feature-requests'
+      fullPath: '/admin/public/feature-requests'
+      preLoaderRoute: typeof AuthedAdminPanelPublicFeatureRequestsRouteImport
+      parentRoute: typeof AuthedAdminPanelPublicRoute
+    }
+    '/_authed/admin/_panel/public/mcp': {
+      id: '/_authed/admin/_panel/public/mcp'
+      path: '/mcp'
+      fullPath: '/admin/public/mcp'
+      preLoaderRoute: typeof AuthedAdminPanelPublicMcpRouteImport
+      parentRoute: typeof AuthedAdminPanelPublicRoute
+    }
+    '/_authed/admin/_panel/public/roadmap': {
+      id: '/_authed/admin/_panel/public/roadmap'
+      path: '/roadmap'
+      fullPath: '/admin/public/roadmap'
+      preLoaderRoute: typeof AuthedAdminPanelPublicRoadmapRouteImport
+      parentRoute: typeof AuthedAdminPanelPublicRoute
+    }
   }
 }
+
+interface AuthedAdminPanelPublicRouteChildren {
+  AuthedAdminPanelPublicChangelogRoute: typeof AuthedAdminPanelPublicChangelogRoute
+  AuthedAdminPanelPublicFeatureRequestsRoute: typeof AuthedAdminPanelPublicFeatureRequestsRoute
+  AuthedAdminPanelPublicMcpRoute: typeof AuthedAdminPanelPublicMcpRoute
+  AuthedAdminPanelPublicRoadmapRoute: typeof AuthedAdminPanelPublicRoadmapRoute
+  AuthedAdminPanelPublicIndexRoute: typeof AuthedAdminPanelPublicIndexRoute
+}
+
+const AuthedAdminPanelPublicRouteChildren: AuthedAdminPanelPublicRouteChildren =
+  {
+    AuthedAdminPanelPublicChangelogRoute: AuthedAdminPanelPublicChangelogRoute,
+    AuthedAdminPanelPublicFeatureRequestsRoute:
+      AuthedAdminPanelPublicFeatureRequestsRoute,
+    AuthedAdminPanelPublicMcpRoute: AuthedAdminPanelPublicMcpRoute,
+    AuthedAdminPanelPublicRoadmapRoute: AuthedAdminPanelPublicRoadmapRoute,
+    AuthedAdminPanelPublicIndexRoute: AuthedAdminPanelPublicIndexRoute,
+  }
+
+const AuthedAdminPanelPublicRouteWithChildren =
+  AuthedAdminPanelPublicRoute._addFileChildren(
+    AuthedAdminPanelPublicRouteChildren,
+  )
 
 interface AuthedAdminPanelRouteChildren {
   AuthedAdminPanelAnnouncementsRoute: typeof AuthedAdminPanelAnnouncementsRoute
@@ -511,6 +651,7 @@ interface AuthedAdminPanelRouteChildren {
   AuthedAdminPanelLimitsRoute: typeof AuthedAdminPanelLimitsRoute
   AuthedAdminPanelMcpRoute: typeof AuthedAdminPanelMcpRoute
   AuthedAdminPanelMediaRoute: typeof AuthedAdminPanelMediaRoute
+  AuthedAdminPanelPublicRoute: typeof AuthedAdminPanelPublicRouteWithChildren
   AuthedAdminPanelServersRoute: typeof AuthedAdminPanelServersRoute
   AuthedAdminPanelUsersRoute: typeof AuthedAdminPanelUsersRoute
   AuthedAdminPanelIndexRoute: typeof AuthedAdminPanelIndexRoute
@@ -524,6 +665,7 @@ const AuthedAdminPanelRouteChildren: AuthedAdminPanelRouteChildren = {
   AuthedAdminPanelLimitsRoute: AuthedAdminPanelLimitsRoute,
   AuthedAdminPanelMcpRoute: AuthedAdminPanelMcpRoute,
   AuthedAdminPanelMediaRoute: AuthedAdminPanelMediaRoute,
+  AuthedAdminPanelPublicRoute: AuthedAdminPanelPublicRouteWithChildren,
   AuthedAdminPanelServersRoute: AuthedAdminPanelServersRoute,
   AuthedAdminPanelUsersRoute: AuthedAdminPanelUsersRoute,
   AuthedAdminPanelIndexRoute: AuthedAdminPanelIndexRoute,

@@ -1,6 +1,16 @@
 import {
   adminMediaResponseSchema,
+  adminFeatureRequestSchema,
   adminServerDetailSchema,
+  changelogEntrySchema,
+  createChangelogEntrySchema,
+  createRoadmapItemSchema,
+  listAdminFeatureRequestsResponseSchema,
+  listChangelogResponseSchema,
+  listRoadmapResponseSchema,
+  roadmapItemSchema,
+  updateChangelogEntrySchema,
+  updateRoadmapItemSchema,
   generateRegistrationInviteResponseSchema,
   hardwareSummarySchema,
   listAdminDevicesResponseSchema,
@@ -17,7 +27,11 @@ import {
   sendAnnouncementResponseSchema,
   serverMediaOverridesSchema,
   type AdminListQuery,
+  type AdminFeatureRequest,
   type AdminMediaResponse,
+  type ChangelogEntry,
+  type CreateChangelogEntry,
+  type CreateRoadmapItem,
   type AdminServerDetail,
   type AdminSession,
   type DeviceReport,
@@ -26,6 +40,9 @@ import {
   type ListAdminDevicesResponse,
   type ListAdminServersResponse,
   type ListAdminUsersResponse,
+  type ListAdminFeatureRequestsResponse,
+  type ListChangelogResponse,
+  type ListRoadmapResponse,
   type MediaImpact,
   type RealtimeUsagePeriod,
   type RealtimeUsageQuery,
@@ -39,6 +56,9 @@ import {
   type UpdateSfuBudgetRequest,
   type ServerLimits,
   type UserLimits,
+  type RoadmapItem,
+  type UpdateChangelogEntry,
+  type UpdateRoadmapItem,
 } from '@gameplay/contracts'
 
 import { http } from '@/shared/lib/http'
@@ -180,6 +200,49 @@ async function updateSfuBudget(request: UpdateSfuBudgetRequest): Promise<void> {
   await http.put('/admin/media/budget', request)
 }
 
+async function listAdminPublicRoadmap(): Promise<ListRoadmapResponse> {
+  const { data } = await http.get('/admin/public/roadmap')
+  return listRoadmapResponseSchema.parse(data)
+}
+
+async function createAdminPublicRoadmap(input: CreateRoadmapItem): Promise<RoadmapItem> {
+  const { data } = await http.post('/admin/public/roadmap', createRoadmapItemSchema.parse(input))
+  return roadmapItemSchema.parse(data)
+}
+
+async function updateAdminPublicRoadmap(id: string, input: UpdateRoadmapItem): Promise<RoadmapItem> {
+  const { data } = await http.patch(`/admin/public/roadmap/${id}`, updateRoadmapItemSchema.parse(input))
+  return roadmapItemSchema.parse(data)
+}
+
+async function listAdminPublicChangelog(): Promise<ListChangelogResponse> {
+  const { data } = await http.get('/admin/public/changelog')
+  return listChangelogResponseSchema.parse(data)
+}
+
+async function createAdminPublicChangelog(input: CreateChangelogEntry): Promise<ChangelogEntry> {
+  const { data } = await http.post('/admin/public/changelog', createChangelogEntrySchema.parse(input))
+  return changelogEntrySchema.parse(data)
+}
+
+async function updateAdminPublicChangelog(id: string, input: UpdateChangelogEntry): Promise<ChangelogEntry> {
+  const { data } = await http.patch(`/admin/public/changelog/${id}`, updateChangelogEntrySchema.parse(input))
+  return changelogEntrySchema.parse(data)
+}
+
+async function listAdminPublicFeatureRequests(): Promise<ListAdminFeatureRequestsResponse> {
+  const { data } = await http.get('/admin/public/feature-requests')
+  return listAdminFeatureRequestsResponseSchema.parse(data)
+}
+
+async function moderateAdminPublicFeatureRequest(
+  id: string,
+  input: { status: AdminFeatureRequest['status']; roadmapItemId?: string | null },
+): Promise<AdminFeatureRequest> {
+  const { data } = await http.patch(`/admin/public/feature-requests/${id}`, input)
+  return adminFeatureRequestSchema.parse(data)
+}
+
 export {
   deleteAdminServer,
   generateRegistrationInvite,
@@ -209,4 +272,12 @@ export {
   updatePlatformSettings,
   updateServerMedia,
   updateSfuBudget,
+  createAdminPublicChangelog,
+  createAdminPublicRoadmap,
+  listAdminPublicChangelog,
+  listAdminPublicFeatureRequests,
+  listAdminPublicRoadmap,
+  moderateAdminPublicFeatureRequest,
+  updateAdminPublicChangelog,
+  updateAdminPublicRoadmap,
 }
