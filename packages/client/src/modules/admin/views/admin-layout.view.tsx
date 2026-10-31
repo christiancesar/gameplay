@@ -63,7 +63,6 @@ function AdminLayoutView({
     <div className="bg-background text-foreground min-h-dvh">
       <header className="flex items-center gap-4 border-b px-6 py-3">
         <BrandLogo className="w-16" />
-        <h1 className="text-lg font-medium">{t('admin.title')}</h1>
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle
             theme={theme}
