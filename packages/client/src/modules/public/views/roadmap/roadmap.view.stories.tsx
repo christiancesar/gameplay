@@ -35,6 +35,7 @@ const meta = {
     isSubmittingRequest: false,
     isVoting: false,
     onRequireAuth: fn(),
+    onRequestDialogOpen: fn(),
     onSubmitRequest: fn(),
     onVote: fn(),
     requestSent: false,

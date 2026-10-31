@@ -199,6 +199,8 @@
       "requestTitleField": "Title",
       "requestDescriptionField": "Description",
       "submitRequest": "Send suggestion",
+      "requestCta": "Request a feature",
+      "detailDescription": "Details about this roadmap initiative.",
       "requestSent": "Your suggestion was sent for review.",
       "requestInvalid": "Enter a title and a description.",
       "errors": {

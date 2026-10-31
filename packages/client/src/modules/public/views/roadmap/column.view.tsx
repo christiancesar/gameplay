@@ -12,10 +12,19 @@ type RoadmapColumnProps = {
   isAuthenticated: boolean
   isVoting: boolean
   onRequireAuth: () => void
+  onOpenDetails: (item: RoadmapItem) => void
   onVote: (itemId: string, votedByMe: boolean) => void
 }
 
-function RoadmapColumn({ status, items, isAuthenticated, isVoting, onRequireAuth, onVote }: RoadmapColumnProps) {
+function RoadmapColumn({
+  status,
+  items,
+  isAuthenticated,
+  isVoting,
+  onRequireAuth,
+  onOpenDetails,
+  onVote,
+}: RoadmapColumnProps) {
   const { t } = useTranslation()
   const statusClass = {
     now: 'bg-emerald-500',
@@ -37,11 +46,25 @@ function RoadmapColumn({ status, items, isAuthenticated, isVoting, onRequireAuth
       </div>
       <div className="flex flex-col gap-3">
         {items.map((item) => (
-          <Card key={item.id} className="rounded-xl">
+          <Card
+            key={item.id}
+            className="hover:border-foreground/30 cursor-pointer rounded-xl transition-colors"
+            onClick={() => onOpenDetails(item)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onOpenDetails(item)
+              }
+            }}
+            role="button"
+            tabIndex={0}
+          >
             <CardHeader className="gap-2 pb-3">
               <CardTitle className="text-base">{item.title}</CardTitle>
             </CardHeader>
-            <CardContent className="text-muted-foreground text-sm leading-relaxed">{item.description}</CardContent>
+            <CardContent className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
+              {item.description}
+            </CardContent>
             <CardContent className="flex items-center justify-between gap-3 pt-0">
               <span className="text-muted-foreground text-xs">
                 {t('public.roadmap.votes', { count: item.voteCount })}
@@ -51,7 +74,11 @@ function RoadmapColumn({ status, items, isAuthenticated, isVoting, onRequireAuth
                 variant={item.votedByMe ? 'success' : 'outline'}
                 size="sm"
                 disabled={isVoting}
-                onClick={() => (isAuthenticated ? onVote(item.id, item.votedByMe) : onRequireAuth())}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  if (isAuthenticated) onVote(item.id, item.votedByMe)
+                  else onRequireAuth()
+                }}
               >
                 {item.votedByMe ? t('public.roadmap.removeVote') : t('public.roadmap.vote')}
               </Button>
