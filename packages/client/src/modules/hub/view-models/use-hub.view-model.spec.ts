@@ -23,6 +23,7 @@ describe('useHubViewModel', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     useThemeStore.setState({ theme: 'dark' })
+    fakeHttp.patch.mockResolvedValue({ data: {} })
   })
 
   it('exposes the profile from the session', () => {
@@ -62,10 +63,11 @@ describe('useHubViewModel', () => {
     await waitFor(() => expect(result.current.canCreateServer).toBe(false))
   })
 
-  it('toggles the theme through the store', () => {
+  it('toggles and persists the theme', async () => {
     const { result } = setup(adminSession)
     expect(result.current.theme).toBe('dark')
     act(() => result.current.onToggleTheme())
+    await waitFor(() => expect(fakeHttp.patch).toHaveBeenCalledWith('/me/preferences', { theme: 'light' }))
     expect(useThemeStore.getState().theme).toBe('light')
     expect(result.current.theme).toBe('light')
     act(() => result.current.onToggleTheme())
