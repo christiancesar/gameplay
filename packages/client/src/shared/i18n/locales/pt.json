@@ -135,6 +135,7 @@
         "linux": "Pacote deb e arquivo portátil para ambientes desktop Linux."
       },
       "version": "Versão {{version}} · 64-bit",
+      "latestRelease": "Última release",
       "downloadButton": "Baixar",
       "formats": {
         "squirrel-installer": "Baixar instalador do Windows",
@@ -143,6 +144,43 @@
       },
       "loading": "Verificando a release mais recente…",
       "error": "Não foi possível carregar a release mais recente. As opções disponíveis continuam visíveis.",
+      "formatLabels": {
+        "squirrel-installer": "Instalador do Windows",
+        "deb": "Pacote DEB",
+        "appimage": "AppImage"
+      },
+      "instructions": {
+        "hint": "Abra o ícone de livro para ver como instalar.",
+        "open": "Abrir instruções de instalação do {{format}}",
+        "title": "Instalar {{format}}",
+        "description": {
+          "squirrel-installer": "O instalador do Windows adiciona o Gameplay ao computador e mantém o app atualizado.",
+          "deb": "Instale o pacote DEB com apt para deixar o Gameplay disponível no menu de aplicativos.",
+          "appimage": "O AppImage é portátil e não precisa de instalação no sistema."
+        },
+        "appImageLauncher": {
+          "title": "Opcional: integre AppImages ao seu desktop",
+          "description": "O AppImageLauncher não é necessário para executar o Gameplay. Ele pode abrir AppImages com dois cliques e adicioná-los ao menu de aplicativos.",
+          "link": "Escolher uma versão nas releases do AppImageLauncher"
+        },
+        "steps": {
+          "squirrel-installer": {
+            "download": "Baixe o instalador e abra o arquivo `.exe`.",
+            "install": "Siga as etapas da instalação. O Gameplay será configurado automaticamente.",
+            "open": "Abra o Gameplay pelo menu Iniciar."
+          },
+          "deb": {
+            "download": "Baixe `gameplay.deb` e abra um terminal na pasta do arquivo.",
+            "install": "Execute `sudo apt install ./gameplay.deb` para instalar ou atualizar o Gameplay.",
+            "open": "Abra o Gameplay pelo menu de aplicativos."
+          },
+          "appimage": {
+            "download": "Baixe `Gameplay.AppImage` para a pasta onde você guarda aplicativos.",
+            "install": "Torne o arquivo executável com `chmod +x Gameplay.AppImage`.",
+            "open": "Execute com `./Gameplay.AppImage` ou dê dois cliques no gerenciador de arquivos."
+          }
+        }
+      },
       "comingSoon": "Em breve",
       "footer": "Os downloads vêm do canal oficial de releases do Gameplay."
     },
