@@ -8,5 +8,5 @@ Base: `../02-tech-plan.md`. Uma branch por ticket, saindo da `dev` e voltando po
 | [PUB-02 Home e Downloads estáticos](PUB-02-home-downloads.md) | 5 | PUB-01 | concluído |
 | [PUB-03 Roadmap e Changelog estáticos](PUB-03-roadmap-changelog.md) | 8 | PUB-01 | concluído |
 | [PUB-04 Rotas públicas reais e integração de sessão](PUB-04-rotas-publicas.md) | 5 | PUB-02, PUB-03 | concluído |
-| PUB-05 Votos, solicitações e GitHub Project | 8 | PUB-04 | futuro |
+| PUB-05 Votos, solicitações e GitHub Project | 8 | PUB-04 | concluído, GitHub Projects fora do escopo |
 | [PUB-06 Downloads dinâmicos por manifesto](PUB-06-downloads-dinamicos.md) | 5 | PUB-04, WIN-01 | pendente |

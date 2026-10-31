@@ -20,11 +20,12 @@ packages/client/src/
    └─ changelog/
 ```
 
-## 2. Dados iniciais
+## 2. Dados e persistência
 
-- `download-seed.ts`: fallback de Storybook para plataformas e arquitetura. Em produção, a versão e os URLs vêm do manifesto público de releases.
-- `roadmap-seed.ts`: itens, status, descrição e prioridade visual.
-- `changelog-seed.ts`: slug, data, título, resumo, conteúdo, tags e versão.
+- Roadmap, changelog e solicitações de features são persistidos no banco pela API.
+- `features.json` em `plans/[pending]-features` é a fonte dos seeds públicos iniciais.
+- A API pública filtra apenas conteúdo publicado.
+- O fallback de Storybook continua separado dos dados de produção.
 - Nenhum seed deve conter segredo ou URL privada.
 
 ## 3. Downloads
@@ -51,7 +52,14 @@ O manifesto contém os links do instalador Windows e do AppImage Linux, além da
 
 1. Shell público e navegação.
 2. Home e Downloads estáticos.
-3. Roadmap estático.
-4. Changelog estático com detalhe.
+3. Roadmap persistido e administrável.
+4. Changelog persistido com detalhe e busca.
 5. Rotas reais.
-6. Integração futura com dados, votos e solicitações.
+6. Integração com dados, votos e solicitações, concluída na API e no painel administrativo.
+
+## 6. Estado atual
+
+- O painel `Public` administra roadmap, changelog e solicitações de features.
+- O roadmap público lista os itens em ordem vertical, abre detalhes em modal e permite votos para usuários autenticados.
+- O CTA de solicitação abre um modal e exige autenticação para envio.
+- O MCP do conteúdo público fica no servidor central de MCP do desktop; não existe uma rota MCP duplicada no painel público.

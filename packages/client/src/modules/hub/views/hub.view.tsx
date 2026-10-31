@@ -35,6 +35,7 @@ type HubViewProps = {
   servers: readonly HubServer[]
   isLoadingServers: boolean
   canCreateServer: boolean
+  showPublicHome: boolean
   /** Código já preenchido (ex.: veio de um link). */
   defaultJoinCode?: string
   isJoining: boolean
@@ -64,6 +65,7 @@ function HubView({
   servers,
   isLoadingServers,
   canCreateServer,
+  showPublicHome,
   defaultJoinCode,
   isJoining,
   joinError,
@@ -118,7 +120,9 @@ function HubView({
               />
             </div>
             <div className="flex items-center justify-center gap-1">
-              <IconButton label={t('public.nav.home')} icon={<HouseIcon />} onClick={onOpenPublic} />
+              {showPublicHome && (
+                <IconButton label={t('public.nav.home')} icon={<HouseIcon />} onClick={onOpenPublic} />
+              )}
               {isPlatformAdmin && (
                 <IconButton label={t('common.adminPanel')} icon={<ShieldUserIcon />} onClick={onOpenAdmin} />
               )}

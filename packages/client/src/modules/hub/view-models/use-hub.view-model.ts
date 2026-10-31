@@ -9,6 +9,7 @@ import { toHubServer, toHubUser } from '@/modules/hub/model/mappers/hub-view.map
 import { canCreateServer } from '@/modules/servers/model/rules/can-create-server'
 import { myLimitsQueryOptions, serversListQueryOptions } from '@/modules/servers/model/services/servers.query'
 import { updatePreferences } from '@/modules/settings/model/services/account.service'
+import { usePlatform } from '@/shared/platform/use-platform'
 import { useThemeStore } from '@/modules/settings/view-models/stores/theme.store'
 
 const DARK_QUERY = '(prefers-color-scheme: dark)'
@@ -22,6 +23,7 @@ function resolveTheme(theme: 'dark' | 'light' | 'system'): 'dark' | 'light' {
 /** Hub header (profile, admin, settings, theme), the user's servers and the server limit. */
 function useHubViewModel() {
   const navigate = useNavigate()
+  const isDesktop = usePlatform().kind === 'desktop'
   const queryClient = useQueryClient()
   const { data: session } = useQuery(sessionQueryOptions)
   const { data: servers, isPending: isLoadingServers } = useQuery(serversListQueryOptions)
@@ -52,6 +54,7 @@ function useHubViewModel() {
     servers: hubServers,
     isLoadingServers,
     canCreateServer: canCreateServer(limits),
+    showPublicHome: !isDesktop,
     theme,
     onToggleTheme: () => themeMutation.mutate({ theme: theme === 'dark' ? 'light' : 'dark' }),
     onOpenServer: (serverId: string) => void navigate({ to: '/servers/$serverId', params: { serverId } }),

@@ -21,6 +21,7 @@ const meta = {
     servers: [servers.turbex],
     isLoadingServers: false,
     canCreateServer: true,
+    showPublicHome: true,
     isJoining: false,
     theme: 'dark',
     language: 'en',
