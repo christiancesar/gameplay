@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "source": "plans/features/index.md",
+  "defaultVisibility": "draft",
+  "defaultStatus": "exploring",
+  "categories": [
+    {
+      "slug": "infraestrutura-e-credenciais-por-servidor",
+      "title": "Infraestrutura e credenciais por servidor",
+      "features": [
+        {
+          "slug": "credenciais-de-infraestrutura-por-servidor",
+          "title": "Credenciais de infraestrutura por servidor",
+          "description": "Permitir que cada servidor configure e use as próprias credenciais de SFU, TURN e outros provedores, sem depender das credenciais globais do projeto.",
+          "status": "exploring",
+          "position": 10,
+          "visibility": "draft",
+          "details": [
+            "O painel administrativo mantém as configurações globais usadas pela plataforma.",
+            "Cada servidor pode configurar suas próprias credenciais para reduzir o uso de recursos pessoais do operador.",
+            "A solução deve funcionar também em instalações self-hosted.",
+            "A transmissão precisa continuar sendo simples de configurar e segura para cada servidor."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "servidores",
+      "title": "Servidores",
+      "features": [
+        {
+          "slug": "capa-na-criacao-do-servidor",
+          "title": "Capa na criação do servidor",
+          "description": "Permitir adicionar uma imagem de capa durante a criação de um servidor.",
+          "status": "exploring",
+          "position": 20,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "convites-de-servidor-privados",
+          "title": "Convites de servidor privados",
+          "description": "Manter os convites dos servidores como convites privados protegidos por código.",
+          "status": "exploring",
+          "position": 30,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "validade-configuravel-para-convites",
+          "title": "Validade configurável para convites",
+          "description": "Permitir que os convites criados dentro de um servidor tenham uma validade configurável, além do padrão atual de uma hora.",
+          "status": "exploring",
+          "position": 40,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "transferencia-de-propriedade-ao-sair",
+          "title": "Transferência de propriedade ao sair",
+          "description": "Permitir que o proprietário exclua ou deixe o servidor transferindo a propriedade para outro membro.",
+          "status": "exploring",
+          "position": 50,
+          "visibility": "draft",
+          "details": []
+        }
+      ]
+    },
+    {
+      "slug": "membros-e-moderacao",
+      "title": "Membros e moderação",
+      "features": [
+        {
+          "slug": "administradores-de-servidor",
+          "title": "Administradores de servidor",
+          "description": "Permitir que administradores de um servidor gerenciem outros membros sem obter acesso ao painel administrativo da plataforma.",
+          "status": "exploring",
+          "position": 60,
+          "visibility": "draft",
+          "details": [
+            "Dar e remover o papel de administrador.",
+            "Manter o painel do servidor separado do painel administrativo da plataforma."
+          ]
+        },
+        {
+          "slug": "banimento-e-shadow-ban",
+          "title": "Banimento e shadow ban",
+          "description": "Permitir banir ou aplicar shadow ban em membros, registrar o motivo e identificar o administrador responsável.",
+          "status": "exploring",
+          "position": 70,
+          "visibility": "draft",
+          "details": [
+            "O banimento pode ter duração definida ou ser permanente.",
+            "Somente um administrador pode revogar um banimento.",
+            "O usuário banido não entra no servidor mesmo com convite direto.",
+            "O shadow ban mantém o usuário no servidor, mas bloqueia temporariamente os serviços."
+          ]
+        },
+        {
+          "slug": "rebaixamento-de-membros",
+          "title": "Rebaixamento de membros",
+          "description": "Permitir remover privilégios administrativos de membros do servidor.",
+          "status": "exploring",
+          "position": 80,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "expulsao-de-membros",
+          "title": "Expulsão de membros",
+          "description": "Permitir que um administrador expulse um usuário do servidor ou da sala.",
+          "status": "exploring",
+          "position": 90,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "mutar-membros",
+          "title": "Mute de membros",
+          "description": "Permitir mutar um membro em uma sala específica ou em todo o servidor.",
+          "status": "exploring",
+          "position": 100,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "auditoria-de-moderacao",
+          "title": "Auditoria de ações de moderação",
+          "description": "Registrar todas as ações de moderação realizadas dentro do servidor, incluindo quem executou cada ação.",
+          "status": "exploring",
+          "position": 110,
+          "visibility": "draft",
+          "details": []
+        }
+      ]
+    },
+    {
+      "slug": "comunicacao",
+      "title": "Comunicação",
+      "features": [
+        {
+          "slug": "chat-de-texto",
+          "title": "Chat de texto",
+          "description": "Adicionar chat de texto aos servidores e salas, com retenção temporária das mensagens.",
+          "status": "exploring",
+          "position": 120,
+          "visibility": "draft",
+          "details": [
+            "O conteúdo inicial será somente texto.",
+            "As mensagens ficam retidas enquanto as pessoas estão na sala, com prazo inicial de quinze minutos.",
+            "O prazo de retenção deve ser configurável globalmente.",
+            "Redis ou MongoDB são opções para armazenar as conversas fora do banco principal."
+          ]
+        },
+        {
+          "slug": "notificacoes-e-avisos-gerais",
+          "title": "Notificações e avisos gerais",
+          "description": "Adicionar notificações e avisos gerais para comunicar eventos relevantes aos usuários.",
+          "status": "exploring",
+          "position": 130,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "email",
+          "title": "E-mail",
+          "description": "Adicionar suporte a e-mail para comunicações e fluxos da plataforma.",
+          "status": "exploring",
+          "position": 140,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "webhooks-de-entrada",
+          "title": "Webhooks de entrada",
+          "description": "Receber dentro do servidor informações de plataformas externas, como o Sentry, com configuração adequada para outros usos empresariais.",
+          "status": "exploring",
+          "position": 150,
+          "visibility": "draft",
+          "details": []
+        }
+      ]
+    },
+    {
+      "slug": "midia-e-transmissao",
+      "title": "Mídia e transmissão",
+      "features": [
+        {
+          "slug": "assistir-junto",
+          "title": "Assistir junto",
+          "description": "Permitir que grupos assistam a conteúdo de streaming juntos dentro do servidor, usando uma estrutura semelhante ao Rave.",
+          "status": "exploring",
+          "position": 160,
+          "visibility": "draft",
+          "details": [
+            "O usuário entra na própria conta do serviço de streaming e transmite o conteúdo.",
+            "O grupo pode acompanhar o conteúdo com chat junto.",
+            "Ficam fora do escopo inicial o controle compartilhado e o compartilhamento de webcam.",
+            "Nenhuma informação do usuário ou do serviço de streaming deve ser armazenada."
+          ]
+        },
+        {
+          "slug": "configuracoes-avancadas-de-audio",
+          "title": "Configurações avançadas de áudio",
+          "description": "Adicionar configurações avançadas de áudio e redução de ruído.",
+          "status": "exploring",
+          "position": 170,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "indicador-de-presenca-fora-do-servidor",
+          "title": "Indicador de presença fora do servidor",
+          "description": "Mostrar quando um usuário continua conectado ao servidor mesmo depois de sair da tela do servidor e voltar ao Hub.",
+          "status": "exploring",
+          "position": 180,
+          "visibility": "draft",
+          "details": []
+        },
+        {
+          "slug": "extensao-de-navegador-para-captura",
+          "title": "Extensão de navegador para captura",
+          "description": "Criar uma extensão para compartilhar uma aba específica do Brave, Chrome ou outro navegador compatível com o desktop.",
+          "status": "exploring",
+          "position": 190,
+          "visibility": "draft",
+          "details": [
+            "Usar a API de captura de abas do navegador.",
+            "Estabelecer comunicação segura com o desktop.",
+            "Investigar autorização, instalação, atualização e compatibilidade entre navegadores.",
+            "Criar um navegador com abas dentro do desktop fica fora do escopo inicial."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "bots",
+      "title": "Bots",
+      "features": [
+        {
+          "slug": "bots-de-musica-e-automacao",
+          "title": "Bots de música e automação",
+          "description": "Explorar bots para os servidores, começando por um bot geral com acesso aos provedores de música dos próprios usuários ou a um provedor gratuito.",
+          "status": "exploring",
+          "position": 200,
+          "visibility": "draft",
+          "details": []
+        }
+      ]
+    },
+    {
+      "slug": "modelo-de-negocio",
+      "title": "Modelo de negócio",
+      "features": [
+        {
+          "slug": "servico-acessivel-em-larga-escala",
+          "title": "Serviço acessível em larga escala",
+          "description": "Definir um modelo para oferecer o serviço a baixo custo em larga escala, incluindo usuários que não querem configurar servidor e credenciais próprias.",
+          "status": "exploring",
+          "position": 210,
+          "visibility": "draft",
+          "details": []
+        }
+      ]
+    }
+  ]
+}
