@@ -25,9 +25,19 @@ Este arquivo é o índice geral dos planos. O detalhamento, os checklists e as n
 
 1. Validar em uma VM Windows a atualização de `0.0.5` para `0.0.6` e exercitar o rollback do feed estável.
 2. Executar o workflow Linux/AppImage e validar instalação, sandbox e áudio por aplicativo em uma máquina Linux.
-3. Continuar o próximo ticket de frontend pendente conforme `AGENTS.md` e o README do plano frontend.
+3. Atualizar o plano do portal público para refletir a implementação dinâmica já entregue e executar o `PUB-06` quando a release estiver disponível.
 4. Fechar o painel Sentry e os alertas operacionais no plano de telemetria.
 5. Retomar `WIN-03` e `WIN-04` depois da validação manual da release Windows `0.0.6`.
+
+## Entregas recentes
+
+- Portal público com Home, Downloads, Roadmap e Changelog funcionando em rotas reais.
+- Conteúdo público persistido no banco, com gerenciamento administrativo de roadmap, changelog e solicitações de features.
+- Roadmap público com votos, modal de detalhes e solicitação de feature para usuários autenticados.
+- Seeds de 21 itens publicados no roadmap do self-hosted.
+- Ferramentas públicas integradas ao MCP central do desktop, sem um MCP separado no painel público.
+- Preferências de tema e idioma disponíveis no header administrativo.
+- Atalho para a Home pública disponível no Hub web e oculto no desktop.
 
 ## Critério dos marcadores
 

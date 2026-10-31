@@ -92,4 +92,10 @@ describe('useHubViewModel', () => {
     expect(call.to).toBe('.')
     expect(call.search({ other: 1 })).toEqual({ other: 1, settings: 'profile' })
   })
+
+  it('hides the public home shortcut on desktop', () => {
+    const context = createHubViewModelContext(adminSession, [], undefined, 'desktop')
+    const { result } = renderHook(() => useHubViewModel(), { wrapper: context.wrapper })
+    expect(result.current.showPublicHome).toBe(false)
+  })
 })

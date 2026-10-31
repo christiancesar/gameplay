@@ -1,6 +1,7 @@
 import type { HubServer, HubUser } from '@/modules/hub/model/entities/hub-server'
 import {
   ChevronRightIcon,
+  HouseIcon,
   LayoutGridIcon,
   LogOutIcon,
   SettingsIcon,
@@ -34,6 +35,7 @@ type HubViewProps = {
   servers: readonly HubServer[]
   isLoadingServers: boolean
   canCreateServer: boolean
+  showPublicHome: boolean
   /** Código já preenchido (ex.: veio de um link). */
   defaultJoinCode?: string
   isJoining: boolean
@@ -47,6 +49,7 @@ type HubViewProps = {
   /** Chamado só com um código que passou no schema (sem espaços, em maiúsculas). */
   onJoin: (code: string) => void
   onOpenAdmin: () => void
+  onOpenPublic: () => void
   onOpenSettings: () => void
   isSigningOut: boolean
   /** Chamado depois da confirmação. */
@@ -62,6 +65,7 @@ function HubView({
   servers,
   isLoadingServers,
   canCreateServer,
+  showPublicHome,
   defaultJoinCode,
   isJoining,
   joinError,
@@ -72,6 +76,7 @@ function HubView({
   onCreateServer,
   onJoin,
   onOpenAdmin,
+  onOpenPublic,
   onOpenSettings,
   isSigningOut,
   onSignOut,
@@ -115,6 +120,9 @@ function HubView({
               />
             </div>
             <div className="flex items-center justify-center gap-1">
+              {showPublicHome && (
+                <IconButton label={t('public.nav.home')} icon={<HouseIcon />} onClick={onOpenPublic} />
+              )}
               {isPlatformAdmin && (
                 <IconButton label={t('common.adminPanel')} icon={<ShieldUserIcon />} onClick={onOpenAdmin} />
               )}

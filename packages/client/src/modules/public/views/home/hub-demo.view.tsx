@@ -16,6 +16,7 @@ function HubDemoView() {
       servers={HOME_DEMO_SERVERS}
       isLoadingServers={false}
       canCreateServer
+      showPublicHome
       isJoining={false}
       theme="dark"
       language={i18n.resolvedLanguage ?? i18n.language}
@@ -24,6 +25,7 @@ function HubDemoView() {
       onCreateServer={noop}
       onJoin={noop}
       onOpenAdmin={noop}
+      onOpenPublic={noop}
       onOpenSettings={noop}
       isSigningOut={false}
       onSignOut={noop}

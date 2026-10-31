@@ -8,6 +8,28 @@ vi.mock('@tanstack/react-router', () => ({
   useLocation: ({ select }: { select: (location: { pathname: string }) => string }) => select({ pathname }),
   useNavigate: () => navigate,
 }))
+vi.mock('@/modules/settings/view-models/use-appearance-settings.view-model', () => ({
+  useAppearanceSettingsViewModel: () => ({
+    theme: 'dark',
+    language: 'en',
+    languageOptions: [
+      { value: 'en', label: 'EN' },
+      { value: 'pt', label: 'PT' },
+    ],
+    onThemeChange: vi.fn(),
+    onLanguageChange: vi.fn(),
+  }),
+}))
+vi.mock('@/modules/settings/view-models/use-language.view-model', () => ({
+  useLanguageViewModel: () => ({
+    language: 'en',
+    languageOptions: [
+      { value: 'en', label: 'EN' },
+      { value: 'pt', label: 'PT' },
+    ],
+    setLanguage: vi.fn(),
+  }),
+}))
 
 import { useAdminPanelViewModel } from './use-admin-panel.view-model'
 
