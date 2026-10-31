@@ -15,6 +15,7 @@ import { StorageModule } from './modules/storage/storage.module'
 import { MembershipsModule } from './modules/memberships/memberships.module'
 import { NotificationsModule } from './modules/notifications/notifications.module'
 import { PlatformAdminModule } from './modules/platform-admin/platform-admin.module'
+import { PublicContentModule } from './modules/public-content/public-content.module'
 import { RealtimeModule } from './modules/realtime/realtime.module'
 import { RegistrationInvitesModule } from './modules/registration-invites/registration-invites.module'
 import { UpdatesModule } from './modules/updates/updates.module'
@@ -39,6 +40,7 @@ import { UpdatesModule } from './modules/updates/updates.module'
     RealtimeModule,
     MediaModule,
     PlatformAdminModule,
+    PublicContentModule,
     UpdatesModule,
   ],
 })

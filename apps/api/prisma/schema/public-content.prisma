@@ -1,0 +1,90 @@
+enum PublicRoadmapStatus {
+  NOW
+  NEXT
+  EXPLORING
+  DONE
+}
+
+enum PublicContentVisibility {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum FeatureRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+model RoadmapItem {
+  id                String                   @id @default(cuid())
+  slug              String                   @unique
+  title             String
+  description       String
+  status            PublicRoadmapStatus     @default(EXPLORING)
+  position          Int                      @default(0)
+  visibility        PublicContentVisibility  @default(DRAFT)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  createdById       String
+  createdBy         User                     @relation("RoadmapCreatedBy", fields: [createdById], references: [id])
+  updatedById       String
+  updatedBy         User                     @relation("RoadmapUpdatedBy", fields: [updatedById], references: [id])
+  votes             FeatureVote[]
+  featureRequests   FeatureRequest[]
+
+  @@index([visibility, status, position])
+  @@map("roadmap_item")
+}
+
+model ChangelogEntry {
+  id                String                   @id @default(cuid())
+  slug              String                   @unique
+  version           String
+  title             String
+  summary           String
+  body              String
+  tags              String[]
+  visibility        PublicContentVisibility  @default(DRAFT)
+  publishedAt       DateTime?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  createdById       String
+  createdBy         User                     @relation("ChangelogCreatedBy", fields: [createdById], references: [id])
+  updatedById       String
+  updatedBy         User                     @relation("ChangelogUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([visibility, publishedAt])
+  @@map("changelog_entry")
+}
+
+model FeatureRequest {
+  id              String               @id @default(cuid())
+  title           String
+  description     String
+  status          FeatureRequestStatus  @default(PENDING)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  authorId        String
+  author          User                 @relation("FeatureRequestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  roadmapItemId   String?
+  roadmapItem     RoadmapItem?         @relation(fields: [roadmapItemId], references: [id], onDelete: SetNull)
+
+  @@index([authorId, createdAt])
+  @@index([status, createdAt])
+  @@map("feature_request")
+}
+
+model FeatureVote {
+  userId        String     
+  roadmapItemId String
+  createdAt     DateTime   @default(now())
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmapItem   RoadmapItem @relation(fields: [roadmapItemId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roadmapItemId])
+  @@index([roadmapItemId])
+  @@map("feature_vote")
+}

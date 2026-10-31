@@ -35,6 +35,12 @@ model User {
   serverInvitesUsed          ServerInvite[]       @relation("ServerInviteUsedBy")
   joinRequests               JoinRequest[]        @relation("JoinRequestUser")
   joinRequestsDecided        JoinRequest[]        @relation("JoinRequestDecidedBy")
+  roadmapItemsCreated        RoadmapItem[]        @relation("RoadmapCreatedBy")
+  roadmapItemsUpdated        RoadmapItem[]        @relation("RoadmapUpdatedBy")
+  changelogEntriesCreated    ChangelogEntry[]     @relation("ChangelogCreatedBy")
+  changelogEntriesUpdated    ChangelogEntry[]     @relation("ChangelogUpdatedBy")
+  featureRequests            FeatureRequest[]     @relation("FeatureRequestAuthor")
+  featureVotes               FeatureVote[]
 
   @@unique([email])
   @@unique([username])

@@ -26,13 +26,22 @@ Usuário autenticado
 - Changelog com hierarquia editorial semelhante ao Expo: data, título, resumo, autor opcional e detalhe. A referência é a organização pública do [Expo Changelog](https://expo.dev/changelog).
 - Paleta existente do Gameplay, tipografia e componentes shadcn já adotados.
 
-## 4. Evolução posterior
+## 4. Administração e automação
 
-- Roadmap com votos associados ao usuário Gameplay.
-- Solicitações de feature com moderação.
+O painel administrativo terá uma seção **Public**, com uma sidebar própria para os recursos editoriais do produto:
+
+- Roadmap: criar, editar, ordenar, publicar, arquivar e atualizar status.
+- Changelog: criar, editar, publicar e arquivar entradas.
+- Feature requests: revisar, aprovar, rejeitar, arquivar e vincular solicitações ao roadmap.
+- MCP: ativar e encerrar a automação local, mostrando o endpoint e o token temporário enquanto a sessão estiver ativa.
+
+Roadmap, changelog, solicitações e votos terão o banco de dados como fonte de verdade. O MCP reutilizará os mesmos casos de uso e regras do painel, sem acesso direto ao Prisma.
+
+## 5. Evolução posterior
+
 - Sincronização seletiva com GitHub Projects, sem expor a organização interna.
-- Changelog alimentado por arquivos versionados ou uma API própria.
+- Exportação ou importação editorial, caso seja necessária no futuro.
 
-## 5. Critério de sucesso
+## 6. Critério de sucesso
 
 Um visitante deslogado entende o produto, encontra o download adequado, consegue entrar ou criar conta e pode consultar roadmap e changelog sem depender do servidor do Gameplay.
