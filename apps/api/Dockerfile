@@ -45,6 +45,8 @@ RUN npm ci --omit=dev --omit=optional --ignore-scripts \
 COPY --from=builder /repo/packages/contracts/dist ./packages/contracts/dist
 COPY --from=builder /repo/packages/env/dist ./packages/env/dist
 COPY --from=builder /repo/apps/api/dist ./apps/api/dist
+# The public-content seed reads the canonical catalog from the planning tree.
+COPY plans/features/features.json ./plans/features/features.json
 # Mount point for uploads when a named volume is used (STORAGE_LOCAL_DIR=/data/uploads):
 # a new volume copies this owner, so the node user can write to it.
 RUN mkdir -p /data/uploads && chown -R node:node /data
