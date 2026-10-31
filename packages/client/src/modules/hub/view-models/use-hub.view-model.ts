@@ -56,6 +56,7 @@ function useHubViewModel() {
     onToggleTheme: () => themeMutation.mutate({ theme: theme === 'dark' ? 'light' : 'dark' }),
     onOpenServer: (serverId: string) => void navigate({ to: '/servers/$serverId', params: { serverId } }),
     onOpenAdmin: () => void navigate({ to: '/admin' }),
+    onOpenPublic: () => void navigate({ to: '/' }),
     onOpenSettings: () => void navigate({ to: '.', search: (prev) => ({ ...prev, settings: 'profile' as const }) }),
   }
 }

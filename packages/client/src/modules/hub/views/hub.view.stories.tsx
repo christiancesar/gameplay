@@ -29,6 +29,7 @@ const meta = {
     onCreateServer: fn(),
     onJoin: fn(),
     onOpenAdmin: fn(),
+    onOpenPublic: fn(),
     onOpenSettings: fn(),
     isSigningOut: false,
     onSignOut: fn(),

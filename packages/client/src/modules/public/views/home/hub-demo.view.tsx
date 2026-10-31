@@ -24,6 +24,7 @@ function HubDemoView() {
       onCreateServer={noop}
       onJoin={noop}
       onOpenAdmin={noop}
+      onOpenPublic={noop}
       onOpenSettings={noop}
       isSigningOut={false}
       onSignOut={noop}

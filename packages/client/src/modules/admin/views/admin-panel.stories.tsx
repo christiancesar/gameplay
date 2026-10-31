@@ -255,6 +255,14 @@ function Scenario({ initialTab, overlay, empty, noCloudflare = false, usagePerio
           setTab(next)
         }}
         onBackToHub={fn()}
+        theme="dark"
+        language="en"
+        languageOptions={[
+          { value: 'en', label: 'EN' },
+          { value: 'pt', label: 'PT' },
+        ]}
+        onThemeChange={fn()}
+        onLanguageChange={fn()}
       >
         {content}
       </AdminLayoutView>

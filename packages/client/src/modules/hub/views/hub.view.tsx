@@ -1,6 +1,7 @@
 import type { HubServer, HubUser } from '@/modules/hub/model/entities/hub-server'
 import {
   ChevronRightIcon,
+  HouseIcon,
   LayoutGridIcon,
   LogOutIcon,
   SettingsIcon,
@@ -47,6 +48,7 @@ type HubViewProps = {
   /** Chamado só com um código que passou no schema (sem espaços, em maiúsculas). */
   onJoin: (code: string) => void
   onOpenAdmin: () => void
+  onOpenPublic: () => void
   onOpenSettings: () => void
   isSigningOut: boolean
   /** Chamado depois da confirmação. */
@@ -72,6 +74,7 @@ function HubView({
   onCreateServer,
   onJoin,
   onOpenAdmin,
+  onOpenPublic,
   onOpenSettings,
   isSigningOut,
   onSignOut,
@@ -115,6 +118,7 @@ function HubView({
               />
             </div>
             <div className="flex items-center justify-center gap-1">
+              <IconButton label={t('public.nav.home')} icon={<HouseIcon />} onClick={onOpenPublic} />
               {isPlatformAdmin && (
                 <IconButton label={t('common.adminPanel')} icon={<ShieldUserIcon />} onClick={onOpenAdmin} />
               )}
