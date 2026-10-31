@@ -10,7 +10,7 @@ function RoadmapContentScreen() {
   return (
     <>
       <NavigationView {...navigation} />
-      <RoadmapView {...roadmap} />
+      <RoadmapView {...roadmap} onRequireAuth={() => navigation.onNavigate('sign-in')} />
     </>
   )
 }

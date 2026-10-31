@@ -8,6 +8,7 @@ const ADMIN_TABS = [
   'announcements',
   'development',
   'mcp',
+  'public',
 ] as const
 type AdminTab = (typeof ADMIN_TABS)[number]
 

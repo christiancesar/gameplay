@@ -16,6 +16,9 @@ import {
   listAdminUsers,
   listAllAdminDevices,
   listRegistrationInvites,
+  listAdminPublicChangelog,
+  listAdminPublicFeatureRequests,
+  listAdminPublicRoadmap,
 } from './admin.service'
 
 const adminUsersQueryOptions = (query: AdminListQuery = {}) =>
@@ -65,6 +68,21 @@ const mediaImpactQueryOptions = (serverId: string | null) =>
 const serverMediaOverridesQueryOptions = (serverId: string) =>
   queryOptions({ queryKey: adminKeys.serverMedia(serverId), queryFn: () => getServerMediaOverrides(serverId) })
 
+const adminPublicRoadmapQueryOptions = queryOptions({
+  queryKey: adminKeys.publicRoadmap(),
+  queryFn: listAdminPublicRoadmap,
+})
+
+const adminPublicChangelogQueryOptions = queryOptions({
+  queryKey: adminKeys.publicChangelog(),
+  queryFn: listAdminPublicChangelog,
+})
+
+const adminPublicFeatureRequestsQueryOptions = queryOptions({
+  queryKey: adminKeys.publicFeatureRequests(),
+  queryFn: listAdminPublicFeatureRequests,
+})
+
 export {
   adminDevicesQueryOptions,
   adminMediaQueryOptions,
@@ -73,6 +91,9 @@ export {
   adminUserDevicesQueryOptions,
   adminUserSessionsQueryOptions,
   adminUsersQueryOptions,
+  adminPublicChangelogQueryOptions,
+  adminPublicFeatureRequestsQueryOptions,
+  adminPublicRoadmapQueryOptions,
   hardwareSummaryQueryOptions,
   mediaImpactQueryOptions,
   mediaUsageQueryOptions,

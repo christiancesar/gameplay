@@ -1,10 +1,3 @@
-type RoadmapStatus = 'now' | 'next' | 'exploring' | 'done'
-
-type RoadmapItem = {
-  id: string
-  status: RoadmapStatus
-  titleKey: string
-  descriptionKey: string
-}
+import type { RoadmapItem, RoadmapStatus } from '@gameplay/contracts'
 
 export type { RoadmapItem, RoadmapStatus }

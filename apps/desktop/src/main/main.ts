@@ -54,7 +54,6 @@ if (!startupResult.ok) {
   // Keep the bounded local Pino file for the context before a failure. Detailed renderer diagnostics remain opt-in.
   const diagnosticLoggingEnabled = startupOptions.diagnostics
   const diagnostics = createDiagnosticsModule({ enabled: diagnosticLoggingEnabled, status: startupOptions })
-  const mcp = createMcpModule(diagnostics.collector)
   const { logger, file: logFile } = createLoggingModule({
     enabled: true,
     dir: app.getPath('logs'),
@@ -108,6 +107,22 @@ if (!startupResult.ok) {
     )
     const updates = createUpdatesModule(logger, app.isPackaged, process.argv)
     await server.service.load()
+
+    const mcp = createMcpModule(diagnostics.collector, {
+      request: async (path, init = {}) => {
+        const origin = server.service.current()
+        if (!origin) throw new Error('No Gameplay server is selected')
+        const cookies = await session.defaultSession.cookies.get({ url: origin })
+        const headers = new Headers(init.headers)
+        headers.set('accept', 'application/json')
+        headers.set('content-type', 'application/json')
+        headers.set('cookie', cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; '))
+        const response = await fetch(`${origin}/api${path}`, { ...init, headers })
+        const body = (await response.json()) as unknown
+        if (!response.ok) throw new Error(`Public content request failed (${response.status})`)
+        return body
+      },
+    })
 
     serveApp(rendererRoot(), () => server.service.current(), contentSecurityPolicy(fixedServer))
     installCookiePolicy(session.defaultSession, (url) => server.service.isOnServer(url))

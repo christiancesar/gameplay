@@ -20,7 +20,8 @@
     "db:migrate": "prisma migrate dev && prisma generate",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "seed:admin": "nest start --entryFile scripts/seed-admin"
+    "seed:admin": "nest start --entryFile scripts/seed-admin",
+    "seed:public-content": "nest start --entryFile scripts/seed-public-content"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1156.0",

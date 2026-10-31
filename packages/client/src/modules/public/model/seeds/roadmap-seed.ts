@@ -1,24 +1,23 @@
 import type { RoadmapItem } from '../entities/roadmap-item'
 
 const ROADMAP_ITEMS: RoadmapItem[] = [
-  { id: 'desktop-app', status: 'now', titleKey: 'desktopApp', descriptionKey: 'desktopAppDescription' },
-  { id: 'screen-sharing', status: 'now', titleKey: 'screenSharing', descriptionKey: 'screenSharingDescription' },
-  { id: 'windows-audio', status: 'next', titleKey: 'windowsAudio', descriptionKey: 'windowsAudioDescription' },
-  { id: 'roadmap-voting', status: 'next', titleKey: 'roadmapVoting', descriptionKey: 'roadmapVotingDescription' },
-  {
-    id: 'feature-requests',
-    status: 'exploring',
-    titleKey: 'featureRequests',
-    descriptionKey: 'featureRequestsDescription',
-  },
-  {
-    id: 'mobile-companion',
-    status: 'exploring',
-    titleKey: 'mobileCompanion',
-    descriptionKey: 'mobileCompanionDescription',
-  },
-  { id: 'voice-rooms', status: 'done', titleKey: 'voiceRooms', descriptionKey: 'voiceRoomsDescription' },
-  { id: 'sfu-streaming', status: 'done', titleKey: 'sfuStreaming', descriptionKey: 'sfuStreamingDescription' },
+  ...([
+    ['desktop-app', 'now', 'Desktop app', 'Bring screen and audio sharing closer to the games you play.'],
+    ['screen-sharing', 'now', 'Screen sharing profiles', 'Choose the right resolution, aspect ratio and frame rate.'],
+    ['windows-audio', 'next', 'Windows app audio', 'Share the sound of a game or app without the voice room.'],
+  ].map(([id, status, title, description], position) => ({
+    id,
+    slug: id,
+    title,
+    description,
+    status,
+    position,
+    visibility: 'published',
+    voteCount: 0,
+    votedByMe: false,
+    createdAt: '2026-10-30T00:00:00.000Z',
+    updatedAt: '2026-10-30T00:00:00.000Z',
+  })) as RoadmapItem[]),
 ]
 
 export { ROADMAP_ITEMS }

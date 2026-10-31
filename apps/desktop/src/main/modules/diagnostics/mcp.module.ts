@@ -4,14 +4,24 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
-import type { McpClient, McpStatus, McpTool } from '@gameplay/contracts'
+import {
+  createChangelogEntrySchema,
+  createRoadmapItemSchema,
+  moderateFeatureRequestSchema,
+  updateChangelogEntrySchema,
+  updateRoadmapItemSchema,
+  type McpClient,
+  type McpStatus,
+  type McpTool,
+} from '@gameplay/contracts'
 import { z } from 'zod'
 
 import type { DiagnosticsCollector } from './diagnostics.module'
 
 type McpSession = { server: McpServer; transport: StreamableHTTPServerTransport; client: McpClient }
+type PublicContentGateway = { request: (path: string, init?: RequestInit) => Promise<unknown> }
 
-const MCP_TOOLS: readonly McpTool[] = [
+const DIAGNOSTIC_TOOLS: readonly McpTool[] = [
   {
     key: 'diagnostics_status',
     description: 'Returns the effective local desktop diagnostics configuration.',
@@ -24,6 +34,16 @@ const MCP_TOOLS: readonly McpTool[] = [
     key: 'diagnostics_summary',
     description: 'Returns counts of recent diagnostic event names without session content.',
   },
+]
+const PUBLIC_TOOLS: readonly McpTool[] = [
+  { key: 'public_list_roadmap', description: 'Lists roadmap items, including drafts and archived items.' },
+  { key: 'public_create_roadmap', description: 'Creates a roadmap item.' },
+  { key: 'public_update_roadmap', description: 'Updates a roadmap item, including its visibility.' },
+  { key: 'public_list_changelog', description: 'Lists changelog entries, including drafts and archived entries.' },
+  { key: 'public_create_changelog', description: 'Creates a changelog entry.' },
+  { key: 'public_update_changelog', description: 'Updates a changelog entry, including its visibility.' },
+  { key: 'public_list_feature_requests', description: 'Lists feature requests awaiting editorial moderation.' },
+  { key: 'public_moderate_feature_request', description: 'Approves, rejects or archives a feature request.' },
 ]
 
 const MAX_BODY_BYTES = 1_000_000
@@ -52,7 +72,7 @@ function writeJson(response: ServerResponse, status: number, body: unknown): voi
   response.end(JSON.stringify(body))
 }
 
-function createMcpServer(collector: DiagnosticsCollector): McpServer {
+function createMcpServer(collector: DiagnosticsCollector, publicContent?: PublicContentGateway): McpServer {
   const server = new McpServer({ name: 'gameplay-local-diagnostics', version: '0.1.0' }, { maxToolInputElements: 16 })
   server.registerTool(
     'diagnostics_status',
@@ -85,23 +105,131 @@ function createMcpServer(collector: DiagnosticsCollector): McpServer {
       return { content: [{ type: 'text', text: JSON.stringify(Object.fromEntries(counts)) }] }
     },
   )
+  if (publicContent) registerPublicTools(server, publicContent)
   return server
 }
 
-function emptyStatus(state: McpStatus['state']): McpStatus {
-  return { state, endpoint: null, token: null, configuration: null, tools: [...MCP_TOOLS], clients: [] }
+function toolResult(value: unknown) {
+  return { content: [{ type: 'text' as const, text: JSON.stringify(value) }] }
+}
+
+function registerPublicTools(server: McpServer, gateway: PublicContentGateway): void {
+  const writeAnnotations = { readOnlyHint: false, destructiveHint: false, openWorldHint: false }
+  server.registerTool(
+    'public_list_roadmap',
+    { description: 'Lists roadmap items, including drafts and archived items.', annotations: { readOnlyHint: true } },
+    async () => toolResult(await gateway.request('/admin/public/roadmap')),
+  )
+  server.registerTool(
+    'public_create_roadmap',
+    {
+      description: 'Creates a roadmap item.',
+      inputSchema: { input: z.record(z.string(), z.unknown()) },
+      annotations: writeAnnotations,
+    },
+    async ({ input }) =>
+      toolResult(
+        await gateway.request('/admin/public/roadmap', {
+          method: 'POST',
+          body: JSON.stringify(createRoadmapItemSchema.parse(input)),
+        }),
+      ),
+  )
+  server.registerTool(
+    'public_update_roadmap',
+    {
+      description: 'Updates a roadmap item, including its visibility.',
+      inputSchema: { id: z.string(), input: z.record(z.string(), z.unknown()) },
+      annotations: writeAnnotations,
+    },
+    async ({ id, input }) =>
+      toolResult(
+        await gateway.request(`/admin/public/roadmap/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updateRoadmapItemSchema.parse(input)),
+        }),
+      ),
+  )
+  server.registerTool(
+    'public_list_changelog',
+    {
+      description: 'Lists changelog entries, including drafts and archived entries.',
+      annotations: { readOnlyHint: true },
+    },
+    async () => toolResult(await gateway.request('/admin/public/changelog')),
+  )
+  server.registerTool(
+    'public_create_changelog',
+    {
+      description: 'Creates a changelog entry.',
+      inputSchema: { input: z.record(z.string(), z.unknown()) },
+      annotations: writeAnnotations,
+    },
+    async ({ input }) =>
+      toolResult(
+        await gateway.request('/admin/public/changelog', {
+          method: 'POST',
+          body: JSON.stringify(createChangelogEntrySchema.parse(input)),
+        }),
+      ),
+  )
+  server.registerTool(
+    'public_update_changelog',
+    {
+      description: 'Updates a changelog entry, including its visibility.',
+      inputSchema: { id: z.string(), input: z.record(z.string(), z.unknown()) },
+      annotations: writeAnnotations,
+    },
+    async ({ id, input }) =>
+      toolResult(
+        await gateway.request(`/admin/public/changelog/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updateChangelogEntrySchema.parse(input)),
+        }),
+      ),
+  )
+  server.registerTool(
+    'public_list_feature_requests',
+    { description: 'Lists feature requests awaiting editorial moderation.', annotations: { readOnlyHint: true } },
+    async () => toolResult(await gateway.request('/admin/public/feature-requests')),
+  )
+  server.registerTool(
+    'public_moderate_feature_request',
+    {
+      description: 'Approves, rejects or archives a feature request.',
+      inputSchema: { id: z.string(), input: z.record(z.string(), z.unknown()) },
+      annotations: writeAnnotations,
+    },
+    async ({ id, input }) =>
+      toolResult(
+        await gateway.request(`/admin/public/feature-requests/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(moderateFeatureRequestSchema.parse(input)),
+        }),
+      ),
+  )
+}
+
+function toolsFor(publicContent?: PublicContentGateway): readonly McpTool[] {
+  return publicContent ? [...DIAGNOSTIC_TOOLS, ...PUBLIC_TOOLS] : DIAGNOSTIC_TOOLS
+}
+
+function emptyStatus(state: McpStatus['state'], publicContent?: PublicContentGateway): McpStatus {
+  return { state, endpoint: null, token: null, configuration: null, tools: [...toolsFor(publicContent)], clients: [] }
 }
 
 class LocalMcpServer {
   private http: Server | null = null
   private readonly sessions = new Map<string, McpSession>()
   private token: string | null = null
-  private currentStatus: McpStatus = emptyStatus('inactive')
-
   private readonly collector: DiagnosticsCollector
+  private readonly publicContent?: PublicContentGateway
+  private currentStatus: McpStatus
 
-  constructor(collector: DiagnosticsCollector) {
+  constructor(collector: DiagnosticsCollector, publicContent?: PublicContentGateway) {
     this.collector = collector
+    this.publicContent = publicContent
+    this.currentStatus = emptyStatus('inactive', publicContent)
   }
 
   status(): McpStatus {
@@ -110,7 +238,7 @@ class LocalMcpServer {
 
   async start(): Promise<McpStatus> {
     if (this.http) return this.currentStatus
-    this.currentStatus = emptyStatus('starting')
+    this.currentStatus = emptyStatus('starting', this.publicContent)
     this.token = randomBytes(32).toString('hex')
     this.http = createServer((request, response) => void this.handle(request, response))
     try {
@@ -126,7 +254,7 @@ class LocalMcpServer {
         endpoint,
         token: this.token,
         configuration: JSON.stringify({ url: endpoint, headers: { Authorization: `Bearer ${this.token}` } }),
-        tools: [...MCP_TOOLS],
+        tools: [...toolsFor(this.publicContent)],
         clients: [],
       }
       return this.currentStatus
@@ -151,7 +279,7 @@ class LocalMcpServer {
     })
     this.http = null
     this.token = null
-    this.currentStatus = emptyStatus('inactive')
+    this.currentStatus = emptyStatus('inactive', this.publicContent)
     return this.currentStatus
   }
 
@@ -185,7 +313,7 @@ class LocalMcpServer {
           },
           enableJsonResponse: true,
         })
-        const mcpServer = createMcpServer(this.collector)
+        const mcpServer = createMcpServer(this.collector, this.publicContent)
         transport.onclose = () => {
           if (transport.sessionId) {
             this.sessions.delete(transport.sessionId)
@@ -218,8 +346,8 @@ function clientFromInitialize(body: { params?: { clientInfo?: { name?: unknown; 
   return { name, version, connectedAt: now, lastSeenAt: now }
 }
 
-function createMcpModule(collector: DiagnosticsCollector) {
-  const server = new LocalMcpServer(collector)
+function createMcpModule(collector: DiagnosticsCollector, publicContent?: PublicContentGateway) {
+  const server = new LocalMcpServer(collector, publicContent)
   return {
     server,
     handlers: {

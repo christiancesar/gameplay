@@ -1,16 +1,21 @@
 import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { cn } from 'cn'
 import { useTranslation } from 'react-i18next'
 
-import type { RoadmapItem, RoadmapStatus } from '../../model/entities/roadmap-item'
+import type { RoadmapItem, RoadmapStatus } from '@gameplay/contracts'
 
 type RoadmapColumnProps = {
   status: RoadmapStatus
   items: RoadmapItem[]
+  isAuthenticated: boolean
+  isVoting: boolean
+  onRequireAuth: () => void
+  onVote: (itemId: string, votedByMe: boolean) => void
 }
 
-function RoadmapColumn({ status, items }: RoadmapColumnProps) {
+function RoadmapColumn({ status, items, isAuthenticated, isVoting, onRequireAuth, onVote }: RoadmapColumnProps) {
   const { t } = useTranslation()
   const statusClass = {
     now: 'bg-emerald-500',
@@ -34,12 +39,22 @@ function RoadmapColumn({ status, items }: RoadmapColumnProps) {
         {items.map((item) => (
           <Card key={item.id} className="rounded-xl">
             <CardHeader className="gap-2 pb-3">
-              <CardTitle className="text-base">
-                {t(`public.roadmap.items.${item.titleKey}`, { defaultValue: item.titleKey })}
-              </CardTitle>
+              <CardTitle className="text-base">{item.title}</CardTitle>
             </CardHeader>
-            <CardContent className="text-muted-foreground text-sm leading-relaxed">
-              {t(`public.roadmap.items.${item.descriptionKey}`, { defaultValue: item.descriptionKey })}
+            <CardContent className="text-muted-foreground text-sm leading-relaxed">{item.description}</CardContent>
+            <CardContent className="flex items-center justify-between gap-3 pt-0">
+              <span className="text-muted-foreground text-xs">
+                {t('public.roadmap.votes', { count: item.voteCount })}
+              </span>
+              <Button
+                type="button"
+                variant={item.votedByMe ? 'success' : 'outline'}
+                size="sm"
+                disabled={isVoting}
+                onClick={() => (isAuthenticated ? onVote(item.id, item.votedByMe) : onRequireAuth())}
+              >
+                {item.votedByMe ? t('public.roadmap.removeVote') : t('public.roadmap.vote')}
+              </Button>
             </CardContent>
           </Card>
         ))}

@@ -189,6 +189,23 @@
       "title": "Um mapa do que estamos construindo.",
       "description": "Algumas ideias já estão em andamento, outras estão tomando forma e algumas já fazem parte da sala. Aqui deixamos a direção visível.",
       "status": { "now": "Em andamento", "next": "A seguir", "exploring": "Explorando", "done": "Lançado" },
+      "loading": "Carregando o roadmap...",
+      "votes": "{{count}} votos",
+      "vote": "Votar",
+      "removeVote": "Remover voto",
+      "signInToRequest": "Entre para sugerir uma funcionalidade",
+      "requestTitle": "Sugerir uma funcionalidade",
+      "requestDescription": "Conte o que deixaria o Gameplay mais útil para o seu grupo.",
+      "requestTitleField": "Título",
+      "requestDescriptionField": "Descrição",
+      "submitRequest": "Enviar sugestão",
+      "requestSent": "Sua sugestão foi enviada para análise.",
+      "requestInvalid": "Informe um título e uma descrição.",
+      "errors": {
+        "load": "Não foi possível carregar o roadmap.",
+        "vote": "Não foi possível atualizar seu voto.",
+        "request": "Não foi possível enviar sua sugestão."
+      },
       "items": {
         "desktopApp": "App desktop",
         "desktopAppDescription": "Leve o compartilhamento de tela e áudio para mais perto dos jogos que você joga.",
@@ -214,6 +231,9 @@
       "description": "Notas do trabalho que deixa o Gameplay melhor de usar, uma release por vez.",
       "search": "Buscar atualizações",
       "back": "Voltar ao changelog",
+      "loading": "Carregando atualizações...",
+      "notFound": "Não foi possível encontrar esta atualização.",
+      "errors": { "load": "Não foi possível carregar o changelog." },
       "date": "{{date}}",
       "tags": {
         "desktop": "Desktop",
@@ -765,11 +785,68 @@
       "announcements": "Avisos",
       "media": "Mídia",
       "development": "Desenvolvimento",
-      "mcp": "MCP"
+      "mcp": "MCP",
+      "public": "Public"
     },
     "search": "Buscar",
     "empty": "Nada encontrado.",
     "default": "padrão",
+    "public": {
+      "title": "Public",
+      "navigation": "Administração pública",
+      "tabs": {
+        "roadmap": "Roadmap",
+        "changelog": "Changelog",
+        "feature-requests": "Solicitações",
+        "mcp": "MCP"
+      },
+      "fields": {
+        "slug": "Slug",
+        "title": "Título",
+        "description": "Descrição",
+        "summary": "Resumo",
+        "body": "Conteúdo",
+        "version": "Versão",
+        "tags": "Tags",
+        "status": "Status",
+        "visibility": "Visibilidade",
+        "position": "Ordem",
+        "votes": "Votos",
+        "author": "Autor"
+      },
+      "visibility": { "draft": "Rascunho", "published": "Publicado", "archived": "Arquivado" },
+      "status": { "pending": "Pendente", "approved": "Aprovada", "rejected": "Rejeitada", "archived": "Arquivada" },
+      "actions": { "create": "Criar", "edit": "Editar", "archive": "Arquivar", "moderate": "Salvar moderação" },
+      "notices": {
+        "created": "Conteúdo criado.",
+        "updated": "Conteúdo atualizado.",
+        "moderated": "Solicitação atualizada."
+      },
+      "errors": { "invalidField": "Confira este campo." },
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "Gerencie os itens exibidos no roadmap público.",
+        "create": "Novo item do roadmap",
+        "edit": "Editar item do roadmap"
+      },
+      "changelog": {
+        "title": "Changelog",
+        "description": "Publique atualizações do produto no portal público.",
+        "create": "Nova entrada do changelog",
+        "edit": "Editar entrada do changelog",
+        "tagsHint": "Separe as tags por vírgula"
+      },
+      "requests": {
+        "title": "Solicitações de features",
+        "description": "Revise solicitações enviadas por usuários logados.",
+        "empty": "Ainda não há solicitações.",
+        "noRoadmap": "Sem item do roadmap"
+      },
+      "mcp": {
+        "title": "MCP do Public",
+        "description": "A automação local via MCP será conectada no ticket específico do MCP."
+      }
+    },
     "notices": {
       "suspended": "Conta suspensa.",
       "reactivated": "Conta reativada.",

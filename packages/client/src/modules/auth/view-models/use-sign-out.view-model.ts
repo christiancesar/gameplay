@@ -20,7 +20,7 @@ function useSignOutViewModel() {
       realtime.disconnect()
       telemetry.clearUser()
       queryClient.clear()
-      await navigate({ to: '/sign-in', replace: true })
+      await navigate({ to: '/', replace: true })
     },
   })
 

@@ -3,6 +3,7 @@ import {
   BugIcon,
   CableIcon,
   CpuIcon,
+  GlobeIcon,
   KeyRoundIcon,
   MegaphoneIcon,
   RadioTowerIcon,
@@ -28,6 +29,7 @@ const ICONS = {
   announcements: MegaphoneIcon,
   development: BugIcon,
   mcp: CableIcon,
+  public: GlobeIcon,
 } as const
 
 type AdminLayoutViewProps = {
