@@ -1,9 +1,11 @@
 import {
   createFeatureRequestSchema,
   featureRequestSchema,
+  listChangelogResponseSchema,
   listRoadmapResponseSchema,
   voteResponseSchema,
   type CreateFeatureRequest,
+  type ListChangelogResponse,
   type ListRoadmapResponse,
   type VoteResponse,
 } from '@gameplay/contracts'
@@ -13,6 +15,11 @@ import { http } from '@/shared/lib/http'
 async function listPublicRoadmap(): Promise<ListRoadmapResponse> {
   const { data } = await http.get('/public/roadmap')
   return listRoadmapResponseSchema.parse(data)
+}
+
+async function listPublicChangelog(): Promise<ListChangelogResponse> {
+  const { data } = await http.get('/public/changelog')
+  return listChangelogResponseSchema.parse(data)
 }
 
 async function votePublicRoadmap(itemId: string): Promise<VoteResponse> {
@@ -30,4 +37,10 @@ async function createPublicFeatureRequest(input: CreateFeatureRequest) {
   return featureRequestSchema.parse(data)
 }
 
-export { createPublicFeatureRequest, listPublicRoadmap, removePublicRoadmapVote, votePublicRoadmap }
+export {
+  createPublicFeatureRequest,
+  listPublicChangelog,
+  listPublicRoadmap,
+  removePublicRoadmapVote,
+  votePublicRoadmap,
+}

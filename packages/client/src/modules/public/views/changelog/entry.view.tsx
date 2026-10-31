@@ -22,22 +22,20 @@ function ChangelogEntryView({ entry, onBack }: ChangelogEntryViewProps) {
       </Button>
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="secondary">{entry.version}</Badge>
-        {entry.tagKeys.map((tagKey) => (
-          <Badge key={tagKey} variant="outline">
-            {t(`public.changelog.tags.${tagKey}`, { defaultValue: tagKey })}
+        {entry.tags.map((tag) => (
+          <Badge key={tag} variant="outline">
+            {tag}
           </Badge>
         ))}
       </div>
-      <h1 className="text-foreground mt-5 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">
-        {t(`public.changelog.entries.${entry.titleKey}`, { defaultValue: entry.titleKey })}
-      </h1>
+      <h1 className="text-foreground mt-5 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">{entry.title}</h1>
       <div className="text-muted-foreground mt-5 flex items-center gap-2 text-sm">
         <CalendarDays className="size-4" aria-hidden="true" />
         {t('public.changelog.date', { date: entry.date })}
       </div>
       <Separator className="my-10" />
       <div className="text-foreground text-lg leading-relaxed">
-        <p>{t(`public.changelog.entries.${entry.bodyKey}`, { defaultValue: entry.bodyKey })}</p>
+        <p>{entry.body}</p>
       </div>
     </article>
   )

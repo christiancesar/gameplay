@@ -2,10 +2,10 @@ type ChangelogEntry = {
   slug: string
   date: string
   version: string
-  titleKey: string
-  summaryKey: string
-  bodyKey: string
-  tagKeys: string[]
+  title: string
+  summary: string
+  body: string
+  tags: string[]
 }
 
 export type { ChangelogEntry }

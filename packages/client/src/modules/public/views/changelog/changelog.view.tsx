@@ -2,6 +2,7 @@ import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import type { ChangelogEntry } from '../../model/entities/changelog-entry'
+import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 
@@ -9,17 +10,40 @@ import { ChangelogEntryView } from './entry.view'
 
 type ChangelogViewProps = {
   entries: ChangelogEntry[]
+  hasError: boolean
+  isLoading: boolean
   selectedSlug?: string
   onSearchChange?: (value: string) => void
   onSelectEntry: (slug: string) => void
   onBack: () => void
 }
 
-function ChangelogView({ entries, selectedSlug, onSearchChange, onSelectEntry, onBack }: ChangelogViewProps) {
+function ChangelogView({
+  entries,
+  hasError,
+  isLoading,
+  selectedSlug,
+  onSearchChange,
+  onSelectEntry,
+  onBack,
+}: ChangelogViewProps) {
   const { t } = useTranslation()
   const selectedEntry = entries.find((entry) => entry.slug === selectedSlug)
 
   if (selectedEntry) return <ChangelogEntryView entry={selectedEntry} onBack={onBack} />
+
+  if (selectedSlug && !isLoading && !hasError) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <p role="alert" className="text-muted-foreground">
+          {t('public.changelog.notFound')}
+        </p>
+        <Button variant="ghost" className="mt-4 -ml-2" onClick={onBack}>
+          {t('public.changelog.back')}
+        </Button>
+      </main>
+    )
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
@@ -46,29 +70,35 @@ function ChangelogView({ entries, selectedSlug, onSearchChange, onSelectEntry, o
           />
         </div>
       </div>
-      <div className="mt-12 flex flex-col gap-4">
-        {entries.map((entry) => (
-          <Card key={entry.slug}>
-            <CardHeader>
-              <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
-                <span>{t('public.changelog.date', { date: entry.date })}</span>
-                <span aria-hidden="true">·</span>
-                <span>{entry.version}</span>
-              </div>
-              <CardTitle>
-                <button type="button" className="text-left hover:underline" onClick={() => onSelectEntry(entry.slug)}>
-                  {t(`public.changelog.entries.${entry.titleKey}`, { defaultValue: entry.titleKey })}
-                </button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground max-w-3xl leading-relaxed">
-                {t(`public.changelog.entries.${entry.summaryKey}`, { defaultValue: entry.summaryKey })}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {isLoading && <p className="text-muted-foreground mt-12">{t('public.changelog.loading')}</p>}
+      {hasError && (
+        <p role="alert" className="text-destructive mt-12">
+          {t('public.changelog.errors.load')}
+        </p>
+      )}
+      {!isLoading && !hasError && (
+        <div className="mt-12 flex flex-col gap-4">
+          {entries.map((entry) => (
+            <Card key={entry.slug}>
+              <CardHeader>
+                <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
+                  <span>{t('public.changelog.date', { date: entry.date })}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{entry.version}</span>
+                </div>
+                <CardTitle>
+                  <button type="button" className="text-left hover:underline" onClick={() => onSelectEntry(entry.slug)}>
+                    {entry.title}
+                  </button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground max-w-3xl leading-relaxed">{entry.summary}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </main>
   )
 }

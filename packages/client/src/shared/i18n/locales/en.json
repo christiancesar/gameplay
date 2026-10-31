@@ -231,6 +231,9 @@
       "description": "Notes from the work that makes Gameplay feel better to use, one release at a time.",
       "search": "Search updates",
       "back": "Back to changelog",
+      "loading": "Loading updates...",
+      "notFound": "This update could not be found.",
+      "errors": { "load": "We could not load the changelog." },
       "date": "{{date}}",
       "tags": {
         "desktop": "Desktop",

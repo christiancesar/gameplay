@@ -231,6 +231,9 @@
       "description": "Notas do trabalho que deixa o Gameplay melhor de usar, uma release por vez.",
       "search": "Buscar atualizações",
       "back": "Voltar ao changelog",
+      "loading": "Carregando atualizações...",
+      "notFound": "Não foi possível encontrar esta atualização.",
+      "errors": { "load": "Não foi possível carregar o changelog." },
       "date": "{{date}}",
       "tags": {
         "desktop": "Desktop",
