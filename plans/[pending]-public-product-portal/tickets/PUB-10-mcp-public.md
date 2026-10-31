@@ -22,9 +22,23 @@ Um admin ativa o MCP local explicitamente, uma ferramenta autorizada consegue op
 
 ## Checklist
 
-- [ ] Servidor MCP Public criado
-- [ ] Ferramentas de leitura criadas
-- [ ] Ferramentas de escrita criadas
-- [ ] Token e escopo implementados
-- [ ] Aba MCP integrada ao painel Public
-- [ ] Testes de autorização e revogação criados
+- [x] Servidor MCP Public criado
+- [x] Ferramentas de leitura criadas
+- [x] Ferramentas de escrita criadas
+- [x] Token e escopo implementados
+- [x] Aba MCP integrada ao painel Public
+- [x] Testes de autorização e revogação criados
+
+## Notas da execução
+
+- O MCP local existente do desktop foi estendido com um escopo opcional para os recursos Public, mantendo transporte HTTP em loopback, token temporário e revogação ao encerrar.
+- Foram adicionadas ferramentas para listar, criar e editar Roadmap e Changelog, além de listar e moderar feature requests.
+- As ferramentas Public chamam os endpoints administrativos da API usando a sessão autenticada mantida pelo Electron, sem acesso direto ao Prisma ou ao banco.
+- A aba `Public > MCP` passou a usar o controle funcional de MCP, mostrando estado, endpoint, token, configuração, ferramentas e clientes conectados.
+- O servidor permanece desligado até uma ação explícita no painel, e a versão web continua sem capacidade de iniciar o servidor local.
+- Foram adicionados testes de handshake, autorização, revogação, escopo condicional e chamada de ferramenta Public.
+- _(suposição)_ O MCP Public é disponibilizado no host Desktop, que já possui a porta local e o armazenamento de cookies da sessão; no navegador, a aba informa o estado indisponível do host.
+- _(suposição)_ As ferramentas de escrita recebem um objeto `input` validado pelos contratos compartilhados antes de chamar a API administrativa.
+- _(suposição)_ A autorização administrativa continua sendo aplicada pela sessão e pelo guard da API, enquanto o token temporário autoriza apenas o processo MCP local durante a sessão ativa.
+
+Validações executadas: `npm run repo:typecheck`, `npm run repo:lint`, `npm run repo:format-check`, `npm test -w desktop`, `npm run client:test` e `npm run web:build`.
