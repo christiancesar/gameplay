@@ -74,6 +74,23 @@ function RoadmapView({
         </h1>
         <p className="text-muted-foreground mt-5 max-w-xl text-lg leading-relaxed">{t('public.roadmap.description')}</p>
       </div>
+      <Card className="mt-8 max-w-3xl">
+        <CardHeader>
+          <CardTitle>{t('public.roadmap.requestTitle')}</CardTitle>
+          <CardDescription>{t('public.roadmap.requestDescription')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            type="button"
+            onClick={() => {
+              onRequestDialogOpen()
+              setRequestOpen(true)
+            }}
+          >
+            {t('public.roadmap.requestCta')}
+          </Button>
+        </CardContent>
+      </Card>
       {isLoading && <p className="text-muted-foreground mt-12">{t('public.roadmap.loading')}</p>}
       {hasError && (
         <p role="alert" className="text-destructive mt-12">
@@ -96,24 +113,6 @@ function RoadmapView({
           ))}
         </div>
       )}
-      <Card className="mt-12 max-w-3xl">
-        <CardHeader>
-          <CardTitle>{t('public.roadmap.requestTitle')}</CardTitle>
-          <CardDescription>{t('public.roadmap.requestDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            type="button"
-            onClick={() => {
-              onRequestDialogOpen()
-              setRequestOpen(true)
-            }}
-          >
-            {t('public.roadmap.requestCta')}
-          </Button>
-        </CardContent>
-      </Card>
-
       <Dialog open={Boolean(selectedItem)} onOpenChange={(open) => !open && setSelectedItemId(null)}>
         <DialogContent className="sm:max-w-lg">
           {selectedItem && (
