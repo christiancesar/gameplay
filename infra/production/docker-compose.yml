@@ -1,14 +1,14 @@
 # Production stack on the Lightsail instance (plans/[complete]-production-infrastructure/06-producao-aws.md).
 #
-#   browser -> Cloudflare (proxy, Full strict) -> web (nginx) :443 -> api
+#   browser -> Cloudflare (proxy, Full strict) -> web (nginx) :443 -> api -> postgres
 #
 # Web and API share one origin (gameplay.oikos.company), as in self-hosting:
 # no CORS, the session cookie stays first party. Lives in /opt/gameplay on the
 # server, next to its .env (mode 600) and the origin certificate in certs/.
 # Nothing is built here: the deploy ships both images over SSH and sets RELEASE
-# (the commit). The database is Prisma Postgres and the uploads go to S3, so
-# there are no volumes. Migrations run from the repository on the deploy
-# machine (DIRECT_URL).
+# (the commit). The database is a Postgres container with its data in the
+# postgres-data volume; the uploads go to S3. Migrations run from the repository
+# on the deploy machine, through an SSH tunnel to 127.0.0.1:5432 on the server.
 name: gameplay
 
 # The disk is 60 GB: rotate the container logs (the api logs also go to Grafana).
@@ -19,6 +19,28 @@ x-logging: &logging
     max-file: "5"
 
 services:
+  postgres:
+    # Same major version as self-hosting (infra/self-hosted).
+    image: postgres:17-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_USER: gameplay
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      POSTGRES_DB: gameplay
+    # Loopback only: the deploy reaches it through an SSH tunnel for the migrations.
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gameplay -d gameplay"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 1s
+
   api:
     image: gameplay-api:${RELEASE:?set by the deploy}
     restart: unless-stopped
@@ -28,7 +50,7 @@ services:
       NODE_ENV: production
       PORT: 3333
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      DATABASE_URL: ${DATABASE_URL:?set in .env}
+      DATABASE_URL: postgresql://gameplay:${POSTGRES_PASSWORD:?set in .env}@postgres:5432/gameplay
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set in .env}
       BETTER_AUTH_URL: ${APP_URL:?set in .env}
       REGISTRATION_KEY_SECRET: ${REGISTRATION_KEY_SECRET:?set in .env}
@@ -56,6 +78,9 @@ services:
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-gameplay-api}
       OTEL_DEPLOYMENT_ENVIRONMENT: ${OTEL_DEPLOYMENT_ENVIRONMENT:-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # The web image (apps/web/Dockerfile): nginx with the built SPA. It also
   # terminates TLS and proxies the api, Socket.IO and the monitoring tunnels.
@@ -73,15 +98,22 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - ./certs:/etc/nginx/certs:ro
+    # The static SPA served by nginx itself: the check never reaches the api or
+    # the database.
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "wget -qO- --no-check-certificate https://127.0.0.1/api/health || exit 1",
+          "wget -qO- --no-check-certificate https://127.0.0.1/ >/dev/null || exit 1",
         ]
-      interval: 10s
+      interval: 60s
       timeout: 3s
       retries: 3
+      start_period: 30s
+      start_interval: 2s
     depends_on:
       api:
         condition: service_healthy
+
+volumes:
+  postgres-data:

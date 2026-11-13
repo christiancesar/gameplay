@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "AWS region of the API and the uploads bucket. Same region as the Prisma Postgres database."
+  description = "AWS region of the API and the uploads bucket."
   type        = string
   default     = "us-east-1"
 }
