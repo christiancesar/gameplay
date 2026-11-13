@@ -32,5 +32,5 @@ terraform output -raw origin_private_key_pem      # chave do nginx
 
 - O `terraform.tfstate` fica nesta máquina, fora do git, e guarda segredos (chave do S3, chave do certificado). Faça backup dele.
 - Os updates do Windows usam o mesmo bucket de uploads, no prefixo `updates/windows`. O GitHub Actions publica ali pela Role OIDC `github_updates_role_arn`; nenhuma access key AWS fica no GitHub.
-- O IP de SSH é o desta casa (`TF_VAR_ssh_allowed_cidr`). Se a operadora trocar, atualize e rode `plan` e `apply`.
+- A porta 22 aceita qualquer IP. O acesso é só por chave (`~/.ssh/gameplay-lightsail`), sem senha.
 - `bootstrap.sh` só roda no primeiro boot da instância (instala o Docker e cria uma swap de 2 GB). Mudar o arquivo depois não recria o servidor.
