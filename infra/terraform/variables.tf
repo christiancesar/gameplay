@@ -49,12 +49,3 @@ variable "ssh_public_key_path" {
   type        = string
 }
 
-variable "ssh_allowed_cidr" {
-  description = "Only source allowed on port 22: this house's public IPv4 as /32."
-  type        = string
-
-  validation {
-    condition     = can(cidrhost(var.ssh_allowed_cidr, 0)) && !strcontains(var.ssh_allowed_cidr, ":") && endswith(var.ssh_allowed_cidr, "/32")
-    error_message = "Use one IPv4 address as /32 (curl -4 ifconfig.me)."
-  }
-}

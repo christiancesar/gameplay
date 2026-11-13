@@ -35,11 +35,13 @@ resource "aws_lightsail_static_ip_attachment" "api" {
 resource "aws_lightsail_instance_public_ports" "api" {
   instance_name = aws_lightsail_instance.api.name
 
+  # SSH open to any IP (the operator travels); access is key-only.
   port_info {
-    protocol  = "tcp"
-    from_port = 22
-    to_port   = 22
-    cidrs     = [var.ssh_allowed_cidr]
+    protocol   = "tcp"
+    from_port  = 22
+    to_port    = 22
+    cidrs      = ["0.0.0.0/0"]
+    ipv6_cidrs = ["::/0"]
   }
 
   port_info {
