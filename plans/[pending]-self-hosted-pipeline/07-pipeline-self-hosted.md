@@ -35,7 +35,7 @@ flowchart LR
   end
   G[GitHub<br/>repo público] -->|poll SCM| C
   A -->|SSH, chave de deploy| L[Lightsail<br/>/opt/gameplay]
-  A -->|DIRECT_URL| P[(Prisma Postgres)]
+  A -->|túnel SSH, POSTGRES_PASSWORD| P[(Postgres no Lightsail)]
   U[Você] -->|navegador, só local ou túnel com login| C
 ```
 
@@ -61,7 +61,7 @@ Ponto central do estudo. Cada credencial com dono, escopo mínimo e lugar certo.
 |---|---|---|
 | Chave SSH do servidor | `~/.ssh/gameplay-lightsail`, a mesma das pessoas | **Chave nova só do Jenkins** (`gameplay-ci`), ed25519, no Credentials Store do Jenkins. A pública entra no servidor pelo Ansible. A chave pessoal continua para acesso de emergência |
 | Host key do servidor | `known_hosts` desta máquina | Fixada no Jenkins (`known_hosts` como credencial ou arquivo do agent). Nunca `StrictHostKeyChecking=no` |
-| `DIRECT_URL` (migração) | `infra/production/.env` | Credencial do Jenkins (secret text) |
+| `POSTGRES_PASSWORD` (migração pelo túnel SSH e `.env` do servidor) | `infra/production/.env` | Credencial do Jenkins (secret text) |
 | Segredos da API (`BETTER_AUTH_SECRET`, chave do S3, TURN, OTEL) | `infra/production/.env` | **Ansible Vault** no repositório (arquivo cifrado), com a senha do vault como credencial do Jenkins. Alternativa: um secret file por ambiente no Jenkins |
 | `SENTRY_AUTH_TOKEN` | `.env` | Credencial do Jenkins, entra como build secret no `docker build` |
 | Senha do admin (seed) | `.env` | Só no vault; o seed roda uma vez, não a cada deploy |
@@ -71,7 +71,7 @@ Regras:
 - Segredo nunca em log: `withCredentials` mascara; nada de `set -x` em passo com segredo.
 - Nada de segredo em linha de comando no servidor (o `ps` mostra). Já é assim no `deploy.sh`.
 - Rotação: documentar como trocar cada uma (chave SSH, tokens). Rodar a rotação uma vez como exercício.
-- Revogação: se o Jenkins vazar, remover a pública `gameplay-ci` do servidor e trocar `DIRECT_URL` e tokens.
+- Revogação: se o Jenkins vazar, remover a pública `gameplay-ci` do servidor e trocar a senha do Postgres e os tokens.
 
 ## 6. Fluxo do pipeline
 
@@ -82,7 +82,7 @@ checkout -> npm ci -> [typecheck | lint | test] em paralelo
          -> ansible-playbook deploy.yml
               envia imagens (docker save | gzip | docker load)
               escreve .env (do vault), compose e nginx
-              prisma migrate deploy (DIRECT_URL)
+              prisma migrate deploy (túnel SSH até o Postgres)
               docker compose up -d --wait
               falhou: volta para o RELEASE anterior e falha o build
          -> confere https://gameplay.oikos.company/api/health
