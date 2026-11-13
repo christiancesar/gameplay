@@ -1,20 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import { CHECK_TIMEOUT_MS, withTimeout } from '../../../common/health/probe'
-import { PrismaService } from '../../../lib/prisma'
 import type { HealthReport } from '../dtos/health-report.dto'
 
-// Liveness for Docker and deploys: the process answers and reaches the
-// database. External services stay out, so their outages never restart it.
+// Liveness for Docker and deploys: answers as long as the process is up,
+// without touching the database (which bills per query). The database and
+// external services are checked by /api/health/details.
 @Injectable()
 export class CheckHealthUseCase {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async execute(): Promise<HealthReport> {
-    try {
-      await withTimeout(this.prisma.$queryRaw`SELECT 1`, CHECK_TIMEOUT_MS)
-      return { status: 'ok', database: 'up' }
-    } catch {
-      return { status: 'error', database: 'down' }
-    }
+  execute(): HealthReport {
+    return { status: 'ok' }
   }
 }
