@@ -9,6 +9,9 @@ const urlList = z.string().transform((value) =>
     .filter(Boolean),
 )
 
+// Compose passes an unset optional variable as "": treat it as unset.
+const optionalUrl = z.preprocess((value) => (value === '' ? undefined : value), z.url().optional())
+
 /**
  * The API variables, without the rules between them: other schemas pick keys
  * from it (zod refuses `pick` on a refined object).
@@ -38,9 +41,9 @@ export const apiEnvObject = z.object({
   // Base of the public image URLs: "/uploads" for local, the bucket or CDN URL for s3.
   PUBLIC_UPLOADS_URL: z.string().default('/uploads'),
   // S3 origin for the Windows Squirrel feed, without the channel suffix. The API proxies it.
-  WINDOWS_UPDATE_FEED_BASE_URL: z.url().optional(),
+  WINDOWS_UPDATE_FEED_BASE_URL: optionalUrl,
   // S3 origin for the public release catalog and downloadable desktop artifacts, without the stable suffix.
-  DOWNLOADS_BASE_URL: z.url().optional(),
+  DOWNLOADS_BASE_URL: optionalUrl,
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().default('auto'),
   // Only for non-AWS providers (R2, an S3 mock).

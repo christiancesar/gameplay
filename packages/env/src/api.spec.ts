@@ -30,6 +30,13 @@ describe('validateApiEnv', () => {
     })
   })
 
+  it('treats an empty feed or downloads URL as unset', () => {
+    const env = validateApiEnv({ ...required, WINDOWS_UPDATE_FEED_BASE_URL: '', DOWNLOADS_BASE_URL: '' })
+
+    expect(env.WINDOWS_UPDATE_FEED_BASE_URL).toBeUndefined()
+    expect(env.DOWNLOADS_BASE_URL).toBeUndefined()
+  })
+
   it('requires the credentials of the chosen ICE provider', () => {
     expect(() => validateApiEnv({ ...required, ICE_PROVIDER: 'cloudflare' })).toThrow(/CLOUDFLARE_TURN_KEY_ID/)
     expect(() => validateApiEnv({ ...required, ICE_PROVIDER: 'coturn' })).toThrow(/COTURN_URLS[\s\S]*COTURN_SECRET/)

@@ -50,7 +50,7 @@ x-api-env: &api-env
 
 services:
   postgres:
-    # Same major version as production (Prisma Postgres runs 17).
+    # Same major version as production (infra/production).
     image: postgres:17-alpine
     restart: unless-stopped
     logging: *logging

@@ -2,7 +2,7 @@
 
 Cria a infraestrutura de produção descrita em `plans/[complete]-production-infrastructure/06-producao-aws.md`: Lightsail (web e API), bucket S3 dos uploads com o usuário IAM da API, registro DNS `gameplay.oikos.company` na Cloudflare e o certificado de origem do nginx. Roda desta máquina; nada roda pelo GitHub.
 
-O que fica fora: o banco (Prisma Postgres, criado no Console) e as configurações da zona `oikos.company` (compartilhada com outros projetos; o modo SSL já é Full (strict)). O web roda no mesmo Lightsail que a API (`infra/production`).
+O que fica fora: as configurações da zona `oikos.company` (compartilhada com outros projetos; o modo SSL já é Full (strict)). O web e o banco (container Postgres) rodam no mesmo Lightsail que a API (`infra/production`).
 
 ## Uso
 

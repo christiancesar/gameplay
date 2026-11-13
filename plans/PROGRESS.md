@@ -31,6 +31,7 @@ Este arquivo é o índice geral dos planos. O detalhamento, os checklists e as n
 
 ## Entregas recentes
 
+- 2026-11-13: banco de produção saiu do Prisma Postgres (limite do Free estourado pelos healthchecks) para um Postgres 17 em container no Lightsail, vazio e ainda sem backup.
 - Portal público com Home, Downloads, Roadmap e Changelog funcionando em rotas reais.
 - Conteúdo público persistido no banco, com gerenciamento administrativo de roadmap, changelog e solicitações de features.
 - Roadmap público com votos, modal de detalhes e solicitação de feature para usuários autenticados.

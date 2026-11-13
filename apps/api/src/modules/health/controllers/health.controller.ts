@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common'
-import { ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger'
 import { SkipThrottle } from '@nestjs/throttler'
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth'
 import type { Response } from 'express'
@@ -19,14 +19,15 @@ export class HealthController {
     private readonly checkHealthDetails: CheckHealthDetailsUseCase,
   ) {}
 
-  // A failing check is a report, not an error: same body, status 503.
+  // Liveness only: always 200 while the process answers, no database access.
   @Get()
+  @ApiOperation({
+    summary: 'Process liveness',
+    description: 'For Docker healthchecks and deploys. Does not query the database; use /api/health/details for that.',
+  })
   @ZodResponse({ status: HttpStatus.OK, type: HealthReportDto })
-  @ApiServiceUnavailableResponse({ type: HealthReportDto.Output })
-  async handle(@Res({ passthrough: true }) res: Response): Promise<HealthReport> {
-    const report = await this.checkHealth.execute()
-    if (report.status !== 'ok') res.status(HttpStatus.SERVICE_UNAVAILABLE)
-    return report
+  handle(): HealthReport {
+    return this.checkHealth.execute()
   }
 
   // 503 only on an outage; a degraded app still answers 200.

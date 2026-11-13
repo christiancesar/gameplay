@@ -13,30 +13,32 @@ describe('GET /api/health (e2e)', () => {
     await app.close()
   })
 
-  it('answers 200 when the database is up', async () => {
+  it('answers 200 while the process is up', async () => {
     app = await createTestApp()
     await resetDatabase(app.get(PrismaService))
 
     const response = await request(app.getHttpServer()).get('/api/health')
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ status: 'ok', database: 'up' })
+    expect(response.body).toEqual({ status: 'ok' })
     expect(response.headers['x-request-id']).toBeDefined()
   })
 
-  it('answers 503 when the database is down', async () => {
+  it('never queries the database, so it still answers 200 when the database is down', async () => {
+    const queryRaw = vi.fn(() => Promise.reject(new Error('connection refused')))
     app = await createTestApp({
       override: (builder) =>
         builder.overrideProvider(PrismaService).useValue({
-          $queryRaw: () => Promise.reject(new Error('connection refused')),
+          $queryRaw: queryRaw,
           $disconnect: () => Promise.resolve(),
         }),
     })
 
     const response = await request(app.getHttpServer()).get('/api/health')
 
-    expect(response.status).toBe(503)
-    expect(response.body).toEqual({ status: 'error', database: 'down' })
+    expect(response.status).toBe(200)
+    expect(response.body).toEqual({ status: 'ok' })
+    expect(queryRaw).not.toHaveBeenCalled()
   })
 })
 

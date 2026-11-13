@@ -2,6 +2,8 @@
 
 > Plano concluído em 2026-10-30. A infraestrutura principal foi provisionada com Terraform, publicada e validada em produção. Os itens de otimização futura estão identificados separadamente neste documento.
 
+> **Atualização em 2026-11-13: banco trocado.** O Prisma Postgres Free chegou ao `planLimitReached`. A causa foram os dois healthchecks do Docker (API e web) rodando `SELECT 1` a cada 10 segundos, cerca de 513 mil operações por mês, acima das 200 mil do plano. O banco agora é um Postgres 17 em container no próprio Lightsail (`infra/production/docker-compose.yml`, volume `postgres-data`), começando vazio, sem importar os dados antigos. As migrações rodam pelo `deploy.sh` através de um túnel SSH, e o healthcheck da API não consulta mais o banco. Ainda não há backup: perder o disco da instância perde os dados. As menções ao Prisma Postgres abaixo ficam como registro da decisão original.
+
 ## 1. Contexto
 
 O host em casa (`infra/self-hosted`, Cloudflare Tunnel) não sustenta transmissão para mais de um espectador. Em mesh, quem transmite codifica e sobe uma cópia para cada espectador; no teste com dois, a imagem caiu para 408p e 30 fps instável. Transformar o PC em SFU não resolve: o upload da casa passaria a mandar as N cópias, e o túnel da Cloudflare não passa UDP.

@@ -52,6 +52,6 @@ COPY plans/[[]pending]-features/features.json ./plans/[pending]-features/feature
 RUN mkdir -p /data/uploads && chown -R node:node /data
 USER node
 EXPOSE 3333
-HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=60s --timeout=3s --start-period=30s --start-interval=2s --retries=3 \
   CMD wget -qO- http://127.0.0.1:${PORT:-3333}/api/health || exit 1
 CMD ["node", "apps/api/dist/main"]

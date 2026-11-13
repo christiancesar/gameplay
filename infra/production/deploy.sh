@@ -5,7 +5,7 @@
 #   1. checks: the app code is committed, typecheck, lint and tests pass
 #   2. builds gameplay-api and gameplay-web here, tagged with the commit
 #   3. ships both images over SSH (docker save | gzip | docker load)
-#   4. migrates the database from the repository (DIRECT_URL)
+#   4. starts postgres and migrates it from the repository, through an SSH tunnel
 #   5. starts the new release; goes back to the previous one if it fails
 #   6. seeds the platform admin (idempotent) and checks the public URL
 #   7. tags the commit (deploy-YYYYMMDD-HHMM), locally
@@ -17,9 +17,9 @@ ENV_FILE="$PROD_DIR/.env"
 REMOTE_DIR=/opt/gameplay
 
 # Variables the server needs (see docker-compose.yml). The rest of .env (deploy
-# target, DIRECT_URL, admin password, Sentry token) stays on this machine.
+# target, admin password, Sentry token) stays on this machine.
 SERVER_KEYS=(
-  LOG_LEVEL DOCS_ENABLED DATABASE_URL APP_URL BETTER_AUTH_SECRET REGISTRATION_KEY_SECRET
+  LOG_LEVEL DOCS_ENABLED POSTGRES_PASSWORD APP_URL BETTER_AUTH_SECRET REGISTRATION_KEY_SECRET
   S3_REGION S3_BUCKET S3_ACCESS_KEY_ID S3_SECRET_ACCESS_KEY PUBLIC_UPLOADS_URL WINDOWS_UPDATE_FEED_BASE_URL DOWNLOADS_BASE_URL
   ICE_PROVIDER CLOUDFLARE_TURN_KEY_ID CLOUDFLARE_TURN_API_TOKEN
   CLOUDFLARE_SFU_APP_ID CLOUDFLARE_SFU_APP_TOKEN CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_ANALYTICS_TOKEN
@@ -51,9 +51,14 @@ for arg in "$@"; do
 done
 
 [ -f "$ENV_FILE" ] || die "$ENV_FILE is missing (cp .env.example .env)"
-for key in DEPLOY_SSH_HOST DEPLOY_SSH_USER DEPLOY_SSH_KEY DIRECT_URL APP_URL ADMIN_EMAIL ADMIN_USERNAME ADMIN_PASSWORD; do
+for key in DEPLOY_SSH_HOST DEPLOY_SSH_USER DEPLOY_SSH_KEY POSTGRES_PASSWORD APP_URL ADMIN_EMAIL ADMIN_USERNAME ADMIN_PASSWORD; do
   [ -n "$(get_var "$key")" ] || die "$key is empty in $ENV_FILE"
 done
+
+# Goes into postgresql:// URLs as is: hex (openssl rand -hex 24) needs no encoding.
+POSTGRES_PASSWORD="$(get_var POSTGRES_PASSWORD)"
+[[ "$POSTGRES_PASSWORD" =~ ^[A-Za-z0-9]+$ ]] ||
+  die "POSTGRES_PASSWORD must be letters and digits only (openssl rand -hex 24)"
 
 SSH_KEY="$(get_var DEPLOY_SSH_KEY)"
 SSH_KEY="${SSH_KEY/#\~/$HOME}"
@@ -124,7 +129,22 @@ remote "mv $REMOTE_DIR/.env.next $REMOTE_DIR/.env"
 # Before the new api starts: migrations must keep working with the release that
 # is still running (add, never drop or rename in the same deploy).
 step "Migrating the database"
-(cd apps/api && DATABASE_URL="$(get_var DIRECT_URL)" npx prisma migrate deploy)
+remote "cd $REMOTE_DIR && docker compose up -d --wait postgres"
+# Postgres listens on the server's loopback only: reach it through an SSH
+# tunnel, closed on exit through its control socket.
+TUNNEL_DIR="$(mktemp -d)"
+TUNNEL_SOCKET="$TUNNEL_DIR/ssh.sock"
+close_tunnel() {
+  [ -S "$TUNNEL_SOCKET" ] && ssh -S "$TUNNEL_SOCKET" -O exit "$SSH_TARGET" >/dev/null 2>&1 || true
+  rm -rf "$TUNNEL_DIR"
+}
+trap close_tunnel EXIT
+TUNNEL_PORT="$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')"
+ssh -i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=15 -o ExitOnForwardFailure=yes \
+  -M -S "$TUNNEL_SOCKET" -fN -L "$TUNNEL_PORT:127.0.0.1:5432" "$SSH_TARGET"
+(cd apps/api && DATABASE_URL="postgresql://gameplay:$POSTGRES_PASSWORD@127.0.0.1:$TUNNEL_PORT/gameplay" npx prisma migrate deploy)
+close_tunnel
+trap - EXIT
 
 step "Starting $RELEASE"
 if ! remote "cd $REMOTE_DIR && docker compose up -d --wait --remove-orphans"; then
